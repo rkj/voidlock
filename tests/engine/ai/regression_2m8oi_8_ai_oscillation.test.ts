@@ -592,4 +592,154 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
     expect(unit.activePlan!.committedUntil).toBeGreaterThan(initialCommittedUntil);
     expect(unit.activePlan!.committedUntil).toBeGreaterThanOrEqual(engine.getState().t);
   });
+
+  it("8) Higher-priority behavior interrupts lower-priority plan regardless of commitment", () => {
+    // 1. Setup Unit with a manual Exploration Plan (Priority 4)
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 0.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        speed: 20,
+      },
+      aiProfile: AIProfile.RUSH,
+      commandQueue: [],
+      engagementPolicy: "ENGAGE",
+      archetypeId: "test",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      positionHistory: [],
+      aiEnabled: true,
+      innateMaxHp: 100,
+      isDeployed: true,
+      activePlan: {
+        behavior: "Exploring",
+        goal: { x: 9.5, y: 9.5 },
+        committedUntil: engine.getState().t + 5000,
+        priority: 4,
+      }
+    });
+
+    const internalState = (engine as any).state;
+    const unitManager = (engine as any).unitManager;
+
+    // 2. Setup an enemy that IS ALREADY tracked as visible to avoid invalidation trigger (hasNewEnemy)
+    engine.addEnemy({
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 4.5, y: 0.5 }, 
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 1000,
+      accuracy: 100,
+      attackRange: 1,
+      speed: 0,
+      difficulty: 1,
+    });
+    
+    // Mark enemy cell as visible
+    internalState.gridState[4] |= 3;
+    
+    // Inject into lastVisibleEnemyIds to prevent hasNewEnemy invalidation in next update
+    unitManager.lastVisibleEnemyIds = new Set(["e1"]);
+    const initialCommittedUntil = engine.getState().units[0].activePlan!.committedUntil;
+
+    // 3. Update. UnitAI.process should re-evaluate because priority 2 (Combat) < 4 (Exploration)
+    // Even though the plan is committed until +5000ms.
+    engine.update(16);
+    const unit = engine.getState().units[0];
+    
+    // VERIFICATION: Exploration (4) was interrupted by Rushing (2)
+    expect(unit.activePlan?.behavior).toBe("Rushing");
+    expect(unit.activePlan?.priority).toBe(2);
+    expect(engine.getState().t).toBeLessThan(initialCommittedUntil);
+  });
+
+  it("9) Safety behavior (Priority 0) interrupts Combat plan (Priority 2) regardless of commitment", () => {
+    // 1. Setup Unit with a manual Combat Plan (Priority 2)
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 0.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        speed: 20,
+      },
+      aiProfile: AIProfile.RUSH,
+      commandQueue: [],
+      engagementPolicy: "AVOID", // Use AVOID so SafetyBehavior kicks in
+      archetypeId: "test",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      positionHistory: [],
+      aiEnabled: true,
+      innateMaxHp: 100,
+      isDeployed: true,
+      activePlan: {
+        behavior: "Rushing",
+        goal: { x: 4.5, y: 0.5 },
+        committedUntil: engine.getState().t + 5000,
+        priority: 2,
+      }
+    });
+
+    const internalState = (engine as any).state;
+    const unitManager = (engine as any).unitManager;
+
+    // 2. Setup an enemy that IS ALREADY tracked as visible to avoid invalidation trigger
+    engine.addEnemy({
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 1.5, y: 0.5 }, // Enemy is close!
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 1000,
+      accuracy: 100,
+      attackRange: 1,
+      speed: 0,
+      difficulty: 1,
+    });
+    
+    // Mark enemy cell as visible
+    internalState.gridState[1] |= 3;
+    
+    // Inject into lastVisibleEnemyIds to prevent allVisibleEnemiesGone invalidation
+    unitManager.lastVisibleEnemyIds = new Set(["e1"]);
+    const initialCommittedUntil = engine.getState().units[0].activePlan!.committedUntil;
+
+    // Discover cells for kiting
+    for (let x = 0; x < 10; x++) {
+      internalState.gridState[x] |= 2; 
+    }
+
+    // 3. Update. UnitAI.process should re-evaluate because priority 0 (Safety) < 2 (Combat)
+    engine.update(16);
+    const unit = engine.getState().units[0];
+    
+    // VERIFICATION: Rushing (2) was interrupted by Kiting (0)
+    expect(unit.activePlan?.behavior).toBe("Kiting");
+    expect(unit.activePlan?.priority).toBe(0);
+    expect(engine.getState().t).toBeLessThan(initialCommittedUntil);
+  });
 });

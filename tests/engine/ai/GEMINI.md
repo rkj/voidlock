@@ -10,7 +10,7 @@ Tests for autonomous behavior logic. Includes tests for exploration, objective p
 - `SoldierCoreAI.test.ts`, `SoldierExplorationAI.test.ts`: Tests for autonomous soldier behaviors.
 - `CoordinatedExploration.test.ts`, `CoordinatedObjectives.test.ts`: Tests for multi-unit coordination.
 - `regression_v5n8_opportunistic_loot.test.ts`: Regression test for autonomous loot and objective pickup.
-- `regression_2m8oi_8_ai_oscillation.test.ts`: Regression test for AI oscillation and plan commitment (ADR 0056). Includes rigorous anti-backtracking verification with multiple valid candidates and wider area discovery.
+- `regression_2m8oi_8_ai_oscillation.test.ts`: Regression test for AI oscillation and plan commitment (ADR 0056). Includes rigorous anti-backtracking verification, priority-based plan interruption, and plan expiry re-evaluation.
 
 ## Related ADRs
 
