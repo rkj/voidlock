@@ -21,6 +21,11 @@ import { CommandBuilder } from "./controllers/CommandBuilder";
 import { TargetOverlayGenerator } from "./controllers/TargetOverlayGenerator";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
+import { Logger } from "@src/shared/Logger";
+
+export interface ITutorialManager {
+  isActionAllowed(action: string): boolean;
+}
 
 export interface RenderableMenuOption {
   key: string;
@@ -43,6 +48,7 @@ export class MenuController {
   private selection = new SelectionManager();
   private discovery = new RoomDiscoveryManager();
   private lastFullMap: MapDefinition | null = null;
+  private tutorialManager: ITutorialManager | null = null;
 
   public get menuState(): MenuState {
     return this.stateMachine.state;
@@ -116,6 +122,15 @@ export class MenuController {
 
   constructor(private client: { applyCommand: (cmd: Command) => void }) {}
 
+  public setTutorialManager(manager: ITutorialManager) {
+    this.tutorialManager = manager;
+  }
+
+  public isActionAllowed(action: string): boolean {
+    if (!this.tutorialManager) return true;
+    return this.tutorialManager.isActionAllowed(action);
+  }
+
   public reset() {
     this.stateMachine.reset();
     this.selection.reset();
@@ -138,6 +153,10 @@ export class MenuController {
   }
 
   public selectUnit(unitId: string) {
+    if (this.tutorialManager && !this.tutorialManager.isActionAllowed("SELECT_UNIT")) {
+      return;
+    }
+
     if (
       this.stateMachine.state === "UNIT_SELECT" &&
       this.selection.pendingAction
@@ -158,6 +177,9 @@ export class MenuController {
           u.state !== UnitState.Extracted,
       );
       if (unitAtCell) {
+        if (this.tutorialManager && !this.tutorialManager.isActionAllowed("SELECT_UNIT")) {
+          return;
+        }
         this.executePendingCommand([unitAtCell.id]);
         return;
       }
@@ -206,6 +228,41 @@ export class MenuController {
     if (key === "0" || key === "q") {
       this.goBack();
       return;
+    }
+
+    // Check tutorial gating for the specific input
+    if (this.tutorialManager) {
+      const config = MENU_CONFIG[this.stateMachine.state];
+      if (config) {
+        let option: MenuOptionDefinition | undefined;
+        
+        if (this.stateMachine.state === "ITEM_SELECT") {
+          const items = Object.entries(gameState.squadInventory).filter(([_, count]) => count > 0);
+          const num = parseInt(key);
+          if (!isNaN(num) && num > 0 && num <= items.length) {
+            if (!this.tutorialManager.isActionAllowed(CommandType.USE_ITEM)) {
+               Logger.warn(`Tutorial: USE_ITEM is currently blocked.`);
+               return;
+            }
+          }
+        } else if (this.stateMachine.state === "UNIT_SELECT") {
+           if (!this.tutorialManager.isActionAllowed("SELECT_UNIT")) {
+              Logger.warn(`Tutorial: SELECT_UNIT is currently blocked.`);
+              return;
+           }
+        } else if (this.stateMachine.state === "TARGET_SELECT") {
+           if (this.selection.pendingAction && !this.tutorialManager.isActionAllowed(this.selection.pendingAction)) {
+              Logger.warn(`Tutorial: ${this.selection.pendingAction} is currently blocked.`);
+              return;
+           }
+        } else {
+          option = config.options.find((o) => o.key.toString() === key);
+          if (option && !this.isActionAllowedInTutorial(option)) {
+            Logger.warn(`Tutorial: Option ${option.label} is currently blocked.`);
+            return;
+          }
+        }
+      }
     }
 
     switch (this.stateMachine.state) {
@@ -590,6 +647,10 @@ export class MenuController {
           disabled = !hasVisibleEnemies;
         }
 
+        if (this.tutorialManager && !this.tutorialManager.isActionAllowed(CommandType.USE_ITEM)) {
+          disabled = true;
+        }
+
         return {
           key: (idx + 1).toString(),
           label: `${idx + 1}. ${item?.name || itemId} (${count})`,
@@ -648,9 +709,15 @@ export class MenuController {
         const key = result.options.length + 1;
         const displayName = u.name || u.id;
 
+        let disabled = false;
+        if (this.tutorialManager && !this.tutorialManager.isActionAllowed("SELECT_UNIT")) {
+          disabled = true;
+        }
+
         result.options.push({
           key: key.toString(),
           label: `${key}. ${displayName} (${tacticalNumber})`,
+          disabled,
           dataAttributes: { index: key.toString(), "unit-id": u.id },
         });
       });
@@ -659,9 +726,15 @@ export class MenuController {
       const isPickup = this.selection.pendingAction === CommandType.PICKUP;
 
       if (!isPickup) {
+        let disabled = false;
+        if (this.tutorialManager && !this.tutorialManager.isActionAllowed("SELECT_UNIT")) {
+          disabled = true;
+        }
+
         result.options.push({
           key: allUnitsKey.toString(),
           label: `${allUnitsKey}. All Units`,
+          disabled,
           dataAttributes: { index: allUnitsKey.toString(), "unit-id": "ALL" },
         });
       }
@@ -682,6 +755,10 @@ export class MenuController {
     option: MenuOptionDefinition,
     gameState: GameState,
   ): boolean {
+    if (this.tutorialManager && !this.isActionAllowedInTutorial(option)) {
+      return true;
+    }
+
     if (option.commandType === CommandType.USE_ITEM) {
       const availableItems = Object.entries(gameState.squadInventory).filter(
         ([itemId, count]) => {
@@ -723,7 +800,44 @@ export class MenuController {
     return false;
   }
 
+  private isActionAllowedInTutorial(option: MenuOptionDefinition): boolean {
+    if (!this.tutorialManager) return true;
+
+    if (option.commandType) {
+      return this.tutorialManager.isActionAllowed(option.commandType);
+    }
+
+    if (option.type === "TRANSITION" && option.nextState) {
+      const nextConfig = MENU_CONFIG[option.nextState];
+      if (nextConfig && nextConfig.options) {
+        // A transition is allowed if ANY of its child options (excluding BACK) are allowed
+        // Note: For dynamic states like ITEM_SELECT, we check the base command type
+        if (option.nextState === "ITEM_SELECT") {
+          return this.tutorialManager.isActionAllowed(CommandType.USE_ITEM);
+        }
+        if (option.nextState === "UNIT_SELECT") {
+          return this.tutorialManager.isActionAllowed("SELECT_UNIT");
+        }
+        return nextConfig.options.some((opt) => opt.type !== "BACK" && this.isActionAllowedInTutorial(opt));
+      }
+    }
+
+    if (option.type === "MODE") {
+      return this.tutorialManager.isActionAllowed(CommandType.SET_ENGAGEMENT);
+    }
+
+    if (option.type === "BACK") return true;
+
+    return true;
+  }
+
   private executePendingCommand(unitIds: string[]) {
+    if (this.selection.pendingAction && this.tutorialManager && !this.tutorialManager.isActionAllowed(this.selection.pendingAction)) {
+      Logger.warn(`Tutorial: Execution of ${this.selection.pendingAction} is currently blocked.`);
+      this.reset();
+      return;
+    }
+
     const command = CommandBuilder.build(
       {
         action: this.selection.pendingAction,

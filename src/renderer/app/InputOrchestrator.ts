@@ -141,6 +141,10 @@ export class InputOrchestrator {
       return;
     }
 
+    if (!this.menuController.isActionAllowed("SELECT_UNIT")) {
+      return;
+    }
+
     if (this.menuController.menuState === "UNIT_SELECT") {
       this.menuController.selectUnit(unit.id);
       const state = this.missionRunner.getCurrentGameState();

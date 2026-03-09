@@ -136,6 +136,7 @@ export class AppServiceRegistry {
       this.uiOrchestrator,
       () => config.getRenderer(),
     );
+    this.menuController.setTutorialManager(this.tutorialManager);
     this.tutorialManager.enable();
 
     this.missionSetupManager = new MissionSetupManager(

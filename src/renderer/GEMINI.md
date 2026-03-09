@@ -9,7 +9,7 @@ Main thread rendering logic and user interface for Voidlock.
 - `ConfigManager.ts`: Persistent game configuration in LocalStorage.
 - `InputDispatcher.ts`: Centralized keyboard/mouse/touch event dispatcher with priority-based handling (ADR 0037).
 - `InputManager.ts`: Tactical input context — shortcuts, mouse/touch interactions, drag-and-drop deployment (ADR 0038).
-- `MenuController.ts`: Tactical command menu orchestration.
+- `MenuController.ts`: Tactical command menu orchestration. Implements **Tutorial Input Gating**, restricting allowed actions based on the current tutorial step in the prologue. Disabled options are automatically dimmed and non-interactive.
 - `Renderer.ts`: Layered rendering compositor (ADR 0018).
 - `ScreenManager.ts`: Screen transitions, history, URL hash sync.
 - `jsx.ts` / `jsx-types.d.ts`: Custom JSX factory for Vanilla TSX (ADR 0051).
