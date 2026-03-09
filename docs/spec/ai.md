@@ -31,7 +31,7 @@ Units operate on committed plans, not per-tick decisions. A plan is a behavior +
   - Path becomes blocked
   - Manual player command issued
 - **Priority Interrupts:** A higher-priority behavior (Safety > Interaction > Combat > Objective > Exploration) can always interrupt a lower-priority plan. A same-or-lower priority behavior cannot override an active plan until the commitment expires or a re-evaluation trigger fires.
-- **Anti-Backtracking:** A unit MUST NOT select a goal that would require revisiting its recent path (last 4-6 cells), unless it is a transitory cell on an A*-planned route to a distant goal, or the unit is cornered with no forward options.
+- **Anti-Backtracking:** A unit MUST NOT select a goal that would require revisiting its recent path (last 4-6 cells), unless it is a transitory cell on an A\*-planned route to a distant goal, or the unit is cornered with no forward options.
 
 **2.1 Engagement Policies:**
 

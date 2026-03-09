@@ -3,6 +3,7 @@
 This folder contains a 7-stage pipeline for generating an end-to-end development timeline video from git history.
 
 Design goal:
+
 - Capture from project inception to current `HEAD`.
 - Support unstable UI evolution across commits.
 - Separate data-generation stages from render stages.
@@ -11,12 +12,12 @@ Design goal:
 ## Stage Order
 
 1. `timeline_manifest.ts`
-2. `analyze_timeline_navigation.ts`
-3. `analyze_screen_topology_changes.ts`
-4. `plan_navigation_playbooks.ts`
-5. `capture_timeline.ts`
-6. `analyze_timeline_frames.ts`
-7. `render_timeline.ts`
+1. `analyze_timeline_navigation.ts`
+1. `analyze_screen_topology_changes.ts`
+1. `plan_navigation_playbooks.ts`
+1. `capture_timeline.ts`
+1. `analyze_timeline_frames.ts`
+1. `render_timeline.ts`
 
 ## Run Modes
 
@@ -51,6 +52,7 @@ Codex-planned pipeline:
 ```
 
 This wraps `run.sh` with:
+
 - `PLAYBOOK_PROVIDER=codex`
 - `PLAYBOOK_EXECUTE=true`
 - `PLAYBOOK_AGENT_CMD='bash scripts/timeline/provider_codex.sh {PROMPT_FILE} {OUTPUT_FILE}'`
@@ -79,15 +81,19 @@ npm run timeline:render -- --frame-index timeline/frame_index.json --output time
 ### 1) `timeline_manifest.ts`
 
 Purpose:
+
 - Enumerate commits from git log and write milestone rows for downstream processing.
 
 Inputs:
+
 - Git history.
 
 Outputs:
+
 - `timeline/manifest.json`.
 
 Arguments:
+
 - `--manifest` or `--out` (default `timeline/manifest.json`)
 - `--mode` (`all` or `visual`, default `all`)
 - `--max-count` (`0` means unlimited/all)
@@ -96,26 +102,32 @@ Arguments:
 - `--sample-offset` start index for sampling stride (default `0`)
 
 Notes:
+
 - `--mode all` currently writes all commits (subject to `--max-count`).
 - `--mode visual` applies visual-commit filtering + milestone selection heuristics.
 
 ### 2) `analyze_timeline_navigation.ts`
 
 Purpose:
+
 - For each manifest commit, inspect HTML/code in a git worktree and infer screen/action IDs.
 
 Inputs:
+
 - `timeline/manifest.json`
 
 Outputs:
+
 - `timeline/navigation_map.json`
 
 Arguments:
+
 - `--manifest` (default `timeline/manifest.json`)
 - `--navigation-map` or `--out` (default `timeline/navigation_map.json`)
 - `--max-count` (`0` means all manifest rows)
 
 Implementation details:
+
 - Uses `.timeline/worktrees/analyzer`.
 - Extracts `id="..."` from HTML and `btn-*` literals from selected code files.
 - Produces `targets` for canonical screen names: `mission`, `main_menu`, `config`, `campaign`.
@@ -123,16 +135,20 @@ Implementation details:
 ### 3) `analyze_screen_topology_changes.ts`
 
 Purpose:
+
 - Convert per-commit nav IDs into topology change events and eras.
 
 Inputs:
+
 - `timeline/manifest.json`
 - `timeline/navigation_map.json`
 
 Outputs:
+
 - `timeline/screen_topology_changes.json`
 
 Arguments:
+
 - `--manifest` (default `timeline/manifest.json`)
 - `--navigation-map` (default `timeline/navigation_map.json`)
 - `--topology` or `--out` (default `timeline/screen_topology_changes.json`)
@@ -140,18 +156,22 @@ Arguments:
 ### 3.5) `era_manifest.ts`
 
 Purpose:
+
 - Build a validation manifest from:
 - topology era starts
 - first and last commit of each calendar month (anchor commits)
 
 Inputs:
+
 - `timeline/manifest.json`
 - `timeline/screen_topology_changes.json`
 
 Outputs:
+
 - `/tmp/manifest_eras.json` (or custom path)
 
 Arguments:
+
 - `--manifest` (default `timeline/manifest.json`)
 - `--topology` (default `timeline/screen_topology_changes.json`)
 - `--out` (default `/tmp/manifest_eras.json`)
@@ -159,13 +179,16 @@ Arguments:
 ### 4) `plan_navigation_playbooks.ts`
 
 Purpose:
+
 - Generate per-era navigation plans (playbooks) for capture stage.
 
 Inputs:
+
 - `timeline/screen_topology_changes.json`
 - `timeline/navigation_map.json`
 
 Outputs:
+
 - `timeline/navigation_playbooks.json`
 - `timeline/ui_elements.jsonl`
 - `timeline/commit_playbooks.jsonl` (static commit -> actions DB)
@@ -173,6 +196,7 @@ Outputs:
 - Optional `timeline/playbook_outputs/*.json` (when external agent is executed)
 
 Arguments:
+
 - `--manifest` (default `timeline/manifest.json`)
 - `--topology` (default `timeline/screen_topology_changes.json`)
 - `--navigation-map` (default `timeline/navigation_map.json`)
@@ -184,12 +208,14 @@ Arguments:
 - `--agent-cmd` (or env `TIMELINE_AGENT_CMD`)
 
 Heuristic mode:
+
 - Deterministic/local playbook generation.
 - Click-only steps derived from extracted commit-era IDs (`allIds`, `actionIds`, `targets`).
 - Handles common renames (`btn-launch-mission`, `btn-start-mission`, `btn-menu-custom`, etc.).
 - If the era flow signature is unchanged from previous era (action IDs/buttons/targets), the previous era playbook is reused and external agent execution is skipped.
 
 External agent mode:
+
 - Command must accept placeholders `{PROMPT_FILE}` and `{OUTPUT_FILE}`.
 - Expected output JSON keys: `strategy`, `notes`, `actions`.
 - External provider output is treated as a proposal and sanitized before use:
@@ -201,19 +227,23 @@ External agent mode:
 ### 5) `capture_timeline.ts`
 
 Purpose:
+
 - Checkout each commit, run Vite, navigate with Puppeteer, and write raw screenshots.
 
 Inputs:
+
 - `timeline/manifest.json`
 - Optional `timeline/navigation_map.json`
 - Optional `timeline/navigation_playbooks.json`
 - Optional `timeline/commit_playbooks.jsonl` (preferred exact actions per commit)
 
 Outputs:
+
 - `screenshots/<stamp>_<screen>_<sha7>.png`
 - Manifest rows updated with `captureStatus`, `captureReason`, `actualCommitUsed`
 
 Arguments:
+
 - `--manifest` (default `timeline/manifest.json`)
 - `--screenshots` (default `screenshots`)
 - `--port` (default `6080`)
@@ -233,15 +263,18 @@ Arguments:
 - `--mission-allowlist` text file of SHA prefixes allowed to miss mission (default `timeline/mission_allowlist.txt`)
 
 Viewport:
+
 - Fixed at `1440x900` for deterministic framing across commits.
 
 Capture targets and quadrants:
+
 - `1`: `mission`
 - `2`: `main_menu`
 - `3`: `config`
 - `4`: `campaign`
 
 Health checks:
+
 - Deterministic startup protocol:
 - start/reuse server for commit
 - wait for both: open port and dev-server readiness signal from logs (`ready in`, `Local:`, `listening on`)
@@ -264,16 +297,20 @@ Health checks:
 ### 5.5) `compile_commit_playbooks.ts`
 
 Purpose:
+
 - Rebuild exact `commit -> actions` rows from an existing `navigation_playbooks.json` without regenerating plans.
 
 Inputs:
+
 - `timeline/manifest.json`
 - `timeline/navigation_playbooks.json`
 
 Outputs:
+
 - `timeline/commit_playbooks.jsonl`
 
 Arguments:
+
 - `--manifest` (default `timeline/manifest.json`)
 - `--playbooks` (default `timeline/navigation_playbooks.json`)
 - `--commit-playbooks-jsonl` (default `timeline/commit_playbooks.jsonl`)
@@ -281,25 +318,30 @@ Arguments:
 ### 6) `analyze_timeline_frames.ts`
 
 Purpose:
+
 - Convert raw screenshots into normalized quadrant images + composite frames.
 - Deduplicate exact/near-identical frames.
 - Use adaptive composition: 1-up (early), 2-up, then 4-up as more screens appear.
 
 Inputs:
+
 - `timeline/manifest.json`
 - `screenshots/`
 
 Outputs:
+
 - `timeline/frames/quadrants/<stamp>_<sha7>_<1|2|3|4>.png`
 - `timeline/frames/composite/<stamp>_<sha7>.png`
 - `timeline/frame_index.json`
 
 Arguments:
+
 - `--manifest` (default `timeline/manifest.json`)
 - `--screenshots` (default `screenshots`)
 - `--frame-index` or `--out` (default `timeline/frame_index.json`)
 
 Notes:
+
 - Missing screens are replaced with `UNDER CONSTRUCTION` tiles when composing 4-up frames.
 - Layout mode is selected by available screens per commit:
 - `1` screen => full-width single frame
@@ -310,20 +352,25 @@ Notes:
 ### 7) `render_timeline.ts`
 
 Purpose:
+
 - Render final mp4 from frame index with ffmpeg.
 
 Inputs:
+
 - `timeline/frame_index.json`
 
 Outputs:
+
 - `timeline/voidlock_timeline.mp4` (or custom output path)
 - `timeline/frames/frames.concat.txt`
 
 Arguments:
+
 - `--frame-index` (default `timeline/frame_index.json`)
 - `--output` (default `timeline/voidlock_timeline.mp4`)
 
 Requirement:
+
 - `ffmpeg` must be installed in PATH.
 
 ## `run.sh` Environment Variables
@@ -354,17 +401,20 @@ Requirement:
 ## Codex Wrapper
 
 `scripts/timeline/provider_codex.sh <PROMPT_FILE> <OUTPUT_FILE>`
+
 - Uses `CODEX_BIN` (default `/home/rkj/.npm-global/bin/codex`)
 - Uses `CODEX_MODEL` (default `gpt-5-mini`)
 - Calls: `codex exec "<prompt_text>" --output-last-message <output_file>`
 - Runs Codex from a temporary `/tmp` working directory to avoid repository source access during playbook generation.
 
 `scripts/timeline/run_codex.sh [PORT]`
+
 - Sets Codex playbook env vars and delegates to `scripts/timeline/run.sh`.
 
 ## Testing Strategy
 
 Current unit tests:
+
 - `tests/scripts/timeline/timeline_manifest.test.ts`
 - `tests/scripts/timeline/analyze_timeline_navigation.test.ts`
 - `tests/scripts/timeline/analyze_screen_topology_changes.test.ts`
@@ -388,17 +438,23 @@ npx vitest run --reporter=basic
 ## Golden Data Plan (Monthly, Single-Commit Reproducibility)
 
 Goal:
+
 - Add an integration harness so each stage can be validated against known-good commits.
 
 Recommended approach:
+
 1. Build a monthly commit list (one manually verified commit per month).
-2. For each golden commit, run stages 2-5 in single-commit mode.
-3. Assert deterministic artifacts:
+1. For each golden commit, run stages 2-5 in single-commit mode.
+1. Assert deterministic artifacts:
+
 - nav map contains expected target IDs.
 - playbook contains expected action steps.
 - capture writes at least one screenshot and no Vite error screenshot.
+
 4. Store expected metadata in a fixture file:
+
 - `tests/scripts/timeline/fixtures/golden_commits.json`
+
 5. Add one integration-style test per stage that consumes the same fixture set.
 
 Suggested fixture schema:
@@ -421,20 +477,25 @@ Suggested fixture schema:
 ## Troubleshooting
 
 Fast verification runs:
+
 ```bash
 SAMPLE_EVERY=100 ./scripts/timeline/run.sh
 ```
+
 This selects commits `0, 100, 200, ...` after manifest selection.
 
 No screenshots captured:
+
 - Check logs for `[candidate-fail]` and `[screen-skip]`.
 - Inspect `timeline/navigation_map.json` and `timeline/navigation_playbooks.json` for that SHA.
 - Verify commit builds standalone (`npm run dev -- --host 127.0.0.1 --port <port> --strictPort` inside worktree).
 
 Frames are empty:
+
 - Confirm `screenshots/*.png` exist and names match `<stamp>_<screen>_<sha>.png`.
 - Re-run `timeline:analyze-frames`.
 
 Render fails:
+
 - Ensure `timeline/frame_index.json` has non-zero `keptFrames`.
 - Verify `ffmpeg` installation.

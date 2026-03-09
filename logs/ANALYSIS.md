@@ -47,8 +47,8 @@
 ## Recommendations (faster + fewer tokens + more correct)
 
 1. **Hard preflight checklist**: read `@docs/AGENTS.md` + `@docs/spec/index.md` before any edits.
-2. **Stop on permission error**: immediately request escalation; do not continue.
-3. **Avoid full-suite runs during iteration**; use targeted test(s) until final `npx vitest run`.
-4. **Retest guard**: only re-run the same test if a file edit occurred since the last run.
-5. **Avoid failed edits**: read small context blocks, use apply_patch, confirm exact matches.
-6. **Enforce exit format**: always end with `SUMMARY:` line.
+1. **Stop on permission error**: immediately request escalation; do not continue.
+1. **Avoid full-suite runs during iteration**; use targeted test(s) until final `npx vitest run`.
+1. **Retest guard**: only re-run the same test if a file edit occurred since the last run.
+1. **Avoid failed edits**: read small context blocks, use apply_patch, confirm exact matches.
+1. **Enforce exit format**: always end with `SUMMARY:` line.

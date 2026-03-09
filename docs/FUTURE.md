@@ -50,13 +50,13 @@ ______________________________________________________________________
    }
    ```
 
-2. **Upgrade Firebase persistence API.** Replace deprecated `enableIndexedDbPersistence()` with `initializeFirestore()` + `persistentLocalCache()` for Firebase SDK v12 compatibility.
+1. **Upgrade Firebase persistence API.** Replace deprecated `enableIndexedDbPersistence()` with `initializeFirestore()` + `persistentLocalCache()` for Firebase SDK v12 compatibility.
 
-3. **Add timestamp-based conflict resolution.** Current `saveVersion` counter is fragile (two fresh campaigns both start at version 1). Add `lastModifiedAt` timestamp (client-generated, for conflict detection) alongside the existing version counter.
+1. **Add timestamp-based conflict resolution.** Current `saveVersion` counter is fragile (two fresh campaigns both start at version 1). Add `lastModifiedAt` timestamp (client-generated, for conflict detection) alongside the existing version counter.
 
-4. **Validate campaign summaries.** `listCampaigns()` returns unvalidated metadata from Firestore. Add `CampaignSummarySchema.safeParse()` on the results for consistency with `loadCampaign()`.
+1. **Validate campaign summaries.** `listCampaigns()` returns unvalidated metadata from Firestore. Add `CampaignSummarySchema.safeParse()` on the results for consistency with `loadCampaign()`.
 
-5. **Add cloud deletion support.** `SaveManager.remove()` only deletes locally. Add optional `deleteFromCloud` parameter for explicit user-initiated campaign deletion.
+1. **Add cloud deletion support.** `SaveManager.remove()` only deletes locally. Add optional `deleteFromCloud` parameter for explicit user-initiated campaign deletion.
 
 ### Phase 2: User Accounts and Profiles (Medium-term, 1-2 months)
 
@@ -183,6 +183,7 @@ ______________________________________________________________________
 ### Assessment
 
 The architecture is **exceptionally well-positioned** for multiplayer due to:
+
 - Deterministic simulation (seed + commands = identical state)
 - Command pattern (all mutations are serializable `Command` objects)
 - Web Worker isolation (engine has no DOM dependencies)
@@ -233,6 +234,7 @@ Active Player                          Spectator
 **Concept:** Two players on the same map — one controls soldiers, one controls enemies (asymmetric multiplayer).
 
 This would require:
+
 - Server-authoritative engine (move `CoreEngine` to a Node.js backend or Cloudflare Worker)
 - Input validation (prevent invalid commands)
 - Rollback/prediction for latency compensation (or accept turn-based timing)
@@ -353,6 +355,7 @@ content/
 ```
 
 **Benefits:**
+
 - Content creators don't need TypeScript knowledge
 - Runtime validation catches bad data
 - Content can be A/B tested or loaded dynamically
@@ -432,6 +435,7 @@ ______________________________________________________________________
 | Modal system | Keep vanilla | Simple, well-implemented |
 
 **If adopting SolidJS:**
+
 - Hybrid approach: Canvas stays vanilla, campaign/settings screens use SolidJS
 - SolidJS has no VDOM (compiles to direct DOM operations) — similar to current approach
 - Bundle impact: ~7KB gzipped
@@ -452,6 +456,7 @@ MapLayer.draw(ctx, state)     → MapLayer.draw(gl, state)
 The `RenderLayer` interface is already renderer-agnostic. Each layer receives immutable `GameState` and draws independently. The transition would be layer-by-layer, not all-at-once.
 
 **Prerequisites:**
+
 - Sprite atlas generation (pack individual sprites into sheets)
 - Tile-based batching (reduce draw calls)
 - Camera system upgrade (GPU-accelerated zoom/pan)
@@ -477,6 +482,7 @@ enum SoundEffect {
 ```
 
 **Implementation:**
+
 - Web Audio API for spatial audio (positional effects based on camera)
 - Howler.js or Tone.js for cross-browser compatibility
 - Music system: ambient tracks per mission phase (exploration → combat → extraction)
@@ -533,6 +539,7 @@ test: {
 ### 6.3 ESLint Integration
 
 Add ESLint with `@typescript-eslint/recommended` for catching issues `tsc` misses:
+
 - Unused imports
 - Consistent return types
 - No floating promises
@@ -576,6 +583,7 @@ ______________________________________________________________________
 `@google/gemini-cli` is installed from GitHub directly (`github:google-gemini/gemini-cli`), bypassing the npm registry. This makes builds non-reproducible without a lockfile and introduces an unpinned dependency.
 
 **Options:**
+
 - Move to published npm package when available
 - Pin to a specific commit hash: `github:google-gemini/gemini-cli#abc1234`
 - Move to devDependencies or optional dependencies
@@ -590,10 +598,11 @@ ______________________________________________________________________
 ### 7.3 Debug Tools
 
 **Proposed additions:**
+
 - **State Inspector:** Overlay showing current `GameState` properties, selectable per-unit
 - **Command Log Viewer:** Real-time display of commands sent to the engine
 - **AI Decision Debugger:** Visualize behavior priority evaluation for selected unit
-- **Pathfinding Visualizer:** Show A* search area and final path
+- **Pathfinding Visualizer:** Show A\* search area and final path
 - **Performance Monitor:** Frame time, tick time, entity count, memory usage
 
 ______________________________________________________________________
@@ -605,6 +614,7 @@ ______________________________________________________________________
 **Viability:** High. The codebase is vanilla TypeScript with no Node.js server dependencies. Wrapping in Electron or Tauri would require minimal changes.
 
 **Benefits:**
+
 - Offline play without browser limitations
 - System tray notifications for async multiplayer
 - Local file system save (in addition to cloud)
@@ -617,6 +627,7 @@ ______________________________________________________________________
 **Current state:** `InputManager` already handles touch events with drag-and-drop deployment. ADR-0038 documents the mobile interaction strategy.
 
 **Remaining work:**
+
 - Responsive canvas scaling for small screens
 - Touch-friendly command menu (larger hit targets)
 - PWA manifest and service worker for offline play
@@ -625,6 +636,7 @@ ______________________________________________________________________
 ### 8.3 Accessibility
 
 **Proposed:**
+
 - Keyboard-only navigation (partially exists via `InputDispatcher` focus stack)
 - Screen reader support for campaign screens (ARIA attributes on DOM elements)
 - Colorblind modes (theme variants with distinguishable palettes)

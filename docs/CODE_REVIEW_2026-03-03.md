@@ -206,6 +206,7 @@ ______________________________________________________________________
 **Current:** `MathUtils` provides proper utilities (`sameCellPosition`, `cellKey`, `getCellCenter`, `toCellCoord`) with 122 usages across the codebase. Raw `Math.floor` reduced from 131 cell-position patterns to ~26 (mostly in render layers for font sizing, not cell logic).
 
 Remaining cell-pattern `Math.floor` in non-render code:
+
 - `TutorialManager.ts:235` — manual cell key instead of `MathUtils.cellKey()`
 - `UnitManager.ts:329` — `Math.floor(updatedUnit.pos.x)` for pathfinding input
 
@@ -261,15 +262,15 @@ ______________________________________________________________________
 **Responsibilities identified:**
 
 1. HUD DOM initialization
-2. UIBinder transformer registry
-3. Top bar updates
-4. Right panel state machine (Deployment, Game Over, Playing, Mobile)
-5. Soldier list rendering
-6. Command menu rendering
-7. Objective display
-8. Enemy intel display
-9. Game-over summary
-10. Drag-and-drop deployment logic
+1. UIBinder transformer registry
+1. Top bar updates
+1. Right panel state machine (Deployment, Game Over, Playing, Mobile)
+1. Soldier list rendering
+1. Command menu rendering
+1. Objective display
+1. Enemy intel display
+1. Game-over summary
+1. Drag-and-drop deployment logic
 
 **DRY Violation:** Mobile speed-slider HTML template is duplicated verbatim between `updateRightPanel()` (lines 206-213) and `updateDeployment()` (lines 383-390), including identical event-listener re-attachment.
 
@@ -370,6 +371,7 @@ ______________________________________________________________________
 | `MetaManager.getInstance()` | 8 | Yes |
 
 **Problems:**
+
 - `MetaManager.getInstance(this.storage)` called with storage parameter 7 times across `CampaignManager`, but the storage is only used on first construction — subsequent calls silently ignore it
 - All singletons expose `resetInstance()` for tests, leaking test concerns into production API
 - `InputDispatcher.getInstance()` called from 18 locations across every screen, creating hidden global state dependency
@@ -420,6 +422,7 @@ ______________________________________________________________________
 **Severity:** 🟠 MEDIUM
 **Impact:** Maintenance burden
 **Locations:**
+
 - `ItemDistributionService.refreshItemGrid()` (lines 90-136)
 - `ItemDistributionService.getVisibleItems()` (lines 144-190)
 - `ObjectiveBehavior` (lines ~80-110)
@@ -448,6 +451,7 @@ ______________________________________________________________________
 **Severity:** 🟠 MEDIUM
 **Impact:** Inconsistency risk
 **Locations:**
+
 - `RosterManager.generateInitialRoster()`
 - `RosterManager.recruitSoldier()`
 - `EventManager.applyEventChoice()` (lines 91-113)
@@ -523,6 +527,7 @@ ______________________________________________________________________
 **Location:** `src/engine/generators/`
 
 **Problem:** `SpaceshipGenerator`, `DenseShipGenerator`, and `TreeShipGenerator` share no interface or base class. Identical utilities duplicated:
+
 - `getBoundaryKey()` — identical in `SpaceshipGenerator` and `DenseShipGenerator`
 - Wall-to-`WallDefinition` conversion loops — identical structure in both
 
@@ -665,6 +670,7 @@ The test count grew faster than source count — testing discipline is strengthe
 ### 5.4 Cloud Sync Architecture
 
 The `SaveManager` → `CloudSyncService` → Firebase pipeline is well-designed:
+
 - Local-first with async cloud backup
 - Version-based conflict resolution
 - Zod validation on cloud data load
@@ -674,6 +680,7 @@ The `SaveManager` → `CloudSyncService` → Firebase pipeline is well-designed:
 ### 5.5 Reactive UI Binding (ADR-0050)
 
 `UIBinder` implements efficient dirty-checking DOM binding:
+
 - Declarative `data-bind-key` / `data-bind-style` attributes
 - Shared transformers via `data-bind-transform`
 - Only updates DOM when values change
@@ -681,6 +688,7 @@ The `SaveManager` → `CloudSyncService` → Firebase pipeline is well-designed:
 ### 5.6 Vanilla TSX (ADR-0051)
 
 Custom JSX factory enables component-based UI without framework overhead:
+
 - `createElement` produces real DOM nodes
 - `Fragment` support
 - `ref` callback pattern
@@ -745,10 +753,10 @@ ______________________________________________________________________
 ### Key Takeaways
 
 1. **Strong upward trajectory:** 9 of 11 previous issues resolved. Overall score improved from 8/10 to 8.5/10.
-2. **Engine layer is clean:** Command pattern, interface segregation, and manager decomposition are production-quality.
-3. **Renderer layer needs attention:** HUDManager, InputManager, and MenuController are the remaining large classes.
-4. **Testing discipline is excellent:** 2.8:1 test-to-source ratio with 572 test files.
-5. **Singleton pattern** is the most pervasive remaining anti-pattern, affecting testability across the renderer.
+1. **Engine layer is clean:** Command pattern, interface segregation, and manager decomposition are production-quality.
+1. **Renderer layer needs attention:** HUDManager, InputManager, and MenuController are the remaining large classes.
+1. **Testing discipline is excellent:** 2.8:1 test-to-source ratio with 572 test files.
+1. **Singleton pattern** is the most pervasive remaining anti-pattern, affecting testability across the renderer.
 
 ### What's Working Well
 
@@ -762,10 +770,10 @@ ______________________________________________________________________
 ### Primary Remaining Debt
 
 1. HUDManager god class (816 lines)
-2. Singleton overuse (5 classes, 47 call sites)
-3. InputManager constructor (20 params)
-4. Director item handling (feature envy)
-5. Duplicated movement logic (enemy vs unit)
+1. Singleton overuse (5 classes, 47 call sites)
+1. InputManager constructor (20 params)
+1. Director item handling (feature envy)
+1. Duplicated movement logic (enemy vs unit)
 
 ______________________________________________________________________
 

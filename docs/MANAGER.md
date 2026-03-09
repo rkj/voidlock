@@ -50,9 +50,11 @@ At the start of every session, run:
 **Manager Actions:**
 
 ### Step 1: Audit Beads
+
 - **Comment Check**: Run `bd show <TASK_ID> --json` and check for any new comments from the agent. If they added a "BLOCKER" comment, treat the task as unresolved and **ESCALATE TO HUMAN INPUT** immediately.
 
 ### Step 2: Audit Logs
+
 - **Crash Check**: Scan the agent's output for "Loop detected", "TimeoutError", or "Operation Cancelled". If found, **FAIL VERIFICATION** immediately (do not close).
 - **Tool Failure**: Did `npm install` fail? Did the agent bypass a tool failure? **FAIL VERIFICATION** immediately (do not close).
 
@@ -71,12 +73,14 @@ This step catches regressions from large refactors. It is the single most import
 1. **Scope Creep Check**: Did the agent modify files unrelated to the task description? If so, **FAIL VERIFICATION**. The agent must only touch files directly required by the task.
 
 ### Step 4: Visual Audit (MANDATORY for UI/CSS/Layout)
+
 - Use `navigate_page` to visit the affected screen.
 - Use `take_screenshot` at **1024x768** and **400x800**.
 - Compare screenshots against the **Product Spec** and the "Negative Proof" screenshots from the planning phase.
 - If the visual state is incorrect or inconsistent with requirements, **FAIL VERIFICATION** (do not close).
 
 ### Step 5: Test Verification
+
 1. **Test**: Run `npx vitest run <PATH_TO_TEST>`. Use `--reporter=basic`.
 1. **Test Robustness Audit**:
    - Inspect the test file code. Does it use mocks that bypass the bug? (e.g., manually firing an event instead of using the mouse).
@@ -85,18 +89,22 @@ This step catches regressions from large refactors. It is the single most import
    - **Happy Path Rejection**: If the test only checks the success scenario without verifying the failure mode or edge cases, **FAIL VERIFICATION** (do not close).
 
 ### Step 6: UI State Audit (for tasks involving UI re-renders or updates)
+
 - **Focus Check**: Does the code explicitly save/restore focus? (Search for `FocusManager`).
 - **Scroll Check**: Does the code explicitly save/restore `scrollTop`?
 - If missing, **FAIL VERIFICATION** with instruction to implement state preservation.
 
 ### Step 7: Regression Audit
+
 - Before closing, search closed beads for similar titles (`bd list --status closed | grep <keyword>`).
 - If duplicates exist, verify the fix works where previous attempts failed.
 
 ### Step 8: Build & Lint
+
 - Ensure `npm run build` and `npm run lint` pass without errors.
 
 ### Step 9: Spec Compliance Check
+
 - Inspect: `jj diff --git`. Verify adherence to **SOLID** and **Spec** compliance.
 
 ### Definition of Failed Verification (Do Not Close)
@@ -123,7 +131,7 @@ If a task is not fully verified as fixed:
 
 - **If Verified** (ALL 9 steps above completed):
 
-  1. `./scripts/safe_commit.sh "<bead-id>: <description>.
+  1. \`./scripts/safe_commit.sh "<bead-id>: <description>.
 
      <Details on what exactly was done>."`
 
