@@ -113,17 +113,42 @@ export class HUDManager {
 
     this.binder.registerTransformer("threatVisibility", (_, state) => {
       const isDeployment = state.status === "Deployment";
-      const isPrologue = state.missionType === "Prologue";
-      const threatLevel = state.stats.threatLevel || 0;
-      const aliensKilled = state.stats.aliensKilled || 0;
-      const hasContact = threatLevel > 1 || aliensKilled > 0;
-      return !isDeployment && (!isPrologue || hasContact);
+      return !isDeployment;
     });
 
     this.binder.registerTransformer("speedVisibility", (_, state) => {
       const isDeployment = state.status === "Deployment";
+      return !isDeployment;
+    });
+
+    this.binder.registerTransformer("threatDimmed", (_, state) => {
       const isPrologue = state.missionType === "Prologue";
-      return !isDeployment && !isPrologue;
+      const threatLevel = state.stats.threatLevel || 0;
+      const aliensKilled = state.stats.aliensKilled || 0;
+      const hasContact = threatLevel > 1 || aliensKilled > 0;
+      return isPrologue && !hasContact ? "tutorial-dimmed" : "";
+    });
+
+    this.binder.registerTransformer("speedDimmed", (_, state) => {
+      const isPrologue = state.missionType === "Prologue";
+      return isPrologue ? "tutorial-dimmed" : "";
+    });
+
+    this.binder.registerTransformer("soldierPanelDimmed", (_, state) => {
+      const isPrologue = state.missionType === "Prologue";
+      // Only dimmed if not yet reached a certain point? 
+      // For now, let's keep it simple: dimmed if it's the very start of prologue
+      return isPrologue && state.t < 500 ? "tutorial-dimmed" : "";
+    });
+
+    this.binder.registerTransformer("rightPanelDimmed", (_, state) => {
+      const isPrologue = state.missionType === "Prologue";
+      // Dimmed until enemy sighted or similar?
+      // Let's use hasContact for right panel too, as it contains Intel and Objectives
+      const threatLevel = state.stats.threatLevel || 0;
+      const aliensKilled = state.stats.aliensKilled || 0;
+      const hasContact = threatLevel > 1 || aliensKilled > 0;
+      return isPrologue && !hasContact ? "tutorial-dimmed" : "";
     });
 
     this.binder.registerTransformer("pauseText", (isPaused) => (isPaused as boolean) ? "▶ Play" : "|| Pause");

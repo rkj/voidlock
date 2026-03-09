@@ -45,6 +45,14 @@ export class UIOrchestrator {
   }
 
   public setMissionHUDVisible(visible: boolean) {
+    const state = this.deps.getCurrentGameState();
+    const isPrologue = state?.missionType === "Prologue";
+    
+    // In prologue, we never hide the HUD, but we might dim it (via binders)
+    if (isPrologue && !visible) {
+        return; 
+    }
+
     const topBar = document.getElementById("top-bar");
     const soldierPanel = document.getElementById("soldier-panel");
     const rightPanel = document.getElementById("right-panel");

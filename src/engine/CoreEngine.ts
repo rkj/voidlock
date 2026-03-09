@@ -194,6 +194,7 @@ export class CoreEngine {
       startingThreatLevel,
       map,
       effectiveStartingPoints,
+      missionType,
     );
     this.director.preSpawn();
 

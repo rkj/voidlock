@@ -12,6 +12,7 @@ export function HUDTopBar() {
         id="top-threat-container"
         data-bind-visibility="stats"
         data-bind-transform="threatVisibility"
+        data-bind-class="missionType|threatDimmed"
         style={{
           display: "flex",
           alignItems: "center",
@@ -79,7 +80,7 @@ export function HUDTopBar() {
       <button id="btn-toggle-right" class="drawer-toggle">Objectives</button>
 
       {/* Speed Control */}
-      <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility">
+      <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility" data-bind-class="missionType|speedDimmed">
         <button id="btn-pause-toggle" data-bind-text="settings.isPaused" data-bind-transform="pauseText">|| Pause</button>
         <label for="game-speed">Speed</label>
         <input
@@ -115,7 +116,7 @@ export function HUDTopBar() {
 
 export function HUDSoldierPanel() {
   return (
-    <div id="soldier-panel" class="soldier-panel">
+    <div id="soldier-panel" class="soldier-panel" data-bind-class="missionType|soldierPanelDimmed">
       <div id="soldier-list">
         {/* Soldier cards injected here */}
       </div>
@@ -125,7 +126,7 @@ export function HUDSoldierPanel() {
 
 export function HUDRightPanel() {
   return (
-    <div id="right-panel" class="right-panel">
+    <div id="right-panel" class="right-panel" data-bind-class="missionType|rightPanelDimmed">
       {/* Commands and Objectives will be injected here */}
     </div>
   );

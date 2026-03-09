@@ -182,13 +182,20 @@ describe("Pause and Speed Synchronization Repro", () => {
   });
 
   it("Reproduction: Progressive UI Visibility (Deployment, Prologue, Hostile Contact)", () => {
-    document.body.innerHTML += `
-      <div id="top-threat-container" data-bind-visibility="stats" data-bind-transform="threatVisibility"></div>
-      <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility"></div>
+    // Clear body to avoid duplicate IDs from beforeEach
+    document.body.innerHTML = `
+      <div id="top-threat-container" data-bind-visibility="stats" data-bind-transform="threatVisibility" data-bind-class="missionType|threatDimmed"></div>
+      <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility" data-bind-class="missionType|speedDimmed"></div>
+      <div id="soldier-panel" data-bind-class="missionType|soldierPanelDimmed"></div>
+      <div id="right-panel" data-bind-class="missionType|rightPanelDimmed"></div>
     `;
 
+    const mockMenuController = {
+        getRenderableState: vi.fn(() => ({ title: "Actions", options: [] }))
+    };
+
     const hudManager = new HUDManager(
-      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+      mockMenuController as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
 
     const threatContainer = document.getElementById("top-threat-container") as HTMLElement;
@@ -208,23 +215,28 @@ describe("Pause and Speed Synchronization Repro", () => {
     expect(threatContainer.style.visibility).toBe("hidden");
     expect(speedControl.style.visibility).toBe("hidden");
 
-    // 2. Mission 1 (Prologue), No Contact: Speed/Pause hidden, Threat hidden
+    // 2. Mission 1 (Prologue), No Contact: Speed/Pause visible but dimmed, Threat visible but dimmed
     hudManager.update({ ...baseState, missionType: MissionType.Prologue, stats: { ...baseState.stats, threatLevel: 0 } }, null);
-    expect(speedControl.style.visibility).toBe("hidden");
-    expect(threatContainer.style.visibility).toBe("hidden");
+    expect(speedControl.style.visibility).toBe("visible");
+    expect(threatContainer.style.visibility).toBe("visible");
+    expect(speedControl.classList.contains("tutorial-dimmed")).toBe(true);
+    expect(threatContainer.classList.contains("tutorial-dimmed")).toBe(true);
 
-    // 3. Mission 1 (Prologue), Hostile Contact (Threat > 1): Threat appears
+    // 3. Mission 1 (Prologue), Hostile Contact (Threat > 1): Threat undims
     hudManager.update({ ...baseState, missionType: MissionType.Prologue, stats: { ...baseState.stats, threatLevel: 5 } }, null);
     expect(threatContainer.style.visibility).toBe("visible");
-    expect(speedControl.style.visibility).toBe("hidden"); // Speed still hidden in Mission 1
+    expect(threatContainer.classList.contains("tutorial-dimmed")).toBe(false);
+    expect(speedControl.classList.contains("tutorial-dimmed")).toBe(true); // Speed still dimmed in Mission 1
 
-    // 4. Mission 1 (Prologue), Hostile Contact (Aliens Killed): Threat appears
-    hudManager.update({ ...baseState, missionType: MissionType.Prologue, stats: { ...baseState.stats, aliensKilled: 1 } }, null);
-    expect(threatContainer.style.visibility).toBe("visible");
+    // 4. Mission 1 (Prologue), Hostile Contact (Aliens Killed): Threat undims
+    hudManager.update({ ...baseState, missionType: MissionType.Prologue, stats: { ...baseState.stats, aliensKilled: 1, threatLevel: 0 } }, null);
+    expect(threatContainer.classList.contains("tutorial-dimmed")).toBe(false);
 
-    // 5. Standard Mission: Everything visible
+    // 5. Standard Mission: Everything visible and NOT dimmed
     hudManager.update({ ...baseState, missionType: MissionType.Default }, null);
     expect(speedControl.style.visibility).toBe("visible");
     expect(threatContainer.style.visibility).toBe("visible");
+    expect(speedControl.classList.contains("tutorial-dimmed")).toBe(false);
+    expect(threatContainer.classList.contains("tutorial-dimmed")).toBe(false);
   });
 });

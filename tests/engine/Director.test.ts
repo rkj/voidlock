@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import { Director } from "@src/engine/Director";
 import { PRNG } from "@src/shared/PRNG";
 import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
+import { MissionType, CellType } from "@src/shared/types";
+import { DIRECTOR } from "@src/engine/config/GameConstants";
 
 describe("Director", () => {
   it("should spawn enemies after turnDuration", () => {
@@ -110,5 +112,32 @@ describe("Director", () => {
 
     expect(director.getThreatLevel()).toBe(10);
     expect(onSpawn).toHaveBeenCalledTimes(1); // Turn 1 wave
+  });
+
+  it("should suppress spawning in MissionType.Prologue", () => {
+    const prng = new PRNG(123);
+    const onSpawn = vi.fn();
+    const spawnPoints = [{ id: "sp1", pos: { x: 10, y: 10 }, radius: 1 }];
+    
+    // Starting points > 0 should trigger pre-spawn
+    const director = new Director(
+      spawnPoints,
+      prng,
+      onSpawn,
+      new ItemEffectService(),
+      0,
+      { width: 20, height: 20, cells: [{ x: 10, y: 10, type: CellType.Floor, roomId: "room-1" }], squadSpawn: { x: 1, y: 1 } } as any,
+      10, // starting points
+      MissionType.Prologue // pass missionType
+    );
+
+    director.preSpawn();
+    
+    expect(onSpawn).not.toHaveBeenCalled();
+    
+    // Simulate enough time for a wave (turnDuration is 10s by default)
+    director.update(DIRECTOR.TURN_DURATION_MS + 1000);
+    
+    expect(onSpawn).not.toHaveBeenCalled();
   });
 });

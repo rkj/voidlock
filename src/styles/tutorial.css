@@ -1,0 +1,42 @@
+@keyframes pulse-highlight {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
+}
+
+.tutorial-highlight {
+  position: relative !important;
+  z-index: 1000 !important;
+}
+
+.tutorial-highlight::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border: 3px solid #00ff00;
+  border-radius: 4px;
+  animation: pulse-highlight 1.5s infinite;
+  pointer-events: none;
+  z-index: 1001;
+}
+
+.tutorial-cell-highlight {
+  position: fixed;
+  width: 40px; /* Will be updated by JS to match cell size */
+  height: 40px;
+  border: 3px solid #00ff00;
+  border-radius: 4px;
+  animation: pulse-highlight 1.5s infinite;
+  pointer-events: none;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+.tutorial-dimmed {
+  opacity: 0.3 !important;
+  pointer-events: none !important;
+  transition: opacity 0.5s ease;
+}

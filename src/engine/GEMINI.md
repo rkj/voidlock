@@ -5,7 +5,7 @@ Core simulation logic for Voidlock. Deterministic, tick-based, runs in a Web Wor
 ## Key Files
 
 - `CoreEngine.ts`: Main orchestrator. Manages state, initializes managers, runs the game loop. Supports time scaling, visibility pruning, and state snapshots for replay.
-- `Director.ts`: Enemy spawning based on threat levels and timers. Also handles global commander abilities and unit items.
+- `Director.ts`: Enemy spawning based on threat levels and timers. Also handles global commander abilities and unit items. Supports MissionType-based suppression (e.g., Prologue).
 - `GameClient.ts`: Main-thread bridge to the worker. Exposes typed methods for commands, debug actions, and time control.
 - `GameGrid.ts`: Logical grid with walkability and movement validation (respects walls and doors).
 - `Graph.ts`: Edge-based map representation — cells and boundaries (walls/doors) as first-class objects (ADR 0001).

@@ -284,9 +284,6 @@ export class GameApp {
           this.registry.missionSetupManager.currentSquad = config;
           this.registry.missionSetupManager.saveCurrentConfig();
 
-          // Hide HUD for cinematic intro
-          this.registry.uiOrchestrator.setMissionHUDVisible(false);
-
           this.AdvisorOverlay.showMessage({
             id: "prologue_intro",
             title: "Project Voidlock: Operation First Light",

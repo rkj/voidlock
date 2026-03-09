@@ -6,6 +6,7 @@ import { MathUtils } from "@src/shared/utils/MathUtils";
 import { Vector2 } from "@src/shared/types/geometry";
 import { UIOrchestrator } from "../app/UIOrchestrator";
 import { CampaignManager } from "../campaign/CampaignManager";
+import { Renderer } from "../Renderer";
 
 export interface AdvisorMessage {
   id: string;
@@ -31,10 +32,14 @@ export class TutorialManager {
   private gameClient: GameClient;
   private campaignManager: CampaignManager;
   private onMessage: (msg: AdvisorMessage) => void;
-  private uiOrchestrator?: UIOrchestrator;
+  private getRenderer: () => Renderer | null;
   private isActive: boolean = false;
   private completedSteps: Set<string> = new Set();
   private isPrologueActive: boolean = false;
+
+  private highlightedElement: HTMLElement | null = null;
+  private highlightedCell: Vector2 | null = null;
+  private cellHighlightEl: HTMLElement | null = null;
 
   private initialPositions: Map<string, Vector2> = new Map();
 
@@ -57,7 +62,7 @@ export class TutorialManager {
     },
     {
       id: "first_move",
-      condition: (state, manager) => manager.completedSteps.has("start") && this.checkAnyUnitMoved(state),
+      condition: (state, _manager) => _manager.completedSteps.has("start") && this.checkAnyUnitMoved(state),
       message: {
         id: "first_move",
         text: "Good. Movement systems nominal. Continue to the objective.",
@@ -67,7 +72,7 @@ export class TutorialManager {
     },
     {
       id: "enemy_sighted",
-      condition: (state, manager) => manager.completedSteps.has("first_move") && this.checkEnemyVisible(state),
+      condition: (state, _manager) => _manager.completedSteps.has("first_move") && this.checkEnemyVisible(state),
       message: {
         id: "enemy_sighted",
         title: "Tactical Basics: Combat",
@@ -79,7 +84,7 @@ export class TutorialManager {
     },
     {
       id: "objective_sighted",
-      condition: (state, manager) => manager.completedSteps.has("enemy_sighted") && this.checkObjectiveVisible(state),
+      condition: (state, _manager) => _manager.completedSteps.has("enemy_sighted") && this.checkObjectiveVisible(state),
       message: {
         id: "objective_sighted",
         title: "Tactical Basics: Objectives",
@@ -88,13 +93,10 @@ export class TutorialManager {
         blocking: true,
       },
       triggerOnce: true,
-      onTrigger: (manager) => {
-        manager.uiOrchestrator?.setMissionHUDVisible(true);
-      }
     },
     {
       id: "objective_completed",
-      condition: (state, manager) => manager.completedSteps.has("objective_sighted") && state.objectives.some(o => o.id === "obj-main" && o.state === "Completed"),
+      condition: (state, _manager) => _manager.completedSteps.has("objective_sighted") && state.objectives.some(o => o.id === "obj-main" && o.state === "Completed"),
       message: {
         id: "objective_completed",
         title: "Tactical Basics: Extraction",
@@ -110,12 +112,73 @@ export class TutorialManager {
     gameClient: GameClient,
     campaignManager: CampaignManager,
     onMessage: (msg: AdvisorMessage) => void,
-    uiOrchestrator?: UIOrchestrator
+    _uiOrchestrator?: UIOrchestrator,
+    getRenderer: () => Renderer | null = () => null
   ) {
     this.gameClient = gameClient;
     this.campaignManager = campaignManager;
     this.onMessage = onMessage;
-    this.uiOrchestrator = uiOrchestrator;
+    this.getRenderer = getRenderer;
+  }
+
+  public highlightElement(selector: string) {
+    this.clearHighlight();
+    const el = document.querySelector(selector) as HTMLElement;
+    if (el) {
+      el.classList.add("tutorial-highlight");
+      this.highlightedElement = el;
+      Logger.debug(`Tutorial: Highlighting element ${selector}`);
+    } else {
+      Logger.warn(`Tutorial: Element not found for highlight: ${selector}`);
+    }
+  }
+
+  public highlightCell(x: number, y: number) {
+    this.clearHighlight();
+    this.highlightedCell = { x, y };
+
+    if (!this.cellHighlightEl) {
+      this.cellHighlightEl = document.createElement("div");
+      this.cellHighlightEl.className = "tutorial-cell-highlight";
+      document.body.appendChild(this.cellHighlightEl);
+    }
+
+    this.updateCellHighlightPosition();
+    Logger.debug(`Tutorial: Highlighting cell ${x},${y}`);
+  }
+
+  public clearHighlight() {
+    if (this.highlightedElement) {
+      this.highlightedElement.classList.remove("tutorial-highlight");
+      this.highlightedElement = null;
+    }
+    this.highlightedCell = null;
+    if (this.cellHighlightEl) {
+      this.cellHighlightEl.style.display = "none";
+    }
+  }
+
+  private updateCellHighlightPosition() {
+    if (!this.highlightedCell || !this.cellHighlightEl) return;
+
+    const renderer = this.getRenderer();
+    if (!renderer) return;
+
+    const pixelPos = renderer.getPixelCoordinates(this.highlightedCell.x, this.highlightedCell.y);
+    const cellSize = renderer.cellSize;
+
+    this.cellHighlightEl.style.display = "block";
+    this.cellHighlightEl.style.left = `${pixelPos.x}px`;
+    this.cellHighlightEl.style.top = `${pixelPos.y}px`;
+
+    const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = rect.width / canvas.width;
+      const scaleY = rect.height / canvas.height;
+      this.cellHighlightEl.style.width = `${cellSize * scaleX}px`;
+      this.cellHighlightEl.style.height = `${cellSize * scaleY}px`;
+    }
   }
 
   public enable() {
@@ -197,8 +260,11 @@ export class TutorialManager {
 
     if (!this.isPrologueActive && state.status === "Playing") {
         this.isPrologueActive = true;
-        // Start of prologue: hide UI
-        this.uiOrchestrator?.setMissionHUDVisible(false);
+    }
+
+    // Update cell highlight position if map panned/zoomed
+    if (this.highlightedCell) {
+      this.updateCellHighlightPosition();
     }
 
     // Check steps

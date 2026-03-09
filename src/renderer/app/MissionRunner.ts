@@ -61,11 +61,8 @@ export class MissionRunner {
 
   public launchMission() {
     const config = this.deps.missionSetupManager.saveCurrentConfig();
-    const isPrologue = config.missionType === MissionType.Prologue;
 
-    if (!isPrologue) {
-      this.uiOrchestrator.setMissionHUDVisible(true);
-    }
+    this.uiOrchestrator.setMissionHUDVisible(true);
     this.navigationOrchestrator.switchScreen("mission", false, false);
 
     // Handle Prologue Map (ADR 0042)

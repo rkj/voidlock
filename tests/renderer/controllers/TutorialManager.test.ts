@@ -52,7 +52,7 @@ describe("TutorialManager", () => {
     turrets: [],
   });
 
-  it("should hide HUD at the start of the prologue", () => {
+  it("should NOT hide HUD at the start of the prologue", () => {
     manager.enable();
     const state = createBaseState();
     state.t = 16;
@@ -60,7 +60,7 @@ describe("TutorialManager", () => {
     const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
     listener(state);
     
-    expect(uiOrchestrator.setMissionHUDVisible).toHaveBeenCalledWith(false);
+    expect(uiOrchestrator.setMissionHUDVisible).not.toHaveBeenCalled();
   });
 
   it("should show start message at t > 100", () => {
@@ -74,7 +74,7 @@ describe("TutorialManager", () => {
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
   });
 
-  it("should show objectives message and restore HUD when objective is visible", () => {
+  it("should show objectives message when objective is visible", () => {
     // Pre-seed prerequisites
     localStorage.setItem("voidlock_tutorial_state", JSON.stringify(["start", "first_move", "enemy_sighted"]));
     manager.enable();
@@ -85,8 +85,38 @@ describe("TutorialManager", () => {
     const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
     listener(state);
     
-    expect(uiOrchestrator.setMissionHUDVisible).toHaveBeenCalledWith(true);
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
+  });
+
+  it("should highlight elements", () => {
+    const div = document.createElement("div");
+    div.id = "test-el";
+    document.body.appendChild(div);
+
+    manager.highlightElement("#test-el");
+    expect(div.classList.contains("tutorial-highlight")).toBe(true);
+
+    manager.clearHighlight();
+    expect(div.classList.contains("tutorial-highlight")).toBe(false);
+  });
+
+  it("should highlight cells", () => {
+    const mockRenderer = {
+      getPixelCoordinates: vi.fn().mockReturnValue({ x: 100, y: 100 }),
+      cellSize: 40,
+      getCellCoordinates: vi.fn(),
+    };
+    (manager as any).getRenderer = vi.fn().mockReturnValue(mockRenderer);
+
+    manager.highlightCell(5, 5);
+    const highlightEl = document.querySelector(".tutorial-cell-highlight") as HTMLElement;
+    expect(highlightEl).toBeTruthy();
+    expect(highlightEl.style.display).toBe("block");
+    expect(highlightEl.style.left).toBe("100px");
+    expect(highlightEl.style.top).toBe("100px");
+
+    manager.clearHighlight();
+    expect(highlightEl.style.display).toBe("none");
   });
 
   it("should show combat message when an enemy is visible", () => {

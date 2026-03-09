@@ -147,4 +147,15 @@ export class GameRenderer {
     const y = ((pixelY - rect.top) * scaleY) / this.sharedState.cellSize;
     return { x, y };
   }
+
+  public getPixelCoordinates(x: number, y: number): Vector2 {
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = rect.width / this.canvas.width;
+    const scaleY = rect.height / this.canvas.height;
+
+    const pixelX = (x * this.sharedState.cellSize) * scaleX + rect.left;
+    const pixelY = (y * this.sharedState.cellSize) * scaleY + rect.top;
+
+    return { x: pixelX, y: pixelY };
+  }
 }

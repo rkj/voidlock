@@ -63,11 +63,11 @@ describe("Prologue Tutorial E2E", () => {
     // 6. Wait for FIRST tutorial advisor message (start)
     await page.waitForSelector(".advisor-message", { timeout: 15000 });
 
-    // 7. Verify HUD panels are hidden
+    // 7. Verify HUD panels are VISIBLE (ADR 0057)
     const topBarDisplay = await page.$eval("#top-bar", (el) => window.getComputedStyle(el).display);
     const soldierPanelDisplay = await page.$eval("#soldier-panel", (el) => window.getComputedStyle(el).display);
-    expect(topBarDisplay).toBe("none");
-    expect(soldierPanelDisplay).toBe("none");
+    expect(topBarDisplay).toBe("flex");
+    expect(soldierPanelDisplay).toBe("flex");
 
     // 8. Verify message content
     const msgText = await page.$eval(".advisor-text", (el) => (el as HTMLElement).innerText);

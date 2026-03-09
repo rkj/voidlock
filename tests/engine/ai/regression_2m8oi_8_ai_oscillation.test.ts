@@ -99,27 +99,27 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
       internalState.gridState[x] |= 3; // discovered + visible
     }
 
-    // Tick until unit moves to (3,0)
+    // Tick until unit moves as far as possible
     let history: string[] = [];
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 200; i++) {
       engine.update(16);
       const u = engine.getState().units[0];
       const cell = `${Math.floor(u.pos.x)},${Math.floor(u.pos.y)}`;
       if (history.length === 0 || history[history.length - 1] !== cell) {
         history.push(cell);
       }
-      if (history.includes("3,0")) break;
+      if (cell === "9,0") break;
     }
 
     expect(history).toContain("3,0");
+    expect(history.length).toBeGreaterThan(5);
     
-    // Continue ticking. It should NOT return to (2,0) or (1,0)
-    for (let i = 0; i < 50; i++) {
-      engine.update(16);
-      const u = engine.getState().units[0];
-      const cell = `${Math.floor(u.pos.x)},${Math.floor(u.pos.y)}`;
-      expect(cell).not.toBe("2,0");
-      expect(cell).not.toBe("1,0");
+    // Sliding window check: no cell is revisited within a sliding window of 6 positions.
+    // For any index i, history[i] != history[j] for j in [i+1, i+5].
+    for (let i = 0; i < history.length; i++) {
+      for (let j = i + 1; j <= i + 5 && j < history.length; j++) {
+        expect(history[i], `Cell ${history[i]} revisited at index ${j} within window of 6 (History: ${history.join(" -> ")})`).not.toBe(history[j]);
+      }
     }
   });
 

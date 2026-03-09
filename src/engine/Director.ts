@@ -9,6 +9,7 @@ import {
   MapDefinition,
   CellType,
   UnitState,
+  MissionType,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { IDirector, ItemEffectHandler } from "./interfaces/IDirector";
@@ -31,6 +32,7 @@ export class Director implements IDirector {
   private startingThreatLevel: number;
   private map?: MapDefinition;
   private startingPoints: number;
+  private missionType: MissionType;
 
   private itemEffectService: ItemEffectHandler;
 
@@ -42,6 +44,7 @@ export class Director implements IDirector {
     startingThreatLevel: number = 0,
     map?: MapDefinition,
     startingPoints: number = DIRECTOR.STARTING_POINTS,
+    missionType: MissionType = MissionType.Default,
   ) {
     this.spawnPoints = spawnPoints;
     this.prng = prng;
@@ -50,6 +53,7 @@ export class Director implements IDirector {
     this.startingThreatLevel = startingThreatLevel;
     this.map = map;
     this.startingPoints = startingPoints;
+    this.missionType = missionType;
 
     // Initialize turn and time based on starting threat level
     // Threat = (turn + progress) * 10
@@ -78,6 +82,7 @@ export class Director implements IDirector {
   }
 
   public preSpawn() {
+    if (this.missionType === MissionType.Prologue) return;
     // 1. Spend Starting Points Budget (Pre-spawning at mission start)
     // Placement: Rooms only, NOT in player quadrant.
     if (this.startingPoints > 0 && this.map) {
@@ -159,6 +164,7 @@ export class Director implements IDirector {
   }
 
   public update(dt: number) {
+    if (this.missionType === MissionType.Prologue) return;
     this.timeInCurrentTurn += dt;
 
     while (this.timeInCurrentTurn >= this.turnDuration) {

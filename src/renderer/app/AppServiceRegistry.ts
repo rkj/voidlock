@@ -133,6 +133,7 @@ export class AppServiceRegistry {
         this.advisorOverlay.showMessage(msg);
       },
       this.uiOrchestrator,
+      () => config.getRenderer(),
     );
     this.tutorialManager.enable();
 
