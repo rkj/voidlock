@@ -481,7 +481,7 @@ export class SoldierWidget {
     } else if (options.context === "debrief") {
       if (!container.classList.contains("debrief-item"))
         container.classList.add("debrief-item");
-    } else if (options.context === "squad-builder") {
+    } else if (options.context === "squad-builder" || options.context === "tactical") {
       if (!container.classList.contains("soldier-card"))
         container.classList.add("soldier-card");
     }

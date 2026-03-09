@@ -14,6 +14,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
   let onMessage: any;
   let uiOrchestrator: any;
   let manager: TutorialManager;
+  let selectedUnitId: string | null = null;
 
   beforeEach(() => {
     gameClient = {
@@ -29,7 +30,14 @@ describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
     const campaignManager = {
       getState: vi.fn().mockReturnValue({ history: [] }),
     };
-    manager = new TutorialManager(gameClient, campaignManager as any, onMessage, uiOrchestrator);
+    selectedUnitId = null;
+    manager = new TutorialManager(
+      gameClient, 
+      campaignManager as any, 
+      onMessage, 
+      () => selectedUnitId,
+      uiOrchestrator
+    );
     
     // Clear localStorage
     localStorage.clear();
@@ -38,6 +46,9 @@ describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
     document.body.innerHTML = `
       <div id="screen-mission">
         <div id="top-bar"></div>
+        <div id="tutorial-directive" class="tutorial-directive-container">
+            <span id="tutorial-directive-text"></span>
+        </div>
         <div id="soldier-panel">
             <div class="soldier-card" data-unit-id="u1"></div>
         </div>
@@ -103,62 +114,98 @@ describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
       manager.enable();
       const state = createBaseState();
       const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+      const directiveText = () => document.getElementById("tutorial-directive-text")?.textContent;
 
-      // Step 1: Select Unit (start)
-      state.t = 110;
+      // Step 1: Select Unit (select_unit)
+      state.t = 16;
       listener(state);
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
+      expect(directiveText()).toBe("Select your soldier to begin");
       onMessage.mockClear();
       
-      // Step 2: Move (first_move)
+      // Complete Step 1: select unit
+      selectedUnitId = "u1";
+      listener(state);
+      
+      // Step 2: Move (move)
+      expect(directiveText()).toBe("Click the highlighted cell to move");
+      expect(onMessage).not.toHaveBeenCalled();
+      
+      // Complete Step 2: move
       state.units[0].pos = { x: 2, y: 2 };
       listener(state);
-      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "first_move" }));
-      onMessage.mockClear();
       
-      // Step 3: Door (Missing in current impl)
-      // Step 4: Combat intro (enemy_sighted)
-      state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 10, type: EnemyType.Tutorial } as any];
+      // Step 3: Door (door)
+      expect(directiveText()).toBe("Your soldier will open the door automatically");
+      
+      // Complete Step 3: door
+      state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
+      listener(state);
+      
+      // Step 4: Combat intro (combat_intro)
+      expect(directiveText()).toBe("Enemy spotted! Your soldier fires automatically");
+      // Wait, combat_intro condition requires enemy visibility
+      state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 10, maxHp: 10, type: EnemyType.Tutorial } as any];
       state.visibleCells.push("5,5");
       listener(state);
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
       onMessage.mockClear();
       
-      // Step 5: Survive combat (Missing in current impl)
-      // Step 6: Objective (objective_sighted)
-      state.objectives[0].visible = true;
+      // Step 5: Survive combat (survive_combat)
+      expect(directiveText()).toBe("Eliminate the hostile");
+      
+      // Complete Step 5: kill enemy
+      state.stats.aliensKilled = 1;
       listener(state);
+      
+      // Step 6: Objective (objective)
+      expect(directiveText()).toBe("Recover the secure terminal data");
+      // This step has an advisor message on enter? 
+      // Actually my prologueSteps has message for objective
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
       onMessage.mockClear();
       
-      // Step 7: Extract (objective_completed)
+      // Complete Step 6: objective completed
       state.objectives[0].state = "Completed";
       listener(state);
+      
+      // Step 7: Extract (extract)
+      expect(directiveText()).toBe("Get to the extraction zone");
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }));
+      onMessage.mockClear();
+      
+      // Complete Step 7: Won
+      state.status = "Won";
+      listener(state);
+      
+      // Done - directive should be cleared
+      expect(document.getElementById("tutorial-directive")?.classList.contains("active")).toBe(false);
     });
   });
 
   describe("3) Input Gating", () => {
     it("should restrict allowed actions per step", () => {
-      // This requirement depends on TutorialManager exposing allowed actions
-      // and MenuController/CommandExecutor checking them.
-      // Since it's not implemented, we check for the intended interface.
-      
       manager.enable();
+      const state = createBaseState();
+      const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
       
-      // @ts-ignore - intended interface from ADR 0057
-      if (typeof manager.isActionAllowed === "function") {
-          // At start, only unit selection might be allowed
-          // @ts-ignore
-          expect(manager.isActionAllowed(CommandType.MOVE_TO)).toBe(false);
-          // ... after some steps ...
-          // This test is mostly a placeholder for when the feature is implemented.
-      } else {
-          // Fail the test if the feature is missing but requested in regression tests
-          // Actually, we'll just skip it for now to allow the suite to "pass" partially
-          // but we'll mark it as a TODO.
-          console.warn("Input gating (isActionAllowed) not yet implemented in TutorialManager");
-      }
+      // Step 0: select_unit
+      listener(state);
+      expect(manager.isActionAllowed("SELECT_UNIT")).toBe(true);
+      expect(manager.isActionAllowed("MOVE_TO")).toBe(false);
+      
+      // Advance to step 1: move
+      selectedUnitId = "u1";
+      listener(state);
+      expect(manager.isActionAllowed("MOVE_TO")).toBe(true);
+      expect(manager.isActionAllowed("STOP")).toBe(false);
+
+      // Advance to step 2: door
+      state.units[0].pos = { x: 2, y: 2 };
+      listener(state);
+      // step 2 (door) allows MOVE_TO but not STOP
+      expect(manager.isActionAllowed("MOVE_TO")).toBe(true);
+      expect(manager.isActionAllowed("STOP")).toBe(false);
     });
   });
 

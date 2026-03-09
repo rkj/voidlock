@@ -10,6 +10,7 @@ describe("TutorialManager", () => {
   let onMessage: any;
   let uiOrchestrator: any;
   let manager: TutorialManager;
+  let selectedUnitId: string | null = null;
 
   beforeEach(() => {
     gameClient = {
@@ -25,7 +26,14 @@ describe("TutorialManager", () => {
     const campaignManager = {
       getState: vi.fn().mockReturnValue({ history: [] }),
     };
-    manager = new TutorialManager(gameClient, campaignManager as any, onMessage, uiOrchestrator);
+    selectedUnitId = null;
+    manager = new TutorialManager(
+      gameClient, 
+      campaignManager as any, 
+      onMessage, 
+      () => selectedUnitId,
+      uiOrchestrator
+    );
     
     // Clear localStorage to avoid state leakage between tests
     localStorage.clear();
@@ -75,16 +83,39 @@ describe("TutorialManager", () => {
   });
 
   it("should show objectives message when objective is visible", () => {
-    // Pre-seed prerequisites
-    localStorage.setItem("voidlock_tutorial_state", JSON.stringify(["start", "first_move", "enemy_sighted"]));
     manager.enable();
-    
     const state = createBaseState();
-    state.t = 200;
-    state.objectives[0].visible = true;
     const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+
+    // Initial state (Step 0: select_unit)
+    listener(state);
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
+    onMessage.mockClear();
+
+    // Advance to Step 1: move
+    selectedUnitId = "u1";
     listener(state);
     
+    // Advance to Step 2: door
+    state.units[0].pos = { x: 2, y: 2 };
+    listener(state);
+
+    // Advance to Step 3: combat_intro
+    state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
+    listener(state);
+
+    // Advance to Step 4: survive_combat
+    state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 10, maxHp: 10 } as any];
+    state.visibleCells.push("5,5");
+    listener(state);
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
+    onMessage.mockClear();
+
+    // Advance to Step 5: objective
+    state.stats.aliensKilled = 1;
+    listener(state);
+
+    // Trigger objective visible - wait, step 5 (objective) message triggers on ENTER
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
   });
 
@@ -94,6 +125,8 @@ describe("TutorialManager", () => {
     document.body.appendChild(div);
 
     manager.highlightElement("#test-el");
+    // highlightElement is async/delayed, but in JSDOM we might need to wait or it might be instant if el exists
+    // The current implementation has a retry loop.
     expect(div.classList.contains("tutorial-highlight")).toBe(true);
 
     manager.clearHighlight();
@@ -106,7 +139,23 @@ describe("TutorialManager", () => {
       cellSize: 40,
       getCellCoordinates: vi.fn(),
     };
-    (manager as any).getRenderer = vi.fn().mockReturnValue(mockRenderer);
+    
+    // We recreate the manager here with the mock renderer to ensure it's used correctly
+    const campaignManager = {
+      getState: vi.fn().mockReturnValue({ history: [] }),
+    };
+    
+    // Clean up any existing highlight elements from document.body to avoid confusion
+    document.querySelectorAll(".tutorial-cell-highlight").forEach(el => el.remove());
+    
+    manager = new TutorialManager(
+      gameClient,
+      campaignManager as any,
+      onMessage,
+      () => selectedUnitId,
+      uiOrchestrator,
+      () => mockRenderer as any
+    );
 
     manager.highlightCell(5, 5);
     const highlightEl = document.querySelector(".tutorial-cell-highlight") as HTMLElement;
@@ -120,29 +169,50 @@ describe("TutorialManager", () => {
   });
 
   it("should show combat message when an enemy is visible", () => {
-    // Pre-seed prerequisites
-    localStorage.setItem("voidlock_tutorial_state", JSON.stringify(["start", "first_move"]));
     manager.enable();
-    
     const state = createBaseState();
-    state.t = 200;
+    const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+
+    // Step 0 -> Step 1
+    selectedUnitId = "u1";
+    listener(state);
+    
+    // Step 1 -> Step 2
+    state.units[0].pos = { x: 2, y: 2 };
+    listener(state);
+
+    // Step 2 -> Step 3
+    state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
+    listener(state);
+    
+    // Trigger Step 3 enter (combat_intro)
     state.enemies = [{ id: "e1", pos: { x: 2, y: 2 }, hp: 10 } as any];
     state.visibleCells.push("2,2");
-    const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
     listener(state);
     
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
   });
 
   it("should show extraction message when main objective is completed", () => {
-    // Pre-seed prerequisites
-    localStorage.setItem("voidlock_tutorial_state", JSON.stringify(["start", "first_move", "enemy_sighted", "objective_sighted"]));
     manager.enable();
-    
     const state = createBaseState();
-    state.t = 200;
-    state.objectives[0].state = "Completed";
     const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+
+    // Rapid advance steps
+    selectedUnitId = "u1";
+    listener(state);
+    state.units[0].pos = { x: 2, y: 2 };
+    listener(state);
+    state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
+    listener(state);
+    state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 10 } as any];
+    state.visibleCells.push("5,5");
+    listener(state);
+    state.stats.aliensKilled = 1;
+    listener(state);
+    
+    // Enter Step 6 (extract)
+    state.objectives[0].state = "Completed";
     listener(state);
     
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }));

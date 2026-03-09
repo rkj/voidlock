@@ -2,7 +2,7 @@ import { GameState, Unit } from "@src/shared/types";
 import { MenuController } from "@src/renderer/MenuController";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { UIBinder } from "@src/renderer/ui/UIBinder";
-import { HUDTopBar, HUDSoldierPanel, HUDRightPanel, HUDMobileActionPanel } from "@src/renderer/ui/HUD";
+import { HUDTopBar, HUDSoldierPanel, HUDRightPanel, HUDMobileActionPanel, HUDTutorialDirective } from "@src/renderer/ui/HUD";
 import { FocusManager } from "@src/renderer/utils/FocusManager";
 
 import {
@@ -90,6 +90,7 @@ export class HUDManager {
     if (mobileActionPanel) mobileActionPanel.remove();
 
     missionScreen.insertBefore(HUDTopBar() as Node, missionBody);
+    missionScreen.insertBefore(HUDTutorialDirective() as Node, missionBody);
     missionScreen.insertBefore(HUDSoldierPanel() as Node, missionBody);
     missionBody.appendChild(HUDRightPanel() as Node);
     missionScreen.appendChild(HUDMobileActionPanel() as Node);

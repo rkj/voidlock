@@ -8,12 +8,12 @@ As part of the migration to a modern, declarative UI system without external fra
 
 ### TSX Components
 
-- `HUD.tsx`: Exports `HUDTopBar`, `HUDSoldierPanel`, `HUDRightPanel`, and `HUDMobileActionPanel`. These functional components provide the tactical mission UI structure.
+- `HUD.tsx`: Exports `HUDTopBar`, `HUDSoldierPanel`, `HUDRightPanel`, `HUDMobileActionPanel`, and `HUDTutorialDirective`. These functional components provide the tactical mission UI structure.
 - `CampaignShellUI.tsx`: Exports `CampaignShellTopBar` and `CampaignShellFooter`. Used by `CampaignShell.ts` to render the strategic layer navigation and meta-stats.
 
 ## Files
 
-- `HUDManager.ts`: Coordinator that manages the Head-Up Display by delegating to specialized panels (`DeploymentPanel`, `CommandMenuPanel`, `ObjectivesPanel`, `EnemyIntelPanel`, `SoldierListPanel`, `GameOverPanel`). Now utilizes functional TSX components from `HUD.tsx` for its initial structure, while maintaining responsibility for dynamic updates and `UIBinder` synchronization. Implements authoritative injection of HUD parts into `#screen-mission` to ensure correct layout ordering. Refactored as part of ADR 0052 to improve maintainability and strictly enforce Title Case casing for all UI elements. Now supports always-visible HUD with dimming for the redesigned prologue (ADR 0057).
+- `HUDManager.ts`: Coordinator that manages the Head-Up Display by delegating to specialized panels (`DeploymentPanel`, `CommandMenuPanel`, `ObjectivesPanel`, `EnemyIntelPanel`, `SoldierListPanel`, `GameOverPanel`). Now utilizes functional TSX components from `HUD.tsx` (including `HUDTutorialDirective` for guided prologue steps) for its initial structure, while maintaining responsibility for dynamic updates and `UIBinder` synchronization. Implements authoritative injection of HUD parts into `#screen-mission` to ensure correct layout ordering. Refactored as part of ADR 0052 to improve maintainability and strictly enforce Title Case casing for all UI elements. Now supports always-visible HUD with dimming for the redesigned prologue (ADR 0057).
 - `UIBinder.ts`: A lightweight reactive UI synchronization system that implements dirty-checking to bind `GameState` properties to DOM elements via `data-bind-*` attributes. Reduces UI "flicker" and ensures consistency across different input methods (ADR 0050). Prevents recursive synchronization loops by updating cached state values before performing DOM mutations.
 - `KeyboardHelpOverlay.ts`: Context-aware help overlay triggered by '?' that displays active keyboard shortcuts.
 - `CampaignShell.ts`: Persistent UI shell for Campaign and Custom modes. Now utilizes TSX components from `CampaignShellUI.tsx` for the Top Bar and Footer, while managing the central `#campaign-shell-content` area and tab-based navigation logic.

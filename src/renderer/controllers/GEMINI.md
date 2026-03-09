@@ -4,7 +4,7 @@ This directory contains decoupled logic managers for the tactical UI, following 
 
 ## Components
 
-- `TutorialManager.ts`: Orchestrates the guided prologue flow (Mission 1) and subsequent tutorial steps for Mission 2 and 3. Implements the always-visible HUD and highlight system for the redesigned prologue (ADR 0057). Verified via comprehensive regression suite in `tests/renderer/controllers/TutorialRedesign.test.ts` and `tests/e2e/TutorialRedesign.test.ts`.
+- `TutorialManager.ts`: Orchestrates the guided prologue flow (Mission 1) and subsequent tutorial steps for Mission 2 and 3. Implements the always-visible HUD and highlight system for the redesigned prologue (ADR 0057) using a sequential step engine (state machine) with directed directives and input gating. Verified via comprehensive regression suite in `tests/renderer/controllers/TutorialRedesign.test.ts` and `tests/e2e/TutorialRedesign.test.ts`.
 - `MenuStateMachine.ts`: Manages the stack of menu states (`ACTION_SELECT`, `TARGET_SELECT`, etc.) and handles transitions between them.
 - `SelectionManager.ts`: Tracks the current selection context, including pending actions, targets, modes, and shift-key state.
 - `RoomDiscoveryManager.ts`: Encapsulates the logic for tracking discovered rooms and maintaining a stable discovery order for menu keys.

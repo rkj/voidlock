@@ -18,14 +18,22 @@ export interface AdvisorMessage {
   blocking?: boolean; // pauses game
 }
 
-type TutorialCondition = (state: GameState, manager: TutorialManager) => boolean;
+export type TutorialCondition = (state: GameState, manager: TutorialManager) => boolean;
 
-interface TutorialStep {
+export interface TutorialStep {
   id: string;
+  directive: string;
   condition: TutorialCondition;
-  message: AdvisorMessage;
-  triggerOnce: boolean;
-  onTrigger?: (manager: TutorialManager) => void;
+  message?: AdvisorMessage;
+  highlightTarget?: {
+    selector?: string;
+    cell?: Vector2;
+  };
+  inputGate?: {
+    allowedActions: string[];
+  };
+  onEnter?: (manager: TutorialManager, state: GameState) => void;
+  onComplete?: (manager: TutorialManager, state: GameState) => void;
 }
 
 export class TutorialManager {
@@ -33,11 +41,14 @@ export class TutorialManager {
   private campaignManager: CampaignManager;
   private onMessage: (msg: AdvisorMessage) => void;
   private getRenderer: () => Renderer | null;
+  private getSelectedUnitId: () => string | null;
   private isActive: boolean = false;
   private completedSteps: Set<string> = new Set();
   private isPrologueActive: boolean = false;
+  private currentStepIndex: number = -1;
 
   private highlightedElement: HTMLElement | null = null;
+  private highlightedElementSelector: string | null = null;
   private highlightedCell: Vector2 | null = null;
   private cellHighlightEl: HTMLElement | null = null;
 
@@ -47,10 +58,12 @@ export class TutorialManager {
   private hasMoved: boolean = false;
   private lastRescueCount: number = 0;
   
-  private steps: TutorialStep[] = [
+  private prologueSteps: TutorialStep[] = [
     {
-      id: "start",
-      condition: (state) => state.t > 100,
+      id: "select_unit",
+      directive: "Select your soldier to begin",
+      highlightTarget: { selector: ".soldier-card" },
+      condition: (_state) => !!this.getSelectedUnitId(),
       message: {
         id: "start",
         title: "Project Voidlock: Operation First Light",
@@ -59,53 +72,74 @@ export class TutorialManager {
         portrait: "logo_gemini",
         blocking: true,
       },
-      triggerOnce: true,
+      inputGate: { allowedActions: ["SELECT_UNIT"] }
     },
     {
-      id: "first_move",
-      condition: (state, _manager) => _manager.completedSteps.has("start") && this.checkAnyUnitMoved(state),
-      message: {
-        id: "first_move",
-        text: "Good. Movement systems nominal. Continue to the objective.",
-        duration: 3000,
+      id: "move",
+      directive: "Click the highlighted cell to move",
+      highlightTarget: { cell: { x: 1, y: 3 } },
+      condition: (state) => this.checkAnyUnitMoved(state),
+      onEnter: (manager, state) => {
+          manager.captureInitialPositions(state);
       },
-      triggerOnce: true,
+      inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO"] }
     },
     {
-      id: "enemy_sighted",
-      condition: (state, _manager) => _manager.completedSteps.has("first_move") && this.checkEnemyVisible(state),
-      message: {
-        id: "enemy_sighted",
-        title: "Tactical Basics: Combat",
-        text: "Hostile contact! Your units will automatically engage enemies within their line of sight and weapon range. \n\nThe threat meter at the top indicates the current swarm activity level. Stay alert.",
-        portrait: "logo_gemini",
-        blocking: true,
-      },
-      triggerOnce: true,
+      id: "door",
+      directive: "Your soldier will open the door automatically",
+      highlightTarget: { cell: { x: 2, y: 3 } },
+      condition: (state) => (state.map.doors || []).some(d => d.segment.some(s => s.x === 2 && s.y === 3) && d.state === "Open"),
+      inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO"] }
     },
     {
-      id: "objective_sighted",
-      condition: (state, _manager) => _manager.completedSteps.has("enemy_sighted") && this.checkObjectiveVisible(state),
-      message: {
-        id: "objective_sighted",
-        title: "Tactical Basics: Objectives",
-        text: "The secure terminal is within sight. Move to the terminal to recover the data disk. \n\nObjectives and mission status are tracked in the right panel.",
-        portrait: "logo_gemini",
-        blocking: true,
-      },
-      triggerOnce: true,
+        id: "combat_intro",
+        directive: "Enemy spotted! Your soldier fires automatically",
+        condition: (state) => state.enemies.some(e => state.visibleCells.includes(`${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`)),
+        message: {
+            id: "enemy_sighted",
+            title: "Tactical Basics: Combat",
+            text: "Hostile contact! Your units will automatically engage enemies within their line of sight and weapon range. \n\nThe threat meter at the top indicates the current swarm activity level. Stay alert.",
+            portrait: "logo_gemini",
+            blocking: true,
+        },
+        onEnter: (manager) => {
+            manager.highlightElement("#top-threat-container");
+        },
+        inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO", "STOP"] }
     },
     {
-      id: "objective_completed",
-      condition: (state, _manager) => _manager.completedSteps.has("objective_sighted") && state.objectives.some(o => o.id === "obj-main" && o.state === "Completed"),
-      message: {
-        id: "objective_completed",
-        title: "Tactical Basics: Extraction",
-        text: "Data recovered. The swarm is closing in. Get your squad to the extraction point immediately! \n\nAll units must reach the extraction zone to complete the mission.",
-        portrait: "logo_gemini",
-        blocking: true,
-      },
-      triggerOnce: true,
+        id: "survive_combat",
+        directive: "Eliminate the hostile",
+        condition: (state) => state.stats.aliensKilled > 0,
+        inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO", "STOP", "SET_ENGAGEMENT"] }
+    },
+    {
+        id: "objective",
+        directive: "Recover the secure terminal data",
+        highlightTarget: { cell: { x: 3, y: 2 } },
+        condition: (state) => state.objectives.some(o => o.id === "obj-main" && o.state === "Completed"),
+        message: {
+            id: "objective_sighted",
+            title: "Tactical Basics: Objectives",
+            text: "The secure terminal is within sight. Move to the terminal to recover the data disk. \n\nObjectives and mission status are tracked in the right panel.",
+            portrait: "logo_gemini",
+            blocking: true,
+        },
+        inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO", "STOP", "PICKUP"] }
+    },
+    {
+        id: "extract",
+        directive: "Get to the extraction zone",
+        highlightTarget: { cell: { x: 5, y: 1 } },
+        condition: (state) => state.status === "Won",
+        message: {
+            id: "objective_completed",
+            title: "Tactical Basics: Extraction",
+            text: "Data recovered. The swarm is closing in. Get your squad to the extraction point immediately! \n\nAll units must reach the extraction zone to complete the mission.",
+            portrait: "logo_gemini",
+            blocking: true,
+        },
+        inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO", "STOP", "EXTRACT"] }
     }
   ];
 
@@ -113,25 +147,35 @@ export class TutorialManager {
     gameClient: GameClient,
     campaignManager: CampaignManager,
     onMessage: (msg: AdvisorMessage) => void,
+    getSelectedUnitId: () => string | null,
     _uiOrchestrator?: UIOrchestrator,
     getRenderer: () => Renderer | null = () => null
   ) {
     this.gameClient = gameClient;
     this.campaignManager = campaignManager;
     this.onMessage = onMessage;
+    this.getSelectedUnitId = getSelectedUnitId;
     this.getRenderer = getRenderer;
   }
 
   public highlightElement(selector: string) {
     this.clearHighlight();
-    const el = document.querySelector(selector) as HTMLElement;
-    if (el) {
-      el.classList.add("tutorial-highlight");
-      this.highlightedElement = el;
-      Logger.debug(`Tutorial: Highlighting element ${selector}`);
-    } else {
-      Logger.warn(`Tutorial: Element not found for highlight: ${selector}`);
-    }
+    this.highlightedElementSelector = selector;
+    
+    const apply = (attempts = 0) => {
+        if (this.highlightedElementSelector !== selector) return;
+        const el = document.querySelector(selector) as HTMLElement;
+        if (el) {
+          el.classList.add("tutorial-highlight");
+          this.highlightedElement = el;
+          Logger.debug(`Tutorial: Highlighting element ${selector}`);
+        } else if (attempts < 20) {
+            // Retry if not found (e.g. during render)
+            setTimeout(() => apply(attempts + 1), 100);
+        }
+    };
+    
+    apply();
   }
 
   public highlightCell(x: number, y: number) {
@@ -153,6 +197,7 @@ export class TutorialManager {
       this.highlightedElement.classList.remove("tutorial-highlight");
       this.highlightedElement = null;
     }
+    this.highlightedElementSelector = null;
     this.highlightedCell = null;
     if (this.cellHighlightEl) {
       this.cellHighlightEl.style.display = "none";
@@ -202,7 +247,10 @@ export class TutorialManager {
     this.hasMoved = false;
     this.initialPositions.clear();
     this.isPrologueActive = false;
+    this.currentStepIndex = -1;
     this.clearState();
+    this.clearDirective();
+    this.clearHighlight();
   }
 
   private loadState() {
@@ -254,15 +302,23 @@ export class TutorialManager {
 
   private onGameStateUpdate = (state: GameState) => {
     if (!this.isActive) return;
+
     if (state.missionType !== MissionType.Prologue) {
-        this.isPrologueActive = false;
+        if (this.isPrologueActive) {
+            this.isPrologueActive = false;
+            this.clearDirective();
+            this.clearHighlight();
+        }
         return;
     }
 
     if (!this.isPrologueActive && state.status === "Playing") {
         this.isPrologueActive = true;
         this.lastRescueCount = state.stats.prologueRescues || 0;
+        this.startPrologue(state);
     }
+
+    if (!this.isPrologueActive) return;
 
     // Handle Scripted Rescue Message
     const currentRescues = state.stats.prologueRescues || 0;
@@ -281,29 +337,97 @@ export class TutorialManager {
       this.updateCellHighlightPosition();
     }
 
-    // Check steps
-    for (const step of this.steps) {
-      if (this.completedSteps.has(step.id) && step.triggerOnce) continue;
+    // Re-apply element highlight if it was lost (e.g. after re-render)
+    if (this.highlightedElementSelector && !document.querySelector(".tutorial-highlight")) {
+        this.highlightElement(this.highlightedElementSelector);
+    }
 
-      if (step.condition(state, this)) {
-        Logger.info(`Tutorial Step Triggered: ${step.id}`);
-        
-        if (step.onTrigger) {
-            step.onTrigger(this);
-        }
-
-        this.onMessage(step.message);
-        if (step.triggerOnce) {
-            this.completedSteps.add(step.id);
-            this.saveState();
-        }
-        
-        if (step.message.blocking) {
-            this.gameClient.pause();
-        }
-      }
+    // Check current step completion
+    const currentStep = this.prologueSteps[this.currentStepIndex];
+    if (currentStep && currentStep.condition(state, this)) {
+        this.advanceStep(state);
     }
   };
+
+  private startPrologue(state: GameState) {
+      this.currentStepIndex = 0;
+      this.enterStep(0, state);
+  }
+
+  private advanceStep(state: GameState) {
+      const currentStep = this.prologueSteps[this.currentStepIndex];
+      if (currentStep && currentStep.onComplete) {
+          currentStep.onComplete(this, state);
+      }
+      
+      this.currentStepIndex++;
+      if (this.currentStepIndex < this.prologueSteps.length) {
+          this.enterStep(this.currentStepIndex, state);
+      } else {
+          this.clearDirective();
+          this.clearHighlight();
+      }
+  }
+
+  private enterStep(index: number, state: GameState) {
+      const step = this.prologueSteps[index];
+      if (!step) return;
+
+      Logger.info(`Entering Tutorial Step: ${step.id}`);
+      this.showDirective(step.directive);
+      
+      if (step.message) {
+          this.onMessage(step.message);
+          if (step.message.blocking) {
+              this.gameClient.pause();
+          }
+      }
+
+      if (step.highlightTarget) {
+          if (step.highlightTarget.selector) {
+              this.highlightElement(step.highlightTarget.selector);
+          } else if (step.highlightTarget.cell) {
+              this.highlightCell(step.highlightTarget.cell.x, step.highlightTarget.cell.y);
+          }
+      } else {
+          this.clearHighlight();
+      }
+
+      if (step.onEnter) {
+          step.onEnter(this, state);
+      }
+  }
+
+  public captureInitialPositions(state: GameState) {
+    this.initialPositions.clear();
+    for (const unit of state.units) {
+        this.initialPositions.set(unit.id, { x: unit.pos.x, y: unit.pos.y });
+    }
+    this.hasMoved = false;
+  }
+
+  private showDirective(text: string) {
+      const el = document.getElementById("tutorial-directive");
+      const textEl = document.getElementById("tutorial-directive-text");
+      if (el && textEl) {
+          textEl.textContent = text;
+          el.classList.add("active");
+      }
+  }
+
+  private clearDirective() {
+      const el = document.getElementById("tutorial-directive");
+      if (el) {
+          el.classList.remove("active");
+      }
+  }
+
+  public isActionAllowed(action: string): boolean {
+    if (!this.isActive || !this.isPrologueActive) return true;
+    const currentStep = this.prologueSteps[this.currentStepIndex];
+    if (!currentStep || !currentStep.inputGate) return true;
+    return currentStep.inputGate.allowedActions.includes(action);
+  }
 
   // Condition Helpers
 
@@ -329,23 +453,6 @@ export class TutorialManager {
         }
     }
     return false;
-  }
-
-  private checkEnemyVisible(state: GameState): boolean {
-    // Check if any enemy is in a visible cell
-    if (!state.enemies || state.enemies.length === 0) return false;
-    
-    if (!state.visibleCells) return false;
-    
-    return state.enemies.some(e => {
-        const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
-        return state.visibleCells.includes(key);
-    });
-  }
-
-  private checkObjectiveVisible(state: GameState): boolean {
-    if (!state.objectives) return false;
-    return state.objectives.some(o => !!o.visible);
   }
 
   public triggerEvent(eventId: string) {

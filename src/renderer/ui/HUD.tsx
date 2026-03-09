@@ -1,5 +1,13 @@
 import { createElement } from "@src/renderer/jsx";
 
+export function HUDTutorialDirective() {
+  return (
+    <div id="tutorial-directive" class="tutorial-directive-container">
+      <span id="tutorial-directive-text"></span>
+    </div>
+  );
+}
+
 export function HUDTopBar() {
   return (
     <div id="top-bar" class="top-bar">

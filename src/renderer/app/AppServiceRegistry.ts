@@ -132,6 +132,7 @@ export class AppServiceRegistry {
       (msg) => {
         this.advisorOverlay.showMessage(msg);
       },
+      config.getSelectedUnitId,
       this.uiOrchestrator,
       () => config.getRenderer(),
     );
