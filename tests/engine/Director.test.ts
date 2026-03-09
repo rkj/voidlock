@@ -114,12 +114,11 @@ describe("Director", () => {
     expect(onSpawn).toHaveBeenCalledTimes(1); // Turn 1 wave
   });
 
-  it("should suppress spawning in MissionType.Prologue", () => {
+  it("should spawn only the tutorial enemy in MissionType.Prologue", () => {
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
     const spawnPoints = [{ id: "sp1", pos: { x: 10, y: 10 }, radius: 1 }];
     
-    // Starting points > 0 should trigger pre-spawn
     const director = new Director(
       spawnPoints,
       prng,
@@ -133,9 +132,13 @@ describe("Director", () => {
 
     director.preSpawn();
     
-    expect(onSpawn).not.toHaveBeenCalled();
+    // Should have spawned EXACTLY one tutorial enemy
+    expect(onSpawn).toHaveBeenCalledTimes(1);
+    expect(onSpawn.mock.calls[0][0].id).toBe("tutorial-enemy");
     
-    // Simulate enough time for a wave (turnDuration is 10s by default)
+    // Simulate enough time for a regular wave (turnDuration is 10s by default)
+    // Regular waves should STILL be suppressed in update()
+    onSpawn.mockClear();
     director.update(DIRECTOR.TURN_DURATION_MS + 1000);
     
     expect(onSpawn).not.toHaveBeenCalled();

@@ -646,6 +646,27 @@ export class CoreEngine {
       this.unitManager.getCombatManager(),
     );
 
+    // 7.5. Scripted Rescue (Prologue only)
+    if (this.state.missionType === MissionType.Prologue) {
+      let rescued = false;
+      const nextUnits = this.state.units.map((u) => {
+        if (u.hp <= 0 && u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
+          rescued = true;
+          return {
+            ...u,
+            hp: Math.floor(u.innateMaxHp * 0.5), // Heal to 50%
+            state: UnitState.Idle,
+          };
+        }
+        return u;
+      });
+
+      if (rescued) {
+        this.state.units = nextUnits;
+        this.state.stats.prologueRescues = (this.state.stats.prologueRescues || 0) + 1;
+      }
+    }
+
     // 8. Cleanup Death (Must be after both Unit and Enemy updates)
     let statsChanged = false;
     let newCasualties = this.state.stats.casualties;

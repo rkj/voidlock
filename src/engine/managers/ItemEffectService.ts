@@ -2,7 +2,6 @@ import {
   GameState,
   UseItemCommand,
   ItemLibrary,
-  MissionType,
   Vector2,
 } from "../../shared/types";
 import { ItemEffectHandler } from "../interfaces/IDirector";
@@ -50,11 +49,7 @@ export class ItemEffectService implements ItemEffectHandler {
 
         state.units.forEach((u) => {
           if (MathUtils.sameCellPosition(u.pos, targetPos!)) {
-            if (state.missionType === MissionType.Prologue) {
-              u.hp = Math.max(1, u.hp - ITEMS.GRENADE_DAMAGE);
-            } else {
-              u.hp -= ITEMS.GRENADE_DAMAGE;
-            }
+            u.hp -= ITEMS.GRENADE_DAMAGE;
           }
         });
       }

@@ -387,11 +387,16 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
 
     // Mark neighbors discovered
     const internalState = (engine as any).state;
-    const neighbors = [[4,5], [6,5], [5,4], [5,6]];
-    neighbors.forEach(([x, y]) => {
-      internalState.discoveredCells.push(`${x},${y}`);
-      internalState.gridState[y * 10 + x] |= 3;
-    });
+    // Discover all 8 neighbors plus current cell (5,5) and a 5x5 area to have multiple candidates
+    for (let x = 3; x <= 7; x++) {
+      for (let y = 3; y <= 7; y++) {
+        const key = `${x},${y}`;
+        if (!internalState.discoveredCells.includes(key)) {
+          internalState.discoveredCells.push(key);
+        }
+        internalState.gridState[y * 10 + x] |= 3; // discovered + visible
+      }
+    }
 
     engine.update(16);
     const unit = engine.getState().units[0];
@@ -404,6 +409,37 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
     expect(goalCell).not.toEqual({ x: 5, y: 4 });
     expect(goalCell).not.toEqual({ x: 6, y: 5 });
     expect(goalCell).not.toEqual({ x: 4, y: 5 });
+
+    // It should be one of the remaining valid candidates that are further from enemy than (5.5, 5.5)
+    // and not in the position history. 
+    const validCandidates = [];
+    const enemyPos = { x: 4.5, y: 5.5 };
+    const currentDist = 1.0;
+    
+    const state = engine.getState();
+    for (let x = 0; x < 10; x++) {
+      for (let y = 0; y < 10; y++) {
+        const isDiscovered = state.gridState[y * 10 + x] & 2;
+        if (!isDiscovered) continue;
+
+        const pos = { x: x + 0.5, y: y + 0.5 };
+        const dist = Math.sqrt(Math.pow(pos.x - enemyPos.x, 2) + Math.pow(pos.y - enemyPos.y, 2));
+        const isHistory = [
+          { x: 5, y: 6 },
+          { x: 5, y: 4 },
+          { x: 6, y: 5 },
+        ].some(h => h.x === x && h.y === y);
+        const isEnemy = x === 4 && y === 5;
+        
+        if (dist > currentDist && !isHistory && !isEnemy) {
+          validCandidates.push({ x, y });
+        }
+      }
+    }
+
+    const isValid = validCandidates.some(c => c.x === goalCell.x && c.y === goalCell.y);
+    expect(isValid, `Goal ${goalCell.x},${goalCell.y} should be one of the valid candidates. Candidates: ${JSON.stringify(validCandidates)}`).toBe(true);
+    expect(validCandidates.length).toBeGreaterThan(1); // Ensure we have multiple choices
   });
 
   it("6) Cornered unit exception: can revisit cells when no other forward options exist (voidlock-2m8oi.15)", () => {

@@ -45,6 +45,7 @@ export class TutorialManager {
 
   // State tracking
   private hasMoved: boolean = false;
+  private lastRescueCount: number = 0;
   
   private steps: TutorialStep[] = [
     {
@@ -260,6 +261,19 @@ export class TutorialManager {
 
     if (!this.isPrologueActive && state.status === "Playing") {
         this.isPrologueActive = true;
+        this.lastRescueCount = state.stats.prologueRescues || 0;
+    }
+
+    // Handle Scripted Rescue Message
+    const currentRescues = state.stats.prologueRescues || 0;
+    if (currentRescues > this.lastRescueCount) {
+        this.lastRescueCount = currentRescues;
+        this.onMessage({
+            id: `prologue_rescue_${currentRescues}`,
+            text: "Emergency medical protocol engaged. Soldier vital signs stabilized.",
+            portrait: "logo_gemini",
+            duration: 4000,
+        });
     }
 
     // Update cell highlight position if map panned/zoomed

@@ -6,7 +6,6 @@ import {
   Enemy,
   WeaponLibrary,
   Attacker,
-  MissionType,
 } from "../../shared/types";
 import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
@@ -199,12 +198,7 @@ export class CombatManager {
         );
 
         if (prng.next() <= hitChance) {
-          if (state.missionType === MissionType.Prologue && 'archetypeId' in target) {
-            // Player unit invulnerability for Prologue (health cannot drop below 1)
-            target.hp = Math.max(1, target.hp - stats.damage);
-          } else {
-            target.hp -= stats.damage;
-          }
+          target.hp -= stats.damage;
           if (target.hp <= 0 && onKilled) {
             onKilled();
           }

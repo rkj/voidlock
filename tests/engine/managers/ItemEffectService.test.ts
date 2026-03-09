@@ -105,7 +105,7 @@ describe("ItemEffectService", () => {
       expect(state.units[0].hp).toBe(50 - ITEMS.GRENADE_DAMAGE);
     });
 
-    it("should not kill units in Prologue mission", () => {
+    it("should allow unit HP to drop below 1 in Prologue mission (rescue is handled in CoreEngine)", () => {
       state.missionType = MissionType.Prologue;
       state.units[0].hp = 10;
       const cmd: UseItemCommand = {
@@ -115,7 +115,8 @@ describe("ItemEffectService", () => {
         target: { x: 2, y: 2 },
       };
       service.handleUseItem(state, cmd);
-      expect(state.units[0].hp).toBe(1);
+      // ITEMS.GRENADE_DAMAGE is 100, so 10 - 100 = -90
+      expect(state.units[0].hp).toBe(10 - ITEMS.GRENADE_DAMAGE);
     });
   });
 

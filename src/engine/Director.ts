@@ -82,7 +82,24 @@ export class Director implements IDirector {
   }
 
   public preSpawn() {
-    if (this.missionType === MissionType.Prologue) return;
+    if (this.missionType === MissionType.Prologue) {
+      if (this.spawnPoints.length > 0) {
+        const spawnPoint = this.spawnPoints[0];
+        const jitter = MathUtils.getDeterministicJitter(this.enemyIdCounter);
+        const pos = {
+          x: spawnPoint.pos.x + 0.5 + jitter.x,
+          y: spawnPoint.pos.y + 0.5 + jitter.y,
+        };
+        const enemy = this.createEnemy(
+          `tutorial-enemy`,
+          pos,
+          EnemyType.Tutorial,
+          1,
+        );
+        this.onSpawn(enemy);
+      }
+      return;
+    }
     // 1. Spend Starting Points Budget (Pre-spawning at mission start)
     // Placement: Rooms only, NOT in player quadrant.
     if (this.startingPoints > 0 && this.map) {

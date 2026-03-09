@@ -3,7 +3,6 @@ import {
   Enemy,
   EnemyType,
   EnemyArchetypeLibrary,
-  MissionType,
   UnitState,
   Door,
 } from "../../shared/types";
@@ -72,11 +71,7 @@ export class EnemyManager {
 
         state.units.forEach((u) => {
           if (MathUtils.sameCellPosition(u.pos, mine.pos)) {
-            if (state.missionType === MissionType.Prologue) {
-              u.hp = Math.max(1, u.hp - mine.damage);
-            } else {
-              u.hp -= mine.damage;
-            }
+            u.hp -= mine.damage;
           }
         });
       }

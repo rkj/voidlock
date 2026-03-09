@@ -70,7 +70,8 @@ export class MissionManager {
     // Spawn bonus loot if present
     if (allBonusLoot.length > 0 && lootManager) {
       allBonusLoot.forEach((pos) => {
-        lootManager.spawnLoot(state, "scrap_crate", pos);
+        const lootType = missionType === MissionType.Prologue ? "medkit" : "scrap_crate";
+        lootManager.spawnLoot(state, lootType, pos);
       });
     }
 

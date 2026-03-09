@@ -72,6 +72,7 @@ export type MissionStats = {
   elitesKilled: number;
   scrapGained: number;
   casualties: number;
+  prologueRescues?: number;
 };
 
 export enum MissionType {

@@ -232,6 +232,7 @@ export enum EnemyType {
   AlienScout = "alien-scout",
   Grunt = "grunt",
   Melee = "melee",
+  Tutorial = "tutorial",
 }
 
 export const EnemyArchetypeLibrary: {
@@ -246,6 +247,16 @@ export const EnemyArchetypeLibrary: {
     ai: "Melee" | "Ranged";
   };
 } = {
+  [EnemyType.Tutorial]: {
+    type: EnemyType.Tutorial,
+    hp: 20,
+    damage: 5,
+    fireRate: 1000,
+    accuracy: 30,
+    attackRange: 1,
+    speed: 20,
+    ai: "Melee",
+  },
   [EnemyType.XenoMite]: {
     type: EnemyType.XenoMite,
     hp: 50,

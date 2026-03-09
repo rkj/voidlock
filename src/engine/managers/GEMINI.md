@@ -30,6 +30,7 @@ This directory contains specialized managers that handle specific domains of the
 - **Unit & Enemy Management**: `UnitManager` and `EnemyManager` handle movement and combat logic, including hit chance calculations based on the new Weapon/Aim model (`HitChance = ((SoldierAim + WeaponMod + EquipmentBonus) / 100) * (WeaponEffectiveRange / Distance)`). `UnitManager` delegates to `CombatManager` for target acquisition, autonomous weapon switching between melee and ranged weapons based on target distance, and attack execution. It delegates to `StatsManager` for dynamic stat recalculation (applying bonuses from equipment and burdens from carried objectives). Movement updates are delegated to `MovementManager`. Autonomous behaviors and exploration logic are delegated to `UnitAI`. State transitions and channeling are handled by `UnitStateManager`.
 - **Infinite Sight**: Soldiers have infinite sight range by default, managed via `VisibilityManager`.
 - **Unified Pacing**: Managers follow the global `scaledDt` to ensure that movement, threat growth, and timed actions (like extraction) scale consistently with the game speed setting. This ensures that pausing the game freezes all simulation logic.
+- **Honest Difficulty (Prologue)**: Implements ADR 0057. The prologue uses reduced enemy stats and removes the hard HP clamp. If a soldier's HP reaches 0, a scripted rescue (handled in `CoreEngine`) heals them to 50% HP and increments the `prologueRescues` counter, allowing the mission to continue without invulnerability.
 
 ## Subdirectories
 
