@@ -405,4 +405,79 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
     expect(goalCell).not.toEqual({ x: 6, y: 5 });
     expect(goalCell).not.toEqual({ x: 4, y: 5 });
   });
+
+  it("6) Cornered unit exception: can revisit cells when no other forward options exist (voidlock-2m8oi.15)", () => {
+    // 1x3 dead-end corridor: (0,0) - (1,0) - (2,0)
+    const deadEndMap: MapDefinition = {
+      width: 3,
+      height: 1,
+      cells: [
+        { x: 0, y: 0, type: CellType.Floor },
+        { x: 1, y: 0, type: CellType.Floor },
+        { x: 2, y: 0, type: CellType.Floor },
+      ],
+      spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
+    };
+    engine = new CoreEngine(deadEndMap, 123, { soldiers: [], inventory: {} }, true, true);
+    engine.clearUnits();
+
+    // Unit at (2,0), neighbor (1,0) is in history
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 2.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        speed: 20,
+      },
+      aiProfile: AIProfile.STAND_GROUND,
+      commandQueue: [],
+      engagementPolicy: "AVOID",
+      archetypeId: "test",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      positionHistory: [{ x: 1, y: 0 }], // Just came from (1,0)
+      aiEnabled: true,
+      innateMaxHp: 100,
+    });
+
+    // Enemy at (2.2, 0.5) - very close to unit, making (1,0) the only safer option
+    engine.addEnemy({
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 2.2, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 1000,
+      accuracy: 100,
+      attackRange: 1,
+      speed: 0,
+      difficulty: 1,
+    });
+
+    // Mark cells discovered
+    const internalState = (engine as any).state;
+    for (let x = 0; x < 3; x++) {
+      internalState.discoveredCells.push(`${x},0`);
+      internalState.gridState[x] |= 3;
+    }
+
+    engine.update(16);
+    const unit = engine.getState().units[0];
+    
+    // It should have committed to kiting back to (1,0) despite it being in history
+    expect(unit.activePlan?.behavior).toBe("Kiting");
+    expect(Math.floor(unit.activePlan!.goal.x)).toBe(1);
+    expect(Math.floor(unit.activePlan!.goal.y)).toBe(0);
+  });
 });

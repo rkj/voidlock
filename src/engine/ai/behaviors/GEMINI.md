@@ -6,7 +6,7 @@ Modular behavior components for unit AI. Evaluated in priority order by UnitAI (
 
 - `Behavior.ts`: Base interface and types for all behaviors.
 - `BehaviorUtils.ts`: Shared utilities (cell scoring, target selection).
-- `SafetyBehavior.ts`: Low-HP retreat and AVOID-mode kiting (ADR 0056).
+- `SafetyBehavior.ts`: Low-HP retreat and AVOID-mode kiting (ADR 0056). Implements anti-backtracking with cornered unit exception.
 - `InteractionBehavior.ts`: Door opening, item pickup.
 - `CombatBehavior.ts`: Target engagement, suppressive fire.
 - `ObjectiveBehavior.ts`: Mission objective pursuit.
