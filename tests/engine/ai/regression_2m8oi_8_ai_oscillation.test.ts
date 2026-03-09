@@ -742,4 +742,183 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
     expect(unit.activePlan?.priority).toBe(0);
     expect(engine.getState().t).toBeLessThan(initialCommittedUntil);
   });
+
+  it("10) Invalidation trigger (all enemies dead) correctly causes kiting plan re-evaluation", () => {
+    // 1. Setup Unit with AVOID engagement and an enemy in LOS
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 5.5, y: 5.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        speed: 20,
+      },
+      aiProfile: AIProfile.STAND_GROUND,
+      commandQueue: [],
+      engagementPolicy: "AVOID",
+      archetypeId: "test",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      positionHistory: [],
+      aiEnabled: true,
+      innateMaxHp: 100,
+      isDeployed: true,
+    });
+
+    engine.addEnemy({
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 4.5, y: 5.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 1000,
+      accuracy: 100,
+      attackRange: 1,
+      speed: 0,
+      difficulty: 1,
+    });
+
+    // Mark some cells discovered for kiting, but leave some undiscovered for exploration
+    const internalState = (engine as any).state;
+    for (let x = 0; x < 5; x++) {
+      for (let y = 0; y < 10; y++) {
+        internalState.discoveredCells.push(`${x},${y}`);
+        internalState.gridState[y * 10 + x] |= 3; // visible + discovered
+      }
+    }
+    // Also discover unit's current cell
+    internalState.discoveredCells.push("5,5");
+    internalState.gridState[5 * 10 + 5] |= 3;
+
+    // Add a Recover objective to ensure re-evaluation to Objective behavior
+    internalState.objectives = [{ 
+        id: "o1", 
+        kind: "Recover", 
+        state: "Pending", 
+        visible: true,
+        targetCell: { x: 9, y: 9 }
+    }];
+    // Populate visibleCells to ensure ItemDistributionService/ObjectiveBehavior find it
+    for (let x = 0; x < 10; x++) {
+      for (let y = 0; y < 10; y++) {
+        internalState.visibleCells.push(`${x},${y}`);
+      }
+    }
+    (engine as any).unitManager.totalFloorCells = 100;
+    internalState.map.extraction = undefined;
+
+    // 2. Initial tick to establish Kiting plan (Priority 0)
+    engine.update(16);
+    let unit = engine.getState().units[0];
+    expect(unit.activePlan?.behavior).toBe("Kiting");
+    expect(unit.activePlan?.priority).toBe(0);
+
+    // 3. Kill the enemy (set HP to 0)
+    // IMPORTANT: Refresh state reference as engine.update might have replaced it
+    const stateAfterTick = (engine as any).state;
+    stateAfterTick.enemies[0] = { ...stateAfterTick.enemies[0], hp: 0 };
+
+    // 4. Update. UnitManager should detect allVisibleEnemiesGone and invalidate the plan.
+    engine.update(16);
+    unit = engine.getState().units[0];
+
+    // VERIFICATION: Kiting plan was invalidated and unit re-evaluated
+    // Since there is a pending objective, it should re-evaluate to Recovering.
+    expect(unit.activePlan?.behavior).toBe("Recovering");
+    expect(unit.activePlan?.priority).toBe(3);
+  });
+
+  it("11) Invalidation trigger (all enemies dead) correctly causes combat plan re-evaluation", () => {
+    // 1. Setup Unit with ENGAGE policy and an enemy in range
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 5.5, y: 5.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        speed: 20,
+      },
+      aiProfile: AIProfile.RUSH,
+      commandQueue: [],
+      engagementPolicy: "ENGAGE",
+      archetypeId: "test",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      positionHistory: [],
+      aiEnabled: true,
+      innateMaxHp: 100,
+      isDeployed: true,
+    });
+
+    engine.addEnemy({
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 8.5, y: 5.5 }, // Far enough to trigger Rushing behavior
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 1000,
+      accuracy: 100,
+      attackRange: 1,
+      speed: 0,
+      difficulty: 1,
+    });
+
+    // Mark cells discovered and visible
+    const internalState = (engine as any).state;
+    for (let x = 0; x < 10; x++) {
+      for (let y = 0; y < 10; y++) {
+        internalState.discoveredCells.push(`${x},${y}`);
+        internalState.gridState[y * 10 + x] |= 3;
+        internalState.visibleCells.push(`${x},${y}`);
+      }
+    }
+
+    // Add a objective to ensure re-evaluation to something else
+    internalState.objectives = [{ 
+        id: "o1", 
+        kind: "Recover", 
+        state: "Pending", 
+        visible: true,
+        targetCell: { x: 0, y: 0 }
+    }];
+    internalState.map.extraction = undefined;
+
+    // 2. Initial tick to establish Rushing plan (Priority 2)
+    engine.update(16);
+    let unit = engine.getState().units[0];
+    expect(unit.activePlan?.behavior).toBe("Rushing");
+    expect(unit.activePlan?.priority).toBe(2);
+
+    // 3. Kill the enemy (set HP to 0)
+    const stateAfterTick = (engine as any).state;
+    stateAfterTick.enemies[0] = { ...stateAfterTick.enemies[0], hp: 0 };
+
+    // 4. Update. UnitManager should detect allVisibleEnemiesGone and invalidate the plan.
+    engine.update(16);
+    unit = engine.getState().units[0];
+
+    // VERIFICATION: Combat plan (Rushing) was invalidated and unit re-evaluated
+    expect(unit.activePlan?.behavior).toBe("Recovering");
+    expect(unit.activePlan?.priority).toBe(3);
+  });
 });
