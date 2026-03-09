@@ -67,10 +67,11 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
           const currentCheck = Math.floor(state.t / checkInterval);
           if (
             currentCheck > lastCheck ||
-            currentUnit.state === UnitState.Idle
+            currentUnit.state === UnitState.Idle ||
+            currentUnit.activePlan?.behavior === "Exploring"
           ) {
             Logger.debug(
-              `ExplorationBehavior: reevaluating target due to timer or idle (state=${currentUnit.state})`,
+              `ExplorationBehavior: reevaluating target due to timer, idle, or expired plan (state=${currentUnit.state})`,
             );
             shouldReevaluate = true;
           }
@@ -112,34 +113,41 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
               }
             }
 
-          if (switchTarget) {
-            Logger.debug(
-              `ExplorationBehavior: unit ${currentUnit.id} switching target to ${newTarget.x},${newTarget.y}`,
-            );
-            currentUnit = { ...currentUnit, explorationTarget: newTarget };
-            context.explorationClaims.set(currentUnit.id, newTarget);
-            currentUnit = context.executeCommand(
-              currentUnit,
-              {
-                type: CommandType.MOVE_TO,
-                unitIds: [currentUnit.id],
-                target: targetCell,
-                label: "Exploring",
-              },
-              state,
-              false,
-              director,
-            );
-            if (currentUnit.state === UnitState.Moving) {
+            if (switchTarget) {
+              Logger.debug(
+                `ExplorationBehavior: unit ${currentUnit.id} switching target to ${newTarget.x},${newTarget.y}`,
+              );
+              currentUnit = { ...currentUnit, explorationTarget: newTarget };
+              context.explorationClaims.set(currentUnit.id, newTarget);
+              currentUnit = context.executeCommand(
+                currentUnit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [currentUnit.id],
+                  target: targetCell,
+                  label: "Exploring",
+                },
+                state,
+                false,
+                director,
+              );
+              if (currentUnit.state === UnitState.Moving) {
+                currentUnit.activePlan = {
+                  behavior: "Exploring",
+                  goal: { x: targetCell.x + 0.5, y: targetCell.y + 0.5 },
+                  committedUntil: state.t + 1000,
+                  priority: 4,
+                };
+              }
+              return { unit: currentUnit, handled: true };
+            } else if (currentUnit.activePlan) {
+              // Target is different but not closer enough to switch, refresh current plan commitment
               currentUnit.activePlan = {
-                behavior: "Exploring",
-                goal: { x: targetCell.x + 0.5, y: targetCell.y + 0.5 },
+                ...currentUnit.activePlan,
                 committedUntil: state.t + 1000,
-                priority: 4,
               };
+              return { unit: currentUnit, handled: true };
             }
-            return { unit: currentUnit, handled: true };
-          }
           } else if (currentUnit.state === UnitState.Idle) {
             Logger.debug(
               `ExplorationBehavior: unit ${currentUnit.id} same target ${newTarget.x},${newTarget.y} but unit is idle, re-executing move`,
@@ -171,6 +179,13 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
                 priority: 4,
               };
             }
+            return { unit: currentUnit, handled: true };
+          } else if (currentUnit.activePlan) {
+            // Same target and already moving, refresh commitment
+            currentUnit.activePlan = {
+              ...currentUnit.activePlan,
+              committedUntil: state.t + 1000,
+            };
             return { unit: currentUnit, handled: true };
           }
         } else {

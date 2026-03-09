@@ -152,25 +152,38 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
         }
 
         const label = closest.type === "objective" ? "Recovering" : "Picking up";
-        Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} picking up ${closest.id} (${label})`);
-        currentUnit = context.executeCommand(
-          currentUnit,
-          {
-            type: CommandType.PICKUP,
-            unitIds: [currentUnit.id],
-            lootId: closest.id,
-            label,
-          },
-          state,
-          false,
-          director,
-        );
-        if (currentUnit.state === UnitState.Moving && label === "Recovering") {
+        
+        const isAlreadyTargeting = 
+          currentUnit.activeCommand?.type === CommandType.PICKUP &&
+          (currentUnit.activeCommand as PickupCommand).lootId === closest.id;
+
+        if (!isAlreadyTargeting) {
+          Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} picking up ${closest.id} (${label})`);
+          currentUnit = context.executeCommand(
+            currentUnit,
+            {
+              type: CommandType.PICKUP,
+              unitIds: [currentUnit.id],
+              lootId: closest.id,
+              label,
+            },
+            state,
+            false,
+            director,
+          );
+          if (currentUnit.state === UnitState.Moving && label === "Recovering") {
+            currentUnit.activePlan = {
+              behavior: label,
+              goal: closest.pos,
+              committedUntil: state.t + 1000,
+              priority: 3,
+            };
+          }
+        } else if (currentUnit.activePlan && label === "Recovering") {
+          // Refresh commitment
           currentUnit.activePlan = {
-            behavior: label,
-            goal: closest.pos,
+            ...currentUnit.activePlan,
             committedUntil: state.t + 1000,
-            priority: 3,
           };
         }
         actionTaken = true;
@@ -226,50 +239,76 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
                 : bestObj.obj.kind === "Escort"
                   ? "Escorting"
                   : "Hunting";
-            Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} moving to ${target.x},${target.y} (${label})`);
-            currentUnit = context.executeCommand(
-              currentUnit,
-              {
-                type: CommandType.MOVE_TO,
-                unitIds: [currentUnit.id],
-                target,
-                label,
-              },
-              state,
-              false,
-              director,
-            );
-            if (currentUnit.state === UnitState.Moving && (label === "Recovering" || label === "Hunting")) {
+            
+            const isAlreadyMovingToTarget = 
+              currentUnit.state === UnitState.Moving &&
+              currentUnit.targetPos &&
+              MathUtils.sameCellPosition(currentUnit.targetPos, target);
+
+            if (!isAlreadyMovingToTarget) {
+              Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} moving to ${target.x},${target.y} (${label})`);
+              currentUnit = context.executeCommand(
+                currentUnit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [currentUnit.id],
+                  target,
+                  label,
+                },
+                state,
+                false,
+                director,
+              );
+              if (currentUnit.state === UnitState.Moving && (label === "Recovering" || label === "Hunting")) {
+                currentUnit.activePlan = {
+                  behavior: label,
+                  goal: { x: target.x + 0.5, y: target.y + 0.5 },
+                  committedUntil: state.t + 1000,
+                  priority: 3,
+                };
+              }
+            } else if (currentUnit.activePlan && (label === "Recovering" || label === "Hunting")) {
+              // Refresh commitment
               currentUnit.activePlan = {
-                behavior: label,
-                goal: { x: target.x + 0.5, y: target.y + 0.5 },
+                ...currentUnit.activePlan,
                 committedUntil: state.t + 1000,
-                priority: 3,
               };
             }
             actionTaken = true;
           } else {
             // At target, issue pickup if it's a recovery objective
             if (bestObj.obj.kind === "Recover") {
-              Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} at target, picking up ${bestObj.obj.id}`);
-              currentUnit = context.executeCommand(
-                currentUnit,
-                {
-                  type: CommandType.PICKUP,
-                  unitIds: [currentUnit.id],
-                  lootId: bestObj.obj.id,
-                  label: "Recovering",
-                },
-                state,
-                false,
-                director,
-              );
-              if (currentUnit.state === UnitState.Moving || currentUnit.state === UnitState.Channeling) {
+              const isAlreadyRecovering = 
+                currentUnit.activeCommand?.type === CommandType.PICKUP &&
+                (currentUnit.activeCommand as PickupCommand).lootId === bestObj.obj.id;
+
+              if (!isAlreadyRecovering) {
+                Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} at target, picking up ${bestObj.obj.id}`);
+                currentUnit = context.executeCommand(
+                  currentUnit,
+                  {
+                    type: CommandType.PICKUP,
+                    unitIds: [currentUnit.id],
+                    lootId: bestObj.obj.id,
+                    label: "Recovering",
+                  },
+                  state,
+                  false,
+                  director,
+                );
+                if (currentUnit.state === UnitState.Moving || currentUnit.state === UnitState.Channeling) {
+                  currentUnit.activePlan = {
+                    behavior: "Recovering",
+                    goal: currentUnit.pos,
+                    committedUntil: state.t + 1000,
+                    priority: 3,
+                  };
+                }
+              } else if (currentUnit.activePlan) {
+                // Refresh commitment
                 currentUnit.activePlan = {
-                  behavior: "Recovering",
-                  goal: currentUnit.pos,
+                  ...currentUnit.activePlan,
                   committedUntil: state.t + 1000,
-                  priority: 3,
                 };
               }
               actionTaken = true;

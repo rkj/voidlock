@@ -516,4 +516,80 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
     expect(Math.floor(unit.activePlan!.goal.x)).toBe(1);
     expect(Math.floor(unit.activePlan!.goal.y)).toBe(0);
   });
+
+  it("7) Plan expiry triggers re-evaluation (voidlock-2m8oi.12)", () => {
+    // 10x10 L-shaped corridor from Test 2
+    const lMap: MapDefinition = {
+      width: 10,
+      height: 10,
+      cells: [
+        ...Array(10).fill(null).map((_, i) => ({ x: i, y: 0, type: CellType.Floor })),
+        ...Array(9).fill(null).map((_, i) => ({ x: 9, y: i + 1, type: CellType.Floor })),
+      ],
+      spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
+    };
+    engine = new CoreEngine(lMap, 123, { soldiers: [], inventory: {} }, true, true);
+    engine.clearUnits();
+
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 0.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        speed: 5, // Slow but not too slow
+      },
+      aiProfile: AIProfile.STAND_GROUND,
+      commandQueue: [],
+      engagementPolicy: "ENGAGE",
+      archetypeId: "test",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      positionHistory: [],
+      aiEnabled: true,
+      innateMaxHp: 100,
+      isDeployed: true,
+    });
+
+    const internalState = (engine as any).state;
+    // Mark only (0,0) as discovered
+    internalState.discoveredCells = ["0,0"];
+    for (let i = 0; i < internalState.gridState.length; i++) internalState.gridState[i] = 0;
+    internalState.gridState[0] = 3; // (0,0) discovered + visible
+
+    // Add a dummy objective to prevent auto-extraction
+    internalState.objectives = [{ id: "o1", kind: "Dummy" as any, state: "Pending", visible: false }];
+    (engine as any).unitManager.totalFloorCells = 100; // Mock large floor count
+
+    // 1. First tick triggers exploration
+    engine.update(32);
+    let unit = engine.getState().units[0];
+    
+    expect(unit.activePlan?.behavior).toBe("Exploring");
+    const initialCommittedUntil = unit.activePlan!.committedUntil;
+    expect(initialCommittedUntil).toBeGreaterThan(0);
+
+    // 2. Advance time but stay within commitment (1000ms)
+    engine.update(500);
+    unit = engine.getState().units[0];
+    expect(unit.activePlan!.committedUntil).toBe(initialCommittedUntil);
+    expect(engine.getState().t).toBeLessThan(initialCommittedUntil);
+
+    // 3. Advance past commitment
+    // Advance by another 600ms (total 1116ms + 32ms initial, past 1032ms approx)
+    engine.update(600);
+    unit = engine.getState().units[0];
+    
+    // VERIFICATION: The unit should have re-evaluated and refreshed the commitment.
+    expect(unit.activePlan!.committedUntil).toBeGreaterThan(initialCommittedUntil);
+    expect(unit.activePlan!.committedUntil).toBeGreaterThanOrEqual(engine.getState().t);
+  });
 });

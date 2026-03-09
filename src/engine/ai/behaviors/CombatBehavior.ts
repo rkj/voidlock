@@ -71,32 +71,47 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
             x: Math.floor(primaryThreat.pos.x),
             y: Math.floor(primaryThreat.pos.y),
           };
-          currentUnit = context.executeCommand(
-            currentUnit,
-            {
-              type: CommandType.MOVE_TO,
-              unitIds: [currentUnit.id],
-              target: targetCell,
-              label: "Rushing",
-            },
-            state,
-            false,
-            director,
-          );
+          if (
+            currentUnit.state !== UnitState.Moving ||
+            !currentUnit.targetPos ||
+            !MathUtils.sameCellPosition(currentUnit.targetPos, targetCell)
+          ) {
+            currentUnit = context.executeCommand(
+              currentUnit,
+              {
+                type: CommandType.MOVE_TO,
+                unitIds: [currentUnit.id],
+                target: targetCell,
+                label: "Rushing",
+              },
+              state,
+              false,
+              director,
+            );
 
-          if (currentUnit.state === UnitState.Moving) {
+            if (currentUnit.state === UnitState.Moving) {
+              const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
+              const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
+              const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
+              currentUnit.activePlan = {
+                behavior: "Rushing",
+                goal: goalPos,
+                committedUntil: state.t + Math.max(500, travelTimeMs),
+                priority: 2,
+              };
+            }
+            return { unit: currentUnit, handled: true };
+          } else if (currentUnit.activePlan) {
+            // Same target and already moving, refresh commitment
             const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
             const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
             const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
             currentUnit.activePlan = {
-              behavior: "Rushing",
-              goal: goalPos,
+              ...currentUnit.activePlan,
               committedUntil: state.t + Math.max(500, travelTimeMs),
-              priority: 2,
             };
+            return { unit: currentUnit, handled: true };
           }
-
-          return { unit: currentUnit, handled: true };
         }
       } else if (currentUnit.aiProfile === "RETREAT" && currentUnit.engagementPolicy !== "AVOID") {
         if (dist < currentUnit.stats.attackRange * 0.8) {
@@ -134,13 +149,68 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
 
           if (bestRetreat && bestRetreat.dist > dist) {
             const targetCell = { x: bestRetreat.x, y: bestRetreat.y };
+            if (
+              currentUnit.state !== UnitState.Moving ||
+              !currentUnit.targetPos ||
+              !MathUtils.sameCellPosition(currentUnit.targetPos, targetCell)
+            ) {
+              currentUnit = context.executeCommand(
+                currentUnit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [currentUnit.id],
+                  target: targetCell,
+                  label: "Retreating",
+                },
+                state,
+                false,
+                director,
+              );
+
+              if (currentUnit.state === UnitState.Moving) {
+                const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
+                const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
+                const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
+                currentUnit.activePlan = {
+                  behavior: "Retreating",
+                  goal: goalPos,
+                  committedUntil: state.t + Math.max(500, travelTimeMs),
+                  priority: 2,
+                };
+              }
+              return { unit: currentUnit, handled: true };
+            } else if (currentUnit.activePlan) {
+              // Same target and already moving, refresh commitment
+              const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
+              const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
+              const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
+              currentUnit.activePlan = {
+                ...currentUnit.activePlan,
+                committedUntil: state.t + Math.max(500, travelTimeMs),
+              };
+              return { unit: currentUnit, handled: true };
+            }
+          }
+        }
+      } else {
+        // Default behavior
+        if (dist > currentUnit.stats.attackRange) {
+          const targetCell = {
+            x: Math.floor(primaryThreat.pos.x),
+            y: Math.floor(primaryThreat.pos.y),
+          };
+          if (
+            currentUnit.state !== UnitState.Moving ||
+            !currentUnit.targetPos ||
+            !MathUtils.sameCellPosition(currentUnit.targetPos, targetCell)
+          ) {
             currentUnit = context.executeCommand(
               currentUnit,
               {
                 type: CommandType.MOVE_TO,
                 unitIds: [currentUnit.id],
                 target: targetCell,
-                label: "Retreating",
+                label: "Engaging",
               },
               state,
               false,
@@ -152,49 +222,24 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
               const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
               const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
               currentUnit.activePlan = {
-                behavior: "Retreating",
+                behavior: "Engaging",
                 goal: goalPos,
                 committedUntil: state.t + Math.max(500, travelTimeMs),
                 priority: 2,
               };
             }
-
             return { unit: currentUnit, handled: true };
-          }
-        }
-      } else {
-        // Default behavior
-        if (dist > currentUnit.stats.attackRange) {
-          const targetCell = {
-            x: Math.floor(primaryThreat.pos.x),
-            y: Math.floor(primaryThreat.pos.y),
-          };
-          currentUnit = context.executeCommand(
-            currentUnit,
-            {
-              type: CommandType.MOVE_TO,
-              unitIds: [currentUnit.id],
-              target: targetCell,
-              label: "Engaging",
-            },
-            state,
-            false,
-            director,
-          );
-
-          if (currentUnit.state === UnitState.Moving) {
+          } else if (currentUnit.activePlan) {
+            // Same target and already moving, refresh commitment
             const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
             const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
             const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
             currentUnit.activePlan = {
-              behavior: "Engaging",
-              goal: goalPos,
+              ...currentUnit.activePlan,
               committedUntil: state.t + Math.max(500, travelTimeMs),
-              priority: 2,
             };
+            return { unit: currentUnit, handled: true };
           }
-
-          return { unit: currentUnit, handled: true };
         }
       }
     }

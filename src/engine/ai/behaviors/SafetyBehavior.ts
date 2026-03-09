@@ -148,6 +148,14 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
             unit: currentUnit,
             handled: currentUnit.state === UnitState.Moving,
           };
+        } else if (currentUnit.activePlan) {
+          // Same target and already moving, refresh commitment
+          const travelTimeMs = calculateTravelTimeMs(currentUnit, closestSafe.dist);
+          currentUnit.activePlan = {
+            ...currentUnit.activePlan,
+            committedUntil: state.t + Math.max(500, travelTimeMs),
+          };
+          return { unit: currentUnit, handled: true };
         }
         return {
           unit: currentUnit,
@@ -253,6 +261,16 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
           }
 
           return { unit: currentUnit, handled: true };
+        } else if (currentUnit.activePlan) {
+          // Same target and already moving, refresh commitment
+          const goalPos = { x: bestWaypoint.x + 0.5, y: bestWaypoint.y + 0.5 };
+          const dist = MathUtils.getDistance(currentUnit.pos, goalPos);
+          const travelTimeMs = calculateTravelTimeMs(currentUnit, dist);
+          currentUnit.activePlan = {
+            ...currentUnit.activePlan,
+            committedUntil: state.t + Math.max(500, travelTimeMs),
+          };
+          return { unit: currentUnit, handled: true };
         }
         return { unit: currentUnit, handled: true };
       }
@@ -333,6 +351,16 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
           }
 
           return { unit: currentUnit, handled: true };
+        } else if (currentUnit.activePlan) {
+          // Same target and already moving, refresh commitment
+          const goalPos = { x: best.pos.x + 0.5, y: best.pos.y + 0.5 };
+          const dist = MathUtils.getDistance(currentUnit.pos, goalPos);
+          const travelTimeMs = calculateTravelTimeMs(currentUnit, dist);
+          currentUnit.activePlan = {
+            ...currentUnit.activePlan,
+            committedUntil: state.t + Math.max(500, travelTimeMs),
+          };
+          return { unit: currentUnit, handled: true };
         }
         return { unit: currentUnit, handled: true };
       }
@@ -383,6 +411,15 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
               priority: 0,
             };
           }
+          return { unit: currentUnit, handled: true };
+        } else if (currentUnit.activePlan) {
+          // Same target and already moving, refresh commitment
+          const dist = MathUtils.getDistance(currentUnit.pos, closestAlly.pos);
+          const travelTimeMs = calculateTravelTimeMs(currentUnit, dist);
+          currentUnit.activePlan = {
+            ...currentUnit.activePlan,
+            committedUntil: state.t + Math.max(500, travelTimeMs),
+          };
           return { unit: currentUnit, handled: true };
         }
         return {
