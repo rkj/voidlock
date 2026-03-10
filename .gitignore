@@ -2,6 +2,7 @@
 logs/*.log
 logs/*.json
 *.log
+.claude/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
