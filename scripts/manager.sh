@@ -27,51 +27,9 @@ while true; do
   gemini -p "@docs/MANAGER.md" \
     --output-format stream-json \
     --model "$MODEL" \
-    --allowed-tools "run_shell_command(./scripts/dispatch_agent.sh)" \
-    --allowed-tools "run_shell_command(./scripts/safe_commit.sh)" \
-    --allowed-tools "run_shell_command(bd)" \
-    --allowed-tools "run_shell_command(find)" \
-    --allowed-tools "run_shell_command(grep)" \
-    --allowed-tools "run_shell_command(jj diff)" \
-    --allowed-tools "run_shell_command(jj log)" \
-    --allowed-tools "run_shell_command(jj show)" \
-    --allowed-tools "run_shell_command(jj status)" \
-    --allowed-tools "run_shell_command(ls)" \
-    --allowed-tools "run_shell_command(npm run build)" \
-    --allowed-tools "run_shell_command(npm run lint)" \
-    --allowed-tools "run_shell_command(npm run process-assets)" \
-    --allowed-tools "run_shell_command(npm run test)" \
-    --allowed-tools "run_shell_command(npx madge)" \
-    --allowed-tools "run_shell_command(npx prettier)" \
-    --allowed-tools "run_shell_command(npx tsc)" \
-    --allowed-tools "run_shell_command(npx vite build)" \
-    --allowed-tools "run_shell_command(npx vitest)" \
-    --allowed-tools "run_shell_command(rm tests/)" \
-    --allowed-tools "run_shell_command(scripts/dispatch_agent.sh)" \
-    --allowed-tools "run_shell_command(scripts/safe_commit.sh)" \
-    --allowed-tools "run_shell_command(tail)" \
-    --allowed-tools "run_shell_command(tree)" \
-    --allowed-tools click \
-    --allowed-tools close_page \
-    --allowed-tools drag \
-    --allowed-tools evaluate_script \
-    --allowed-tools fill \
-    --allowed-tools fill_form \
-    --allowed-tools get_console_message \
-    --allowed-tools handle_dialog \
-    --allowed-tools glob \
-    --allowed-tools list_directory \
-    --allowed-tools press_key \
-    --allowed-tools list_pages \
-    --allowed-tools navigate_page \
-    --allowed-tools new_page \
-    --allowed-tools read_file \
-    --allowed-tools replace \
-    --allowed-tools search_file_content \
-    --allowed-tools take_screenshot \
-    --allowed-tools take_snapshot \
-    --allowed-tools wait_for \
-    --allowed-tools write_file | tee "$LOG_FILE"
+    --policy "/home/rkj/.gemini/extra-policies/manager.toml" \
+    --approval-mode auto_edit \
+    2>&1 | tee "$LOG_FILE"
 
   LAST_LINE=$(tail -n 1 "$LOG_FILE")
 
