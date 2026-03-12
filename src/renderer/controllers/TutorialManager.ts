@@ -30,6 +30,7 @@ export interface TutorialStep {
     selector?: string;
     cell?: Vector2;
   };
+  dynamicHighlight?: (state: GameState, menuState: string, selection: any) => { selector?: string; cell?: Vector2 } | null;
   inputGate?: {
     allowedActions: string[];
   };
@@ -40,6 +41,7 @@ export interface TutorialStep {
 export class TutorialManager {
   private gameClient: GameClient;
   private campaignManager: CampaignManager;
+  private menuController: any; // We'll type this properly in constructor
   private onMessage: (msg: AdvisorMessage) => void;
   private getRenderer: () => Renderer | null;
   private isActive: boolean = false;
@@ -58,6 +60,8 @@ export class TutorialManager {
   private hasMoved: boolean = false;
   private lastRescueCount: number = 0;
   private uiTourStartTick: number = -1;
+  private lastMenuState: string | null = null;
+  private lastSelectionHash: string | null = null;
   
   private prologueSteps: TutorialStep[] = [
     {
@@ -137,7 +141,6 @@ export class TutorialManager {
       id: "move",
       directive: "Redirect unit to recovery target: Press [1] Orders > [1] Move To Room > Select COMPARTMENT > Confirm.",
       directiveMobile: "Redirect unit: Tap 'Orders' > 'Move To Room' > Select COMPARTMENT > Confirm.",
-      highlightTarget: { cell: { x: 3, y: 2 } }, 
       condition: (state, manager) => manager.checkReachedObjectiveRoom(state),
       message: {
         id: "objective_sighted",
@@ -145,6 +148,18 @@ export class TutorialManager {
         text: "The recovery target is located in an adjacent compartment. Use the terminal to redirect assets. Compartment designators are visible in navigation mode.",
         portrait: "logo_gemini",
         blocking: true,
+      },
+      dynamicHighlight: (_state, menuState, selection) => {
+          if (menuState === "ACTION_SELECT") return { selector: ".command-item[data-index='1']" };
+          if (menuState === "ORDERS_SELECT") return { selector: ".command-item[data-index='1']" };
+          if (menuState === "TARGET_SELECT") {
+              // Highlight the objective room (the cell coordinate from the spec)
+              return { cell: { x: 3, y: 2 } };
+          }
+          if (menuState === "UNIT_SELECT" && selection.pendingAction === "MOVE_TO") {
+              return { selector: ".soldier-card" };
+          }
+          return null;
       },
       inputGate: { allowedActions: ["MOVE_TO"] }
     },
@@ -176,6 +191,7 @@ export class TutorialManager {
   constructor(
     gameClient: GameClient,
     campaignManager: CampaignManager,
+    menuController: any,
     onMessage: (msg: AdvisorMessage) => void,
     _getSelectedUnitId: () => string | null,
     _uiOrchestrator?: UIOrchestrator,
@@ -183,6 +199,7 @@ export class TutorialManager {
   ) {
     this.gameClient = gameClient;
     this.campaignManager = campaignManager;
+    this.menuController = menuController;
     this.onMessage = onMessage;
     this.getRenderer = getRenderer;
   }
@@ -374,10 +391,50 @@ export class TutorialManager {
 
     // Check current step completion
     const currentStep = this.prologueSteps[this.currentStepIndex];
-    if (currentStep && currentStep.condition(state, this)) {
-        this.advanceStep(state);
+    if (currentStep) {
+        this.updateDynamicHighlight(state, currentStep);
+        if (currentStep.condition(state, this)) {
+            this.advanceStep(state);
+        }
     }
   };
+
+  private updateDynamicHighlight(state: GameState, step: TutorialStep) {
+      if (!step.dynamicHighlight) return;
+
+      const menuState = this.menuController.menuState;
+      const selection = {
+          pendingAction: this.menuController.pendingAction,
+          pendingItemId: this.menuController.pendingItemId,
+          pendingTargetId: this.menuController.pendingTargetId,
+          pendingMode: this.menuController.pendingMode,
+      };
+
+      const selectionHash = JSON.stringify(selection);
+
+      if (menuState === this.lastMenuState && selectionHash === this.lastSelectionHash) {
+          return;
+      }
+
+      this.lastMenuState = menuState;
+      this.lastSelectionHash = selectionHash;
+
+      const target = step.dynamicHighlight(state, menuState, selection);
+      if (target) {
+          if (target.selector) {
+              this.highlightElement(target.selector);
+          } else if (target.cell) {
+              this.highlightCell(target.cell.x, target.cell.y);
+          }
+      } else if (step.highlightTarget) {
+          // Fallback to static highlight if dynamic returns null
+          if (step.highlightTarget.selector) {
+              this.highlightElement(step.highlightTarget.selector);
+          } else if (step.highlightTarget.cell) {
+              this.highlightCell(step.highlightTarget.cell.x, step.highlightTarget.cell.y);
+          }
+      }
+  }
 
   private startPrologue(state: GameState) {
       this.currentStepIndex = 0;

@@ -129,6 +129,7 @@ export class AppServiceRegistry {
     this.tutorialManager = new TutorialManager(
       this.gameClient,
       this.campaignManager,
+      this.menuController,
       (msg) => {
         this.advisorOverlay.showMessage(msg);
       },
