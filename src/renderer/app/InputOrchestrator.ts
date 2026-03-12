@@ -13,6 +13,7 @@ export interface InputOrchestratorConfig {
   hudManager: HUDManager;
   missionRunner: MissionRunner;
   getRenderer: () => Renderer | null;
+  isTutorialPassive: () => boolean;
 }
 
 /**
@@ -25,6 +26,7 @@ export class InputOrchestrator {
   private hudManager: HUDManager;
   private missionRunner: MissionRunner;
   private getRenderer: () => Renderer | null;
+  private isTutorialPassive: () => boolean;
 
   constructor(config: InputOrchestratorConfig) {
     this.gameClient = config.gameClient;
@@ -32,6 +34,7 @@ export class InputOrchestrator {
     this.hudManager = config.hudManager;
     this.missionRunner = config.missionRunner;
     this.getRenderer = config.getRenderer;
+    this.isTutorialPassive = config.isTutorialPassive;
   }
 
   public handleMenuInput(key: string, shiftHeld: boolean = false) {
@@ -43,6 +46,7 @@ export class InputOrchestrator {
   }
 
   public cycleUnits(reverse: boolean = false) {
+    if (this.isTutorialPassive()) return;
     const state = this.missionRunner.getCurrentGameState();
     if (!state) return;
     const units = state.units;
@@ -79,6 +83,7 @@ export class InputOrchestrator {
   }
 
   public panMap(direction: string) {
+    if (this.isTutorialPassive()) return;
     const container = document.getElementById("game-container");
     if (!container) return;
     const panAmount = 100;
@@ -91,6 +96,7 @@ export class InputOrchestrator {
   }
 
   public panMapBy(dx: number, dy: number) {
+    if (this.isTutorialPassive()) return;
     const container = document.getElementById("game-container");
     if (!container) return;
     container.scrollLeft += dx;

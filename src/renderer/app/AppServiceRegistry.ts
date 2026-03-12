@@ -184,6 +184,7 @@ export class AppServiceRegistry {
       hudManager: this.hudManager,
       missionRunner: this.missionRunner,
       getRenderer: config.getRenderer,
+      isTutorialPassive: () => this.tutorialManager.isProloguePassiveStep(),
     });
 
     this.inputManager = new InputManager({

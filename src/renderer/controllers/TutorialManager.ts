@@ -461,9 +461,17 @@ export class TutorialManager {
 
   public isActionAllowed(action: string): boolean {
     if (!this.isActive || !this.isPrologueActive) return true;
+    if (this.isProloguePassiveStep()) return false;
     const currentStep = this.prologueSteps[this.currentStepIndex];
     if (!currentStep || !currentStep.inputGate) return true;
     return currentStep.inputGate.allowedActions.includes(action);
+  }
+
+  public isProloguePassiveStep(): boolean {
+    if (!this.isActive || !this.isPrologueActive) return false;
+    const currentStep = this.prologueSteps[this.currentStepIndex];
+    // A step is passive if it has an empty allowedActions list
+    return !!(currentStep && currentStep.inputGate && currentStep.inputGate.allowedActions.length === 0);
   }
 
   // Condition Helpers
