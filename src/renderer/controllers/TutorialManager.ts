@@ -84,13 +84,20 @@ export class TutorialManager {
     },
     {
       id: "ui_tour",
-      directive: "Tactical feed overview: Unit telemetry (Left), Command Terminal (Right), Objectives (Below).",
-      directiveMobile: "UI Overview: Tap 'Squad' for unit telemetry. Tap 'Objectives' for recovery targets.",
+      directive: "Tactical feed overview: Unit telemetry (Left), Command Terminal (Right), Recovery Targets (Below).",
+      directiveMobile: "Interface Overview: Tap 'Roster' for asset telemetry. Tap 'Targets' for recovery info.",
       condition: (state, manager) => manager.checkUITourComplete(state),
       onEnter: (manager, state) => {
           manager.startUITourTimer(state);
       },
       inputGate: { allowedActions: [] }
+    },
+    {
+      id: "pause",
+      directive: "Press [Space] to pause the operation and plan your strategy.",
+      directiveMobile: "Tap 'Pause' to freeze the feed while you issue orders.",
+      condition: (state, manager) => manager.checkPauseToggled(state),
+      inputGate: { allowedActions: ["TOGGLE_PAUSE"] }
     },
     {
       id: "doors",
@@ -462,7 +469,7 @@ export class TutorialManager {
 
       Logger.info(`Entering Tutorial Step: ${step.id}`);
       
-      const isMobile = window.innerWidth < 768;
+      const isMobile = this.isMobile();
       const directiveText = (isMobile && step.directiveMobile) ? step.directiveMobile : step.directive;
       this.showDirective(directiveText);
       
@@ -498,6 +505,10 @@ export class TutorialManager {
 
   public startUITourTimer(state: GameState) {
       this.uiTourStartTick = state.t;
+  }
+
+  private isMobile(): boolean {
+    return window.innerWidth < 768 || document.documentElement.classList.contains("mobile-touch");
   }
 
   private showDirective(text: string) {
@@ -560,6 +571,10 @@ export class TutorialManager {
           this.uiTourStartTick = state.t;
       }
       return (state.t - this.uiTourStartTick) > 100; // 100 ticks = 5 seconds at 20tps
+  }
+
+  public checkPauseToggled(state: GameState): boolean {
+      return state.settings.isPaused;
   }
 
   public checkDoorOpened(state: GameState): boolean {
