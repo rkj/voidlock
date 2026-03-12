@@ -24,7 +24,7 @@ while true; do
 
   echo "Running with model: $MODEL"
 
-  gemini -p "@docs/MANAGER.md" \
+  gemini -p "Activate manager skill and proceed" \
     --output-format stream-json \
     --model "$MODEL" \
     --policy "/home/rkj/.gemini/extra-policies/manager.toml" \
@@ -40,13 +40,13 @@ while true; do
       HOURS=$(echo "$TIME_STR" | grep -o '[0-9]\+h' | tr -d 'h' || echo 0)
       MINS=$(echo "$TIME_STR" | grep -o '[0-9]\+m' | tr -d 'm' || echo 0)
       SECS=$(echo "$TIME_STR" | grep -o '[0-9]\+s' | tr -d 's' || echo 0)
-      
+
       [ -z "$HOURS" ] && HOURS=0
       [ -z "$MINS" ] && MINS=0
       [ -z "$SECS" ] && SECS=0
-      
+
       WAIT_TIME=$((HOURS * 3600 + MINS * 60 + SECS + 10))
-      
+
       if [ "$MODEL" == "gemini-3-pro-preview" ] && [ "$WAIT_TIME" -gt 3600 ]; then
         echo "Wait time is > 1 hour. Switching to gemini-3-flash-preview."
         MODEL="gemini-3-flash-preview"
@@ -71,3 +71,4 @@ while true; do
     sleep 60
   fi
 done
+
