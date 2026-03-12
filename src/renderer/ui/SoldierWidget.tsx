@@ -77,11 +77,17 @@ function getTacticalNumber(data: SoldierWidgetData): number | undefined {
 }
 
 function getStatus(data: SoldierWidgetData): string {
-  return "status" in data && data.status
+  const status = "status" in data && data.status
     ? data.status
     : "state" in data && data.state
       ? data.state
       : "Healthy";
+  
+  if (status === "Healthy") return "Functional";
+  if (status === "Wounded") return "Damaged";
+  if (status === "Dead") return "Integrity Failure";
+  if (status === "Extracted") return "Retrieved";
+  return status;
 }
 
 function getLevel(data: SoldierWidgetData): number {
@@ -101,12 +107,12 @@ function getItemName(id?: string): string {
 
 function getStatusColor(status: string): string {
   switch (status) {
-    case "Healthy":
-    case "Extracted":
+    case "Functional":
+    case "Retrieved":
       return "var(--color-primary)";
-    case "Wounded":
+    case "Damaged":
       return "var(--color-warning)";
-    case "Dead":
+    case "Integrity Failure":
       return "var(--color-danger)";
     default:
       return "var(--color-text)";
@@ -318,7 +324,7 @@ export function DebriefSoldier(props: {
 
       <div class="flex-row gap-20 debrief-stats-summary">
         <span>
-          Kills: <span class="highlight-text">{res.kills}</span>
+          Hostiles Neutralized: <span class="highlight-text">{res.kills}</span>
         </span>
         {res.promoted && (
           <span class="promo-text">Level Up! (Lvl {res.newLevel})</span>

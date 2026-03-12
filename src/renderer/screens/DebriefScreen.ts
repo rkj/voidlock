@@ -156,14 +156,14 @@ export class DebriefScreen {
     headerSection.className = "flex-col flex-shrink-0";
     
     const header = document.createElement("h1");
-    header.textContent = isWon ? "Mission Success" : "Mission Failed";
+    header.textContent = isWon ? "OPERATION CLOSED — Targets Secured" : "OPERATION CLOSED — Total Asset Loss";
     header.className = `debrief-header ${isWon ? "success" : "failed"}`;
     headerSection.appendChild(header);
 
     const subHeader = document.createElement("div");
     subHeader.textContent = isWon
-      ? "All objectives completed."
-      : "Squad wiped or mission aborted.";
+      ? "All operational objectives finalized."
+      : "Roster wiped or contract prematurely terminated.";
     subHeader.className = "debrief-subheader";
     headerSection.appendChild(subHeader);
     summary.appendChild(headerSection);
@@ -174,19 +174,19 @@ export class DebriefScreen {
     summary.appendChild(scrollContent);
 
     // Stats
-    const statsPanel = this.createPanel("Mission Statistics");
+    const statsPanel = this.createPanel("Operational Statistics");
     statsPanel.innerHTML += `
       <div class="debrief-stat-row">
-        <span>Xenos Neutralized:</span>
+        <span>Biologicals Neutralized:</span>
         <span style="color:var(--color-hive); font-weight:bold;">${this.report.aliensKilled}</span>
       </div>
       <div class="debrief-stat-row">
-        <span>Operation Time:</span>
+        <span>Operational Time:</span>
         <span style="color:var(--color-accent); font-weight:bold;">${(this.report.timeSpent / 1000).toFixed(1)}s</span>
       </div>
       <div class="debrief-resource-section">
         <div class="debrief-resource-row">
-          <span>Scrap Recovered:</span>
+          <span>Credits Recovered:</span>
           <span style="color:var(--color-primary); font-weight:bold;">+${this.report.scrapGained}</span>
         </div>
         <div class="debrief-resource-row">
@@ -198,7 +198,7 @@ export class DebriefScreen {
     scrollContent.appendChild(statsPanel);
 
     // Squad
-    const squadPanel = this.createPanel("Squad After-Action Report");
+    const squadPanel = this.createPanel("Asset Integrity Report");
     this.report.soldierResults.forEach((res) => {
       const soldierRow = SoldierWidget.render(res, { context: "debrief" });
       squadPanel.appendChild(soldierRow);
@@ -210,7 +210,7 @@ export class DebriefScreen {
     footer.className = "debrief-footer flex-shrink-0";
 
     const continueBtn = document.createElement("button");
-    continueBtn.textContent = "Return to Command Bridge";
+    continueBtn.textContent = "Return to Operational Terminal";
     continueBtn.className = "debrief-button";
 
     continueBtn.addEventListener("click", () => this.onContinue());
@@ -218,7 +218,7 @@ export class DebriefScreen {
 
     if (this.report.nodeId === "custom" && this.onReplay) {
       const replayBtn = document.createElement("button");
-      replayBtn.textContent = "Replay Mission";
+      replayBtn.textContent = "Analyze Tactical Feed";
       replayBtn.className = "debrief-button";
       replayBtn.addEventListener("click", () => this.onReplay!());
       footer.appendChild(replayBtn);

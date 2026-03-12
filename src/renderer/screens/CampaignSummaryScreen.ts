@@ -85,13 +85,13 @@ export class CampaignSummaryScreen {
     const header = document.createElement("h1");
     header.className = "summary-header";
     header.style.margin = "0";
-    header.textContent = isVictory ? "Sector Secured" : "Campaign Defeat";
+    header.textContent = isVictory ? "CONTRACT SUCCESS" : "CONTRACT TERMINATED";
     headerContainer.appendChild(header);
 
     const subHeader = document.createElement("h2");
     subHeader.className = "summary-subheader";
     subHeader.style.margin = "0";
-    subHeader.textContent = isVictory ? "Victory" : "Sector Lost";
+    subHeader.textContent = isVictory ? "Victory Confirmed" : "Operational Failure";
     headerContainer.appendChild(subHeader);
     
     this.container.appendChild(headerContainer);
@@ -105,7 +105,7 @@ export class CampaignSummaryScreen {
     scrollContent.appendChild(content);
 
     // Left: Stats
-    const statsPanel = this.createPanel("Campaign Statistics");
+    const statsPanel = this.createPanel("Operational Statistics");
     const totalKills = this.state.history.reduce(
       (sum, r) => sum + r.aliensKilled,
       0,
@@ -119,15 +119,15 @@ export class CampaignSummaryScreen {
     statsPanel.innerHTML += `
       <div class="flex-col gap-20">
         <div class="summary-stat-row">
-          <span>Aliens Purged:</span>
+          <span>Biologicals Neutralized:</span>
           <span style="color:var(--color-primary); font-weight:bold;">${totalKills}</span>
         </div>
         <div class="summary-stat-row">
-          <span>Missions:</span>
+          <span>Operations Finalized:</span>
           <span style="color:var(--color-accent); font-weight:bold;">${totalMissions}</span>
         </div>
         <div class="summary-stat-row">
-          <span>Total Scrap:</span>
+          <span>Total Credits Recovered:</span>
           <span style="color:var(--color-warning); font-weight:bold;">${totalScrap}</span>
         </div>
         ${
@@ -147,7 +147,7 @@ export class CampaignSummaryScreen {
 
     // Right: Survivors (if Victory) or Roster Status
     const rosterPanel = this.createPanel(
-      isVictory ? "Surviving Squad" : "Final Roster Status",
+      isVictory ? "Retrieved Assets" : "Termination Roster Status",
     );
     const rosterList = document.createElement("div");
     rosterList.className = "summary-roster-list";
