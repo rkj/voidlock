@@ -8,6 +8,8 @@ interface Binding {
   path: string;
   transformer?: Transformer;
   lastValue: unknown;
+  baseClassName?: string;
+  isAdditiveClass?: boolean;
 }
 
 /**
@@ -57,13 +59,19 @@ export class UIBinder {
           const path = parts[0];
           const localTransformerName = parts[1] || transformAttr;
           const localTransformer = localTransformerName ? this.transformers[localTransformerName] : undefined;
+          
+          const isClassBinding = bindType === "class";
+          const hasExistingClass = el.hasAttribute("class");
+          const hasPipeTransformer = parts.length > 1;
 
           this.bindings.push({
             element: el,
             attr: bindType,
             path: path,
             transformer: localTransformer,
-            lastValue: undefined
+            lastValue: undefined,
+            baseClassName: isClassBinding ? (el.getAttribute("class") || "") : undefined,
+            isAdditiveClass: isClassBinding && hasExistingClass && hasPipeTransformer
           });
         }
       }
@@ -107,7 +115,7 @@ export class UIBinder {
 
       if (value !== binding.lastValue) {
         binding.lastValue = value;
-        this.updateElement(binding.element, binding.attr, value);
+        this.updateElement(binding, value);
       }
     }
   }
@@ -126,7 +134,10 @@ export class UIBinder {
     return current;
   }
 
-  private updateElement(el: HTMLElement, attr: string, value: unknown) {
+  private updateElement(binding: Binding, value: unknown) {
+    const el = binding.element;
+    const attr = binding.attr;
+
     // Set a flag so listeners can distinguish between programmatic and user-initiated changes
     el.setAttribute("data-is-binding", "true");
     
@@ -169,7 +180,16 @@ export class UIBinder {
           break;
         case "class":
           if (typeof value === "string") {
-            el.className = value;
+            if (binding.isAdditiveClass) {
+              const newClass = (binding.baseClassName + " " + value).trim();
+              if (el.className !== newClass) {
+                el.className = newClass;
+              }
+            } else {
+              if (el.className !== value) {
+                el.className = value;
+              }
+            }
           }
           break;
         default:

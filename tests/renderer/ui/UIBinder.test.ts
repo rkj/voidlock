@@ -100,4 +100,25 @@ describe("UIBinder", () => {
     binder.sync({ val: "world" } as unknown as GameState);
     expect(setCounter).toBe(2);
   });
+
+  it("should append transformed class to base class when using a pipe transformer and base class exists", () => {
+    root.innerHTML = `<div id="right-panel" class="right-panel" data-bind-class="state|dimTransformer"></div>`;
+    binder.registerTransformer("dimTransformer", (val) => val ? "tutorial-dimmed" : "");
+    binder.initialize(root);
+
+    binder.sync({ state: true } as unknown as GameState);
+    expect(root.querySelector("div")?.className).toBe("right-panel tutorial-dimmed");
+
+    binder.sync({ state: false } as unknown as GameState);
+    expect(root.querySelector("div")?.className).toBe("right-panel");
+  });
+
+  it("should replace class entirely if no base class exists when bound", () => {
+    root.innerHTML = `<div id="top-threat-fill" data-bind-class="level|threatClass"></div>`;
+    binder.registerTransformer("threatClass", (val) => `threat-fill threat-${val}`);
+    binder.initialize(root);
+
+    binder.sync({ level: "danger" } as unknown as GameState);
+    expect(root.querySelector("div")?.className).toBe("threat-fill threat-danger");
+  });
 });
