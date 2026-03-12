@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { TutorialManager } from "../../../src/renderer/controllers/TutorialManager";
-import { GameState, MissionType } from "../../../src/shared/types";
+import { GameState, MissionType, EnemyType } from "../../../src/shared/types";
 
 describe("TutorialManager", () => {
   let gameClient: any;
@@ -45,14 +45,14 @@ describe("TutorialManager", () => {
     missionType: MissionType.Prologue,
     status: "Playing",
     map: { width: 10, height: 10, cells: [] } as any,
-    units: [{ id: "u1", pos: { x: 1, y: 1 }, hp: 10, maxHp: 10 } as any],
+    units: [{ id: "u1", pos: { x: 1, y: 1 }, hp: 10, maxHp: 10, engagementPolicy: "ENGAGE" } as any],
     enemies: [],
     visibleCells: ["1,1"],
     discoveredCells: ["1,1"],
     objectives: [
-      { id: "obj-main", kind: "Recover", state: "Pending", visible: false } as any
+      { id: "obj-main", kind: "Recover", state: "Pending", visible: false, targetCell: { x: 5, y: 5 } } as any
     ],
-    stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, scrapGained: 0, casualties: 0 },
+    stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, scrapGained: 0, casualties: 0, prologueRescues: 0 },
     settings: { isPaused: false } as any,
     squadInventory: {},
     loot: [],
@@ -71,52 +71,15 @@ describe("TutorialManager", () => {
     expect(uiOrchestrator.setMissionHUDVisible).not.toHaveBeenCalled();
   });
 
-  it("should show start message at t > 100", () => {
+  it("should show start message on observe step", () => {
     manager.enable();
     const state = createBaseState();
-    state.t = 112;
+    state.t = 16;
     const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
-    listener(state);
+    listener(state); // Enters 'observe'
     
     expect(gameClient.pause).toHaveBeenCalled();
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
-  });
-
-  it("should show objectives message when objective is visible", () => {
-    manager.enable();
-    const state = createBaseState();
-    const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
-
-    // Initial state (Step 0: select_unit)
-    listener(state);
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
-    onMessage.mockClear();
-
-    // Advance to Step 1: move
-    selectedUnitId = "u1";
-    listener(state);
-    
-    // Advance to Step 2: door
-    state.units[0].pos = { x: 2, y: 2 };
-    listener(state);
-
-    // Advance to Step 3: combat_intro
-    state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
-    listener(state);
-
-    // Advance to Step 4: survive_combat
-    state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 10, maxHp: 10 } as any];
-    state.visibleCells.push("5,5");
-    listener(state);
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
-    onMessage.mockClear();
-
-    // Advance to Step 5: objective
-    state.stats.aliensKilled = 1;
-    listener(state);
-
-    // Trigger objective visible - wait, step 5 (objective) message triggers on ENTER
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
   });
 
   it("should highlight elements", () => {
@@ -125,8 +88,6 @@ describe("TutorialManager", () => {
     document.body.appendChild(div);
 
     manager.highlightElement("#test-el");
-    // highlightElement is async/delayed, but in JSDOM we might need to wait or it might be instant if el exists
-    // The current implementation has a retry loop.
     expect(div.classList.contains("tutorial-highlight")).toBe(true);
 
     manager.clearHighlight();
@@ -140,12 +101,10 @@ describe("TutorialManager", () => {
       getCellCoordinates: vi.fn(),
     };
     
-    // We recreate the manager here with the mock renderer to ensure it's used correctly
     const campaignManager = {
       getState: vi.fn().mockReturnValue({ history: [] }),
     };
     
-    // Clean up any existing highlight elements from document.body to avoid confusion
     document.querySelectorAll(".tutorial-cell-highlight").forEach(el => el.remove());
     
     manager = new TutorialManager(
@@ -168,52 +127,72 @@ describe("TutorialManager", () => {
     expect(highlightEl.style.display).toBe("none");
   });
 
-  it("should show combat message when an enemy is visible", () => {
+  it("should show combat message when entering combat step", () => {
     manager.enable();
     const state = createBaseState();
     const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
 
-    // Step 0 -> Step 1
-    selectedUnitId = "u1";
+    // observe
     listener(state);
-    
-    // Step 1 -> Step 2
-    state.units[0].pos = { x: 2, y: 2 };
-    listener(state);
-
-    // Step 2 -> Step 3
+    // complete observe
+    state.units[0].pos = { x: 3, y: 1 };
+    listener(state); // enters ui_tour
+    // complete ui_tour
+    state.t += 105;
+    listener(state); // enters doors
+    // complete doors
     state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
-    listener(state);
-    
-    // Trigger Step 3 enter (combat_intro)
-    state.enemies = [{ id: "e1", pos: { x: 2, y: 2 }, hp: 10 } as any];
-    state.visibleCells.push("2,2");
-    listener(state);
+    listener(state); // enters combat
     
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
   });
 
-  it("should show extraction message when main objective is completed", () => {
+  it("should show objectives message when entering move step", () => {
     manager.enable();
     const state = createBaseState();
     const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
 
-    // Rapid advance steps
-    selectedUnitId = "u1";
-    listener(state);
-    state.units[0].pos = { x: 2, y: 2 };
-    listener(state);
+    listener(state); // observe
+    state.units[0].pos = { x: 3, y: 1 };
+    listener(state); // ui_tour
+    state.t += 105;
+    listener(state); // doors
     state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
-    listener(state);
-    state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 10 } as any];
-    state.visibleCells.push("5,5");
-    listener(state);
+    listener(state); // combat
+    state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 5, maxHp: 10, type: EnemyType.Tutorial } as any];
+    listener(state); // engagement_ignore
+    state.units[0].engagementPolicy = "IGNORE";
+    listener(state); // engagement_engage
+    state.units[0].engagementPolicy = "ENGAGE";
     state.stats.aliensKilled = 1;
-    listener(state);
+    listener(state); // move
     
-    // Enter Step 6 (extract)
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
+  });
+
+  it("should show extraction message when entering extract step", () => {
+    manager.enable();
+    const state = createBaseState();
+    const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+
+    listener(state); // observe
+    state.units[0].pos = { x: 3, y: 1 };
+    listener(state); // ui_tour
+    state.t += 105;
+    listener(state); // doors
+    state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
+    listener(state); // combat
+    state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 5, maxHp: 10, type: EnemyType.Tutorial } as any];
+    listener(state); // engagement_ignore
+    state.units[0].engagementPolicy = "IGNORE";
+    listener(state); // engagement_engage
+    state.units[0].engagementPolicy = "ENGAGE";
+    state.stats.aliensKilled = 1;
+    listener(state); // move
+    state.units[0].pos = { x: 5, y: 4 };
+    listener(state); // pickup
     state.objectives[0].state = "Completed";
-    listener(state);
+    listener(state); // extract
     
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }));
   });

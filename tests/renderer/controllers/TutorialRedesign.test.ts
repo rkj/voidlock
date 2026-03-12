@@ -9,7 +9,7 @@ import { Director } from "../../../src/engine/Director";
 import { PRNG } from "../../../src/shared/PRNG";
 import { ItemEffectService } from "../../../src/engine/managers/ItemEffectService";
 
-describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
+describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
   let gameClient: any;
   let onMessage: any;
   let uiOrchestrator: any;
@@ -67,7 +67,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
     missionType: MissionType.Prologue,
     status: "Playing",
     map: { width: 10, height: 10, cells: [] } as any,
-    units: [{ id: "u1", pos: { x: 1, y: 1 }, hp: 100, maxHp: 100 } as any],
+    units: [{ id: "u1", pos: { x: 1, y: 1 }, hp: 100, maxHp: 100, engagementPolicy: "ENGAGE" } as any],
     enemies: [],
     visibleCells: ["1,1"],
     discoveredCells: ["1,1"],
@@ -98,83 +98,95 @@ describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
       const soldierPanel = document.getElementById("soldier-panel");
       const rightPanel = document.getElementById("right-panel");
       
-      // In JSDOM, display defaults to "" unless set. 
-      // We check that nothing in TutorialManager set it to "none".
       expect(topBar?.style.display).not.toBe("none");
       expect(soldierPanel?.style.display).not.toBe("none");
       expect(rightPanel?.style.display).not.toBe("none");
     });
   });
 
-  describe("2) Sequential Step Advancement", () => {
-    // Note: These tests will fail if the 7 steps are not implemented yet.
-    // We are testing for the INTENDED behavior of ADR 0057.
-    
-    it("should advance through the 7 steps in sequence", () => {
+  describe("2) Sequential Step Advancement (Observe-then-Command)", () => {
+    it("should advance through the 9 steps in sequence", () => {
       manager.enable();
       const state = createBaseState();
       const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
       const directiveText = () => document.getElementById("tutorial-directive-text")?.textContent;
 
-      // Step 1: Select Unit (select_unit)
+      // Step 1: observe
       state.t = 16;
       listener(state);
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
-      expect(directiveText()).toBe("Select your soldier to begin");
+      expect(directiveText()).toBe("Your soldier explores autonomously. Watch them move.");
       onMessage.mockClear();
       
-      // Complete Step 1: select unit
-      selectedUnitId = "u1";
+      // Complete Step 1: observe
+      state.units[0].pos = { x: 3, y: 1 }; // moved > 1.5 distance
       listener(state);
       
-      // Step 2: Move (move)
-      expect(directiveText()).toBe("Click the highlighted cell to move");
+      // Step 2: ui_tour
+      expect(directiveText()).toBe("This is your squad. Commands are issued from the right panel. Objectives are tracked below.");
       expect(onMessage).not.toHaveBeenCalled();
       
-      // Complete Step 2: move
-      state.units[0].pos = { x: 2, y: 2 };
+      // Complete Step 2: ui_tour (5 seconds pass)
+      state.t += 105; 
       listener(state);
       
-      // Step 3: Door (door)
-      expect(directiveText()).toBe("Your soldier will open the door automatically");
+      // Step 3: doors
+      expect(directiveText()).toBe("Doors open automatically when your soldier approaches.");
       
-      // Complete Step 3: door
+      // Complete Step 3: doors
       state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
       listener(state);
       
-      // Step 4: Combat intro (combat_intro)
-      expect(directiveText()).toBe("Enemy spotted! Your soldier fires automatically");
-      // Wait, combat_intro condition requires enemy visibility
-      state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 10, maxHp: 10, type: EnemyType.Tutorial } as any];
-      state.visibleCells.push("5,5");
-      listener(state);
+      // Step 4: combat
+      expect(directiveText()).toBe("Hostile contact! Your soldier engages automatically.");
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
       onMessage.mockClear();
       
-      // Step 5: Survive combat (survive_combat)
-      expect(directiveText()).toBe("Eliminate the hostile");
+      // Complete Step 4: combat (enemy takes damage)
+      state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 5, maxHp: 10, type: EnemyType.Tutorial } as any];
+      state.visibleCells.push("5,5");
+      listener(state);
       
-      // Complete Step 5: kill enemy
+      // Step 5: engagement_ignore
+      expect(directiveText()).toBe("Try changing fire policy. Press [2] Engagement, then [2] Ignore.");
+      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "first_command" }));
+      onMessage.mockClear();
+      
+      // Complete Step 5: engagement_ignore
+      state.units[0].engagementPolicy = "IGNORE";
+      listener(state);
+      
+      // Step 6: engagement_engage
+      expect(directiveText()).toBe("Your soldier stopped firing. Press [2] then [1] to re-engage.");
+      
+      // Complete Step 6: engagement_engage
+      state.units[0].engagementPolicy = "ENGAGE";
       state.stats.aliensKilled = 1;
       listener(state);
       
-      // Step 6: Objective (objective)
-      expect(directiveText()).toBe("Recover the secure terminal data");
-      // This step has an advisor message on enter? 
-      // Actually my prologueSteps has message for objective
+      // Step 7: move
+      expect(directiveText()).toBe("Direct your soldier to the objective. Press [1] Orders, [1] Move To Room, select the Objective room, confirm.");
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
       onMessage.mockClear();
       
-      // Complete Step 6: objective completed
+      // Complete Step 7: move (reach objective room)
+      state.objectives[0].targetCell = { x: 5, y: 5 };
+      state.units[0].pos = { x: 5, y: 4 }; // Close to objective
+      listener(state);
+      
+      // Step 8: pickup
+      expect(directiveText()).toBe("Recover the data disk. Press [4] Pickup, select the objective.");
+      
+      // Complete Step 8: pickup
       state.objectives[0].state = "Completed";
       listener(state);
       
-      // Step 7: Extract (extract)
-      expect(directiveText()).toBe("Get to the extraction zone");
+      // Step 9: extract
+      expect(directiveText()).toBe("Mission complete. Press [5] Extract, confirm.");
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }));
       onMessage.mockClear();
       
-      // Complete Step 7: Won
+      // Complete Step 9: extract (Won)
       state.status = "Won";
       listener(state);
       
@@ -189,30 +201,59 @@ describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
       const state = createBaseState();
       const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
       
-      // Step 0: select_unit
+      // Step 1: observe
       listener(state);
-      expect(manager.isActionAllowed("SELECT_UNIT")).toBe(true);
+      expect(manager.isActionAllowed("SELECT_UNIT")).toBe(false);
       expect(manager.isActionAllowed("MOVE_TO")).toBe(false);
       
-      // Advance to step 1: move
-      selectedUnitId = "u1";
+      // Advance to step 2: ui_tour
+      state.units[0].pos = { x: 3, y: 1 };
       listener(state);
-      expect(manager.isActionAllowed("MOVE_TO")).toBe(true);
-      expect(manager.isActionAllowed("STOP")).toBe(false);
+      expect(manager.isActionAllowed("MOVE_TO")).toBe(false);
 
-      // Advance to step 2: door
-      state.units[0].pos = { x: 2, y: 2 };
+      // Advance to step 3: doors
+      state.t += 105;
       listener(state);
-      // step 2 (door) allows MOVE_TO but not STOP
+      expect(manager.isActionAllowed("MOVE_TO")).toBe(false);
+
+      // Advance to step 4: combat
+      state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
+      listener(state);
+      expect(manager.isActionAllowed("SET_ENGAGEMENT")).toBe(false);
+
+      // Advance to step 5: engagement_ignore
+      state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 5, maxHp: 10, type: EnemyType.Tutorial } as any];
+      listener(state);
+      expect(manager.isActionAllowed("SET_ENGAGEMENT")).toBe(true);
+      expect(manager.isActionAllowed("MOVE_TO")).toBe(false);
+
+      // Advance to step 6: engagement_engage
+      state.units[0].engagementPolicy = "IGNORE";
+      listener(state);
+      expect(manager.isActionAllowed("SET_ENGAGEMENT")).toBe(true);
+
+      // Advance to step 7: move
+      state.units[0].engagementPolicy = "ENGAGE";
+      state.stats.aliensKilled = 1;
+      listener(state);
       expect(manager.isActionAllowed("MOVE_TO")).toBe(true);
-      expect(manager.isActionAllowed("STOP")).toBe(false);
+      expect(manager.isActionAllowed("PICKUP")).toBe(false);
+      
+      // Advance to step 8: pickup
+      state.objectives[0].targetCell = { x: 5, y: 5 };
+      state.units[0].pos = { x: 5, y: 4 };
+      listener(state);
+      expect(manager.isActionAllowed("PICKUP")).toBe(true);
+      
+      // Advance to step 9: extract
+      state.objectives[0].state = "Completed";
+      listener(state);
+      expect(manager.isActionAllowed("EXTRACT")).toBe(true);
     });
   });
 
   describe("4) Director Suppression", () => {
     it("should suppress spawning in prologue", () => {
-        // This logic is primarily in Director.ts
-        // We verify the engine behavior here
         const onSpawn = vi.fn();
         const director = new Director(
             [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }],
@@ -226,15 +267,12 @@ describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
         );
 
         director.preSpawn();
-        // Should spawn tutorial enemy
         expect(onSpawn).toHaveBeenCalled();
         const spawnedEnemy = onSpawn.mock.calls[0][0];
         expect(spawnedEnemy.id).toBe("tutorial-enemy");
 
         onSpawn.mockClear();
-        // Update with 100 seconds (long enough for many waves)
         director.update(100000);
-        // Should NOT spawn any more enemies
         expect(onSpawn).not.toHaveBeenCalled();
     });
   });
@@ -245,10 +283,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0057)", () => {
       const state = createBaseState();
       const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
       
-      // Initial update to establish baseline rescue count
       listener(state);
-      
-      // Simulate rescue in engine
       state.stats.prologueRescues = 1;
       listener(state);
       

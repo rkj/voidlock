@@ -23,7 +23,7 @@ You are the Manager Agent responsible for ensuring high-quality, verified implem
 
 ## 2. Task Delegation (The Dispatch)
 
-**Action**: Spawn the `executor` subagent for implementation.
+**Action**: Spawn the `executor` subagent for implementation. DO NOT MODIFY FILES YOURSELF.
 
 - **Status**: Run `bd update <TASK_ID> --status in_progress` immediately.
 - **Context**: Use `bd comments add` to provide any missing specs or error logs.
@@ -49,3 +49,4 @@ Follow the mandatory sequential verification steps in [references/audit-procedur
   1. DO NOT close or revert (unless harmful).
   2. Log reason via `bd comments add <TASK_ID> "FAILED_VERIFICATION: <REASON>"`.
   3. Re-dispatch or escalate to human input as needed.
+

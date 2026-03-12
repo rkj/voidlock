@@ -23,6 +23,7 @@ export type TutorialCondition = (state: GameState, manager: TutorialManager) => 
 export interface TutorialStep {
   id: string;
   directive: string;
+  directiveMobile?: string;
   condition: TutorialCondition;
   message?: AdvisorMessage;
   highlightTarget?: {
@@ -41,7 +42,6 @@ export class TutorialManager {
   private campaignManager: CampaignManager;
   private onMessage: (msg: AdvisorMessage) => void;
   private getRenderer: () => Renderer | null;
-  private getSelectedUnitId: () => string | null;
   private isActive: boolean = false;
   private completedSteps: Set<string> = new Set();
   private isPrologueActive: boolean = false;
@@ -57,89 +57,119 @@ export class TutorialManager {
   // State tracking
   private hasMoved: boolean = false;
   private lastRescueCount: number = 0;
+  private uiTourStartTick: number = -1;
   
   private prologueSteps: TutorialStep[] = [
     {
-      id: "select_unit",
-      directive: "Select your soldier to begin",
+      id: "observe",
+      directive: "Your soldier explores autonomously. Watch them move.",
       highlightTarget: { selector: ".soldier-card" },
-      condition: (_state) => !!this.getSelectedUnitId(),
+      condition: (state, manager) => manager.checkUnitMovedFromStart(state),
       message: {
         id: "start",
         title: "Project Voidlock: Operation First Light",
-        text: "Commander, wake up. The Voidlock is failing. The station's core is unstable, and the swarms are breaching the lower decks. \n\nTo move your squad, select a unit with [1-4] or by clicking them, then click a destination on the map. \n\nYour first objective is to locate the secure terminal in the maintenance room ahead.",
+        text: "Commander, the Voidlock is failing. Your squad has been deployed with standing orders to explore and secure the area. Watch your soldier's progress on the tactical display.",
         illustration: "bg_station",
         portrait: "logo_gemini",
         blocking: true,
       },
-      inputGate: { allowedActions: ["SELECT_UNIT"] }
-    },
-    {
-      id: "move",
-      directive: "Click the highlighted cell to move",
-      highlightTarget: { cell: { x: 1, y: 3 } },
-      condition: (state) => this.checkAnyUnitMoved(state),
       onEnter: (manager, state) => {
           manager.captureInitialPositions(state);
       },
-      inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO"] }
+      inputGate: { allowedActions: [] }
     },
     {
-      id: "door",
-      directive: "Your soldier will open the door automatically",
-      highlightTarget: { cell: { x: 2, y: 3 } },
-      condition: (state) => (state.map.doors || []).some(d => d.segment.some(s => s.x === 2 && s.y === 3) && d.state === "Open"),
-      inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO"] }
+      id: "ui_tour",
+      directive: "This is your squad. Commands are issued from the right panel. Objectives are tracked below.",
+      directiveMobile: "Tap 'Squad' to see your soldiers. Tap 'Objectives' for mission goals.",
+      condition: (state, manager) => manager.checkUITourComplete(state),
+      onEnter: (manager, state) => {
+          manager.startUITourTimer(state);
+      },
+      inputGate: { allowedActions: [] }
     },
     {
-        id: "combat_intro",
-        directive: "Enemy spotted! Your soldier fires automatically",
-        condition: (state) => state.enemies.some(e => state.visibleCells.includes(`${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`)),
-        message: {
-            id: "enemy_sighted",
-            title: "Tactical Basics: Combat",
-            text: "Hostile contact! Your units will automatically engage enemies within their line of sight and weapon range. \n\nThe threat meter at the top indicates the current swarm activity level. Stay alert.",
-            portrait: "logo_gemini",
-            blocking: true,
-        },
-        onEnter: (manager) => {
-            manager.highlightElement("#top-threat-container");
-        },
-        inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO", "STOP"] }
+      id: "doors",
+      directive: "Doors open automatically when your soldier approaches.",
+      condition: (state, manager) => manager.checkDoorOpened(state),
+      inputGate: { allowedActions: [] }
     },
     {
-        id: "survive_combat",
-        directive: "Eliminate the hostile",
-        condition: (state) => state.stats.aliensKilled > 0,
-        inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO", "STOP", "SET_ENGAGEMENT"] }
+      id: "combat",
+      directive: "Hostile contact! Your soldier engages automatically.",
+      condition: (state, manager) => manager.checkEnemyTookDamage(state),
+      message: {
+        id: "enemy_sighted",
+        title: "Tactical Basics: Combat",
+        text: "Hostile contact! Your soldiers engage automatically when enemies enter their weapon range. The threat meter shows current swarm activity.",
+        portrait: "logo_gemini",
+        blocking: true,
+      },
+      onEnter: (manager) => {
+          manager.highlightElement("#top-threat-container");
+      },
+      inputGate: { allowedActions: [] }
     },
     {
-        id: "objective",
-        directive: "Recover the secure terminal data",
-        highlightTarget: { cell: { x: 3, y: 2 } },
-        condition: (state) => state.objectives.some(o => o.id === "obj-main" && o.state === "Completed"),
-        message: {
-            id: "objective_sighted",
-            title: "Tactical Basics: Objectives",
-            text: "The secure terminal is within sight. Move to the terminal to recover the data disk. \n\nObjectives and mission status are tracked in the right panel.",
-            portrait: "logo_gemini",
-            blocking: true,
-        },
-        inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO", "STOP", "PICKUP"] }
+      id: "engagement_ignore",
+      directive: "Try changing fire policy. Press [2] Engagement, then [2] Ignore.",
+      directiveMobile: "Tap 'Engagement' in the command panel, then tap 'Ignore'.",
+      highlightTarget: { selector: "#command-menu" },
+      condition: (state, manager) => manager.checkEngagementIgnore(state),
+      message: {
+        id: "first_command",
+        title: "Tactical Basics: Intervention",
+        text: "Time to take command. The right panel shows available actions. Each command is issued through the menu -- select an action, choose a target, then assign soldiers.",
+        portrait: "logo_gemini",
+        blocking: true,
+      },
+      inputGate: { allowedActions: ["SET_ENGAGEMENT"] }
     },
     {
-        id: "extract",
-        directive: "Get to the extraction zone",
-        highlightTarget: { cell: { x: 5, y: 1 } },
-        condition: (state) => state.status === "Won",
-        message: {
-            id: "objective_completed",
-            title: "Tactical Basics: Extraction",
-            text: "Data recovered. The swarm is closing in. Get your squad to the extraction point immediately! \n\nAll units must reach the extraction zone to complete the mission.",
-            portrait: "logo_gemini",
-            blocking: true,
-        },
-        inputGate: { allowedActions: ["SELECT_UNIT", "MOVE_TO", "STOP", "EXTRACT"] }
+      id: "engagement_engage",
+      directive: "Your soldier stopped firing. Press [2] then [1] to re-engage.",
+      directiveMobile: "Tap 'Engagement' then 'Engage' to resume firing.",
+      highlightTarget: { selector: "#command-menu" },
+      condition: (state, manager) => manager.checkEngagementEngage(state) && manager.checkEnemyDied(state),
+      inputGate: { allowedActions: ["SET_ENGAGEMENT"] }
+    },
+    {
+      id: "move",
+      directive: "Direct your soldier to the objective. Press [1] Orders, [1] Move To Room, select the Objective room, confirm.",
+      directiveMobile: "Tap 'Orders', then 'Move To Room', select the Objective room, confirm.",
+      highlightTarget: { cell: { x: 3, y: 2 } }, // Assuming the objective is here for now
+      condition: (state, manager) => manager.checkReachedObjectiveRoom(state),
+      message: {
+        id: "objective_sighted",
+        title: "Tactical Basics: Navigation",
+        text: "Good. The objective terminal is in a room ahead. Use the Orders menu to direct your soldier there. The map shows room labels when you enter Move To Room.",
+        portrait: "logo_gemini",
+        blocking: true,
+      },
+      inputGate: { allowedActions: ["MOVE_TO"] }
+    },
+    {
+      id: "pickup",
+      directive: "Recover the data disk. Press [4] Pickup, select the objective.",
+      directiveMobile: "Tap 'Pickup', select the objective.",
+      highlightTarget: { cell: { x: 3, y: 2 } },
+      condition: (state, manager) => manager.checkObjectiveCollected(state),
+      inputGate: { allowedActions: ["PICKUP"] }
+    },
+    {
+      id: "extract",
+      directive: "Mission complete. Press [5] Extract, confirm.",
+      directiveMobile: "Tap 'Extract', confirm.",
+      highlightTarget: { cell: { x: 5, y: 1 } }, // Assuming extraction zone is here
+      condition: (state) => state.status === "Won",
+      message: {
+        id: "objective_completed",
+        title: "Tactical Basics: Extraction",
+        text: "Data secured. All units must reach the extraction zone to complete the mission. The extraction point is marked on the map.",
+        portrait: "logo_gemini",
+        blocking: true,
+      },
+      inputGate: { allowedActions: ["EXTRACT"] }
     }
   ];
 
@@ -147,14 +177,13 @@ export class TutorialManager {
     gameClient: GameClient,
     campaignManager: CampaignManager,
     onMessage: (msg: AdvisorMessage) => void,
-    getSelectedUnitId: () => string | null,
+    _getSelectedUnitId: () => string | null,
     _uiOrchestrator?: UIOrchestrator,
     getRenderer: () => Renderer | null = () => null
   ) {
     this.gameClient = gameClient;
     this.campaignManager = campaignManager;
     this.onMessage = onMessage;
-    this.getSelectedUnitId = getSelectedUnitId;
     this.getRenderer = getRenderer;
   }
 
@@ -248,6 +277,7 @@ export class TutorialManager {
     this.initialPositions.clear();
     this.isPrologueActive = false;
     this.currentStepIndex = -1;
+    this.uiTourStartTick = -1;
     this.clearState();
     this.clearDirective();
     this.clearHighlight();
@@ -374,7 +404,10 @@ export class TutorialManager {
       if (!step) return;
 
       Logger.info(`Entering Tutorial Step: ${step.id}`);
-      this.showDirective(step.directive);
+      
+      const isMobile = window.innerWidth < 768;
+      const directiveText = (isMobile && step.directiveMobile) ? step.directiveMobile : step.directive;
+      this.showDirective(directiveText);
       
       if (step.message) {
           this.onMessage(step.message);
@@ -406,6 +439,10 @@ export class TutorialManager {
     this.hasMoved = false;
   }
 
+  public startUITourTimer(state: GameState) {
+      this.uiTourStartTick = state.t;
+  }
+
   private showDirective(text: string) {
       const el = document.getElementById("tutorial-directive");
       const textEl = document.getElementById("tutorial-directive-text");
@@ -431,28 +468,63 @@ export class TutorialManager {
 
   // Condition Helpers
 
-  private checkAnyUnitMoved(state: GameState): boolean {
+  public checkUnitMovedFromStart(state: GameState): boolean {
     if (this.hasMoved) return true;
 
-    // Initialize initial positions if needed (on first update or if units added)
     for (const unit of state.units) {
         if (!this.initialPositions.has(unit.id)) {
             this.initialPositions.set(unit.id, { x: unit.pos.x, y: unit.pos.y });
         }
     }
 
-    // Check if any unit moved significantly
     for (const unit of state.units) {
         const startPos = this.initialPositions.get(unit.id);
         if (startPos) {
             const dist = MathUtils.getDistance(startPos, unit.pos);
-            if (dist > 0.5) { // Assuming 0.5 tile tolerance
+            if (dist >= 2) {
                 this.hasMoved = true;
                 return true;
             }
         }
     }
     return false;
+  }
+
+  public checkUITourComplete(state: GameState): boolean {
+      if (this.uiTourStartTick === -1) {
+          this.uiTourStartTick = state.t;
+      }
+      return (state.t - this.uiTourStartTick) > 100; // 100 ticks = 5 seconds at 20tps
+  }
+
+  public checkDoorOpened(state: GameState): boolean {
+      return (state.map.doors || []).some(d => d.state === "Open" || d.state === "Destroyed");
+  }
+
+  public checkEnemyTookDamage(state: GameState): boolean {
+      return state.enemies.some(e => e.hp < e.maxHp);
+  }
+
+  public checkEngagementIgnore(state: GameState): boolean {
+      return state.units.some(u => u.engagementPolicy === "IGNORE");
+  }
+
+  public checkEngagementEngage(state: GameState): boolean {
+      return state.units.some(u => u.engagementPolicy === "ENGAGE");
+  }
+
+  public checkEnemyDied(state: GameState): boolean {
+      return state.stats.aliensKilled > 0;
+  }
+
+  public checkReachedObjectiveRoom(state: GameState): boolean {
+      const obj = state.objectives.find(o => o.id === "obj-main" || o.kind === "Recover");
+      if (!obj || !obj.targetCell) return false;
+      return state.units.some(u => MathUtils.getDistance(u.pos, obj.targetCell!) < 2.5);
+  }
+
+  public checkObjectiveCollected(state: GameState): boolean {
+      return state.objectives.some(o => (o.id === "obj-main" || o.kind === "Recover") && o.state === "Completed");
   }
 
   public triggerEvent(eventId: string) {

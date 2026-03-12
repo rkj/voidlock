@@ -27,6 +27,7 @@ while true; do
   gemini -p "Activate manager skill and proceed" \
     --output-format stream-json \
     --model "$MODEL" \
+    --policy "/home/rkj/.gemini/policies/" \
     --policy "/home/rkj/.gemini/extra-policies/manager.toml" \
     --approval-mode auto_edit \
     2>&1 | tee "$LOG_FILE"
