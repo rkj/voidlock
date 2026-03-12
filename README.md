@@ -1,62 +1,67 @@
-# Voidlock
-
-Deterministic Real-Time with Pause (RTwP) tactical squad combat in a claustrophobic spaceship environment.
+# Voidlock — Terminal Assets
+**"Your assets are expendable. Your quarterly review is not."**
 
 ![Voidlock](public/Voidlock.webp)
 
-## Overview
+## Operational Overview
 
-Voidlock is a web-based tactical game built with Vanilla TypeScript and Vite. It features a deterministic simulation engine running in a Web Worker, ensuring consistent gameplay and perfect replays.
+Blind corners. Fog of war. A 60-second delay on the extraction shuttle.
 
-## Key Features
+Voidlock is a real-time tactical meatgrinder where you remote-pilot marines through derelict hulls to secure proprietary technology. Your biological assets explore and fight autonomously — your role is strategic intervention: redirecting, changing engagement policy, or calling for retrieval before the swarm overruns the deck.
 
-- **Deterministic Simulation:** Seed-based PRNG ensures every run is reproducible.
-- **RTwP Combat:** Methodical tactical management with real-time resolution.
-- **Procedural Generation:** Unique ship layouts using tree-structured acyclic graphs.
-- **Fog of War:** Claustrophobic visibility determined by edge-based "thin" walls.
+Every lost unit is a budget deduction. Every recovered artifact is a bonus. The swarm doesn't care about your quarterly targets.
 
-## Tech Stack
+## Terminal Features
 
-- **Language:** TypeScript
-- **Build Tool:** Vite
-- **Rendering:** HTML5 Canvas
-- **Engine:** Web Workers (background simulation)
-- **Testing:** Vitest
+- **Autonomous Assets**: Your units are trained and competent. They explore, open doors, and engage hostiles without your input. You intervene only when it matters.
+- **Corporate Terminal**: A keyboard-driven menu interface. No click-to-move. This is a remote operations feed on corporate-issue hardware, not a video game.
+- **Deterministic Simulation**: Every operation is reproducible. Same seed, same outcome. Replay the tapes to analyze asset loss.
+- **Procedural Derelicts**: Each hull is a unique architectural puzzle. Tight corridors, blind corners, and lethal chokepoints.
+- **Roguelite Contracts**: Multi-mission campaigns with persistent roster, equipment, and budget management.
 
-## Getting Started
+## Deployment
+
+**[PLAY VOIDLOCK IN YOUR TERMINAL (GITHUB PAGES)](https://roman-kamyk.github.io/voidlock/)**
+
+---
+
+## Operator Resources (Development)
+
+<details>
+<summary>View Technical Specifications</summary>
 
 ### Prerequisites
-
 - Node.js (v18+)
 - npm
 
-### Installation
-
+### Initialization
 ```bash
 npm install
 ```
 
-### Development
-
+### Remote Feed Start (Dev Server)
 ```bash
 npm run dev
 ```
 
-### Testing
-
+### Diagnostic Simulation (Testing)
 ```bash
-npx vitest run
+npm run test
 ```
 
-### Metrics
-
-To check the lines of code in the project:
-
+### Asset Processing
 ```bash
-npm run sloc
+npm run process-assets
 ```
 
-## Documentation
+### Tech Stack
+- **Engine**: Custom deterministic simulation running in a Web Worker.
+- **Interface**: Vanilla TypeScript + Custom JSX (no external frameworks).
+- **Visuals**: HTML5 Canvas (Tactical Feed) + DOM (Terminal Chrome).
+- **Validation**: Zod runtime schema validation for data integrity.
 
-- [Architecture](./docs/ARCHITECTURE.md) - Deep dive into the engine, communication protocol, and simulation logic.
-- [Specification](./docs/spec/index.md) - Detailed game design document.
+### Documentation
+- [Architecture](./docs/ARCHITECTURE.md) - Deep dive into the engine and protocol.
+- [Design Specification](./docs/spec/index.md) - Detailed GDD and Identity guide.
+
+</details>
