@@ -62,13 +62,13 @@ export class TutorialManager {
   private prologueSteps: TutorialStep[] = [
     {
       id: "observe",
-      directive: "Your soldier explores autonomously. Watch them move.",
+      directive: "ASSET DEPLOYMENT INITIALIZED. Observe unit autonomous exploration.",
       highlightTarget: { selector: ".soldier-card" },
       condition: (state, manager) => manager.checkUnitMovedFromStart(state),
       message: {
         id: "start",
-        title: "Project Voidlock: Operation First Light",
-        text: "Commander, the Voidlock is failing. Your squad has been deployed with standing orders to explore and secure the area. Watch your soldier's progress on the tactical display.",
+        title: "OPERATOR NOTICE: Operation First Light",
+        text: "Operator, deployment sequence complete. Your assigned biological assets have standing orders to explore and secure the deck. Observe their progress on the tactical feed. Manual intervention is currently restricted.",
         illustration: "bg_station",
         portrait: "logo_gemini",
         blocking: true,
@@ -80,8 +80,8 @@ export class TutorialManager {
     },
     {
       id: "ui_tour",
-      directive: "This is your squad. Commands are issued from the right panel. Objectives are tracked below.",
-      directiveMobile: "Tap 'Squad' to see your soldiers. Tap 'Objectives' for mission goals.",
+      directive: "Tactical feed overview: Unit telemetry (Left), Command Terminal (Right), Objectives (Below).",
+      directiveMobile: "UI Overview: Tap 'Squad' for unit telemetry. Tap 'Objectives' for recovery targets.",
       condition: (state, manager) => manager.checkUITourComplete(state),
       onEnter: (manager, state) => {
           manager.startUITourTimer(state);
@@ -90,18 +90,18 @@ export class TutorialManager {
     },
     {
       id: "doors",
-      directive: "Doors open automatically when your soldier approaches.",
+      directive: "Structural boundaries (Doors) cycle automatically on asset proximity.",
       condition: (state, manager) => manager.checkDoorOpened(state),
       inputGate: { allowedActions: [] }
     },
     {
       id: "combat",
-      directive: "Hostile contact! Your soldier engages automatically.",
+      directive: "HOSTILE CONTACT. Assets engaging per standard ROE.",
       condition: (state, manager) => manager.checkEnemyTookDamage(state),
       message: {
         id: "enemy_sighted",
-        title: "Tactical Basics: Combat",
-        text: "Hostile contact! Your soldiers engage automatically when enemies enter their weapon range. The threat meter shows current swarm activity.",
+        title: "ALERT: Biological Contact",
+        text: "Hostile biological contact detected. Assets will engage automatically when targets enter weapon range. Threat Index indicates swarm activity levels in this sector.",
         portrait: "logo_gemini",
         blocking: true,
       },
@@ -112,14 +112,14 @@ export class TutorialManager {
     },
     {
       id: "engagement_ignore",
-      directive: "Try changing fire policy. Press [2] Engagement, then [2] Ignore.",
-      directiveMobile: "Tap 'Engagement' in the command panel, then tap 'Ignore'.",
+      directive: "Test Remote Intervention: Press [2] Engagement > [2] Ignore.",
+      directiveMobile: "Test Remote Intervention: Tap 'Engagement' > 'Ignore'.",
       highlightTarget: { selector: "#command-menu" },
       condition: (state, manager) => manager.checkEngagementIgnore(state),
       message: {
         id: "first_command",
-        title: "Tactical Basics: Intervention",
-        text: "Time to take command. The right panel shows available actions. Each command is issued through the menu -- select an action, choose a target, then assign soldiers.",
+        title: "TUTORIAL: Remote Intervention",
+        text: "Operator intervention is now authorized. Available commands are listed in the terminal. Note: manual overrides may affect unit efficiency ratings.",
         portrait: "logo_gemini",
         blocking: true,
       },
@@ -127,22 +127,22 @@ export class TutorialManager {
     },
     {
       id: "engagement_engage",
-      directive: "Your soldier stopped firing. Press [2] then [1] to re-engage.",
-      directiveMobile: "Tap 'Engagement' then 'Engage' to resume firing.",
+      directive: "Weapon lockout active. Press [2] > [1] to re-authorize engagement.",
+      directiveMobile: "Weapon lockout active. Tap 'Engagement' > 'Engage' to resume ROE.",
       highlightTarget: { selector: "#command-menu" },
       condition: (state, manager) => manager.checkEngagementEngage(state) && manager.checkEnemyDied(state),
       inputGate: { allowedActions: ["SET_ENGAGEMENT"] }
     },
     {
       id: "move",
-      directive: "Direct your soldier to the objective. Press [1] Orders, [1] Move To Room, select the Objective room, confirm.",
-      directiveMobile: "Tap 'Orders', then 'Move To Room', select the Objective room, confirm.",
-      highlightTarget: { cell: { x: 3, y: 2 } }, // Assuming the objective is here for now
+      directive: "Redirect unit to recovery target: Press [1] Orders > [1] Move To Room > Select COMPARTMENT > Confirm.",
+      directiveMobile: "Redirect unit: Tap 'Orders' > 'Move To Room' > Select COMPARTMENT > Confirm.",
+      highlightTarget: { cell: { x: 3, y: 2 } }, 
       condition: (state, manager) => manager.checkReachedObjectiveRoom(state),
       message: {
         id: "objective_sighted",
-        title: "Tactical Basics: Navigation",
-        text: "Good. The objective terminal is in a room ahead. Use the Orders menu to direct your soldier there. The map shows room labels when you enter Move To Room.",
+        title: "NOTICE: Recovery Target Located",
+        text: "The recovery target is located in an adjacent compartment. Use the terminal to redirect assets. Compartment designators are visible in navigation mode.",
         portrait: "logo_gemini",
         blocking: true,
       },
@@ -150,22 +150,22 @@ export class TutorialManager {
     },
     {
       id: "pickup",
-      directive: "Recover the data disk. Press [4] Pickup, select the objective.",
-      directiveMobile: "Tap 'Pickup', select the objective.",
+      directive: "Initiate collection: Press [4] Pickup > Select DATA DISK.",
+      directiveMobile: "Initiate collection: Tap 'Pickup' > Select DATA DISK.",
       highlightTarget: { cell: { x: 3, y: 2 } },
       condition: (state, manager) => manager.checkObjectiveCollected(state),
       inputGate: { allowedActions: ["PICKUP"] }
     },
     {
       id: "extract",
-      directive: "Mission complete. Press [5] Extract, confirm.",
-      directiveMobile: "Tap 'Extract', confirm.",
-      highlightTarget: { cell: { x: 5, y: 1 } }, // Assuming extraction zone is here
+      directive: "Operation successful. Press [5] Extract to initiate retrieval sequence.",
+      directiveMobile: "Operation successful. Tap 'Extract' to initiate retrieval sequence.",
+      highlightTarget: { cell: { x: 5, y: 1 } },
       condition: (state) => state.status === "Won",
       message: {
         id: "objective_completed",
-        title: "Tactical Basics: Extraction",
-        text: "Data secured. All units must reach the extraction zone to complete the mission. The extraction point is marked on the map.",
+        title: "NOTICE: Recovery Successful",
+        text: "Target secured. All assets must reach the retrieval point to close the operation. Reminder: abandoned assets are written off at full replacement cost.",
         portrait: "logo_gemini",
         blocking: true,
       },
@@ -356,7 +356,7 @@ export class TutorialManager {
         this.lastRescueCount = currentRescues;
         this.onMessage({
             id: `prologue_rescue_${currentRescues}`,
-            text: "Emergency medical protocol engaged. Soldier vital signs stabilized.",
+            text: "EMERGENCY PROTOCOL: Asset integrity stabilized. Automated medical intervention complete. Budget adjustment pending.",
             portrait: "logo_gemini",
             duration: 4000,
         });
@@ -535,8 +535,8 @@ export class TutorialManager {
       
       this.onMessage({
         id: "ready_room_intro",
-        title: "The Ready Room",
-        text: "You made it back. Welcome to the Ready Room.\n\nHere you can review your roster's status and manage their equipment. For this next mission, the Armory is locked down while diagnostics run. Your squad has been pre-filled with surviving personnel.\n\nReview your soldier's stats, then initiate the launch sequence when ready.",
+        title: "Asset Management Hub",
+        text: "Unit retrieval complete. Welcome to the local management hub. \n\nReview current asset integrity and authorize loadout adjustments. Note: Armory access is currently restricted during mandatory post-operation diagnostics. Deployed roster has been auto-populated with surviving biological assets. \n\nInitiate launch sequence when roster status is confirmed.",
         portrait: "logo_gemini",
         blocking: true,
       });
@@ -550,8 +550,8 @@ export class TutorialManager {
       
       this.onMessage({
         id: "sector_map_intro",
-        title: "Strategic Overview: Sector Map",
-        text: "The station is divided into sectors. You must navigate through the nodes to reach the core. \n\nCombat nodes [Crossed Swords] contain swarms and resources. Supply Depots [Shop] allow you to restock and recruit. Event nodes [?] present unique opportunities or risks. \n\nWhite lines indicate confirmed paths. Select an accessible node to plan your next move.",
+        title: "CONTRACT OPERATIONS: Sector Map",
+        text: "The derelict is divided into operational sectors. Navigate through nodes to secure high-value core technology. \n\nCombat nodes [Crossed Swords] indicate confirmed hostile biological presence and salvage opportunities. Logistics hubs [Shop] facilitate procurement and asset replacement. Event nodes [?] indicate unscheduled operational variables. \n\nPlan your path carefully. Every transition must be authorized via the terminal.",
         portrait: "logo_gemini",
         blocking: true,
       });
@@ -565,8 +565,8 @@ export class TutorialManager {
       
       this.onMessage({
         id: "squad_selection_intro",
-        title: "Squad Management",
-        text: "Basic Squad Selection is now online. You can now customize your squad by adding or removing members from the roster. \n\nClick an empty slot to see available personnel, or use the 'X' on a soldier's card to return them to the roster. Choose your team wisely based on the upcoming mission's requirements.",
+        title: "Asset Roster Allocation",
+        text: "Manual roster allocation is now authorized. You may now assign specific biological assets to the operational squad based on contract requirements. \n\nUse the retrieval terminal to assign personnel from the reserve pool. Ensure balanced utility to minimize asset write-offs during high-intensity contact.",
         portrait: "logo_gemini",
         blocking: true,
       });
