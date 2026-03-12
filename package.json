@@ -9,6 +9,7 @@
     "build": "tsc && vite build",
     "test": "vitest run",
     "test:e2e": "vitest run --config vitest.config.e2e.ts",
+    "screenshot:update": "UPDATE_SNAPSHOTS=1 vitest run --config vitest.config.e2e.ts",
     "lint": "tsc --noEmit",
     "preview": "vite preview",
     "balance-sim": "tsx src/harness/BalanceSimulator.ts",
