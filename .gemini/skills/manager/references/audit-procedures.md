@@ -46,3 +46,8 @@ You MUST execute every step below in order. Do NOT skip any step.
 
 ### Step 9: Spec Compliance Check
 - Audit `jj diff --git` for **SOLID** and **Spec** compliance.
+
+### Step 10: Repository Pollution Check
+- Verify the root directory is NOT polluted with ad-hoc `.ts`, `.txt`, `.sh`, or `.py` files.
+- All non-core scripts and artifacts MUST be moved to `scripts/debug/` or another appropriate subfolder.
+- Fail verification if the root contains temporary work files.
