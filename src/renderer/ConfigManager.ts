@@ -28,6 +28,7 @@ export interface GameConfig {
 export interface GlobalConfig {
   unitStyle: UnitStyle;
   themeId: string;
+  phosphor: "green" | "amber";
   logLevel: "DEBUG" | "INFO" | "WARN" | "ERROR" | "NONE";
   debugSnapshots: boolean;
   debugSnapshotInterval: number;
@@ -70,6 +71,7 @@ export class ConfigManager {
     const defaultGlobal: GlobalConfig = {
       unitStyle: UnitStyle.TacticalIcons,
       themeId: "default",
+      phosphor: "green",
       logLevel: isProd ? "ERROR" : "INFO",
       debugSnapshots: false,
       debugSnapshotInterval: 0,

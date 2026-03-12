@@ -198,6 +198,13 @@ export class GameApp {
     if (mvEl) mvEl.textContent = `v${VERSION}`;
 
     this.registry.uiOrchestrator.setupResponsiveDrawers();
+
+    // Visual Identity (voidlock-089xc.1)
+    this.renderTerminalTitleBar();
+    const globalConfig = ConfigManager.loadGlobal();
+    if (globalConfig.phosphor === "amber") {
+      document.body.classList.add("crt-amber");
+    }
   }
 
   private initializeScreens() {
@@ -573,5 +580,27 @@ export class GameApp {
       this.registry.campaignShell.show("campaign", "sector-map");
       this.registry.navigationOrchestrator.switchScreen("campaign", true);
     }
+  }
+
+  private renderTerminalTitleBar() {
+    const appEl = document.getElementById("app");
+    if (!appEl) return;
+
+    // Check if it already exists
+    if (document.querySelector(".terminal-title-bar")) return;
+
+    const titleBar = document.createElement("div");
+    titleBar.className = "terminal-title-bar";
+    
+    const leftText = document.createElement("span");
+    leftText.textContent = `VOIDLOCK REMOTE OPS TERMINAL v${VERSION}`;
+    
+    const rightText = document.createElement("span");
+    rightText.textContent = "OPERATOR: [SECURE_LINK_ESTABLISHED]";
+    
+    titleBar.appendChild(leftText);
+    titleBar.appendChild(rightText);
+    
+    appEl.insertBefore(titleBar, appEl.firstChild);
   }
 }

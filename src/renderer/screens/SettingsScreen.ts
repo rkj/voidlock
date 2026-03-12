@@ -205,6 +205,46 @@ export class SettingsScreen {
     themeGroup.appendChild(themeSelect);
     settingsGrid.appendChild(themeGroup);
 
+    // Terminal Phosphor Section
+    const phosphorGroup = document.createElement("div");
+    phosphorGroup.className = "control-group";
+    phosphorGroup.style.width = "100%";
+    const phosphorLabel = document.createElement("label");
+    phosphorLabel.textContent = "Terminal Phosphor:";
+    phosphorLabel.setAttribute("for", "settings-phosphor-mode");
+    phosphorGroup.appendChild(phosphorLabel);
+
+    const phosphorSelect = document.createElement("select");
+    phosphorSelect.id = "settings-phosphor-mode";
+    const modes = [
+      { id: "green", label: "Green (Standard)" },
+      { id: "amber", label: "Amber (Warm)" },
+    ];
+    modes.forEach((m) => {
+      const opt = document.createElement("option");
+      opt.value = m.id;
+      opt.textContent = m.label;
+      if (m.id === global.phosphor) opt.selected = true;
+      phosphorSelect.appendChild(opt);
+    });
+
+    phosphorSelect.addEventListener("change", () => {
+      const mode = phosphorSelect.value as "green" | "amber";
+      if (mode === "amber") {
+        document.body.classList.add("crt-amber");
+      } else {
+        document.body.classList.remove("crt-amber");
+      }
+      ConfigManager.saveGlobal({
+        ...ConfigManager.loadGlobal(),
+        phosphor: mode,
+      });
+      // Refresh previews
+      this.unitStyleSelector?.renderPreviews();
+    });
+    phosphorGroup.appendChild(phosphorSelect);
+    settingsGrid.appendChild(phosphorGroup);
+
     // Developer Options Section
     const devHeader = document.createElement("h3");
     devHeader.textContent = "Developer Options";
