@@ -72,7 +72,7 @@ describe("DebriefScreen", () => {
     screen.show(report);
 
     expect(container.style.display).toBe("flex");
-    expect(container.innerHTML).toContain("Mission Success");
+    expect(container.innerHTML).toContain("OPERATION CLOSED — Targets Secured");
     expect(container.innerHTML).toContain("10"); // aliensKilled
     expect(container.innerHTML).toContain("+150"); // scrapGained
     expect(container.innerHTML).toContain("Sgt. Slaughter");
@@ -102,8 +102,8 @@ describe("DebriefScreen", () => {
 
     screen.show(report);
 
-    expect(container.innerHTML).toContain("Mission Failed");
-    expect(container.innerHTML).toContain("Dead");
+    expect(container.innerHTML).toContain("OPERATION CLOSED — Total Asset Loss");
+    expect(container.innerHTML).toContain("Integrity Failure");
   });
 
   it("should call onContinue when button is clicked", () => {

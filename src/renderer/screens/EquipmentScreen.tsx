@@ -433,7 +433,7 @@ export class EquipmentScreen {
               if (first) first.focus();
             }}
           >
-            <div class="btn-label">Procure New Asset</div>
+            <div class="btn-label">Acquire New Asset</div>
             <div class="btn-sub">Cost: 100 Credits</div>
           </button>
         </div>
@@ -453,8 +453,8 @@ export class EquipmentScreen {
       return (
         <div class="flex-col align-center justify-center h-full" style={{ color: "var(--color-text-dim)", padding: "20px", textAlign: "center" }}>
           <div style={{ fontSize: "2em", marginBottom: "10px" }}>📋</div>
-          <div>No healthy soldiers available in roster.</div>
-          <div style={{ fontSize: "0.8em", marginTop: "10px" }}>Recruit a new soldier in the center panel.</div>
+          <div>No healthy assets available in roster.</div>
+          <div style={{ fontSize: "0.8em", marginTop: "10px" }}>Acquire a new asset in the center panel.</div>
         </div>
       );
     }
@@ -615,7 +615,7 @@ export class EquipmentScreen {
       items.push(
         <div class="locked-store-message" style={{ color: "var(--color-danger)", padding: "20px", textAlign: "center", border: "1px solid var(--color-danger)", borderRadius: "4px", marginTop: "20px" }}>
           <div style={{ fontSize: "1.5em", marginBottom: "10px" }}>🔒</div>
-          <div style={{ fontWeight: "bold", marginBottom: "5px" }}>ARMORY OFFLINE</div>
+          <div style={{ fontWeight: "bold", marginBottom: "5px" }}>Terminal Offline</div>
           <div style={{ fontSize: "0.8em", opacity: "0.8" }}>Maintenance diagnostics in progress. Standard equipment loadouts only.</div>
         </div>
       );

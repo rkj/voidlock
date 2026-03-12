@@ -184,7 +184,7 @@ export function TacticalSoldier(props: {
           <StatDisplayComponent
             icon={Icons.Speed}
             value={unit.stats.speed}
-            title="Speed"
+            title="Operational Speed"
           />
         </span>
       </div>
@@ -209,7 +209,7 @@ export function TacticalSoldier(props: {
                 <StatDisplayComponent
                   icon={Icons.Rate}
                   value={lhStats.fireRate}
-                  title="Rate of Fire (Shots/sec)"
+                  title="Terminal Feed Delay (Shots/sec)"
                 />
                 <StatDisplayComponent
                   icon={Icons.Range}
@@ -242,7 +242,7 @@ export function TacticalSoldier(props: {
                 <StatDisplayComponent
                   icon={Icons.Rate}
                   value={rhStats.fireRate}
-                  title="Rate of Fire (Shots/sec)"
+                  title="Terminal Feed Delay (Shots/sec)"
                 />
                 <StatDisplayComponent
                   icon={Icons.Range}
@@ -272,7 +272,8 @@ export function DebriefSoldier(props: {
   currentLevel: number;
 }) {
   const { res, displayName, currentLevel } = props;
-  const statusColor = getStatusColor(res.status);
+  const status = getStatus(res);
+  const statusColor = getStatusColor(status);
 
   const nextLevelThreshold =
     XP_THRESHOLDS[currentLevel] || XP_THRESHOLDS[XP_THRESHOLDS.length - 1];
@@ -297,7 +298,7 @@ export function DebriefSoldier(props: {
           class="soldier-status-badge"
           style={{ color: statusColor, borderColor: statusColor }}
         >
-          {res.status}
+          {status}
         </span>
       </div>
 
@@ -402,15 +403,14 @@ export function SquadBuilderSoldier(props: {
 }) {
   const { data, displayName, level, options } = props;
   let arch: Archetype | undefined;
-  let status = "Healthy";
 
   if ("archetypeId" in data && data.archetypeId) {
     arch = ArchetypeLibrary[data.archetypeId];
-    if ("status" in data && typeof data.status === "string") status = data.status;
   } else if ("id" in data && data.id && ArchetypeLibrary[data.id]) {
     arch = ArchetypeLibrary[data.id];
   }
 
+  const status = getStatus(data);
   const effectiveStats = UnitUtils.calculateEffectiveStats(data as any);
   const name = getName(data);
   const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
@@ -498,10 +498,15 @@ export class SoldierWidget {
       !!options.selected && options.context === "roster",
     );
 
-    const status = getStatus(data);
-    container.classList.toggle("dead", status === "Dead");
-    container.classList.toggle("wounded", status === "Wounded");
-    container.classList.toggle("extracted", status === "Extracted");
+    const rawStatus = "status" in data && data.status
+      ? data.status
+      : "state" in data && data.state
+        ? data.state
+        : "Healthy";
+
+    container.classList.toggle("dead", rawStatus === "Dead");
+    container.classList.toggle("wounded", rawStatus === "Wounded");
+    container.classList.toggle("extracted", rawStatus === "Extracted");
 
     if (options.onClick) {
       container.classList.add("clickable");
@@ -572,7 +577,7 @@ export class SoldierWidget {
           />
         );
         container.classList.toggle("deployed", !!options.isDeployed);
-        const isHealthy = status === "Healthy";
+        const isHealthy = rawStatus === "Healthy";
         container.classList.toggle("disabled", !isHealthy);
         break;
     }

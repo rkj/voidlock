@@ -242,13 +242,13 @@ describe("EquipmentScreen", () => {
     // Default Assault HP is 100
     // Find Heavy Plate Armor in armory panel
     const armorBtn = container.querySelector('[data-focus-id="armory-item-heavy_plate"]') as HTMLElement;
-    expect(armorBtn).toBeDefined();
+    expect(armorBtn).not.toBeNull();
     armorBtn?.click();
 
     // Heavy Plate gives +100 HP (Actually let's check ItemLibrary)
     // Looking at the code logic:
     const soldierStatsDiv = Array.from(container.querySelectorAll("h3")).find(
-      (el) => el.textContent === "Soldier Attributes",
+      (el) => el.textContent === "Asset Integrity Profile",
     )?.parentElement;
     
     // Check HP - original was 100, heavy_plate usually gives +100

@@ -66,7 +66,7 @@ export class TutorialManager {
   private prologueSteps: TutorialStep[] = [
     {
       id: "observe",
-      directive: "ASSET DEPLOYMENT INITIALIZED. Observe unit autonomous exploration.",
+      directive: "ASSET DEPLOYMENT INITIALIZED. Observe asset autonomous exploration.",
       highlightTarget: { selector: ".soldier-card" },
       condition: (state, manager) => manager.checkUnitMovedFromStart(state),
       message: {
@@ -84,7 +84,7 @@ export class TutorialManager {
     },
     {
       id: "ui_tour",
-      directive: "Tactical feed overview: Unit telemetry (Left), Command Terminal (Right), Recovery Targets (Below).",
+      directive: "Tactical feed overview: Asset telemetry (Left), Command Terminal (Right), Recovery Targets (Below).",
       directiveMobile: "Interface Overview: Tap 'Roster' for asset telemetry. Tap 'Targets' for recovery info.",
       condition: (state, manager) => manager.checkUITourComplete(state),
       onEnter: (manager, state) => {
@@ -146,8 +146,8 @@ export class TutorialManager {
     },
     {
       id: "move",
-      directive: "Redirect unit to recovery target: Press [1] Orders > [1] Move To Room > Select COMPARTMENT > Confirm.",
-      directiveMobile: "Redirect unit: Tap 'Orders' > 'Move To Room' > Select COMPARTMENT > Confirm.",
+      directive: "Redirect asset to recovery target: Press [1] Orders > [1] Move To Room > Select COMPARTMENT > Confirm.",
+      directiveMobile: "Redirect asset: Tap 'Orders' > 'Move To Room' > Select COMPARTMENT > Confirm.",
       condition: (state, manager) => manager.checkReachedObjectiveRoom(state),
       message: {
         id: "objective_sighted",

@@ -74,6 +74,13 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
   ModalService: vi.fn().mockImplementation(() => mockModalService),
 }));
 
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+}));
+
 describe("Tutorial Mission 2: Ready Room", () => {
   let app: GameApp;
 
@@ -199,10 +206,6 @@ describe("Tutorial Mission 2: Ready Room", () => {
   });
 
   it("should start in Equipment Screen with lockdown active after Mission 1", async () => {
-    // 1. Manually trigger the debrief close which should initiate the redirect
-    // or just let the GameApp.start() handle it if we mock the hash correctly.
-    // In this test, we expect GameApp.start() to see history.length === 1 and redirect.
-    
     app.start();
 
     // Verify redirect to Equipment screen
@@ -212,13 +215,9 @@ describe("Tutorial Mission 2: Ready Room", () => {
     // Verify lockdown message in Right Panel
     const lockedMsg = equipmentScreen?.querySelector(".locked-store-message");
     expect(lockedMsg).not.toBeNull();
-    expect(lockedMsg?.textContent).toContain("ARMORY OFFLINE");
+    expect(lockedMsg?.textContent).toContain("Terminal Offline");
 
     // Verify "Back" button is HIDDEN
-    const backBtn = equipmentScreen?.querySelector(".back-button");
-    // Wait, the EquipmentScreen footer buttons are appended at the end.
-    // In EquipmentScreen.ts: if (!this.isPrologue && !this.isStoreLocked) { footer.appendChild(backBtn); }
-    // So it should NOT be in the footer if it's locked.
     const footerButtons = equipmentScreen?.querySelectorAll("button");
     let hasBack = false;
     footerButtons?.forEach(btn => {
@@ -226,22 +225,19 @@ describe("Tutorial Mission 2: Ready Room", () => {
     });
     expect(hasBack).toBe(false);
 
-    // Verify "Launch Mission" button is PRESENT
+    // Verify "Authorize Operation" button is PRESENT
     let hasLaunch = false;
     footerButtons?.forEach(btn => {
-        if (btn.textContent === "Launch Mission") hasLaunch = true;
+        if (btn.textContent === "Authorize Operation") hasLaunch = true;
     });
     expect(hasLaunch).toBe(true);
 
-    // Verify CampaignShell only shows "Ready Room" tab
+    // Verify CampaignShell only shows "Asset Management Hub" tab
     const tabs = document.querySelectorAll(".shell-tab");
     expect(tabs.length).toBe(1);
-    expect(tabs[0].textContent).toBe("Ready Room");
+    expect(tabs[0].textContent).toBe("Asset Management Hub");
 
     // Verify Advisor message was triggered
-    // Since AdvisorOverlay is mocked in GameApp (wait, it's NOT mocked in this test, but GameClient is)
-    // Actually, TutorialManager calls onMessage which calls advisorOverlay.showMessage.
-    // I can check if TutorialManager's completedSteps has 'ready_room_intro'.
     const tutorialState = localStorage.getItem("voidlock_tutorial_state");
     expect(tutorialState).toContain("ready_room_intro");
 
@@ -259,7 +255,7 @@ describe("Tutorial Mission 2: Ready Room", () => {
         expect(item.classList.contains("disabled")).toBe(true);
     });
 
-    // Verify Global Supplies are HIDDEN (because renderRightPanel returns early)
+    // Verify Global Supplies are HIDDEN
     const suppliesHeader = Array.from(equipmentScreen?.querySelectorAll("h3") || [])
         .find(h => h.textContent === "Global Supplies");
     expect(suppliesHeader).toBeUndefined();

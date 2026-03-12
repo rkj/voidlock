@@ -71,10 +71,10 @@ describe("Mobile Campaign Navigation", () => {
       const tabsContainer = await page.$(".shell-tabs");
       expect(tabsContainer).toBeTruthy();
 
-      // Check if "Settings" tab exists
+      // Check if "Terminal" tab exists
       const settingsTab = await page.evaluateHandle(() => {
           const btns = Array.from(document.querySelectorAll(".tab-button"));
-          return btns.find(b => b.textContent === "Settings");
+          return btns.find(b => b.textContent === "Terminal");
       });
       expect(settingsTab).toBeTruthy();
 
@@ -83,7 +83,7 @@ describe("Mobile Campaign Navigation", () => {
       // We want to ensure it's accessible.
       await page.evaluate(() => {
           const btns = Array.from(document.querySelectorAll(".tab-button"));
-          const btn = btns.find(b => b.textContent === "Settings") as HTMLElement;
+          const btn = btns.find(b => b.textContent === "Terminal") as HTMLElement;
           if (btn) btn.click();
       });
       
@@ -92,7 +92,7 @@ describe("Mobile Campaign Navigation", () => {
       // Or check active class on tab.
       const isActive = await page.evaluate(() => {
           const btns = Array.from(document.querySelectorAll(".tab-button"));
-          const btn = btns.find(b => b.textContent === "Settings");
+          const btn = btns.find(b => b.textContent === "Terminal");
           return btn?.classList.contains("active");
       });
       expect(isActive).toBe(true);

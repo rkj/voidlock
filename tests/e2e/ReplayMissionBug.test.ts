@@ -69,8 +69,8 @@ test("Replay Mission button works and starts a fresh mission", async () => {
     console.log("Waiting for Replay to play...");
     await new Promise(r => setTimeout(r, 2000));
 
-    // Verify Replay Mission button is present
-    const replayBtn = await page.waitForSelector('xpath///button[contains(text(), "Replay Mission")]');
+    // Verify Analyze Tactical Feed button is present
+    const replayBtn = await page.waitForSelector('xpath///button[contains(text(), "Analyze Tactical Feed")]', { timeout: 10000 });
     expect(replayBtn).not.toBeNull();
 
     // 4. Click Replay Mission

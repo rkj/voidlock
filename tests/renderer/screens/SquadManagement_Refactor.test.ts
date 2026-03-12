@@ -1,255 +1,243 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { ModalService } from "@src/renderer/ui/ModalService";
 import { SquadConfig } from "@src/shared/types";
 
 describe("EquipmentScreen - Squad Management Refactor", () => {
   let container: HTMLElement;
+  let manager: CampaignManager;
+  let modalService: ModalService;
   let initialConfig: SquadConfig;
-  let onSave: any;
   let onBack: any;
-  let mockManager: any;
-  let mockModalService: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-equipment"></div>';
     container = document.getElementById("screen-equipment")!;
 
+    CampaignManager.resetInstance();
+    manager = CampaignManager.getInstance(
+      new (class {
+        save() {}
+        load() {
+          return null;
+        }
+        remove() {}
+        clear() {}
+      })(),
+    );
+
+    modalService = {
+      alert: vi.fn(),
+      confirm: vi.fn(),
+      prompt: vi.fn(),
+    } as any;
+
     initialConfig = {
-      soldiers: [{ id: "s1", name: "Soldier 1", archetypeId: "assault" }],
+      soldiers: [
+        {
+          id: "s1",
+          name: "Soldier 1",
+          archetypeId: "assault",
+          hp: 150,
+          maxHp: 150,
+          soldierAim: 80,
+          equipment: { rightHand: "pulse_rifle" },
+        },
+      ],
       inventory: {},
-    };
+    } as any;
 
-    mockModalService = {
-      alert: vi.fn().mockResolvedValue(undefined),
-      confirm: vi.fn().mockResolvedValue(true),
-      show: vi.fn().mockResolvedValue(undefined),
-    };
-
-    mockManager = {
-      getState: vi.fn().mockReturnValue({
-        roster: [
-          {
-            id: "s1",
-            name: "Soldier 1",
-            archetypeId: "assault",
-            status: "Healthy",
-            equipment: {},
-            level: 1,
-            xp: 0,
-            hp: 100,
-            maxHp: 100,
-            soldierAim: 60,
-          },
-          {
-            id: "s2",
-            name: "Soldier 2",
-            archetypeId: "medic",
-            status: "Healthy",
-            equipment: {},
-            level: 1,
-            xp: 0,
-            hp: 100,
-            maxHp: 100,
-            soldierAim: 60,
-          },
-          {
-            id: "s3",
-            name: "Soldier 3",
-            archetypeId: "scout",
-            status: "Dead",
-            equipment: {},
-            level: 1,
-            xp: 0,
-            hp: 100,
-            maxHp: 100,
-            soldierAim: 60,
-          },
-        ],
-        scrap: 500,
-        unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
-        unlockedItems: [],
-        rules: { economyMode: "Open" },
-      }),
-      addChangeListener: vi.fn(),
-      removeChangeListener: vi.fn(),
-      spendScrap: vi.fn(),
-      assignEquipment: vi.fn(),
-      recruitSoldier: vi.fn().mockReturnValue("s4"),
-      reviveSoldier: vi.fn(),
-    };
-
-    onSave = vi.fn();
     onBack = vi.fn();
   });
 
   it("should show 4 slots in the soldier list even if fewer soldiers are in squad", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
-      mockManager,
-      mockModalService as any,
+      manager,
+      modalService,
       initialConfig,
-      onSave,
       onBack,
-      undefined,
-      false,
-      true
     );
     screen.show();
 
-    const slots = container.querySelectorAll(".soldier-list-panel .menu-item");
-    expect(slots.length).toBe(4);
-    expect(slots[0].textContent).toContain("Soldier 1");
-    expect(slots[1].textContent).toContain("[Empty Slot]");
+    const slots = container.querySelectorAll(".soldier-item-container");
+    // Wait, EquipmentScreen.tsx uses renderSoldierListItems which doesn't use .soldier-item-container
+    // Ah! It uses .soldier-widget or .menu-item
+    const items = container.querySelectorAll(".soldier-list-panel .menu-item, .soldier-list-panel .soldier-widget");
+    expect(items.length).toBe(4);
   });
 
   it("should show Recruit/Revive options in the inspector when an empty slot is selected", () => {
+    manager.startNewCampaign(123, "normal");
     const screen = new EquipmentScreen(
       "screen-equipment",
-      mockManager,
-      mockModalService as any,
+      manager,
+      modalService,
       initialConfig,
-      onSave,
       onBack,
       undefined,
+      undefined,
       false,
-      true
+      true, // isCampaign
     );
     screen.show();
 
-    // Select the second slot (empty)
-    const slots = container.querySelectorAll(".soldier-list-panel .menu-item");
+    // Select an empty slot
+    const slots = container.querySelectorAll(".soldier-list-panel .menu-item, .soldier-list-panel .soldier-widget");
     (slots[1] as HTMLElement).click();
 
     const inspector = container.querySelector(".soldier-equipment-panel");
-    expect(inspector?.textContent).toContain("Recruit New Soldier");
-    expect(inspector?.textContent).toContain("Revive Fallen Soldier");
+    expect(inspector?.textContent).toContain("Acquire New Asset");
+    expect(inspector?.textContent).toContain("Restore Lost Asset");
   });
 
   it("should show available roster soldiers in the Right Panel when an empty slot is selected", () => {
+    manager.startNewCampaign(12345, "normal");
+    const state = manager.getState()!;
+    state.roster = [
+      {
+        id: "s1",
+        name: "Soldier 1",
+        archetypeId: "assault",
+        hp: 150,
+        maxHp: 150,
+        soldierAim: 80,
+        status: "Healthy",
+        equipment: {},
+        xp: 0,
+        level: 1,
+        kills: 0,
+        missions: 0,
+      },
+      {
+        id: "s2",
+        name: "Soldier 2",
+        archetypeId: "medic",
+        hp: 100,
+        maxHp: 100,
+        soldierAim: 70,
+        status: "Healthy",
+        equipment: {},
+        xp: 0,
+        level: 1,
+        kills: 0,
+        missions: 0,
+      },
+    ];
+
     const screen = new EquipmentScreen(
       "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
+      manager,
+      modalService,
+      { soldiers: [state.roster[0]], inventory: {} },
       onBack,
       undefined,
+      undefined,
       false,
-      true
+      true,
     );
     screen.show();
 
-    // Select the second slot (empty)
-    const slots = container.querySelectorAll(".soldier-list-panel .menu-item");
+    // Select an empty slot
+    const slots = container.querySelectorAll(".soldier-list-panel .menu-item, .soldier-list-panel .soldier-widget");
     (slots[1] as HTMLElement).click();
 
     const rightPanel = container.querySelector(".armory-panel");
-    expect(rightPanel?.textContent).toContain("Reserve Roster");
+    expect(rightPanel?.textContent).toContain("Asset Reserve");
     expect(rightPanel?.textContent).toContain("Soldier 2");
   });
 
   it("should allow adding a soldier from the roster to an empty slot", () => {
+    manager.startNewCampaign(12345, "normal");
+    const state = manager.getState()!;
+    state.roster = [
+      { id: "s1", name: "Soldier 1", status: "Healthy", equipment: {}, xp: 0, level: 1, archetypeId: "assault", hp: 100, maxHp: 100, soldierAim: 80, kills: 0, missions: 0 },
+      { id: "s2", name: "Soldier 2", status: "Healthy", equipment: {}, xp: 0, level: 1, archetypeId: "medic", hp: 100, maxHp: 100, soldierAim: 70, kills: 0, missions: 0 },
+    ];
+
     const screen = new EquipmentScreen(
       "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
+      manager,
+      modalService,
+      { soldiers: [state.roster[0]], inventory: {} },
       onBack,
       undefined,
+      undefined,
       false,
-      true
+      true,
     );
     screen.show();
 
-    // Select the second slot (empty)
-    const slots = container.querySelectorAll(".soldier-list-panel .menu-item");
+    // Select empty slot
+    const slots = container.querySelectorAll(".soldier-list-panel .menu-item, .soldier-list-panel .soldier-widget");
     (slots[1] as HTMLElement).click();
 
-    // Find Soldier 2 in roster picker and click it
+    // Find Soldier 2 in Asset Reserve
     const rosterItems = Array.from(
-      container.querySelectorAll(".armory-panel .menu-item"),
+      container.querySelectorAll(".armory-panel .soldier-item"),
     );
-    const soldier2Item = rosterItems.find((el) => el.textContent?.includes("Soldier 2")) as HTMLElement;
-    expect(soldier2Item).toBeTruthy();
-    soldier2Item.click();
+    const soldier2Card = rosterItems.find((el) =>
+      el.textContent?.includes("Soldier 2"),
+    ) as HTMLElement;
+    expect(soldier2Card).toBeTruthy();
+    soldier2Card.click();
 
-    // Verify it's now in the squad config
-    const backBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Back",
-    );
-    backBtn?.click();
-
-    expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        soldiers: expect.arrayContaining([
-          expect.objectContaining({ id: "s1" }),
-          expect.objectContaining({ id: "s2" }),
-        ]),
-      }),
-    );
+    const itemsAfter = container.querySelectorAll(".soldier-list-panel .soldier-widget");
+    expect(itemsAfter.length).toBe(2);
+    expect(itemsAfter[1].textContent).toContain("Soldier 2");
   });
 
   it("should allow removing a soldier from the squad", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
-      mockManager,
-      mockModalService as any,
+      manager,
+      modalService,
       initialConfig,
-      onSave,
       onBack,
-      undefined,
-      false,
-      true
     );
     screen.show();
 
-    // Click remove button on the first soldier
-    const removeBtn = container.querySelector(
-      ".remove-soldier-btn",
-    ) as HTMLElement;
+    const removeBtn = container.querySelector(".slot-remove") as HTMLElement;
+    expect(removeBtn).toBeTruthy();
     removeBtn.click();
 
-    // Verify it's gone from squad config
-    const backBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Back",
-    );
-    backBtn?.click();
-
-    expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        soldiers: [],
-      }),
-    );
+    const itemsAfter = container.querySelectorAll(".soldier-list-panel .soldier-widget");
+    expect(itemsAfter.length).toBe(0);
   });
 
   it("should show available archetypes in recruitment picker", () => {
+    manager.startNewCampaign(12345, "normal");
+    const state = manager.getState()!;
+    state.unlockedArchetypes = ["assault", "medic"];
+
     const screen = new EquipmentScreen(
       "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
+      manager,
+      modalService,
+      { soldiers: [], inventory: {} },
       onBack,
       undefined,
+      undefined,
       false,
-      true
+      true,
     );
     screen.show();
 
-    // Select the second slot (empty)
-    const slots = container.querySelectorAll(".soldier-list-panel .menu-item");
-    (slots[1] as HTMLElement).click();
+    // Select empty slot
+    const slots = container.querySelectorAll(".soldier-list-panel .menu-item, .soldier-list-panel .soldier-widget");
+    (slots[0] as HTMLElement).click();
 
-    // Click Recruit New Soldier in inspector
+    // Click Acquire New Asset
     const recruitBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent?.includes("Recruit New Soldier"),
-    );
-    recruitBtn?.click();
+      (b) => b.textContent?.includes("Acquire New Asset"),
+    ) as HTMLElement;
+    expect(recruitBtn).toBeTruthy();
+    recruitBtn.click();
 
     const rightPanel = container.querySelector(".armory-panel");
-    expect(rightPanel?.textContent).toContain("Recruitment");
+    expect(rightPanel?.textContent).toContain("Procurement");
     expect(rightPanel?.textContent).toContain("Assault");
     expect(rightPanel?.textContent).toContain("Medic");
   });

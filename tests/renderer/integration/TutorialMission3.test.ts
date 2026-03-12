@@ -264,9 +264,9 @@ describe("Tutorial Mission 3: Sector Map", () => {
     expect(tabs.length).toBeGreaterThan(1);
     
     const tabLabels = Array.from(tabs).map(t => t.textContent);
-    expect(tabLabels).toContain("Sector Map");
-    expect(tabLabels).toContain("Ready Room");
-    expect(tabLabels).toContain("Engineering");
+    expect(tabLabels).toContain("Operational Map");
+    expect(tabLabels).toContain("Asset Management Hub");
+    expect(tabLabels).toContain("System Engineering");
 
     // Verify Advisor message for Sector Map was triggered
     const tutorialState = localStorage.getItem("voidlock_tutorial_state");
@@ -307,7 +307,7 @@ describe("Tutorial Mission 3: Sector Map", () => {
     expect(emptySlots.length).toBeGreaterThan(0);
     emptySlots.forEach(slot => {
         expect(slot.textContent).not.toContain("Slot Restricted");
-        expect(slot.textContent).toContain("Click to Add Soldier");
+        expect(slot.textContent).toContain("Click to Allocate Asset");
         expect(slot.classList.contains("disabled")).toBe(false);
     });
     

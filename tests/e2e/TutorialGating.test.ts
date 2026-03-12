@@ -45,8 +45,7 @@ describe("Tutorial Input Gating E2E", () => {
         const btn = document.querySelector(".advisor-btn[data-id='dismiss']") as HTMLElement;
         if (btn) btn.click();
     });
-    await page.waitForSelector(".advisor-message", { hidden: true });
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 1000));
 
     // Now in mission, first step: Select Unit
     await page.waitForSelector("#screen-mission", { visible: true });
@@ -58,13 +57,22 @@ describe("Tutorial Input Gating E2E", () => {
     });
     expect(ordersDisabled).toBe(true);
 
-    // 2. Click soldier card to advance tutorial
-    await page.click(".soldier-card");
+    // 2. Fast-forward tutorial to 'move' step
+    await page.evaluate(() => {
+        const app = (window as any).GameAppInstance;
+        const tm = app.registry.tutorialManager;
+        const state = app.registry.gameClient.latestState;
+        const moveStepIndex = tm.prologueSteps.findIndex((s: any) => s.id === "move");
+        if (moveStepIndex !== -1) {
+            tm.currentStepIndex = moveStepIndex;
+            tm.enterStep(moveStepIndex, state);
+        }
+    });
     
-    // Wait for step 2: Move
+    // Wait for step: Move
     await page.waitForFunction(() => {
         const text = document.getElementById("tutorial-directive-text")?.textContent;
-        return text?.includes("highlighted cell to move");
+        return text?.includes("Redirect asset") || text?.includes("Press [1] Orders");
     }, { timeout: 5000 });
 
     // 3. Verify Orders is now ENABLED

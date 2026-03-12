@@ -348,7 +348,7 @@ export class EnemyIntelPanel {
           <div class="intel-box" data-type="${type}">
             <div class="intel-header"><strong class="intel-title">${type} x${groups[type]}</strong></div>
             <div class="intel-stats">
-              ${StatDisplay.render(Icons.Speed, e.speed, "Speed")}
+              ${StatDisplay.render(Icons.Speed, e.speed, "Operational Speed")}
               ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
               ${StatDisplay.render(Icons.Damage, e.damage, "Damage")}
               ${StatDisplay.render(Icons.Rate, fireRateVal, "Terminal Feed Delay (Shots/sec)")}
@@ -416,7 +416,7 @@ export class GameOverPanel {
     const summaryDiv = document.createElement("div");
     summaryDiv.className = "game-over-summary" + (state.status === "Won" ? "" : " lost");
     summaryDiv.innerHTML = `
-      <h2 class="game-over-title">${state.status === "Won" ? "OPERATION CLOSED — Assets Retrieved" : "OPERATION CLOSED — Total Asset Loss"}</h2>
+      <h2 class="game-over-title">${state.status === "Won" ? "OPERATION CLOSED — Targets Secured" : "OPERATION CLOSED — Total Asset Loss"}</h2>
       <div class="game-over-objectives"><h3 class="game-over-panel-title">Recovery Targets</h3>${this.callbacks.objectivesPanel.renderObjectivesList(state)}</div>
       <div class="game-over-stats">
         <p><strong>Operational Time:</strong> ${(state.t / 1000).toFixed(1)}s</p>

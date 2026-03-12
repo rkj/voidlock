@@ -55,7 +55,7 @@ describe("Prologue Tutorial E2E", () => {
         const btn = document.querySelector(selector) as HTMLElement;
         if (btn) btn.click();
     }, dismissBtn);
-    await page.waitForSelector(".advisor-message", { hidden: true });
+    await new Promise(r => setTimeout(r, 1000));
 
     // 5. Should go to Mission Screen
     await page.waitForSelector("#screen-mission", { visible: true });
@@ -71,7 +71,7 @@ describe("Prologue Tutorial E2E", () => {
 
     // 8. Verify message content
     const msgText = await page.$eval(".advisor-text", (el) => (el as HTMLElement).innerText);
-    expect(msgText).toContain("wake up");
+    expect(msgText).toContain("deployment sequence complete");
 
     // Take screenshot for proof
     await page.screenshot({ path: "tests/e2e/__snapshots__/prologue_tutorial_start.png" });

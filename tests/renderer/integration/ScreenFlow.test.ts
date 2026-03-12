@@ -434,7 +434,7 @@ describe("Screen Flow Integration", () => {
 
     // 3. Equipment -> Settings (via tab)
     const settingsTab = Array.from(document.querySelectorAll(".tab-button")).find(
-      (b) => b.textContent === "Settings",
+      (b) => b.textContent === "Terminal",
     ) as HTMLElement;
     expect(settingsTab).toBeDefined();
     settingsTab.click();

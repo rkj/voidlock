@@ -78,7 +78,7 @@ describe("Tap-to-Inspect E2E", () => {
 
     expect(popoverData).not.toBeNull();
     expect(popoverData?.exists).toBe(true);
-    expect(popoverData?.text).toBe("Max Health");
+    expect(popoverData?.text).toBe("Max Integrity");
 
     // 6. Tap outside to dismiss
     await page.touchscreen.tap(10, 10);

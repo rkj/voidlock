@@ -310,13 +310,13 @@ describe("E2E Campaign Happy Path", () => {
         "flex",
       );
 
-      // Confirm or Leave Shop
+      // Authorize or Exit Hub
       const isShop = accessibleNode.type === "Shop";
       const equipmentBtn = Array.from(
         document.querySelectorAll("#screen-equipment button"),
       ).find((b) => 
-        b.textContent?.includes("Launch Mission") || 
-        b.textContent?.includes("Leave")
+        b.textContent?.includes("Authorize Operation") || 
+        b.textContent?.includes("Exit Hub")
       ) as HTMLElement;
       
       expect(equipmentBtn).toBeTruthy();

@@ -82,7 +82,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         removeChangeListener: vi.fn(),
         load: vi.fn(),
         processMissionResult: vi.fn(),
-        save: vi.fn(), assignEquipment: vi.fn(),
+        save: vi.fn(),
         startNewCampaign: vi.fn((_seed, diff, pause, theme, style, mapGen) => {
           currentCampaignState = {
             status: "Active",
@@ -322,7 +322,7 @@ describe("Campaign Map Generator Integration", () => {
     // 6. Confirm and Launch Mission
     const equipmentLaunchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Launch Mission")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Authorize Operation")) as HTMLElement;
     expect(equipmentLaunchBtn).toBeTruthy();
     equipmentLaunchBtn.click();
 

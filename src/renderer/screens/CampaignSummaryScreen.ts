@@ -163,13 +163,15 @@ export class CampaignSummaryScreen {
             ? "var(--color-warning)"
             : "var(--color-danger)";
 
+      const statusDisplay = s.status === "Healthy" ? "Functional" : (s.status === "Wounded" ? "Damaged" : "Integrity Failure");
+
       row.innerHTML = `
         <div class="flex-col">
           <div style="font-weight:bold; letter-spacing: 1px;">${s.name}</div>
           <div style="font-size: 0.8em; color: var(--color-text-dim);">${s.archetypeId} - Lvl ${calculateLevel(s.xp)}</div>
         </div>
         <div style="color: ${statusColor}; font-weight: bold; font-size: 0.9em; border: 1px solid ${statusColor}; padding: 2px 10px; border-radius: 2px;">
-          ${s.status}
+          ${statusDisplay}
         </div>
       `;
       rosterList.appendChild(row);

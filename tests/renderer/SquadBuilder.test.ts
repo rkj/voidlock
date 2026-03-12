@@ -70,7 +70,7 @@ describe("SquadBuilder Component", () => {
     builder.render();
 
     const countDiv = document.getElementById("squad-total-count");
-    expect(countDiv?.textContent).toContain("Total Soldiers: 1/4");
+    expect(countDiv?.textContent).toContain("Assigned Assets: 1/4");
   });
 
   it("should disable launch button if squad is empty", () => {

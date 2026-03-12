@@ -160,9 +160,10 @@ describe("StatisticsScreen Integration", () => {
     document.getElementById("btn-menu-statistics")?.click();
 
     // Click Main Menu button in the shell
+    await new Promise(resolve => setTimeout(resolve, 100));
     const backBtn = Array.from(
       document.querySelectorAll("#campaign-shell-top-bar button"),
-    ).find((b) => b.textContent === "Main Menu") as HTMLElement;
+    ).find((b) => b.textContent?.includes("Main Menu")) as HTMLElement;
     expect(backBtn).toBeTruthy();
     backBtn?.click();
 

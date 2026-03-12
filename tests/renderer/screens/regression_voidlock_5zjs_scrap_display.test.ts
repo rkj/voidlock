@@ -81,7 +81,7 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
 
     // Stats should now be in the shell top bar
     const topBar = document.getElementById("campaign-shell-top-bar")!;
-    expect(topBar.textContent).toContain("Scrap:");
+    expect(topBar.textContent).toContain("Credits:");
     expect(topBar.textContent).toContain("450");
     expect(topBar.textContent).toContain("Intel:");
     expect(topBar.textContent).toContain("120");
@@ -132,6 +132,6 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
     screen.show();
 
     const topBar = document.getElementById("campaign-shell-top-bar")!;
-    expect(topBar.textContent).not.toContain("Scrap:");
+    expect(topBar.textContent).not.toContain("Credits:");
   });
 });

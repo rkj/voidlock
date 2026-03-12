@@ -224,6 +224,6 @@ describe("Tutorial Mission 2: Lockdown Verification", () => {
     // Verify store is locked
     const lockedMsg = equipmentScreen?.querySelector(".locked-store-message");
     expect(lockedMsg).not.toBeNull();
-    expect(lockedMsg?.textContent).toContain("ARMORY OFFLINE");
+    expect(lockedMsg?.textContent).toContain("Terminal Offline");
   });
 });

@@ -23,8 +23,8 @@ describe("UI Casing Standardization (voidlock-0gxhs)", () => {
         // Check if text is all caps (ignoring non-alpha characters)
         const alphaOnly = text.replace(/[^a-zA-Z]/g, "");
         if (alphaOnly.length > 2 && alphaOnly === alphaOnly.toUpperCase()) {
-          // Exceptions for abbreviations
-          const exceptions = ["XP", "HP", "LOS", "LOF", "ID", "POIS", "RH", "LH", "SQD", "OBJ", "VITE", "VOD", "DAG"];
+          // Exceptions for abbreviations and rebranded terms
+          const exceptions = ["XP", "HP", "LOS", "LOF", "ID", "POIS", "RH", "LH", "SQD", "OBJ", "VITE", "VOD", "DAG", "OPERATION", "CLOSED"];
           if (exceptions.includes(alphaOnly)) continue;
           
           // Failure: all caps text found

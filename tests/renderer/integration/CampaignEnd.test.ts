@@ -344,9 +344,9 @@ describe("Campaign End Integration", () => {
     // 6. Verify Victory Report is displayed
     const victoryOverlay = document.querySelector(".campaign-victory-overlay");
     expect(victoryOverlay).not.toBeNull();
-    expect(victoryOverlay?.textContent).toContain("Sector Secured");
-    expect(victoryOverlay?.textContent).toMatch(/Aliens Purged:\s*42/);
-    expect(victoryOverlay?.textContent).toMatch(/Missions:\s*1/);
+    expect(victoryOverlay?.textContent).toContain("CONTRACT SUCCESS");
+    expect(victoryOverlay?.textContent).toMatch(/Biologicals Neutralized:\s*42/);
+    expect(victoryOverlay?.textContent).toMatch(/Operations Finalized:\s*1/);
 
     // 7. Verify Return to Main Menu works
     const menuBtn = Array.from(

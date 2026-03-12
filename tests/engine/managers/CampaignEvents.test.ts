@@ -32,7 +32,7 @@ describe("Campaign Events", () => {
 
     expect(state.scrap).toBe(initialScrap + 100);
     expect(state.intel).toBe(initialIntel + 20);
-    expect(result.text).toContain("Gained 100 Scrap");
+    expect(result.text).toContain("Gained 100 Credits");
     expect(result.text).toContain("Gained 20 Intel");
     expect(eventNode.status).toBe("Cleared");
   });
@@ -49,7 +49,7 @@ describe("Campaign Events", () => {
 
     const prng = new PRNG(1);
     expect(() => manager.applyEventChoice(eventNode.id, choice, prng)).toThrow(
-      "Not enough scrap.",
+      "Not enough Credits.",
     );
     expect(state.scrap).toBe(50);
   });

@@ -6,106 +6,91 @@ import { CampaignShell } from "@src/renderer/ui/CampaignShell";
 
 describe("CampaignShell", () => {
   let container: HTMLElement;
-  let manager: any;
-  let metaManager: any;
-  let onTabChange: any;
-  let onMenu: any;
   let shell: CampaignShell;
+  let onTabChange: any;
+  let onBack: any;
+  let mockManager: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-campaign-shell"></div>';
     container = document.getElementById("screen-campaign-shell")!;
+    onTabChange = vi.fn();
+    onBack = vi.fn();
 
-    manager = {
-      getState: vi.fn().mockReturnValue({
+    mockManager = {
+      getState: vi.fn(() => ({
+        currentSector: 2,
         scrap: 500,
         intel: 10,
-        currentSector: 2,
-        status: "Active",
-      }),
+        totalKills: 100,
+        totalMissions: 5,
+        missionsWon: 20,
+      })),
+      getSyncStatus: vi.fn(() => "synced"),
       addChangeListener: vi.fn(),
       removeChangeListener: vi.fn(),
-      getSyncStatus: vi.fn().mockReturnValue("synced"),
     };
 
-    metaManager = {
-      getStats: vi.fn().mockReturnValue({
+    const mockMetaManager = {
+      getStats: vi.fn(() => ({
         totalKills: 100,
         totalCampaignsStarted: 5,
         totalMissionsWon: 20,
-      }),
+      })),
     };
-
-    onTabChange = vi.fn();
-    onMenu = vi.fn();
 
     shell = new CampaignShell(
       "screen-campaign-shell",
-      manager as any,
-      metaManager as any,
+      mockManager,
+      mockMetaManager as any,
       onTabChange,
-      onMenu,
+      onBack,
     );
+  });
+
+  it("should render correctly when shown", () => {
+    shell.show("campaign", "sector-map");
+    expect(container.style.display).toBe("flex");
+    expect(container.innerHTML).not.toBe("");
   });
 
   it("should render campaign info in campaign mode", () => {
     shell.show("campaign", "sector-map");
 
-    expect(container.innerHTML).toContain("Campaign Mode");
+    expect(container.innerHTML).toContain("Active Contract");
     expect(container.innerHTML).toContain("Sector 2");
-    expect(container.innerHTML).toContain("Scrap:");
+    expect(container.innerHTML).toContain("Credits:");
     expect(container.innerHTML).toContain("500");
     expect(container.innerHTML).toContain("Intel:");
     expect(container.innerHTML).toContain("10");
 
     // Check tabs
-    expect(container.innerHTML).toContain("Sector Map");
-    expect(container.innerHTML).toContain("Ready Room");
-    expect(container.innerHTML).toContain("Service Record");
-    expect(container.innerHTML).toContain("Settings");
+    expect(container.innerHTML).toContain("Operational Map");
+    expect(container.innerHTML).toContain("Asset Management Hub");
   });
 
   it("should render statistics info in statistics mode", () => {
     shell.show("statistics", "stats");
 
-    expect(container.innerHTML).toContain("Service Record");
-    expect(container.innerHTML).toContain("Global Statistics");
-    expect(container.innerHTML).not.toContain("Scrap:");
-
-    // Check for specific tabs
-    const buttons = Array.from(container.querySelectorAll("button"));
-    const labels = buttons.map((b) => b.textContent);
-
-    expect(labels).toContain("Service Record");
-    expect(labels).toContain("Main Menu");
-    expect(labels).not.toContain("Sector Map");
-  });
-
-  it("should handle Main Menu tab click in statistics mode", () => {
-    shell.show("statistics", "stats");
-
-    const menuBtn = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Main Menu",
-    );
-    expect(menuBtn).toBeDefined();
-
-    menuBtn?.click();
-    expect(onMenu).toHaveBeenCalled();
+    expect(container.innerHTML).toContain("Operational Logs");
+    expect(container.innerHTML).toContain("Asset Statistics");
+    expect(container.innerHTML).not.toContain("Credits:");
   });
 
   it("should render custom mission info in custom mode", () => {
     shell.show("custom");
 
-    expect(container.innerHTML).toContain("Custom Mission");
-    expect(container.innerHTML).toContain("Simulation Setup");
-    expect(container.innerHTML).not.toContain("Scrap:");
+    expect(container.innerHTML).toContain("Simulated Operation");
+    expect(container.innerHTML).toContain("Simulation Protocol");
+    expect(container.innerHTML).not.toContain("Credits:");
   });
 
   it("should call onTabChange when a tab is clicked", () => {
     shell.show("campaign", "sector-map");
 
-    const readyRoomBtn = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Ready Room",
+    const buttons = Array.from(container.querySelectorAll(".tab-button"));
+    const readyRoomBtn = buttons.find(
+      (b) => b.textContent === "Asset Management Hub",
     );
     expect(readyRoomBtn).toBeDefined();
 
@@ -116,8 +101,9 @@ describe("CampaignShell", () => {
   it("should call onTabChange when Settings tab is clicked", () => {
     shell.show("campaign", "sector-map");
 
-    const settingsBtn = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Settings",
+    const buttons = Array.from(container.querySelectorAll(".tab-button"));
+    const settingsBtn = buttons.find(
+      (b) => b.textContent === "Terminal",
     );
     expect(settingsBtn).toBeDefined();
 
@@ -125,16 +111,11 @@ describe("CampaignShell", () => {
     expect(onTabChange).toHaveBeenCalledWith("settings");
   });
 
-  it("should call onMenu when Main Menu button is clicked", () => {
+  it("should call onBack when back button is clicked", () => {
     shell.show("campaign");
-
-    const menuBtn = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Main Menu",
-    );
-    expect(menuBtn).toBeDefined();
-
-    menuBtn?.click();
-    expect(onMenu).toHaveBeenCalled();
+    const backBtn = container.querySelector(".back-button") as HTMLElement;
+    backBtn.click();
+    expect(onBack).toHaveBeenCalled();
   });
 
   it("should hide when hide is called", () => {

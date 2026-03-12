@@ -167,7 +167,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("Campaign Defeat");
+    expect(container.textContent).toContain("CONTRACT TERMINATED");
     expect(container.querySelector("#btn-defeat-summary")).not.toBeNull();
   });
 
@@ -185,7 +185,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("Campaign Victory");
+    expect(container.textContent).toContain("CONTRACT SUCCESS");
     expect(container.querySelector("#btn-victory-summary")).not.toBeNull();
   });
 });

@@ -62,8 +62,8 @@ describe("Reproduction: Title Case labels in UI (voidlock-8ai79)", () => {
     await page.waitForSelector("#screen-equipment", { visible: true });
     await new Promise(r => setTimeout(r, 1000));
     
-    // The selector for "Soldier Attributes" in SoldierInspector
-    await checkIsTitleCase("#screen-equipment h3", "Soldier Attributes");
+    // The selector for "Asset Integrity Profile" in SoldierInspector
+    await checkIsTitleCase("#screen-equipment h3", "Asset Integrity Profile");
 
     // 2. Check Debrief Screen labels (Mission Failed / Return to Command Bridge)
     // Add soldier to squad
@@ -127,9 +127,9 @@ describe("Reproduction: Title Case labels in UI (voidlock-8ai79)", () => {
     await new Promise(r => setTimeout(r, 1000));
     
     // Debrief Header
-    await checkIsTitleCase("#screen-debrief h1", "Mission Failed");
+    await checkIsTitleCase("#screen-debrief h1", "OPERATION CLOSED — Total Asset Loss");
     
-    // Return to Command Bridge button
-    await checkIsTitleCase(".debrief-footer .debrief-button", "Return to Command Bridge");
+    // Return to Operational Terminal button
+    await checkIsTitleCase(".debrief-footer .debrief-button", "Return to Operational Terminal");
   });
 });

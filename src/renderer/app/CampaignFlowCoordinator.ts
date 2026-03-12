@@ -49,7 +49,7 @@ export class CampaignFlowCoordinator {
   ) {
     if (node.type === "Shop") {
       await this.modalService.alert(
-        "Supply Depot reached. +100 Scrap granted for resupply.",
+        "Supply Depot reached. +100 Credits granted for resupply.",
       );
       this.campaignManager.advanceCampaignWithoutMission(
         node.id,

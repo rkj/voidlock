@@ -11,6 +11,6 @@ describe("Puppeteer Setup Verification", () => {
     const page = await getNewPage();
     await page.goto(E2E_URL);
     const title = await page.title();
-    expect(title).toBe("Voidlock");
+    expect(title).toBe("Voidlock — Terminal Assets");
   });
 });

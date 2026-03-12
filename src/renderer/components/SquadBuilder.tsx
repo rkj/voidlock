@@ -330,7 +330,7 @@ export class SquadBuilder {
                     this.handleRevive(soldier.id);
                   }}
                 >
-                  Restore Integrity (250 Credits)
+                  Restore Lost Asset (250 Credits)
                 </button>
               );
             }
@@ -346,7 +346,7 @@ export class SquadBuilder {
               disabled={state.scrap < 100}
               onClick={this.handleRecruit}
             >
-              Procure Asset (100 Credits)
+              Acquire New Asset (100 Credits)
             </button>
           );
         }

@@ -286,7 +286,7 @@ describe("HUDManager", () => {
 
     const summary = document.querySelector(".game-over-summary");
     expect(summary).not.toBeNull();
-    expect(summary?.textContent).toContain("Mission Accomplished");
+    expect(summary?.textContent).toContain("OPERATION CLOSED — Targets Secured");
     expect(summary?.innerHTML).toContain("Recover");
     expect(summary?.innerHTML).toContain("✔");
   });

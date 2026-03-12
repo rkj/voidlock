@@ -181,7 +181,7 @@ export class StatisticsScreen {
     statsGrid.appendChild(this.createHeader("Economy"));
     statsGrid.appendChild(
       createStatRow(
-        "Total Scrap Earned",
+        "Total Credits Recovered",
         stats.totalScrapEarned.toLocaleString(),
         "var(--color-primary)",
       ),

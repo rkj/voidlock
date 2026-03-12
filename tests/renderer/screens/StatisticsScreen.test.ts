@@ -52,7 +52,7 @@ describe("StatisticsScreen", () => {
     expect(container.textContent).toContain("2");
     expect(container.textContent).toContain("Expeditions Won:");
     expect(container.textContent).toContain("1");
-    expect(container.textContent).toContain("Total Scrap Earned:");
+    expect(container.textContent).toContain("Total Credits Recovered:");
     expect(container.textContent).toContain("500");
   });
 });

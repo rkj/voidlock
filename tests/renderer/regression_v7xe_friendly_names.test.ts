@@ -85,7 +85,7 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
     expect(objOption?.label).toBe("1. Collect Objective");
 
     const lootOption = state.options.find((o) => o.key === "2");
-    expect(lootOption?.label).toBe("2. Pickup Scrap Crate");
+    expect(lootOption?.label).toBe("2. Pickup Credit Crate");
   });
 
   it("should use friendly name for inventory items in ITEM_SELECT", () => {
@@ -94,11 +94,11 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
 
     const state = controller.getRenderableState(mockState);
     const itemOption = state.options.find((o) =>
-      o.label.includes("Scrap Crate"),
+      o.label.includes("Credit Crate"),
     );
 
     // This one might already be correct as per my previous check, but let's be sure
-    expect(itemOption?.label).toBe("1. Scrap Crate (1)");
+    expect(itemOption?.label).toBe("1. Credit Crate (1)");
   });
 
   it("should use 'Name (N)' format for units in UNIT_SELECT", () => {

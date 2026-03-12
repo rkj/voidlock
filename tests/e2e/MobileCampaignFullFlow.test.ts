@@ -43,10 +43,10 @@ describe("Mobile Full Campaign Flow", () => {
     // 2. We should be on Sector Map. Check if tabs are visible.
     await page.waitForSelector(".campaign-node.accessible");
 
-    // Check for Ready Room tab (formerly Barracks)
+    // Check for Asset Management Hub tab (formerly Ready Room)
     const readyRoomTab = await page.evaluateHandle(() => {
       const tabs = Array.from(document.querySelectorAll(".tab-button"));
-      return tabs.find((t) => t.textContent?.includes("Ready Room"));
+      return tabs.find((t) => t.textContent?.includes("Asset Management Hub"));
     });
     expect(readyRoomTab).toBeTruthy();
 
@@ -138,7 +138,12 @@ describe("Mobile Full Campaign Flow", () => {
     expect(menuItems.length).toBeGreaterThan(0);
 
     // Enable debug overlay to see Force Win button
-    await page.keyboard.press("Backquote");
+    await page.evaluate(() => {
+        const app = (window as any).GameAppInstance;
+        if (app && app.registry && app.registry.gameClient) {
+            app.registry.gameClient.toggleDebugOverlay(true);
+        }
+    });
 
     // Toggle drawers to verify they work during mission
     // (If squad panel is already active from step 7, this will close it)
@@ -168,7 +173,7 @@ describe("Mobile Full Campaign Flow", () => {
       const buttons = Array.from(document.querySelectorAll(".debrief-button"));
       const btn = buttons.find(
         (b) =>
-          b.textContent?.includes("Return to Command Bridge") ||
+          b.textContent?.includes("Return") ||
           b.textContent?.includes("Continue"),
       );
       if (btn) (btn as HTMLElement).click();

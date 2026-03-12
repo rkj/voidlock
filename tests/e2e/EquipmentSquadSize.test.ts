@@ -99,8 +99,8 @@ describe("Equipment Screen Squad Size E2E", () => {
       });
       console.log("Right panel content:", rosterOrRecruit?.substring(0, 100) + "...");
       
-      // The EquipmentScreen shows "Reserve Roster", "Recruitment", or "Armory"
-      expect(rosterOrRecruit).toMatch(/Roster|Recruit|Armory/);
+      // The EquipmentScreen shows "Asset Roster", "Acquire New Asset", or "Armory"
+      expect(rosterOrRecruit).toMatch(/Roster|Asset|Armory/);
 
     } catch (err) {
       console.error("Test failed:", err);

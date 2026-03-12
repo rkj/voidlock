@@ -77,12 +77,12 @@ describe("Verify Auto-Deploy", () => {
 
     console.log("Mission status:", status);
     
-    // If bug exists, this might be "Squad Wiped"
+    // If bug exists, this might be "OPERATION CLOSED — Total Asset Loss"
     // If working correctly, this should be "Playing"
-    if (status === "Squad Wiped") {
-        console.log("BUG REPRODUCED: Instant loss despite having soldiers.");
+    if (status === "OPERATION CLOSED — Total Asset Loss") {
+        console.log("BUG REPRODUCED: Instant loss despite having biological assets.");
     } else {
-        console.log("NO BUG: Game is playing.");
+        console.log("NO BUG: Operation active.");
     }
     
     // For now, let's just assert "Playing" to see if it fails (reproducing the bug)

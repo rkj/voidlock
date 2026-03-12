@@ -28,7 +28,7 @@ describe("Soldier Card Accessibility", () => {
     // Click "Custom Mission" button
     await page.evaluate(() => {
       const btns = Array.from(document.querySelectorAll("button"));
-      const customBtn = btns.find(b => b.textContent?.includes("Custom Mission"));
+      const customBtn = btns.find(b => b.textContent?.includes("Simulated Operations"));
       if (customBtn) customBtn.click();
       else throw new Error("Custom Mission button not found");
     });

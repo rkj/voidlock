@@ -38,7 +38,7 @@ describe("EquipmentScreen Focus Regression", () => {
     onBack = vi.fn();
   });
 
-  it("should PRESERVE focus when clicking 'Recruit New Soldier' because of re-render", () => {
+  it("should PRESERVE focus when clicking 'Acquire New Asset' because of re-render", () => {
     const mockModalService = {
       alert: vi.fn().mockResolvedValue(undefined),
       confirm: vi.fn().mockResolvedValue(true),
@@ -59,7 +59,7 @@ describe("EquipmentScreen Focus Regression", () => {
     );
     screen.show();
 
-    // 1. Find the "Recruit New Soldier" button
+    // 1. Find the "Acquire New Asset" button
     const recruitBtn = container.querySelector(".recruit-btn-large") as HTMLButtonElement;
     expect(recruitBtn).not.toBeNull();
 
@@ -73,11 +73,11 @@ describe("EquipmentScreen Focus Regression", () => {
     // 4. Check focus - it SHOULD now be moved to the first recruitment option,
     // OR stay on the button if it still exists.
     // In our case, onRecruit moves focus to first recruitment option.
-    const firstOption = container.querySelector(".armory-panel .soldier-card.clickable") as HTMLElement;
+    const firstOption = container.querySelector(".armory-panel .clickable") as HTMLElement;
     expect(document.activeElement).toBe(firstOption);
     
     // Check if we are now in recruitment mode
     const title = container.querySelector(".armory-panel .panel-title");
-    expect(title?.textContent).toBe("Recruitment");
+    expect(title?.textContent).toBe("Procurement");
   });
 });

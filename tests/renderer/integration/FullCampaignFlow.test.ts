@@ -200,7 +200,7 @@ describe("Full Campaign Flow Integration", () => {
       // Launch Mission 1
       const launchBtn = Array.from(
         document.querySelectorAll("#screen-equipment button"),
-      ).find((b) => b.textContent?.includes("Launch")) as HTMLElement;
+      ).find((b) => b.textContent?.includes("Authorize")) as HTMLElement;
       expect(launchBtn).toBeTruthy();
       launchBtn.click();
 
@@ -286,7 +286,7 @@ describe("Full Campaign Flow Integration", () => {
       // Launch Mission 2 from Equipment Screen
       const launchBtn2 = Array.from(
         document.querySelectorAll("#screen-equipment button"),
-      ).find((b) => b.textContent?.includes("Launch")) as HTMLElement;
+      ).find((b) => b.textContent?.includes("Authorize")) as HTMLElement;
       expect(launchBtn2).toBeTruthy();
       launchBtn2.click();
 
@@ -348,7 +348,7 @@ describe("Full Campaign Flow Integration", () => {
         document.querySelectorAll(".soldier-list-panel .soldier-item"),
       );
       const isDeadPresent = selectedSoldiers.some((s) =>
-        s.textContent?.includes("Dead"),
+        s.textContent?.includes("Integrity Failure"),
       );
       expect(isDeadPresent).toBe(false);
 
@@ -371,7 +371,7 @@ describe("Full Campaign Flow Integration", () => {
       // Launch Boss Mission
       const launchBtn3 = Array.from(
         document.querySelectorAll("#screen-equipment button"),
-      ).find((b) => b.textContent?.includes("Launch")) as HTMLElement;
+      ).find((b) => b.textContent?.includes("Authorize")) as HTMLElement;
       expect(launchBtn3).toBeTruthy();
       launchBtn3.click();
 
@@ -446,7 +446,7 @@ describe("Full Campaign Flow Integration", () => {
 
       const launchBtnIM = Array.from(
         document.querySelectorAll("#screen-equipment button"),
-      ).find((b) => b.textContent?.includes("Launch")) as HTMLElement;
+      ).find((b) => b.textContent?.includes("Authorize")) as HTMLElement;
       expect(launchBtnIM).toBeTruthy();
       launchBtnIM.click();
 
@@ -479,7 +479,7 @@ describe("Full Campaign Flow Integration", () => {
       ).toBe("flex");
       expect(
         document.querySelector("#screen-campaign-summary h1")?.textContent,
-      ).toContain("Campaign Defeat");
+      ).toContain("CONTRACT TERMINATED");
     },
     30000,
   );

@@ -52,7 +52,7 @@ export class EventModal {
 
           if (choice.cost && choice.cost.scrap) {
             const span = document.createElement("span");
-            span.textContent = `Cost: ${choice.cost.scrap} Scrap`;
+            span.textContent = `Cost: ${choice.cost.scrap} Credits`;
             span.style.color = "var(--color-error)";
             details.appendChild(span);
           }
@@ -60,10 +60,10 @@ export class EventModal {
           if (choice.reward) {
             const rewards: string[] = [];
             if (choice.reward.scrap)
-              rewards.push(`${choice.reward.scrap} Scrap`);
+              rewards.push(`${choice.reward.scrap} Credits`);
             if (choice.reward.intel)
               rewards.push(`${choice.reward.intel} Intel`);
-            if (choice.reward.recruit) rewards.push(`New Recruit`);
+            if (choice.reward.recruit) rewards.push(`New Asset`);
 
             if (rewards.length > 0) {
               const span = document.createElement("span");

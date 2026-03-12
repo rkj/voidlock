@@ -45,7 +45,7 @@ describe("Engineering Bay E2E Verification", () => {
     // 3. Verify presence of Engineering tab
     const hasEngineeringTab = await page.evaluate(() => {
       const tabs = Array.from(document.querySelectorAll(".tab-button"));
-      return tabs.some((t) => t.textContent === "Engineering");
+      return tabs.some((t) => t.textContent === "System Engineering");
     });
     expect(hasEngineeringTab).toBe(true);
 
@@ -53,7 +53,7 @@ describe("Engineering Bay E2E Verification", () => {
     await page.evaluate(() => {
       const tabs = Array.from(document.querySelectorAll(".tab-button"));
       const engTab = tabs.find(
-        (t) => t.textContent === "Engineering",
+        (t) => t.textContent === "System Engineering",
       ) as HTMLElement;
       engTab.click();
     });

@@ -106,7 +106,7 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "Logistics & Supplies",
     ) as HTMLElement;
 
     // Re-select Pulse Rifle (already equipped and in roster)
@@ -136,11 +136,12 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "Logistics & Supplies",
     ) as HTMLElement;
 
     // Select Pistol (cost 10)
     const pistolBtn = armoryPanel.querySelector('[data-focus-id="armory-item-pistol"]') as HTMLElement;
+    expect(pistolBtn).not.toBeNull();
     pistolBtn?.click();
 
     expect(mockManager.spendScrap).toHaveBeenCalledWith(10);
@@ -164,10 +165,11 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "Logistics & Supplies",
     ) as HTMLElement;
 
     const pistolBtn = armoryPanel.querySelector('[data-focus-id="armory-item-pistol"]') as HTMLElement;
+    expect(pistolBtn).not.toBeNull();
 
     // Check it's disabled or at least doesn't trigger spendScrap
     pistolBtn?.click();
@@ -192,7 +194,7 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "Logistics & Supplies",
     ) as HTMLElement;
 
     const getScrapText = () => {
@@ -200,13 +202,14 @@ describe("EquipmentScreen Economics", () => {
       return topBar.textContent || "";
     };
 
-    expect(getScrapText()).toContain("Scrap:");
+    expect(getScrapText()).toContain("Credits:");
     expect(getScrapText()).toContain("100");
 
     const pistolBtn = armoryPanel.querySelector('[data-focus-id="armory-item-pistol"]') as HTMLElement;
+    expect(pistolBtn).not.toBeNull();
     pistolBtn?.click();
 
-    expect(getScrapText()).toContain("Scrap:");
+    expect(getScrapText()).toContain("Credits:");
     expect(getScrapText()).toContain("90");
   });
 
@@ -255,7 +258,7 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "Logistics & Supplies",
     ) as HTMLElement;
 
     // 1. Unequip Pulse Rifle
@@ -296,7 +299,7 @@ describe("EquipmentScreen Economics", () => {
     const panels = Array.from(container.querySelectorAll(".panel"));
     const armoryPanel = panels.find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "Logistics & Supplies",
     ) as HTMLElement;
 
     const pulseRifleBtn = Array.from(

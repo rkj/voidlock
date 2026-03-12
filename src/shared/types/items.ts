@@ -200,9 +200,9 @@ export const ItemLibrary: { [id: string]: Item } = {
   },
   scrap_crate: {
     id: "scrap_crate",
-    name: "Scrap Crate",
+    name: "Credit Crate",
     type: "Passive",
-    description: "A crate filled with valuable scrap metal and components.",
+    description: "A crate filled with valuable industrial credits and components.",
     cost: 0,
   },
 };

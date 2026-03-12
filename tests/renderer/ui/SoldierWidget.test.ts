@@ -105,7 +105,7 @@ describe("SoldierWidget", () => {
     expect(el.classList.contains("debrief-item")).toBe(true);
     expect(el.textContent).toContain("John Doe");
     expect(el.textContent).toContain("Lvl 1");
-    expect(el.textContent).toContain("Kills: 5");
+    expect(el.textContent).toContain("Hostiles Neutralized: 5");
     expect(el.textContent).toContain("Level Up!");
   });
 
@@ -117,7 +117,7 @@ describe("SoldierWidget", () => {
     expect(el.classList.contains("menu-item")).toBe(true);
     expect(el.textContent).toContain("John Doe");
     expect(el.textContent).toContain("Lvl 1");
-    expect(el.textContent).toContain("Healthy");
+    expect(el.textContent).toContain("Functional");
   });
 
   it("should render squad-builder context correctly", () => {
@@ -128,7 +128,7 @@ describe("SoldierWidget", () => {
     expect(el.classList.contains("soldier-card")).toBe(true);
     expect(el.textContent).toContain("John Doe");
     expect(el.textContent).toContain("Lvl 1");
-    expect(el.textContent).toContain("Status: Healthy");
+    expect(el.textContent).toContain("Status: Functional");
   });
 
   it("should reflect selected state", () => {

@@ -102,8 +102,8 @@ export class SoldierInspector {
                   data-focus-id="recruit-btn-large"
                   onClick={() => this.handleRecruit()}
                 >
-                  <div class="btn-label">Recruit New Soldier</div>
-                  <div class="btn-sub">Cost: 100 Scrap</div>
+                  <div class="btn-label">Acquire New Asset</div>
+                  <div class="btn-sub">Cost: 100 Credits</div>
                 </button>
               )}
               <button
@@ -112,8 +112,8 @@ export class SoldierInspector {
                 disabled={state.scrap < 250}
                 onClick={() => this.handleRevive()}
               >
-                <div class="btn-label">Revive Fallen Soldier</div>
-                <div class="btn-sub">Cost: 250 Scrap</div>
+                <div class="btn-label">Restore Lost Asset</div>
+                <div class="btn-sub">Cost: 250 Credits</div>
               </button>
             </div>
           )}
@@ -135,12 +135,12 @@ export class SoldierInspector {
       <div class="inspector-details-content flex-col align-center gap-20">
         {this.isDead() && (
           <div class="w-full dead-warning">
-            Soldier is Deceased - Equipment Locked
+            Asset Integrity Failure - Loadout Locked
           </div>
         )}
         {this.isLocked && (
           <div class="w-full dead-warning" style={{ background: "var(--color-danger)" }}>
-            Armory Offline - Modifications Locked
+            Terminal Offline - Modifications Locked
           </div>
         )}
 
@@ -156,13 +156,13 @@ export class SoldierInspector {
                 </div>
                 <button
                   class="icon-button"
-                  title="Rename Soldier"
+                  title="Rename Asset"
                   style={{ padding: "4px 8px", fontSize: "1em", margin: "0" }}
                   onClick={async () => {
                     const newName = await this.modalService.prompt(
-                      "Enter new name for this soldier:",
+                      "Enter new designation for this asset:",
                       rosterSoldier.name,
-                      "Rename Soldier",
+                      "Rename Asset",
                     );
                     if (newName && newName.trim() !== "" && newName !== rosterSoldier.name) {
                       this.manager.renameSoldier(rosterSoldier.id, newName.trim());
@@ -182,7 +182,7 @@ export class SoldierInspector {
                   background: rosterSoldier.status === "Healthy" ? "var(--color-primary)" : (rosterSoldier.status === "Dead" ? "var(--color-danger)" : "var(--color-hive)")
                 }}
               >
-                {rosterSoldier.status}
+                {this.getStatusDisplay(rosterSoldier.status)}
               </div>
             </div>
 
@@ -196,8 +196,8 @@ export class SoldierInspector {
                     this.onUpdate();
                   }}
                 >
-                  <div class="btn-label">Heal Unit</div>
-                  <div class="btn-sub">Cost: 50 Scrap</div>
+                  <div class="btn-label">Restore Asset Integrity</div>
+                  <div class="btn-sub">Cost: 50 Credits</div>
                 </button>
               </div>
             )}
@@ -205,11 +205,11 @@ export class SoldierInspector {
         )}
 
         <div class="w-full stat-box soldier-attributes-panel">
-          <h3 class="stat-label inspector-panel-title">Soldier Attributes</h3>
+          <h3 class="stat-label inspector-panel-title">Asset Integrity Profile</h3>
           <div class="flex-row gap-20 inspector-stats-grid">
-            <StatDisplayComponent icon={Icons.Health} value={sStats.hp} title="Max Health" iconSize="14px" />
-            <StatDisplayComponent icon={Icons.Speed} value={sStats.speed} title="Movement Speed" iconSize="14px" />
-            <StatDisplayComponent icon={Icons.Accuracy} value={sStats.accuracy} title="Base Accuracy (Aim)" iconSize="14px" />
+            <StatDisplayComponent icon={Icons.Health} value={sStats.hp} title="Max Integrity" iconSize="14px" />
+            <StatDisplayComponent icon={Icons.Speed} value={sStats.speed} title="Operational Speed" iconSize="14px" />
+            <StatDisplayComponent icon={Icons.Accuracy} value={sStats.accuracy} title="Base Targeting Efficiency" iconSize="14px" />
           </div>
         </div>
 
@@ -421,6 +421,14 @@ export class SoldierInspector {
     return soldier.equipment[slot] === itemId;
   }
 
+  private getStatusDisplay(status: string): string {
+    if (status === "Healthy") return "Functional";
+    if (status === "Wounded") return "Damaged";
+    if (status === "Dead") return "Integrity Failure";
+    if (status === "Extracted") return "Retrieved";
+    return status;
+  }
+
   private handleSlotChange(slot: keyof EquipmentState, newItemId: string) {
     if (!this.soldier) return;
     if (this.isDead()) return;
@@ -484,7 +492,7 @@ function WeaponBlock({ stats, label }: { stats: WeaponStats | null; label: strin
       <div class="weapon-block-title">{label}: {stats.name}</div>
       <div class="weapon-block-stats">
         <StatDisplayComponent icon={Icons.Damage} value={stats.damage} title="Damage per hit" />
-        <StatDisplayComponent icon={Icons.Rate} value={stats.fireRate} title="Rate of Fire (Shots/sec)" />
+        <StatDisplayComponent icon={Icons.Rate} value={stats.fireRate} title="Terminal Feed Delay (Shots/sec)" />
         <StatDisplayComponent icon={Icons.Range} value={stats.range} title="Effective Range (m)" />
         <StatDisplayComponent icon={Icons.Accuracy} value={(stats.accuracy >= 0 ? "+" : "") + stats.accuracy} title="Weapon Accuracy Modifier" />
       </div>
@@ -525,27 +533,27 @@ function ArmoryItem({
     statsHtml = (
       <Fragment>
         <StatDisplayComponent icon={Icons.Damage} value={item.damage || 0} title="Damage" />
-        <StatDisplayComponent icon={Icons.Rate} value={fireRateStr} title="Rate of Fire (Shots/sec)" />
+        <StatDisplayComponent icon={Icons.Rate} value={fireRateStr} title="Terminal Feed Delay (Shots/sec)" />
         <StatDisplayComponent icon={Icons.Range} value={item.range || 0} title="Range" />
       </Fragment>
     );
     const acc = item.accuracy || 0;
-    fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nRate of Fire: ${fireRateStr}/s\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`;
+    fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nTerminal Feed Delay: ${fireRateStr}/s\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`;
   } else {
     const bonuses = [];
     if (item.hpBonus) bonuses.push(<StatDisplayComponent icon={Icons.Health} value={item.hpBonus} title="HP" />);
-    if (item.speedBonus) bonuses.push(<StatDisplayComponent icon={Icons.Speed} value={item.speedBonus} title="Speed" />);
+    if (item.speedBonus) bonuses.push(<StatDisplayComponent icon={Icons.Speed} value={item.speedBonus} title="Operational Speed" />);
     if (item.accuracyBonus) bonuses.push(<StatDisplayComponent icon={Icons.Accuracy} value={item.accuracyBonus} title="Accuracy" />);
     statsHtml = bonuses;
 
     const fullBonuses = [];
     if (item.hpBonus) fullBonuses.push(`HP: ${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
-    if (item.speedBonus) fullBonuses.push(`Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus}`);
+    if (item.speedBonus) fullBonuses.push(`Operational Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus}`);
     if (item.accuracyBonus) fullBonuses.push(`Accuracy: ${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`);
     fullStats = fullBonuses.join("\n");
   }
 
-  const priceText = isOwned || isCurrentlyEquipped ? "Owned" : `${cost} Scrap`;
+  const priceText = isOwned || isCurrentlyEquipped ? "Owned" : `${cost} Credits`;
   const priceClass = isOwned || isCurrentlyEquipped ? "price-owned" : "price-cost";
 
   return (

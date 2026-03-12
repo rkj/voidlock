@@ -77,7 +77,7 @@ describe("UI labels are rendered in Title Case", () => {
         return h3s.map(h => h.textContent?.trim());
     });
     console.log("H3s in Equipment screen:", soldierAttributesText);
-    expect(soldierAttributesText).toContain("Soldier Attributes");
+    expect(soldierAttributesText).toContain("Asset Integrity Profile");
 
     // 4. Confirm Squad to go back to Setup
     await page.evaluate(() => {
@@ -98,7 +98,7 @@ describe("UI labels are rendered in Title Case", () => {
     // Deployment Phase
     const deploymentPhaseText = await getText(".deployment-title");
     console.log("Deployment Phase text:", deploymentPhaseText);
-    expect(deploymentPhaseText).toBe("Deployment Phase");
+    expect(deploymentPhaseText).toBe("Asset Deployment Phase");
 
     // Autofill deployment to enable Start Mission
     await page.waitForSelector("#btn-autofill-deployment", { visible: true });
@@ -124,19 +124,19 @@ describe("UI labels are rendered in Title Case", () => {
     }); 
     console.log("Clicked Start Mission");
     
-    // Wait for "Objectives" to appear in right panel
+    // Wait for "Recovery Targets" to appear in right panel
     await page.waitForSelector(".objectives-status h3", { visible: true });
     const objectivesTitle = await page.evaluate(() => {
         const h3s = Array.from(document.querySelectorAll(".objectives-status h3"));
         return h3s[0]?.textContent?.trim();
     });
     console.log("Objectives title:", objectivesTitle);
-    expect(objectivesTitle).toBe("Objectives");
+    expect(objectivesTitle).toBe("Recovery Targets");
 
     // 6. Objectives toggle (index.html)
     const objectivesToggle = await getText("#btn-toggle-right");
     console.log("Objectives toggle text:", objectivesToggle);
-    expect(objectivesToggle).toBe("Objectives");
+    expect(objectivesToggle).toBe("Targets");
 
     // 7. Mission Success / Failed & Return to Command Bridge (DebriefScreen.ts)
     // Force win
@@ -150,10 +150,10 @@ describe("UI labels are rendered in Title Case", () => {
 
     const debriefHeader = await getText("#screen-debrief .debrief-header");
     console.log("Debrief header text:", debriefHeader);
-    expect(debriefHeader).toBe("Mission Success");
+    expect(debriefHeader).toBe("OPERATION CLOSED — Targets Secured");
 
     const returnBtn = await getText(".debrief-footer .debrief-button");
     console.log("Return button text:", returnBtn);
-    expect(returnBtn).toBe("Return to Command Bridge");
+    expect(returnBtn).toBe("Return to Operational Terminal");
   }, 60000);
 });

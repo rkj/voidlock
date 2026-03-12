@@ -82,8 +82,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         removeChangeListener: vi.fn(),
         load: vi.fn(),
         processMissionResult: vi.fn(),
-        save: vi.fn(), assignEquipment: vi.fn(),
-        startNewCampaign: vi.fn((_seed, diff, pause, theme) => {
+        save: vi.fn(),
+        startNewCampaign: vi.fn((_seed, diff, pause, theme, style, mapGen) => {
           currentCampaignState = {
             status: "Active",
             nodes: [
@@ -245,8 +245,8 @@ describe("Equipment Persistence Integration", () => {
 
     // 4. Find the 'Confirm Squad' button and click it
     // Note: The EquipmentScreen renders its own UI.
-    const launchBtn = Array.from(document.querySelectorAll("button")).find(
-      (b) => b.textContent === "Launch Mission",
+    const launchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(
+      (b) => b.textContent?.includes("Authorize Operation"),
     );
     expect(launchBtn).toBeTruthy();
 

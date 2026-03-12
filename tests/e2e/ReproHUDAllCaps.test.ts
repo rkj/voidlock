@@ -69,7 +69,7 @@ describe("Reproduction: HUD All-caps labels (voidlock-8ai79)", () => {
     await new Promise(r => setTimeout(r, 1000));
     
     // 1. Check Deployment Phase Title
-    await checkIsTitleCase(".deployment-title", "Deployment Phase");
+    await checkIsTitleCase(".deployment-title", "Asset Deployment Phase");
     
     // Autofill deployment
     await page.waitForSelector("#btn-autofill-deployment", { visible: true });
@@ -84,9 +84,9 @@ describe("Reproduction: HUD All-caps labels (voidlock-8ai79)", () => {
     await page.waitForSelector(".objectives-status h3", { visible: true });
     
     // 3. Check Objectives Header
-    await checkIsTitleCase(".objectives-status h3", "Objectives");
+    await checkIsTitleCase(".objectives-status h3", "Recovery Targets");
 
     // 4. Check Enemy Intel Header
-    await checkIsTitleCase(".enemy-intel h3", "Enemy Intel");
+    await checkIsTitleCase(".enemy-intel h3", "Hostile Contact Intel");
   });
 });

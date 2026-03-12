@@ -136,15 +136,15 @@ describe("Full Keyboard-Only Campaign Walkthrough", () => {
 
     // Navigate to "Launch Mission" button (required in Campaign flow)
     let foundLaunch = false;
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 100; i++) {
       const active = await getActiveElementInfo();
-      if (active?.textContent === "Launch Mission") {
+      if (active?.textContent?.includes("Authorize Operation")) {
         foundLaunch = true;
         break;
       }
       await pressTab();
     }
-    expect(foundLaunch, "Failed to find 'Launch Mission' button").toBe(true);
+    expect(foundLaunch, "Failed to find 'Authorize Operation' button").toBe(true);
     await pressEnter();
 
     // 5. Active Mission
@@ -232,9 +232,9 @@ describe("Full Keyboard-Only Campaign Walkthrough", () => {
     
     // In Debrief, find "Continue" button
     let foundContinue = false;
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 50; i++) {
       const active = await getActiveElementInfo();
-      if (active?.textContent === "Return to Command Bridge" || active?.textContent === "Continue") {
+      if (active?.textContent === "Return to Operational Terminal" || active?.textContent === "Continue") {
         foundContinue = true;
         break;
       }

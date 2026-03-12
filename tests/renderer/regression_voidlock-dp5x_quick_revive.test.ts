@@ -89,7 +89,7 @@ describe("Quick Revive in Mission Setup", () => {
 
     const reviveBtn = deadCard?.querySelector(".btn-revive") as HTMLButtonElement;
     expect(reviveBtn).toBeTruthy();
-    expect(reviveBtn.textContent).toContain("250 Scrap");
+    expect(reviveBtn.textContent).toContain("250 Credits");
   });
 
   it("should disable Revive button if not enough scrap", () => {
@@ -152,7 +152,7 @@ describe("Quick Revive in Mission Setup", () => {
     // Roster has 1 healthy, 1 dead. Healthy is 1 < 4, so show Recruit.
     const recruitBtn = container.querySelector(".btn-recruit") as HTMLButtonElement;
     expect(recruitBtn).toBeTruthy();
-    expect(recruitBtn.textContent).toContain("Recruit (100 Scrap)");
+    expect(recruitBtn.textContent).toContain("Acquire New Asset (100 Credits)");
   });
 
   it("should show Recruit button if 4 or more healthy/wounded soldiers (up to 12)", () => {

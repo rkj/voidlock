@@ -220,8 +220,8 @@ describe("Scrap Update Integration", () => {
     const topBar = shell?.querySelector("#campaign-shell-top-bar");
     expect(topBar?.innerHTML).toContain("1000");
 
-    // 5. Navigate to Equipment Screen via "Ready Room" tab
-    const readyRoomTab = Array.from(document.querySelectorAll(".tab-button")).find(b => b.textContent === "Ready Room") as HTMLElement;
+    // 5. Navigate to Equipment Screen via "Asset Management Hub" tab
+    const readyRoomTab = Array.from(document.querySelectorAll(".tab-button")).find(b => b.textContent === "Asset Management Hub") as HTMLElement;
     expect(readyRoomTab).toBeTruthy();
     readyRoomTab.click();
     
@@ -235,7 +235,7 @@ describe("Scrap Update Integration", () => {
     if (!emptySlot) throw new Error("No empty slot found");
     (emptySlot as HTMLElement).click();
     
-    // Now the center panel should show "Recruit New Soldier" large button
+    // Now the center panel should show "Acquire New Asset" large button
     const recruitLarge = document.querySelector("[data-focus-id='recruit-btn-large']");
     if (!recruitLarge) throw new Error("No large recruit button found");
     (recruitLarge as HTMLElement).click();

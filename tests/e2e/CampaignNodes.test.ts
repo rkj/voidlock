@@ -131,7 +131,7 @@ describe("Campaign Node Special Types", () => {
         return btn ? btn.textContent?.trim() : null;
     });
     
-    expect(confirmBtnText).toBe("Leave Shop");
+    expect(confirmBtnText).toBe("Exit Hub");
   });
 
   it("should NOT list optional Recover objectives as primary in Default mission", async () => {

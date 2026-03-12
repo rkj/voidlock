@@ -34,7 +34,7 @@ describe("Tutorial Redesign E2E (ADR 0057)", () => {
     // Dismiss intro narrative
     await page.waitForSelector(".advisor-btn[data-id='dismiss']", { visible: true });
     await page.click(".advisor-btn[data-id='dismiss']");
-    await page.waitForSelector(".advisor-message", { hidden: true });
+    await new Promise(r => setTimeout(r, 1000));
 
     // Now in mission
     await page.waitForSelector("#screen-mission", { visible: true });
@@ -61,7 +61,7 @@ describe("Tutorial Redesign E2E (ADR 0057)", () => {
     // 2) Wait for 'start' tutorial step
     await page.waitForSelector(".advisor-message", { timeout: 15000 });
     const startText = await page.$eval(".advisor-text", (el) => (el as HTMLElement).innerText);
-    expect(startText).toContain("wake up");
+    expect(startText).toContain("deployment sequence complete");
 
     // 3) Verify HIGHLIGHT on soldier card (Step 1: Select Unit)
     // NOTE: This is expected to warn/fail until ADR 0057 is fully implemented

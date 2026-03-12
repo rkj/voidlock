@@ -131,11 +131,17 @@ describe("Equipment Screen Layout Clipping Repro", () => {
         ? mainContent.scrollHeight > mainContent.clientHeight
         : false;
 
+      const screenEq = document.getElementById("screen-equipment");
+      const eqRect = screenEq?.getBoundingClientRect();
+
       return {
         panelStats,
         viewportWidth,
         viewportHeight,
         mainContentScrollable,
+        shellRect: shellRect ? { top: shellRect.top, bottom: shellRect.bottom, height: shellRect.height } : null,
+        eqRect: eqRect ? { top: eqRect.top, bottom: eqRect.bottom, height: eqRect.height } : null,
+        footerRect: footerRect ? { top: footerRect.top, bottom: footerRect.bottom, height: footerRect.height } : null,
         isFooterInViewport: footerRect
           ? footerRect.bottom <= viewportHeight &&
             footerRect.top >= 0 &&
@@ -148,6 +154,9 @@ describe("Equipment Screen Layout Clipping Repro", () => {
             : false,
       };
     });
+
+    console.log("Viewport:", clippingStats.viewportWidth, "x", clippingStats.viewportHeight);
+    console.log("Stats:", clippingStats);
 
     // ASSERTION: We expect NO clipping and correctly functioning scrollbars.
     expect(

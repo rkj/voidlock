@@ -61,13 +61,13 @@ describe("Campaign Settings Tab E2E Verification", () => {
         (t) => t.textContent,
       );
     });
-    expect(tabs).toContain("Settings");
+    expect(tabs).toContain("Terminal");
 
     // 4. Click Settings tab
     await page.evaluate(() => {
       const tabList = Array.from(document.querySelectorAll(".tab-button"));
       const settingsTab = tabList.find(
-        (t) => t.textContent === "Settings",
+        (t) => t.textContent === "Terminal",
       ) as HTMLElement;
       settingsTab.click();
     });

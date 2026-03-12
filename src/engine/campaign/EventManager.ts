@@ -29,9 +29,9 @@ export class EventManager {
     if (choice.cost) {
       if (choice.cost.scrap) {
         if (state.scrap < choice.cost.scrap)
-          throw new Error("Not enough scrap.");
+          throw new Error("Not enough Credits.");
         state.scrap -= choice.cost.scrap;
-        outcomeText += `Spent ${choice.cost.scrap} Scrap. `;
+        outcomeText += `Spent ${choice.cost.scrap} Credits. `;
       }
       if (choice.cost.intel) {
         if (state.intel < choice.cost.intel)
@@ -75,7 +75,7 @@ export class EventManager {
       if (choice.reward) {
         if (choice.reward.scrap) {
           state.scrap += choice.reward.scrap;
-          outcomeText += `Gained ${choice.reward.scrap} Scrap. `;
+          outcomeText += `Gained ${choice.reward.scrap} Credits. `;
         }
         if (choice.reward.intel) {
           state.intel += choice.reward.intel;

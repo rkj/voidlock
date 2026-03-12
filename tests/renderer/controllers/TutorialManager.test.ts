@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { TutorialManager } from "../../../src/renderer/controllers/TutorialManager";
-import { GameState, MissionType, EnemyType } from "../../../src/shared/types";
+import { TutorialManager } from "@src/renderer/controllers/TutorialManager";
+import { GameState, MissionType, EnemyType } from "@src/shared/types";
 
 describe("TutorialManager", () => {
   let gameClient: any;
@@ -26,13 +26,23 @@ describe("TutorialManager", () => {
     const campaignManager = {
       getState: vi.fn().mockReturnValue({ history: [] }),
     };
+    const menuController = {
+      menuState: "ACTION_SELECT",
+      pendingAction: null,
+    };
+    const renderer = {
+      getPixelCoordinates: vi.fn().mockReturnValue({ x: 100, y: 100 }),
+      cellSize: 20,
+    };
     selectedUnitId = null;
     manager = new TutorialManager(
       gameClient, 
       campaignManager as any, 
+      menuController as any,
       onMessage, 
       () => selectedUnitId,
-      uiOrchestrator
+      uiOrchestrator,
+      () => renderer as any
     );
     
     // Clear localStorage to avoid state leakage between tests
@@ -107,9 +117,15 @@ describe("TutorialManager", () => {
     
     document.querySelectorAll(".tutorial-cell-highlight").forEach(el => el.remove());
     
+    const menuController = {
+      menuState: "ACTION_SELECT",
+      pendingAction: null,
+    };
+    
     manager = new TutorialManager(
       gameClient,
       campaignManager as any,
+      menuController as any,
       onMessage,
       () => selectedUnitId,
       uiOrchestrator,
@@ -139,6 +155,9 @@ describe("TutorialManager", () => {
     listener(state); // enters ui_tour
     // complete ui_tour
     state.t += 105;
+    listener(state); // enters pause
+    // complete pause
+    state.settings.isPaused = true;
     listener(state); // enters doors
     // complete doors
     state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
@@ -156,6 +175,8 @@ describe("TutorialManager", () => {
     state.units[0].pos = { x: 3, y: 1 };
     listener(state); // ui_tour
     state.t += 105;
+    listener(state); // pause
+    state.settings.isPaused = true;
     listener(state); // doors
     state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
     listener(state); // combat
@@ -179,6 +200,8 @@ describe("TutorialManager", () => {
     state.units[0].pos = { x: 3, y: 1 };
     listener(state); // ui_tour
     state.t += 105;
+    listener(state); // pause
+    state.settings.isPaused = true;
     listener(state); // doors
     state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
     listener(state); // combat

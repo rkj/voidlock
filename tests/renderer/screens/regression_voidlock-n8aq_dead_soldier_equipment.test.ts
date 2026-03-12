@@ -142,7 +142,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     screen.show();
 
     expect(container.textContent).toContain(
-      "Soldier is Deceased - Equipment Locked",
+      "Asset Integrity Failure - Loadout Locked",
     );
   });
 });

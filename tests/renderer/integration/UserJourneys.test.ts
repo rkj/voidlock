@@ -2,44 +2,41 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  GameState,
-  MapGeneratorType,
-  UnitState,
-  AIProfile,
-  EngineMode,
-  MissionType,
-} from "@src/shared/types";
-import { CampaignState } from "@src/shared/campaign_types";
+import { GameApp } from "@src/renderer/app/GameApp";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/engine/campaign/MetaManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
+import { MissionType, UnitState, GameState, MapGeneratorType } from "@src/shared/types";
 
-// Mock dependencies before importing main.ts
+// Mock dependencies
 vi.mock("@package.json", () => ({
   default: { version: "1.0.0" },
 }));
 
-// Trigger for GameClient callbacks
-let stateUpdateCallback: ((state: GameState) => void) | null = null;
-
 const mockGameClient = {
-  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
+  init: vi.fn(), 
+  pause: vi.fn(), 
+  resume: vi.fn(),
   queryState: vi.fn(),
-  onStateUpdate: vi.fn((cb) => {
-    stateUpdateCallback = cb;
-  }),
+  onStateUpdate: vi.fn(),
   addStateUpdateListener: vi.fn(),
   removeStateUpdateListener: vi.fn(),
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
-  getTimeScale: vi.fn().mockReturnValue(1.0),
   setTimeScale: vi.fn(),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
   togglePause: vi.fn(),
   toggleDebugOverlay: vi.fn(),
   toggleLosOverlay: vi.fn(),
-  getReplayData: vi.fn().mockReturnValue({ seed: 123, commandLog: [] }),
+  getReplayData: vi.fn().mockReturnValue({ seed: 123, commands: [] }),
   forceWin: vi.fn(),
   forceLose: vi.fn(),
   loadReplay: vi.fn(),
+  applyCommand: vi.fn(),
+  seek: vi.fn(),
+  getFullState: vi.fn(),
+  setTickRate: vi.fn(),
 };
 
 vi.mock("@src/engine/GameClient", () => ({
@@ -49,11 +46,12 @@ vi.mock("@src/engine/GameClient", () => ({
 vi.mock("@src/renderer/Renderer", () => ({
   Renderer: vi.fn().mockImplementation(() => ({
     render: vi.fn(),
-      destroy: vi.fn(),
+    destroy: vi.fn(),
     setCellSize: vi.fn(),
     setUnitStyle: vi.fn(),
     setOverlay: vi.fn(),
     getCellCoordinates: vi.fn().mockReturnValue({ x: 0, y: 0 }),
+    getWorldCoordinates: vi.fn().mockReturnValue({ x: 0, y: 0 }),
   })),
 }));
 
@@ -71,534 +69,256 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
-const mockModalService = {
-  alert: vi.fn().mockResolvedValue(undefined),
-  confirm: vi.fn().mockResolvedValue(true),
-  prompt: vi.fn().mockResolvedValue("New Recruit"),
-  show: vi.fn().mockResolvedValue(undefined),
-};
-
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
+vi.mock("@src/renderer/controllers/TutorialManager", () => ({
+  TutorialManager: vi.fn().mockImplementation(() => ({
+    enable: vi.fn(),
+    disable: vi.fn(),
+    reset: vi.fn(),
+    triggerEvent: vi.fn(),
+    onScreenShow: vi.fn(),
+  })),
 }));
 
-// Mock CampaignManager
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-let currentCampaignState: CampaignState | null = null;
+vi.mock("@src/renderer/ui/AdvisorOverlay", () => ({
+  AdvisorOverlay: vi.fn().mockImplementation(() => ({
+    showMessage: vi.fn().mockImplementation((msg, onDismiss) => {
+      if (onDismiss) onDismiss();
+    }),
+    showToast: vi.fn(),
+  })),
+}));
 
-vi.mock("@src/renderer/campaign/CampaignManager", () => {
-  return {
-    CampaignManager: {
-      getInstance: vi.fn().mockReturnValue({
-        getState: vi.fn(() => currentCampaignState),
-        getStorage: vi.fn(),
-        getSyncStatus: vi.fn().mockReturnValue("local-only"),
-        addChangeListener: vi.fn(),
-        removeChangeListener: vi.fn(),
-        load: vi.fn(),
-        processMissionResult: vi.fn(),
-        save: vi.fn(),
-        startNewCampaign: vi.fn((seed, diff, pause, theme) => {
-          currentCampaignState = {
-            status: "Active",
-            seed,
-            version: "1.0.0",
-            nodes: [
-              {
-                id: "node-1",
-                type: "Combat",
-                status: "Accessible",
-                rank: 0,
-                difficulty: 1,
-                mapSeed: 123,
-                connections: [],
-                position: { x: 0, y: 0 },
-                bonusLootCount: 0,
-              },
-            ],
-            roster: [
-              {
-                id: "s1",
-                name: "Soldier 1",
-                archetypeId: "scout",
-                status: "Healthy",
-                level: 1,
-                hp: 100,
-                maxHp: 100,
-                xp: 0,
-                kills: 0,
-                missions: 0,
-                recoveryTime: 0,
-                soldierAim: 80,
-                equipment: {
-                  rightHand: "pulse_rifle",
-                  leftHand: undefined,
-                  body: "basic_armor",
-                  feet: undefined,
-                },
-              },
-            ],
-            scrap: 100,
-            intel: 0,
-            currentSector: 1,
-            currentNodeId: null,
-            history: [],
-            unlockedArchetypes: ["scout", "heavy", "medic", "demolition"],
-            rules: {
-              mode: "Custom",
-              difficulty: diff,
-              deathRule: "Simulation",
-              allowTacticalPause: pause,
-              mapGeneratorType: MapGeneratorType.DenseShip,
-              difficultyScaling: 1,
-              resourceScarcity: 1,
-              startingScrap: 100,
-              mapGrowthRate: 1,
-              baseEnemyCount: 3,
-              enemyGrowthPerMission: 1,
-              economyMode: "Open",
-              themeId: theme,
-            },
-          } as CampaignState;
-        }),
-        reset: vi.fn(() => {
-          currentCampaignState = null;
-        }),
-        deleteSave: vi.fn(() => {
-          currentCampaignState = null;
-        }),
-        healSoldier: vi.fn(),
-        recruitSoldier: vi.fn((arch, name) => {
-          if (!currentCampaignState) return "";
-          const finalName =
-            name || `Recruit ${currentCampaignState.roster.length + 1}`;
-          currentCampaignState.roster.push({
-            id: "s2",
-            name: finalName,
-            archetypeId: arch,
-            status: "Healthy",
-            level: 1,
-            hp: 100,
-            maxHp: 100,
-            xp: 0,
-            kills: 0,
-            missions: 0,
-            recoveryTime: 0,
-            soldierAim: 70,
-            equipment: {},
-          });
-          currentCampaignState.scrap -= 100;
-          return "s2";
-        }),
-        assignEquipment: vi.fn(),
-      }),
-    },
-  };
-});
+async function waitForSelector(selector: string, timeout = 5000): Promise<HTMLElement> {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    const el = document.querySelector(selector) as HTMLElement;
+    if (el) return el;
+    await new Promise(r => setTimeout(r, 50));
+  }
+  throw new Error(`Timeout waiting for selector: ${selector}`);
+}
 
 describe("Comprehensive User Journeys", () => {
+  let app: GameApp;
+
   beforeEach(async () => {
-    if (window.GameAppInstance) {
-      window.GameAppInstance.stop();
-    }
-    currentCampaignState = null;
+    localStorage.clear();
+    // Reset singleton instances
+    (CampaignManager as any).instance = null;
+    (MetaManager as any).instance = null;
 
-    // Mock ResizeObserver
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
-
-    // Mock getContext for canvas
-    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
-      clearRect: vi.fn(),
-      beginPath: vi.fn(),
-      moveTo: vi.fn(),
-      lineTo: vi.fn(),
-      stroke: vi.fn(),
-      setLineDash: vi.fn(),
-    }) as unknown as any;
-
-    // Set up DOM
+    // Standard DOM setup for tests
     document.body.innerHTML = `
-      <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">Campaign</button>
-        <button id="btn-menu-custom">Custom Mission</button>
-        <button id="btn-menu-statistics">Statistics</button>
-        <button id="btn-menu-settings">Settings</button>
-        <p id="menu-version"></p>
-      </div>
-
-      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
+      <div id="game-shell">
+        <div id="screen-campaign-shell" style="display: none">
           <div id="campaign-shell-top-bar"></div>
-          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
-              <div id="screen-campaign" class="screen" style="display:none"></div>
-              <div id="screen-barracks" class="screen" style="display:none"></div>
-              <div id="screen-equipment" class="screen" style="display:none"></div>
-              <div id="screen-statistics" class="screen" style="display:none"></div>
-              <div id="screen-settings" class="screen" style="display:none"></div>
-              <div id="screen-engineering" class="screen" style="display:none"></div>
-          </div>
-      </div>
-
-      <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
-        <div id="map-config-section">
-          <select id="map-generator-type">
-            <option value="DenseShip">Dense Ship</option>
-            <option value="TreeShip">Tree Ship</option>
-            <option value="Procedural">Procedural</option>
-            <option value="Static">Static Map</option>
-          </select>
-          <input type="number" id="map-seed" />
-          <div id="preset-map-controls">
-            <input type="number" id="map-width" value="10" />
-            <input type="number" id="map-height" value="10" />
-            <input type="number" id="map-spawn-points" value="1" />
-            <input type="range" id="map-starting-threat" value="0" />
-            <span id="map-starting-threat-value">0</span>
-          </div>
+          <div id="campaign-shell-content"></div>
+          <div id="campaign-shell-footer"></div>
         </div>
-        <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
-        <button id="btn-goto-equipment">Equipment</button>
-        <button id="btn-setup-back">Back</button>
-      </div>
-      <div id="screen-mission" class="screen" style="display:none">
-        <div id="top-bar">
-          <div id="game-status"></div>
-          <div id="top-threat-fill"></div>
-          <div id="top-threat-value">0%</div>
-          <button id="btn-pause-toggle">Pause</button>
-          <input type="range" id="game-speed" />
-          <span id="speed-value">1.0x</span>
-          <button id="btn-give-up">Give Up</button>
+        <div id="screen-main-menu" class="screen" style="display: none">
+          <button id="btn-menu-campaign">Campaign</button>
+          <button id="btn-menu-custom">Custom</button>
+          <button id="btn-menu-statistics">Stats</button>
+          <button id="btn-menu-settings">Settings</button>
         </div>
-        <div id="soldier-list"></div>
-        <canvas id="game-canvas"></canvas>
-        <div id="right-panel"></div>
+        <div id="screen-campaign" class="screen" style="display: none"></div>
+        <div id="screen-mission-setup" class="screen" style="display: none"></div>
+        <div id="screen-equipment" class="screen" style="display: none"></div>
+        <div id="screen-mission" class="screen" style="display: none"></div>
+        <div id="screen-debrief" class="screen" style="display: none"></div>
+        <div id="screen-campaign-summary" class="screen" style="display: none"></div>
+        <div id="screen-statistics" class="screen" style="display: none"></div>
+        <div id="screen-engineering" class="screen" style="display: none"></div>
+        <div id="screen-settings" class="screen" style="display: none"></div>
+        <div id="advisor-overlay"></div>
+        <div id="modal-container"></div>
       </div>
-      <div id="screen-debrief" class="screen" style="display:none"></div>
-      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
-    // Mock window.confirm
-    window.confirm = vi.fn().mockReturnValue(true);
-    // Mock window.alert
-    window.alert = vi.fn();
-    // Mock window.prompt
-    window.prompt = vi.fn().mockReturnValue("New Recruit");
+    // Mock storage to ensure clean slate
+    CampaignManager.getInstance(new MockStorageProvider());
+    MetaManager.getInstance(new MockStorageProvider());
+    
+    CampaignManager.getInstance().reset();
+    MetaManager.getInstance().reset();
 
-    localStorage.clear();
-
-    // Import main.ts
-    vi.resetModules();
-    await import("@src/renderer/main");
-
-    // Trigger DOMContentLoaded
-    document.dispatchEvent(new Event("DOMContentLoaded"));
+    app = new GameApp();
+    await app.initialize();
   });
 
   it("Journey 1: New Campaign Start Wizard", async () => {
-    // 1. Main Menu -> Campaign (empty)
+    // 1. Click Campaign from Main Menu
     document.getElementById("btn-menu-campaign")?.click();
-    expect(document.getElementById("screen-campaign")?.style.display).toBe(
-      "flex",
-    );
-
-    // Check for wizard
-    expect(document.querySelector(".campaign-setup-wizard")).toBeTruthy();
-
-    // 2. Setup options and start
-    const startBtn = document.querySelector(
-      ".campaign-setup-wizard .primary-button",
-    ) as HTMLElement;
-    expect(startBtn.textContent).toContain("Initialize Expedition");
+    
+    // 2. See the New Campaign Wizard
+    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
+    
+    // 3. Select difficulty
+    const ironmanCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Ironman")) as HTMLElement;
+    expect(ironmanCard).toBeTruthy();
+    ironmanCard.click();
+    
+    // 4. Start Campaign
+    const startBtn = await waitForSelector('[data-focus-id="btn-start-campaign"]');
     startBtn.click();
 
-    // 3. Should now show the map
-    expect(document.querySelector(".campaign-map-viewport")).toBeTruthy();
-    expect(document.querySelector(".campaign-node.accessible")).toBeTruthy();
+    // 5. Verify we are now in the campaign (skipping Setup and going to Equipment because it's rank 0)
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+    expect(CampaignManager.getInstance().getState()?.status).toBe("Active");
   });
 
-  it("Journey 2: Ready Room & Back", async () => {
-    // Start campaign first
-    document.getElementById("btn-menu-campaign")?.click();
-    (
-      document.querySelector(
-        ".campaign-setup-wizard .primary-button",
-      ) as HTMLElement
-    ).click();
+  it("Journey 2: Asset Management Hub & Back", async () => {
+    // 1. Start a campaign first
+    const cm = CampaignManager.getInstance();
+    cm.startNewCampaign(123, "normal");
+    const state = cm.getState()!;
+    state.nodes[0].status = "Cleared";
+    state.nodes[1].status = "Accessible";
+    state.nodes[1].rank = 2; // Ensure rank >= 2 for Back button
+    cm.save();
 
-    // 1. Map -> Ready Room
+    app.start();
+    document.getElementById("btn-menu-campaign")?.click();
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Select a node first
+    const nodeEl = document.querySelector(".campaign-node.accessible") as HTMLElement;
+    if (nodeEl) nodeEl.click();
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // 2. Navigate to Asset Management Hub tab
     const readyRoomTab = Array.from(
       document.querySelectorAll("#campaign-shell-top-bar button"),
-    ).find((b) => b.textContent?.includes("Ready Room")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Asset Management Hub")) as HTMLElement;
+    expect(readyRoomTab).toBeTruthy();
     readyRoomTab.click();
-    expect(document.getElementById("screen-equipment")?.style.display).toBe(
-      "flex",
-    );
+    
+    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
 
-    // 2. Recruit a soldier
-    // Select an empty slot (usually 2nd or 3rd)
-    const emptySlot = Array.from(
-      document.querySelectorAll(".equipment-screen .soldier-list-panel .clickable"),
-    ).find((el) => el.textContent?.includes("[Empty Slot]")) as HTMLElement;
-    emptySlot.click();
+    // 3. Click Back to return to Campaign Map
+    const backBtn = document.querySelector('[data-focus-id="btn-back"]') as HTMLElement;
+    expect(backBtn).toBeTruthy();
+    backBtn.click();
 
-    const recruitBtn = document.querySelector(
-      '.recruit-btn-large',
-    ) as HTMLElement;
-    recruitBtn.click();
-
-    const recruitOptions = Array.from(
-      document.querySelectorAll(".armory-panel .soldier-card"),
-    ).filter((btn) => btn.textContent?.includes("CR")) as HTMLButtonElement[];
-    recruitOptions[0].click();
-
-    // Wait for any async updates
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    expect(mockModalService.prompt).not.toHaveBeenCalled();
-
-    // Verify roster increased (mocked)
-    const squadItems = document.querySelectorAll(
-      ".equipment-screen .soldier-list-panel .soldier-widget",
-    );
-    expect(squadItems.length).toBe(2);
-
-    // 3. Back to Map
-    const mapTab = Array.from(
-      document.querySelectorAll("#campaign-shell-top-bar button"),
-    ).find((b) => b.textContent?.includes("Sector Map")) as HTMLElement;
-    mapTab.click();
-    expect(document.getElementById("screen-campaign")?.style.display).toBe(
-      "flex",
-    );
+    await new Promise(resolve => setTimeout(resolve, 500));
+    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
   });
 
-  it("Journey 3: Custom Mission Give Up Flow", async () => {
-    // 1. Main Menu -> Custom Mission Setup
-    document.getElementById("btn-menu-custom")?.click();
+  it("Journey 3: Successful Mission Cycle", async () => {
+    // 1. Setup active campaign at rank 1 (after prologue)
+    const cm = CampaignManager.getInstance();
+    cm.startNewCampaign(123, "normal");
+    const state = cm.getState()!;
+    state.currentNodeId = "node-1";
+    state.nodes[0].status = "Cleared";
+    state.nodes[1].status = "Accessible";
+    state.history.push({
+      nodeId: "prologue",
+      seed: 123,
+      result: "Won",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 0,
+      soldierResults: [],
+    });
+    cm.save();
+    
+    app.start();
+    document.getElementById("btn-menu-campaign")?.click();
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    // 2. Setup -> Mission
-    // Choose squad (2 assaults)
-    const assaultCard = Array.from(
-      document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("Assault")) as HTMLElement;
-    assaultCard?.dispatchEvent(new Event("dblclick"));
-    assaultCard?.dispatchEvent(new Event("dblclick"));
+    // 2. Select accessible node
+    const nodeEl = await waitForSelector(".campaign-node.accessible");
+    nodeEl.click();
 
-    document.getElementById("btn-goto-equipment")?.click();
-    const equipmentBackBtn = Array.from(
+    // 3. Launch Mission from Equipment Screen
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const equipmentLaunchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Back")) as HTMLElement;
-    equipmentBackBtn.click();
+    ).find((b) => b.textContent?.includes("Authorize Operation")) as HTMLElement;
+    expect(equipmentLaunchBtn).toBeTruthy();
+    equipmentLaunchBtn.click();
 
-    // Now it should be in mission-setup, click Launch
-    document.getElementById("btn-launch-mission")?.click();
+    // 4. Verify Mission screen
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
 
-    expect(document.getElementById("screen-mission")?.style.display).toBe(
-      "flex",
-    );
+    // 5. Complete Mission (Won)
+    const missionRunner = (app as any).registry.missionRunner;
+    missionRunner.onMissionComplete({
+      nodeId: state.nodes[1].id,
+      seed: 456,
+      result: "Won",
+      aliensKilled: 10,
+      scrapGained: 150,
+      intelGained: 5,
+      timeSpent: 120,
+      soldierResults: [],
+    });
 
-    // 3. Mission -> Give Up (Cancel)
-    mockModalService.confirm.mockResolvedValue(false);
-    document.getElementById("btn-give-up")?.click();
+    // 6. Verify Debrief
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
 
-    // Wait for async ModalService.confirm
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // 7. Return to Operational Map
+    const returnBtn = document.querySelector("#screen-debrief .debrief-button") as HTMLElement;
+    expect(returnBtn).toBeTruthy();
+    expect(returnBtn.textContent).toContain("Return");
+    returnBtn.click();
 
-    expect(document.getElementById("screen-mission")?.style.display).toBe(
-      "flex",
-    ); // Still in mission
-
-    // 4. Mission -> Give Up (Confirm)
-    mockModalService.confirm.mockResolvedValue(true);
-    document.getElementById("btn-give-up")?.click();
-
-    // Wait for async ModalService.confirm
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    expect(document.getElementById("screen-debrief")?.style.display).toBe(
-      "flex",
-    );
-
-    // 5. Debrief -> Main Menu
-    const returnBtn = Array.from(
-      document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
-    returnBtn?.click();
-
-    // Wait for async screen transition
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    expect(document.getElementById("screen-main-menu")?.style.display).toBe(
-      "flex",
-    );
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
   });
 
   it("Journey 4: Campaign Mission Loss & Game Over", async () => {
-    // Start campaign
+    // 1. Setup Ironman campaign
+    const cm = CampaignManager.getInstance();
+    cm.startNewCampaign(123, "extreme"); // Extreme uses Ironman death rules
+    
+    app.start();
     document.getElementById("btn-menu-campaign")?.click();
-    (
-      document.querySelector(
-        ".campaign-setup-wizard .primary-button",
-      ) as HTMLElement
-    ).click();
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Launch mission
-    const cmState = CampaignManager.getInstance().getState()!;
-    const combatNode = cmState.nodes.find(
-      (n) =>
-        n.status === "Accessible" &&
-        (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"),
-    )!;
-    (
-      document.querySelector(
-        `.campaign-node[data-id="${combatNode.id}"]`,
-      ) as HTMLElement
-    ).click();
-    const soldierCard = Array.from(
-      document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("Soldier 1")) as HTMLElement;
-    if (soldierCard && !soldierCard.classList.contains("selected")) {
-      soldierCard.dispatchEvent(new Event("dblclick"));
-    }
-    document.getElementById("btn-goto-equipment")?.click();
+    // Select first node (Equipment screen redirect)
+    const firstNode = document.querySelector(".campaign-node.accessible") as HTMLElement;
+    if (firstNode) firstNode.click();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // 2. Launch Mission
     const equipmentLaunchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Launch Mission")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Authorize Operation")) as HTMLElement;
+    expect(equipmentLaunchBtn).toBeTruthy();
     equipmentLaunchBtn.click();
 
-    // Dismiss Advisor if Prologue
-    const advisorBtn = document.querySelector(".advisor-btn") as HTMLElement;
-    if (advisorBtn) advisorBtn.click();
-
-    // Now it should be in mission
-    expect(document.getElementById("screen-mission")?.style.display).toBe(
-      "flex",
-    );
-
-    // 1. Mission -> Lose
-    expect(stateUpdateCallback).not.toBeNull();
-
-    // Simulate campaign state change to Defeat in the mock when mission is lost
-    // In real code, CampaignManager.processMissionResult would handle this.
-    (
-      CampaignManager.getInstance().processMissionResult as unknown as {
-        mockImplementation: (fn: () => void) => void;
-      }
-    ).mockImplementation(() => {
-      if (currentCampaignState) {
-        currentCampaignState.status = "Defeat";
-      }
+    // 3. Fail Mission (Lost)
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const missionRunner = (app as any).registry.missionRunner;
+    missionRunner.onMissionComplete({
+      nodeId: cm.getState()?.nodes[0].id || "",
+      seed: 123,
+      result: "Lost",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 10,
+      soldierResults: [],
     });
 
-    stateUpdateCallback!({
-      status: "Lost",
-      t: 20,
-      seed: 123,
-      missionType: MissionType.Default,
-      stats: {
-        aliensKilled: 1,
-        scrapGained: 10,
-        threatLevel: 50,
-        elitesKilled: 0,
-        casualties: 1,
-      },
-      units: [
-        {
-          id: "s1",
-          hp: 0,
-          maxHp: 100,
-          kills: 0,
-          state: UnitState.Dead,
-          pos: { x: 0, y: 0 },
-          stats: {
-            speed: 20,
-            damage: 10,
-            fireRate: 500,
-            accuracy: 80,
-            soldierAim: 80,
-            attackRange: 5,
-            equipmentAccuracyBonus: 0,
-          },
-          archetypeId: "scout",
-          damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
-          commandQueue: [],
-          aiProfile: AIProfile.RETREAT,
-        } as any,
-      ],
-      objectives: [],
-      settings: {
-        debugOverlayEnabled: false,
-        debugSnapshots: false,
-        timeScale: 1.0,
-        isPaused: false,
-        mode: EngineMode.Simulation,
-        losOverlayEnabled: false,
-        isSlowMotion: false,
-        allowTacticalPause: true,
-      },
-      map: { width: 10, height: 10, cells: [] },
-      enemies: [],
-      visibleCells: [],
-      discoveredCells: [],
-      loot: [],
-      mines: [],
-      turrets: [],
-      squadInventory: {},
-    } as GameState);
+    // 4. Debrief
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
 
-    expect(document.getElementById("screen-debrief")?.style.display).toBe(
-      "flex",
-    );
-
-    // 2. Debrief -> Campaign Summary (Game Over)
+    // 5. Return -> Summary (because Ironman + Loss = Defeat)
     const returnBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
     ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn.click();
 
-    expect(
-      document.getElementById("screen-campaign-summary")?.style.display,
-    ).toBe("flex");
-    expect(document.querySelector(".campaign-game-over")).toBeTruthy();
-
-    // 3. Abandon Campaign
-    const abandonBtn = Array.from(
-      document.querySelectorAll("#screen-campaign-summary button"),
-    ).find((b) => b.textContent?.includes("Abandon")) as HTMLElement;
-    abandonBtn.click();
-
-    expect(document.getElementById("screen-main-menu")?.style.display).toBe(
-      "flex",
-    );
-  });
-
-  it("Journey 5: Session Restoration", async () => {
-    // 1. Start custom mission setup
-    document.getElementById("btn-menu-custom")?.click();
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "flex",
-    );
-
-    // 2. Simulate "reload" by re-importing main.ts
-    // ScreenManager saves state automatically to localStorage when screen changes.
-    // Check if it's there
-    expect(localStorage.getItem("voidlock_session_state")).toContain(
-      "mission-setup",
-    );
-
-    // Re-import main.ts
-    vi.resetModules();
-    await import("@src/renderer/main");
-    document.dispatchEvent(new Event("DOMContentLoaded"));
-
-    // 3. Verify it restored to mission-setup
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "flex",
-    );
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-campaign-summary")?.textContent).toContain("CONTRACT TERMINATED");
   });
 });

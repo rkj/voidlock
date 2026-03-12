@@ -102,9 +102,9 @@ describe("Repro: Auto-deployment failure triggers instant loss", () => {
 
     console.log("Mission status after start:", status);
     
-    // According to the bug report, this should be "Squad Wiped" or similar (instant loss)
+    // According to the bug report, this should be "OPERATION CLOSED — Total Asset Loss" or similar (instant loss)
     // If it's "Playing", then we didn't reproduce it yet, or the bug is different.
-    expect(status).not.toBe("Squad Wiped");
+    expect(status).not.toBe("OPERATION CLOSED — Total Asset Loss");
     expect(status).toBe("Playing");
   }, 120000);
 });

@@ -89,7 +89,7 @@ describe("voidlock-n34wo: Focus stay when buying equipment", () => {
     }, selector);
     
     console.log("Price text before buy:", priceText);
-    expect(priceText).toMatch(/Scrap|CR|25/);
+    expect(priceText).toMatch(/Credits|CR|25/);
 
     // Focus it
     await page.evaluate((sel) => {

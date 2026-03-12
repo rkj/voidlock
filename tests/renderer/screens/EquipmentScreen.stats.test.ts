@@ -133,7 +133,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     expect(pulseRifle.title).toContain("Versatile assault rifle");
     expect(pulseRifle.title).toContain("Damage: 20");
     expect(pulseRifle.title).toContain("Range: 10");
-    expect(pulseRifle.title).toContain("Rate of Fire: 1.7/s");
+    expect(pulseRifle.title).toContain("Terminal Feed Delay: 1.7/s");
   });
 
   it("should have tooltips for global supply items", () => {

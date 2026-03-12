@@ -58,7 +58,7 @@ describe("Regression: Shop Node Label", () => {
     const backBtn = container.querySelector('[data-focus-id="btn-back"]');
     
     // This should now PASS
-    expect(backBtn?.textContent).toBe("Leave Shop");
+    expect(backBtn?.textContent).toBe("Exit Hub");
   });
 
   it("should show 'Back' label on back button when isShop is false", () => {

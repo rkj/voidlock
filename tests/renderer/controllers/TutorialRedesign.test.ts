@@ -30,10 +30,15 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
     const campaignManager = {
       getState: vi.fn().mockReturnValue({ history: [] }),
     };
+    const menuController = {
+      menuState: "ACTION_SELECT",
+      pendingAction: null,
+    };
     selectedUnitId = null;
     manager = new TutorialManager(
       gameClient, 
       campaignManager as any, 
+      menuController as any,
       onMessage, 
       () => selectedUnitId,
       uiOrchestrator
@@ -115,7 +120,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       state.t = 16;
       listener(state);
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
-      expect(directiveText()).toBe("Your soldier explores autonomously. Watch them move.");
+      expect(directiveText()).toContain("ASSET DEPLOYMENT INITIALIZED");
       onMessage.mockClear();
       
       // Complete Step 1: observe
@@ -123,66 +128,75 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       listener(state);
       
       // Step 2: ui_tour
-      expect(directiveText()).toBe("This is your squad. Commands are issued from the right panel. Objectives are tracked below.");
+      expect(directiveText()).toContain("Tactical feed overview");
       expect(onMessage).not.toHaveBeenCalled();
       
       // Complete Step 2: ui_tour (5 seconds pass)
       state.t += 105; 
       listener(state);
       
-      // Step 3: doors
-      expect(directiveText()).toBe("Doors open automatically when your soldier approaches.");
+      // Step 3: pause
+      expect(directiveText()).toContain("pause");
       
-      // Complete Step 3: doors
+      // Complete Step 3: pause
+      state.settings.isPaused = true;
+      listener(state);
+
+      // Step 4: doors
+      expect(directiveText()).toContain("Structural boundaries");
+      
+      // Complete Step 4: doors
       state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
       listener(state);
       
-      // Step 4: combat
-      expect(directiveText()).toBe("Hostile contact! Your soldier engages automatically.");
+      // Step 5: combat
+      expect(directiveText()).toContain("HOSTILE CONTACT");
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
       onMessage.mockClear();
       
-      // Complete Step 4: combat (enemy takes damage)
+      // Complete Step 5: combat (enemy takes damage)
       state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 5, maxHp: 10, type: EnemyType.Tutorial } as any];
       state.visibleCells.push("5,5");
       listener(state);
       
-      // Step 5: engagement_ignore
-      expect(directiveText()).toBe("Try changing fire policy. Press [2] Engagement, then [2] Ignore.");
+      // Step 6: engagement_ignore
+      expect(directiveText()).toContain("Test Remote Intervention");
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "first_command" }));
       onMessage.mockClear();
       
-      // Complete Step 5: engagement_ignore
+      // Complete Step 6: engagement_ignore
       state.units[0].engagementPolicy = "IGNORE";
       listener(state);
       
-      // Step 6: engagement_engage
-      expect(directiveText()).toBe("Your soldier stopped firing. Press [2] then [1] to re-engage.");
+      // Step 7: engagement_engage
+      expect(directiveText()).toContain("Weapon lockout active");
       
-      // Complete Step 6: engagement_engage
+      // Complete Step 7: engagement_engage
       state.units[0].engagementPolicy = "ENGAGE";
+      state.enemies = []; // enemy died
       state.stats.aliensKilled = 1;
       listener(state);
       
-      // Step 7: move
-      expect(directiveText()).toBe("Direct your soldier to the objective. Press [1] Orders, [1] Move To Room, select the Objective room, confirm.");
+      // Step 8: move
+      expect(directiveText()).toContain("Redirect asset to recovery target");
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
       onMessage.mockClear();
       
-      // Complete Step 7: move (reach objective room)
+      // Complete Step 8: move (reach objective room)
       state.objectives[0].targetCell = { x: 5, y: 5 };
       state.units[0].pos = { x: 5, y: 4 }; // Close to objective
       listener(state);
       
-      // Step 8: pickup
-      expect(directiveText()).toBe("Recover the data disk. Press [4] Pickup, select the objective.");
+      // Step 9: pickup
+      expect(directiveText()).toContain("Initiate collection");
       
-      // Complete Step 8: pickup
+      // Complete Step 9: pickup
       state.objectives[0].state = "Completed";
+      state.status = "Won";
       listener(state);
       
-      // Step 9: extract
-      expect(directiveText()).toBe("Mission complete. Press [5] Extract, confirm.");
+      // Step 10: extract
+      expect(directiveText()).toContain("Operation successful");
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }));
       onMessage.mockClear();
       
@@ -211,17 +225,22 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       listener(state);
       expect(manager.isActionAllowed("MOVE_TO")).toBe(false);
 
-      // Advance to step 3: doors
+      // Advance to step 3: pause
       state.t += 105;
+      listener(state);
+      expect(manager.isActionAllowed("TOGGLE_PAUSE")).toBe(true);
+
+      // Advance to step 4: doors
+      state.settings.isPaused = true;
       listener(state);
       expect(manager.isActionAllowed("MOVE_TO")).toBe(false);
 
-      // Advance to step 4: combat
+      // Advance to step 5: combat
       state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
       listener(state);
       expect(manager.isActionAllowed("SET_ENGAGEMENT")).toBe(false);
 
-      // Advance to step 5: engagement_ignore
+      // Advance to step 6: engagement_ignore
       state.enemies = [{ id: "e1", pos: { x: 5, y: 5 }, hp: 5, maxHp: 10, type: EnemyType.Tutorial } as any];
       listener(state);
       expect(manager.isActionAllowed("SET_ENGAGEMENT")).toBe(true);
@@ -289,7 +308,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({
         id: "prologue_rescue_1",
-        text: expect.stringContaining("Emergency medical protocol engaged")
+        text: expect.stringContaining("Asset integrity stabilized"),
       }));
     });
   });

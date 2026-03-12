@@ -6,51 +6,46 @@ import { CampaignShell } from "@src/renderer/ui/CampaignShell";
 
 describe("CampaignShell Custom Mode Tabs", () => {
   let container: HTMLElement;
-  let manager: any;
-  let onTabChange: any;
-  let onMenu: any;
   let shell: CampaignShell;
+  let mockManager: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-campaign-shell"></div>';
     container = document.getElementById("screen-campaign-shell")!;
 
-    manager = {
-      getState: vi.fn().mockReturnValue(null), // No campaign state in custom mode
+    mockManager = {
+      getState: vi.fn(() => null), // Custom mode
+      getSyncStatus: vi.fn(() => "synced"),
       addChangeListener: vi.fn(),
       removeChangeListener: vi.fn(),
-      getSyncStatus: vi.fn().mockReturnValue("local-only"),
     };
 
-    onTabChange = vi.fn();
-    onMenu = vi.fn();
-
-    const metaManager = {
+    const mockMetaManager = {
       getStats: vi.fn().mockReturnValue({
-        totalKills: 0,
-        totalCampaignsStarted: 0,
-        totalMissionsWon: 0,
+        totalKills: 100,
+        totalCampaignsStarted: 5,
+        totalMissionsWon: 20,
       }),
     };
 
     shell = new CampaignShell(
       "screen-campaign-shell",
-      manager as any,
-      metaManager as any,
-      onTabChange,
-      onMenu,
+      mockManager,
+      mockMetaManager as any,
+      vi.fn(),
+      vi.fn(),
     );
   });
 
-  it("should render Setup, Settings and Service Record tabs in custom mode", () => {
+  it("should render Protocol, Terminal and Asset Logs tabs in custom mode", () => {
     shell.show("custom");
 
-    const buttons = Array.from(container.querySelectorAll("button"));
+    const shellContainer = document.getElementById("screen-campaign-shell")!;
+    const buttons = Array.from(shellContainer.querySelectorAll("button"));
     const labels = buttons.map((b) => b.textContent);
 
-    expect(labels).toContain("Setup");
-    expect(labels).toContain("Settings");
-    expect(labels).toContain("Service Record");
-    expect(labels).toContain("Main Menu");
+    expect(labels).toContain("Protocol");
+    expect(labels).toContain("Terminal");
+    expect(labels).toContain("Asset Logs");
   });
 });

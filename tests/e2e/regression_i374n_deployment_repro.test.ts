@@ -48,7 +48,7 @@ describe("Regression i374n: Deployment Card Width & Map Canvas (Repro)", () => {
         expect(metric.overflow, `Card in ${contextName} should have visible overflow`).toBe('visible');
         
         // ASSERT: Soldier name text is visible and not truncated to zero width (Requirement 7)
-        expect(metric.nameWidth, `Soldier name in ${contextName} should have a non-zero width`).toBeGreaterThan(0);
+        expect(metric.nameWidth, `Asset name in ${contextName} should have a non-zero width`).toBeGreaterThan(0);
     }
   };
 

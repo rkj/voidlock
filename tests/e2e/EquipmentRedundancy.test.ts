@@ -52,8 +52,8 @@ describe("Equipment Screen Redundancy Regression", () => {
     expect(backBtn).not.toBeNull();
 
     // 6. Verify button text
-    const launchMissionText = await page.evaluate(el => el?.textContent, launchMissionBtn);
-    expect(launchMissionText).toBe("Launch Mission");
+    const launchMissionText = await page.evaluate(el => el?.textContent?.trim(), launchMissionBtn);
+    expect(launchMissionText).toBe("Authorize Operation");
 
     const backText = await page.evaluate(el => el?.textContent, backBtn);
     expect(backText).toBe("Back");

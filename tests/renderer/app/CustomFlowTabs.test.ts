@@ -145,10 +145,10 @@ describe("Custom Flow Tabs Integration", () => {
       document.getElementById("screen-statistics")?.style.display,
     ).not.toBe("none");
 
-    // Verify shell is still in custom mode (has Setup tab)
+    // Verify shell is still in custom mode (has Protocol tab)
     const shellContainer = document.getElementById("screen-campaign-shell")!;
     const buttons = Array.from(shellContainer.querySelectorAll("button"));
     const labels = buttons.map((b) => b.textContent);
-    expect(labels).toContain("Setup");
+    expect(labels).toContain("Protocol");
   });
 });
