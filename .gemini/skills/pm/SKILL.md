@@ -37,6 +37,7 @@ Only once Docs are updated, map work to `bd`:
 - **TDD Mandate**: Every `bug` task MUST be preceded by a task for a **failing reproduction test**.
 - **Context Tagging**: List ALL affected screens/shells in the description.
 - **Spec Linkage**: Description MUST start with: "Implements `docs/spec/file.md#section`".
+- **Visual Regression**: For UI tasks, specify which screenshot tests in `tests/e2e/screenshots/` cover the affected screens.
 - **Verification Mandate**: Add comments with requirements for Focus, Scroll stability, and Title Case casing.
 
 ## PHASE 4: HANDOFF

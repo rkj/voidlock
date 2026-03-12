@@ -38,6 +38,7 @@ Follow the mandatory sequential verification steps in [references/audit-procedur
 - **Audit Logs**: Check for crashes or tool failures.
 - **Diff Review**: Audit ALL deletions and additions for regressions and scope creep.
 - **Visual Audit**: Mandatory for UI/Layout changes.
+- **Screenshot Check**: Mandatory for UI changes (Step 4b in procedures).
 - **Test Verification**: Witness failure, then witness passing (Unit and/or E2E).
 
 ## 4. Finalization

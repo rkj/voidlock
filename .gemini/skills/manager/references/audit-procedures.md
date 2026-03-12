@@ -27,6 +27,13 @@ You MUST execute every step below in order. Do NOT skip any step.
 - Use `take_screenshot` at **1024x768** and **400x800**.
 - Compare against **Product Spec** and "Negative Proof" from planning.
 
+### Step 4b: Screenshot Regression Check (MANDATORY for UI)
+When the diff touches `src/renderer/` or `src/styles/`:
+1. Run the screenshot test suite: `npx vitest run tests/e2e/screenshots/`.
+2. Compare output screenshots in `tests/e2e/__snapshots__/` against baselines.
+3. If any screenshot differs by > 1% pixels (visible diff), take a before/after screenshot via DevTools and visually confirm the change is intentional.
+4. If unintentional, **FAIL VERIFICATION** immediately.
+
 ### Step 5: Test Verification
 1. Run `npx vitest run <PATH_TO_TEST> --reporter=basic`.
 2. **Robustness Audit**: Does the test use mocks that bypass the bug?
