@@ -225,9 +225,9 @@ export class SquadBuilder {
       const isOverfilled = total > MAX_SQUAD_SIZE;
       launchBtn.disabled = isEmpty || isOverfilled;
       if (isEmpty) {
-        launchBtn.title = "Select at least one soldier to launch mission";
+        launchBtn.title = "Select at least one asset to authorize operation";
       } else if (isOverfilled) {
-        launchBtn.title = `Maximum of ${MAX_SQUAD_SIZE} soldiers allowed`;
+        launchBtn.title = `Maximum of ${MAX_SQUAD_SIZE} assets allowed`;
       } else {
         launchBtn.title = "";
       }
@@ -330,7 +330,7 @@ export class SquadBuilder {
                     this.handleRevive(soldier.id);
                   }}
                 >
-                  Revive (250 Scrap)
+                  Restore Integrity (250 Credits)
                 </button>
               );
             }
@@ -346,7 +346,7 @@ export class SquadBuilder {
               disabled={state.scrap < 100}
               onClick={this.handleRecruit}
             >
-              Recruit (100 Scrap)
+              Procure Asset (100 Credits)
             </button>
           );
         }
@@ -546,16 +546,16 @@ export class SquadBuilder {
     const ui = (
       <Fragment>
         <div id="squad-total-count" style={{ marginBottom: "10px", fontWeight: "bold", color: squadTotalColor }}>
-          Total Soldiers: {total}/{MAX_SQUAD_SIZE}
+          Assigned Assets: {total}/{MAX_SQUAD_SIZE}
         </div>
         <div class="squad-builder-container">
           <div class="panel roster-panel">
-            <h2 class="panel-title">Roster</h2>
+            <h2 class="panel-title">Asset Reserve</h2>
             <div class="roster-list">{rosterItems}</div>
             <div class="roster-actions">{recruitButton}</div>
           </div>
           <div class="panel deployment-panel">
-            <h2 class="panel-title">Deployment</h2>
+            <h2 class="panel-title">Operational Deployment</h2>
             {slots}
           </div>
         </div>

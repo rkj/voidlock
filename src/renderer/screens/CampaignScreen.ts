@@ -98,7 +98,7 @@ export class CampaignScreen {
 
     if (state.status === "Victory") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
-        <h1 style="color:var(--color-primary)">Campaign Victory</h1>
+        <h1 style="color:var(--color-primary)">CONTRACT SUCCESS</h1>
         <button class="primary-button" id="btn-victory-summary" style="height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;">View Summary</button>
       </div>`;
       const btn = this.container.querySelector("#btn-victory-summary");
@@ -111,7 +111,7 @@ export class CampaignScreen {
 
     if (state.status === "Defeat") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
-        <h1 style="color:var(--color-error)">Campaign Defeat</h1>
+        <h1 style="color:var(--color-error)">CONTRACT TERMINATED</h1>
         <button class="primary-button" style="background-color:var(--color-error); height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;" id="btn-defeat-summary">View Summary</button>
       </div>`;
       const btn = this.container.querySelector("#btn-defeat-summary");
@@ -145,9 +145,9 @@ export class CampaignScreen {
     this.renderMap(viewport, state);
     this.container.appendChild(viewport);
 
-    // Abandon Campaign button (Subtle, in the corner)
+    // Terminate Contract button (Subtle, in the corner)
     const abandonBtn = document.createElement("button");
-    abandonBtn.textContent = "Abandon Campaign";
+    abandonBtn.textContent = "Terminate Contract";
     abandonBtn.className = "text-button abandon-button";
     abandonBtn.dataset.id = "btn-abandon";
     abandonBtn.style.position = "absolute";
@@ -224,7 +224,7 @@ export class CampaignScreen {
       nodeEl.style.top = `${node.position.y}px`;
       nodeEl.dataset.id = node.id;
       nodeEl.setAttribute("data-focus-id", `campaign-node-${node.id}`);
-      nodeEl.title = `${node.type} Mission (Diff ${node.difficulty})`;
+      nodeEl.title = `${node.type} Operation (Diff ${node.difficulty})`;
       nodeEl.tabIndex = (node.status === "Accessible" || isCurrent) ? 0 : -1;
 
       // Icon based on type

@@ -161,21 +161,21 @@
           <p id="menu-version" class="menu-version"></p>
 
           <div class="menu-button-container">
-            <button id="btn-menu-campaign" class="menu-button">Campaign</button>
+            <button id="btn-menu-campaign" class="menu-button">Active Contracts</button>
             <button id="btn-menu-custom" class="menu-button">
-              Custom Mission
+              Simulated Operations
             </button>
             <button id="btn-menu-engineering" class="menu-button">
-              Engineering
+              Asset Engineering
             </button>
             <button id="btn-menu-statistics" class="menu-button">
-              Statistics
+              Operational Statistics
             </button>
-            <button id="btn-menu-settings" class="menu-button">Settings</button>
+            <button id="btn-menu-settings" class="menu-button">Terminal Settings</button>
 
             <div class="menu-import-section">
               <label for="import-replay" class="menu-import-label"
-                >Load Replay JSON</label
+                >Import Operational Data (JSON)</label
               >
               <input
                 type="file"
@@ -220,7 +220,7 @@
 
           <!-- 2f. Mission Setup Screen -->
           <div id="screen-mission-setup" class="screen h-full overflow-hidden">
-            <h1 id="mission-setup-title" style="flex-shrink: 0; margin-bottom: 0; padding-top: 20px;">Mission Configuration</h1>
+            <h1 id="mission-setup-title" style="flex-shrink: 0; margin-bottom: 0; padding-top: 20px;">Operation Configuration</h1>
             <div
               id="mission-setup-context"
               style="
@@ -244,13 +244,13 @@
                 </div>
 
                 <div class="control-group">
-                  <label for="mission-type">Mission Type:</label>
+                  <label for="mission-type">Operation Protocol:</label>
                   <select id="mission-type">
-                    <option value="Default">Default (Recover Intel)</option>
-                    <option value="RecoverIntel">Recover Intel</option>
-                    <option value="ExtractArtifacts">Extract Artifacts</option>
-                    <option value="DestroyHive">Destroy Hive</option>
-                    <option value="EscortVIP">Escort VIP</option>
+                    <option value="Default">Default (Target Recovery)</option>
+                    <option value="RecoverIntel">Target Recovery</option>
+                    <option value="ExtractArtifacts">Asset Salvage</option>
+                    <option value="DestroyHive">Neutralize Nest</option>
+                    <option value="EscortVIP">VIP Protection</option>
                   </select>
                 </div>
 
@@ -457,7 +457,7 @@
                   class="primary-button"
                   style="padding: 12px 24px; margin-top: 0"
                 >
-                  Launch Mission
+                  Authorize Operation
                 </button>
               </div>
             </div>

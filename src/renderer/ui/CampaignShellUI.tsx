@@ -29,27 +29,27 @@ export function CampaignShellTopBar({
       <div class="flex-col">
         {mode === "campaign" && (
           <Fragment>
-            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Campaign Mode</div>
+            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Active Contract</div>
             <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>
-              {state ? `Sector ${currentSector}` : "New Expedition"}
+              {state ? `Sector ${currentSector}` : "New Authorization"}
             </div>
           </Fragment>
         )}
         {mode === "statistics" && (
           <Fragment>
-            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Service Record</div>
-            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>Global Statistics</div>
+            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Operational Logs</div>
+            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>Asset Statistics</div>
           </Fragment>
         )}
         {mode === "custom" && (
           <Fragment>
-            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Custom Mission</div>
-            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>Simulation Setup</div>
+            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Simulated Operation</div>
+            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>Simulation Protocol</div>
           </Fragment>
         )}
         {mode === "global" && (
           <Fragment>
-            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Settings</div>
+            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Terminal</div>
             <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>Global Configuration</div>
           </Fragment>
         )}
@@ -58,8 +58,8 @@ export function CampaignShellTopBar({
       <div class="shell-controls-right flex-row align-center gap-20" style={{ flexShrink: "1", minWidth: "0", overflow: "hidden", maxWidth: "100%" }}>
         {mode === "campaign" && state && (
           <div class="shell-resources flex-row gap-15" style={window.innerWidth < 600 ? { display: "none" } : {}}>
-            <div class="resource-item" title="Scrap (Currency)">
-              <span style={{ color: "var(--color-text-dim)" }}>Scrap:</span>
+            <div class="resource-item" title="Credits (Currency)">
+              <span style={{ color: "var(--color-text-dim)" }}>Credits:</span>
               <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{scrap}</span>
             </div>
             <div class="resource-item" title="Intel (Tech/Unlock)">
@@ -106,15 +106,15 @@ export function CampaignShellFooter({ metaStats, syncStatus }: FooterProps) {
       flexShrink: "0"
     }}>
       <div class="flex-row gap-5" style={{ alignItems: "center" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>Lifetime Xeno Purged:</span>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>Total Biological Neutralizations:</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalKills.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style={{ alignItems: "center" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>Expeditions:</span>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>Active Contracts:</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalCampaignsStarted.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style={{ alignItems: "center" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>Missions Won:</span>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>Operations Closed:</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalMissionsWon.toLocaleString()}</span>
       </div>
       
@@ -145,21 +145,21 @@ function renderTabs(
     const isMission2 = state.history?.length === 1;
 
     if (isPrologue || isMission2) {
-      tabs.push({ id: "ready-room", label: "Ready Room" });
+      tabs.push({ id: "ready-room", label: "Asset Management Hub" });
     } else {
-      tabs.push({ id: "sector-map", label: "Sector Map" });
-      tabs.push({ id: "ready-room", label: isShop ? "Supply Depot" : "Ready Room" });
-      tabs.push({ id: "engineering", label: "Engineering" });
-      tabs.push({ id: "stats", label: "Service Record" });
-      tabs.push({ id: "settings", label: "Settings" });
+      tabs.push({ id: "sector-map", label: "Operational Map" });
+      tabs.push({ id: "ready-room", label: isShop ? "Procurement Hub" : "Asset Management Hub" });
+      tabs.push({ id: "engineering", label: "System Engineering" });
+      tabs.push({ id: "stats", label: "Asset Logs" });
+      tabs.push({ id: "settings", label: "Terminal" });
     }
   } else if (mode === "statistics") {
-    tabs.push({ id: "stats", label: "Service Record" });
-    tabs.push({ id: "engineering", label: "Engineering" });
+    tabs.push({ id: "stats", label: "Asset Logs" });
+    tabs.push({ id: "engineering", label: "System Engineering" });
   } else if (mode === "custom") {
-    tabs.push({ id: "setup", label: "Setup" });
-    tabs.push({ id: "stats", label: "Service Record" });
-    tabs.push({ id: "settings", label: "Settings" });
+    tabs.push({ id: "setup", label: "Protocol" });
+    tabs.push({ id: "stats", label: "Asset Logs" });
+    tabs.push({ id: "settings", label: "Terminal" });
   }
 
   return tabs.map(tab => (

@@ -222,10 +222,10 @@ export class EquipmentScreen {
     this.container.style.overflow = "hidden";
 
     const isSlotEmpty = !this.config.soldiers[this.selectedSoldierIndex];
-    let rightPanelTitle = "Armory & Supplies";
-    if (this.recruitMode) rightPanelTitle = "Recruitment";
-    else if (this.reviveMode) rightPanelTitle = "Revive Personnel";
-    else if (isSlotEmpty) rightPanelTitle = "Reserve Roster";
+    let rightPanelTitle = "Logistics & Supplies";
+    if (this.recruitMode) rightPanelTitle = "Procurement";
+    else if (this.reviveMode) rightPanelTitle = "Integral Restoration";
+    else if (isSlotEmpty) rightPanelTitle = "Asset Reserve";
 
     this.inspector.setSoldier(this.config.soldiers[this.selectedSoldierIndex]);
 
@@ -234,7 +234,7 @@ export class EquipmentScreen {
         <div class="flex-row flex-grow p-10 gap-10 equipment-main-content" style={{ overflow: "hidden", minHeight: "0" }}>
           {/* Left Panel */}
           <div class="panel soldier-list-panel" style={{ width: "260px" }}>
-            <h2 class="panel-title" style={{ flexShrink: "0" }}>Soldier List</h2>
+            <h2 class="panel-title" style={{ flexShrink: "0" }}>Asset Roster</h2>
             <div class="scroll-content" style={{ padding: "10px" }}>
               {this.renderSoldierListItems()}
             </div>
@@ -242,7 +242,7 @@ export class EquipmentScreen {
 
           {/* Center Panel */}
           <div class="panel soldier-equipment-panel" style={{ flexGrow: "1" }}>
-            <h2 class="panel-title" style={{ flexShrink: "0" }}>Soldier Equipment</h2>
+            <h2 class="panel-title" style={{ flexShrink: "0" }}>Asset Loadout</h2>
             <div class="scroll-content" style={{ padding: "10px" }}>
               {this.inspector.renderDetails()}
             </div>
@@ -266,7 +266,7 @@ export class EquipmentScreen {
               style={{ margin: "0", height: "32px", padding: "0 15px", fontSize: "0.9em", display: "flex", alignItems: "center" }}
               onClick={() => this.onBack(this.config)}
             >
-              {this.isShop ? "Leave Shop" : "Back"}
+              {this.isShop ? "Exit Hub" : "Back"}
             </button>
           )}
           {(this.isCampaign && this.hasNodeSelected && !this.isShop && this.onLaunch) && (
@@ -285,10 +285,10 @@ export class EquipmentScreen {
               }}
               data-focus-id="btn-launch-mission"
               disabled={this.config.soldiers.filter(s => !!s).length === 0}
-              title={this.config.soldiers.filter(s => !!s).length === 0 ? "Select at least one soldier to launch mission" : ""}
+              title={this.config.soldiers.filter(s => !!s).length === 0 ? "Assign at least one asset to authorize operation" : ""}
               onClick={() => this.onLaunch!(this.config)}
             >
-              Launch Mission
+              Authorize Operation
             </button>
           )}
         </div>
@@ -337,7 +337,7 @@ export class EquipmentScreen {
               class="remove-soldier-btn slot-remove"
               data-focus-id={`remove-soldier-${i}`}
               tabindex="-1"
-              title="Remove from Squad"
+              title="De-allocate from Roster"
               onClick={(e: Event) => {
                 e.stopPropagation();
                 this.config.soldiers.splice(i, 1);
@@ -385,7 +385,7 @@ export class EquipmentScreen {
               {i + 1}. [Empty Slot]
             </div>
             <div style={{ fontSize: "0.75em", color: "var(--color-text-muted)", marginTop: "2px" }}>
-              {this.isSquadSelectionLocked ? "Slot Restricted" : "Click to Add Soldier"}
+              {this.isSquadSelectionLocked ? "Slot Restricted" : "Click to Allocate Asset"}
             </div>
           </div>
         );
@@ -433,8 +433,8 @@ export class EquipmentScreen {
               if (first) first.focus();
             }}
           >
-            <div class="btn-label">Recruit New Soldier</div>
-            <div class="btn-sub">Cost: 100 Scrap</div>
+            <div class="btn-label">Procure New Asset</div>
+            <div class="btn-sub">Cost: 100 Credits</div>
           </button>
         </div>
       );

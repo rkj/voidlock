@@ -11,7 +11,7 @@ export function HUDTutorialDirective() {
 export function HUDTopBar() {
   return (
     <div id="top-bar" class="top-bar">
-      <button id="btn-toggle-squad" class="drawer-toggle">Squad</button>
+      <button id="btn-toggle-squad" class="drawer-toggle">Roster</button>
       <div id="game-status">
         Time: <span class="time-value" data-bind-text="t" data-bind-transform="toSeconds">0.0</span>s
       </div>
@@ -39,7 +39,7 @@ export function HUDTopBar() {
             letterSpacing: "1px"
           }}
         >
-          Threat
+          Swarm Activity Index
         </span>
         <div id="top-threat-bar" class="threat-bar">
           {/* Robust Flex-based Dividers every 10% */}
@@ -85,7 +85,7 @@ export function HUDTopBar() {
         </span>
       </div>
 
-      <button id="btn-toggle-right" class="drawer-toggle">Objectives</button>
+      <button id="btn-toggle-right" class="drawer-toggle">Targets</button>
 
       {/* Speed Control */}
       <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility" data-bind-class="missionType|speedDimmed">
@@ -116,7 +116,7 @@ export function HUDTopBar() {
           marginLeft: "10px"
         }}
       >
-        Give Up
+        Abort Operation
       </button>
     </div>
   );

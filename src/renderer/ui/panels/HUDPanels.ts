@@ -37,13 +37,13 @@ export class DeploymentPanel {
       deploymentDiv.className = "deployment-summary";
 
       const title = document.createElement("h2");
-      title.textContent = "Deployment Phase";
+      title.textContent = "Asset Deployment Phase";
       title.className = "deployment-title";
       deploymentDiv.appendChild(title);
 
       const desc = document.createElement("p");
       // Standard Title Case: prepositions and articles are lowercase unless first/last
-      desc.textContent = "Tactically Place Your Squad Members on Highlighted Tiles. Drag Units to Move Them.";
+      desc.textContent = "Tactically Place Your Assets on Highlighted Tiles. Drag Units to Move Them.";
       desc.className = "deployment-desc";
       deploymentDiv.appendChild(desc);
 
@@ -86,17 +86,17 @@ export class DeploymentPanel {
       autoFillBtn.focus();
     }
 
-    // Mission Controls (Speed Slider for mobile) during deployment
+    // Operation Controls (Speed Slider for mobile) during deployment
     let controlsDiv = container.querySelector(".mission-controls") as HTMLElement;
     if (!controlsDiv) {
       controlsDiv = document.createElement("div");
       controlsDiv.className = "mission-controls mobile-only";
       controlsDiv.innerHTML = `
-        <h3 class="game-over-panel-title">Mission Controls</h3>
+        <h3 class="game-over-panel-title">Operation Controls</h3>
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
-          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
+          <label style="margin-top:0;">Terminal Speed: <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
           <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.targetTimeScale" data-bind-transform="speedSlider" data-bind-min="settings.allowTacticalPause|minSpeedValue">
-          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
+          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Operation</button>
         </div>
       `;
       const abortBtn = controlsDiv.querySelector(".mobile-abort-button") as HTMLButtonElement;
@@ -256,7 +256,7 @@ export class ObjectivesPanel {
     if (!objectivesDiv) {
       objectivesDiv = document.createElement("div");
       objectivesDiv.className = "objectives-status";
-      objectivesDiv.innerHTML = "<h3>Objectives</h3><div class='obj-list'></div>";
+      objectivesDiv.innerHTML = "<h3>Recovery Targets</h3><div class='obj-list'></div>";
       container.appendChild(objectivesDiv);
     }
     const list = objectivesDiv.querySelector(".obj-list") as HTMLElement;
@@ -300,7 +300,7 @@ export class ObjectivesPanel {
         id: "extraction",
         icon: extractedCount > 0 ? "✔" : "○",
         color: extractedCount > 0 ? "var(--color-success)" : "var(--color-text-muted)",
-        text: `Extraction (${extractedCount}/${totalUnits})${locStr}`,
+        text: `Retrieval (${extractedCount}/${totalUnits})${locStr}`,
         state: isCompleted ? "Completed" : "Pending",
       });
     }
@@ -335,28 +335,28 @@ export class EnemyIntelPanel {
     this.lastHash = hash;
 
     if (visibleEnemies.length === 0) {
-      intelDiv.innerHTML = "<h3>Enemy Intel</h3><p class='intel-empty'>No Hostiles Detected.</p>";
+      intelDiv.innerHTML = "<h3>Hostile Contact Intel</h3><p class='intel-empty'>No Hostiles Detected.</p>";
       return;
     }
     const groups: { [type: string]: number } = {};
     visibleEnemies.forEach((e) => { groups[e.type] = (groups[e.type] || 0) + 1; });
     const types = Object.keys(groups).sort();
-    intelDiv.innerHTML = "<h3>Enemy Intel</h3>" + types.map(type => {
-      const e = visibleEnemies.find(en => en.type === type)!;
-      const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
-      return `
-        <div class="intel-box" data-type="${type}">
-          <div class="intel-header"><strong class="intel-title">${type} x${groups[type]}</strong></div>
-          <div class="intel-stats">
-            ${StatDisplay.render(Icons.Speed, e.speed, "Speed")}
-            ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
-            ${StatDisplay.render(Icons.Damage, e.damage, "Damage")}
-            ${StatDisplay.render(Icons.Rate, fireRateVal, "Rate of Fire (Shots/sec)")}
-            ${StatDisplay.render(Icons.Range, e.attackRange, "Range")}
+      intelDiv.innerHTML = "<h3>Hostile Contact Intel</h3>" + types.map(type => {
+        const e = visibleEnemies.find(en => en.type === type)!;
+        const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
+        return `
+          <div class="intel-box" data-type="${type}">
+            <div class="intel-header"><strong class="intel-title">${type} x${groups[type]}</strong></div>
+            <div class="intel-stats">
+              ${StatDisplay.render(Icons.Speed, e.speed, "Speed")}
+              ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
+              ${StatDisplay.render(Icons.Damage, e.damage, "Damage")}
+              ${StatDisplay.render(Icons.Rate, fireRateVal, "Terminal Feed Delay (Shots/sec)")}
+              ${StatDisplay.render(Icons.Range, e.attackRange, "Range")}
+            </div>
           </div>
-        </div>
-      `;
-    }).join("");
+        `;
+      }).join("");
   }
 }
 
@@ -416,12 +416,12 @@ export class GameOverPanel {
     const summaryDiv = document.createElement("div");
     summaryDiv.className = "game-over-summary" + (state.status === "Won" ? "" : " lost");
     summaryDiv.innerHTML = `
-      <h2 class="game-over-title">${state.status === "Won" ? "Mission Accomplished" : "Squad Wiped"}</h2>
-      <div class="game-over-objectives"><h3 class="game-over-panel-title">Objectives</h3>${this.callbacks.objectivesPanel.renderObjectivesList(state)}</div>
+      <h2 class="game-over-title">${state.status === "Won" ? "OPERATION CLOSED — Assets Retrieved" : "OPERATION CLOSED — Total Asset Loss"}</h2>
+      <div class="game-over-objectives"><h3 class="game-over-panel-title">Recovery Targets</h3>${this.callbacks.objectivesPanel.renderObjectivesList(state)}</div>
       <div class="game-over-stats">
-        <p><strong>Time:</strong> ${(state.t / 1000).toFixed(1)}s</p>
-        <p><strong>Kills:</strong> ${state.stats.aliensKilled}</p>
-        <p><strong>Casualties:</strong> ${state.stats.casualties}</p>
+        <p><strong>Operational Time:</strong> ${(state.t / 1000).toFixed(1)}s</p>
+        <p><strong>Hostiles Neutralized:</strong> ${state.stats.aliensKilled}</p>
+        <p><strong>Asset Write-offs:</strong> ${state.stats.casualties}</p>
       </div>
       <button class="game-over-btn">Back to Menu</button>
     `;
