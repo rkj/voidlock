@@ -211,39 +211,41 @@ export class HUDManager {
 
     const isMobile = window.innerWidth < 768;
     const actionContainer = isMobile && mobileActionPanel ? mobileActionPanel : rightPanel;
-    const secondaryContainer = isMobile && mobileActionPanel ? rightPanel : null;
+    const inactiveContainer = isMobile && mobileActionPanel ? rightPanel : (mobileActionPanel || null);
+
+    // Clear action-related controls from the container they don't belong in to prevent a11y duplication
+    if (inactiveContainer) {
+      inactiveContainer.querySelector(".mission-controls")?.remove();
+      inactiveContainer.querySelector(".command-menu")?.remove();
+      inactiveContainer.querySelector(".deployment-summary")?.remove();
+      inactiveContainer.querySelector(".game-over-summary")?.remove();
+    }
+
+    // Sync ARIA state for right panel on mobile
+    if (isMobile) {
+      const isDrawerOpen = rightPanel.classList.contains("active");
+      rightPanel.setAttribute("aria-hidden", (!isDrawerOpen).toString());
+    } else {
+      rightPanel.removeAttribute("aria-hidden");
+    }
 
     if (state.status === "Deployment") {
-      if (secondaryContainer) secondaryContainer.innerHTML = "";
       this.deploymentPanel.update(actionContainer, state);
       return;
     }
 
     if (state.status !== "Playing") {
-      if (secondaryContainer) secondaryContainer.innerHTML = "";
       this.gameOverPanel.update(actionContainer, state);
       return;
     }
 
-    // Clear deployment or game over summaries if present
-    const deploymentDiv = actionContainer.querySelector(".deployment-summary");
-    if (deploymentDiv) {
-      actionContainer.innerHTML = "";
-      this.commandMenuPanel.reset();
-    }
-
-    if (actionContainer.querySelector(".game-over-summary")) {
-      actionContainer.innerHTML = "";
-      this.commandMenuPanel.reset();
-    }
-
     this.commandMenuPanel.update(actionContainer, state);
 
-    const objectivesContainer = secondaryContainer || actionContainer;
-    this.objectivesPanel.update(objectivesContainer, state);
+    const targetContainer = inactiveContainer || actionContainer;
+    this.objectivesPanel.update(targetContainer, state);
 
-    this.updateDebugControls(secondaryContainer || actionContainer, state);
-    this.enemyIntelPanel.update(secondaryContainer || actionContainer, state);
+    this.updateDebugControls(targetContainer, state);
+    this.enemyIntelPanel.update(targetContainer, state);
   }
 
   private updateDebugControls(container: HTMLElement, state: GameState) {
