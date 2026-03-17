@@ -206,7 +206,7 @@ export class CommandMenuPanel {
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
           <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
           <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.targetTimeScale" data-bind-transform="speedSlider" data-bind-min="settings.allowTacticalPause|minSpeedValue">
-          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
+          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Operation</button>
         </div>
       `;
       const abortBtn = controlsDiv.querySelector(".mobile-abort-button") as HTMLButtonElement;
