@@ -444,6 +444,26 @@ export class GameClient {
     }
   }
 
+  public freezeForDialog() {
+    if (!this.isPaused) {
+      this.lastNonPausedScale = this.currentScale;
+    }
+    this.isPaused = true;
+    this.sendPausedToWorker(true);
+    this.sendTimeScaleToWorker(0.0);
+    this.sendTargetTimeScaleToWorker(0.0);
+  }
+
+  public unfreezeAfterDialog() {
+    if (this.isPaused) {
+      this.isPaused = false;
+      this.currentScale = this.lastNonPausedScale;
+      this.sendPausedToWorker(false);
+      this.sendTimeScaleToWorker(this.currentScale);
+      this.sendTargetTimeScaleToWorker(this.currentScale);
+    }
+  }
+
   public getTimeScale(): number {
     if (this.isPaused) {
       return this.allowTacticalPause ? 0.1 : 0.0;

@@ -42,12 +42,13 @@ export class TutorialManager {
   private gameClient: GameClient;
   private campaignManager: CampaignManager;
   private menuController: any; // We'll type this properly in constructor
-  private onMessage: (msg: AdvisorMessage) => void;
+  private onMessage: (msg: AdvisorMessage, onDismiss?: () => void) => void;
   private getRenderer: () => Renderer | null;
   private isActive: boolean = false;
   private completedSteps: Set<string> = new Set();
   private isPrologueActive: boolean = false;
   private currentStepIndex: number = -1;
+  public isBlockingMessageActive: boolean = false;
 
   private highlightedElement: HTMLElement | null = null;
   private highlightedElementSelector: string | null = null;
@@ -62,6 +63,7 @@ export class TutorialManager {
   private uiTourStartTick: number = -1;
   private lastMenuState: string | null = null;
   private lastSelectionHash: string | null = null;
+
   
   private prologueSteps: TutorialStep[] = [
     {
@@ -199,7 +201,7 @@ export class TutorialManager {
     gameClient: GameClient,
     campaignManager: CampaignManager,
     menuController: any,
-    onMessage: (msg: AdvisorMessage) => void,
+    onMessage: (msg: AdvisorMessage, onDismiss?: () => void) => void,
     _getSelectedUnitId: () => string | null,
     _uiOrchestrator?: UIOrchestrator,
     getRenderer: () => Renderer | null = () => null
@@ -355,7 +357,7 @@ export class TutorialManager {
   }
 
   private onGameStateUpdate = (state: GameState) => {
-    if (!this.isActive) return;
+    if (!this.isActive || this.isBlockingMessageActive) return;
 
     if (state.missionType !== MissionType.Prologue) {
         if (this.isPrologueActive) {
@@ -474,10 +476,12 @@ export class TutorialManager {
       this.showDirective(directiveText);
       
       if (step.message) {
-          this.onMessage(step.message);
           if (step.message.blocking) {
-              this.gameClient.pause();
+              this.isBlockingMessageActive = true;
           }
+          this.onMessage(step.message, () => {
+              this.isBlockingMessageActive = false;
+          });
       }
 
       if (step.highlightTarget) {

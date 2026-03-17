@@ -130,8 +130,8 @@ export class AppServiceRegistry {
       this.gameClient,
       this.campaignManager,
       this.menuController,
-      (msg) => {
-        this.advisorOverlay.showMessage(msg);
+      (msg, onDismiss) => {
+        this.advisorOverlay.showMessage(msg, onDismiss);
       },
       config.getSelectedUnitId,
       this.uiOrchestrator,

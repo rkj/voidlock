@@ -89,7 +89,7 @@ export class AdvisorOverlay {
     `;
 
     if (msg.blocking) {
-        this.gameClient.pause();
+        this.gameClient.freezeForDialog();
         const backdrop = document.createElement("div");
         backdrop.className = "advisor-modal-backdrop";
         backdrop.appendChild(messageEl);
@@ -98,7 +98,7 @@ export class AdvisorOverlay {
         const dismiss = () => {
             InputDispatcher.getInstance().popContext(`advisor-${msg.id}`);
             backdrop.remove();
-            this.gameClient.resume();
+            this.gameClient.unfreezeAfterDialog();
             Logger.info(`Advisor message dismissed: ${msg.id}`);
             if (onDismiss) onDismiss();
         };
