@@ -6,9 +6,16 @@ import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import advisorStylesUrl from "@src/styles/advisor.css?url";
 
+interface QueuedMessage {
+  msg: AdvisorMessage;
+  onDismiss?: () => void;
+}
+
 export class AdvisorOverlay {
   private container: HTMLElement;
   private gameClient: GameClient;
+  private messageQueue: QueuedMessage[] = [];
+  private isShowingBlockingMessage = false;
 
   constructor(gameClient: GameClient) {
     this.gameClient = gameClient;
@@ -38,6 +45,32 @@ export class AdvisorOverlay {
   }
 
   public showMessage(msg: AdvisorMessage, onDismiss?: () => void) {
+    if (msg.blocking) {
+      if (this.isShowingBlockingMessage) {
+        Logger.info(`Advisor queueing blocking message: ${msg.id}`);
+        this.messageQueue.push({ msg, onDismiss });
+        return;
+      }
+      this.isShowingBlockingMessage = true;
+    }
+
+    this.renderMessage(msg, () => {
+      if (onDismiss) onDismiss();
+      if (msg.blocking) {
+        this.isShowingBlockingMessage = false;
+        this.processQueue();
+      }
+    });
+  }
+
+  private processQueue() {
+    if (this.messageQueue.length > 0 && !this.isShowingBlockingMessage) {
+      const next = this.messageQueue.shift()!;
+      this.showMessage(next.msg, next.onDismiss);
+    }
+  }
+
+  private renderMessage(msg: AdvisorMessage, onDismiss?: () => void) {
     Logger.info(`Advisor showing message: ${msg.id}`);
     
     const messageEl = document.createElement("div");

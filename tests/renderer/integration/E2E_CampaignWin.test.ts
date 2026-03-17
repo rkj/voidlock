@@ -24,6 +24,8 @@ let stateUpdateCallback: ((state: GameState) => void) | null = null;
 
 const mockGameClient = {
   init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
+  freezeForDialog: vi.fn(),
+  unfreezeAfterDialog: vi.fn(),
   queryState: vi.fn(),
   onStateUpdate: vi.fn((cb) => {
     stateUpdateCallback = cb;

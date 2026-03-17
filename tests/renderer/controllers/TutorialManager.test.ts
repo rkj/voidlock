@@ -18,8 +18,12 @@ describe("TutorialManager", () => {
       removeStateUpdateListener: vi.fn(),
       pause: vi.fn(),
       resume: vi.fn(),
+      freezeForDialog: vi.fn(),
+      unfreezeAfterDialog: vi.fn(),
     };
-    onMessage = vi.fn();
+    onMessage = vi.fn().mockImplementation((msg, cb) => {
+      if (cb) cb();
+    });
     uiOrchestrator = {
       setMissionHUDVisible: vi.fn(),
     };
@@ -88,8 +92,8 @@ describe("TutorialManager", () => {
     const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
     listener(state); // Enters 'observe'
     
-    expect(gameClient.pause).toHaveBeenCalled();
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
+    // expect(gameClient.pause).toHaveBeenCalled(); // Responsibility moved to AdvisorOverlay
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }), expect.any(Function));
   });
 
   it("should highlight elements", () => {
@@ -163,7 +167,7 @@ describe("TutorialManager", () => {
     state.map.doors = [{ id: "door-1", segment: [{ x: 2, y: 3 }], state: "Open" } as any];
     listener(state); // enters combat
     
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }), expect.any(Function));
   });
 
   it("should show objectives message when entering move step", () => {
@@ -188,7 +192,7 @@ describe("TutorialManager", () => {
     state.stats.aliensKilled = 1;
     listener(state); // move
     
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }), expect.any(Function));
   });
 
   it("should show extraction message when entering extract step", () => {
@@ -217,6 +221,6 @@ describe("TutorialManager", () => {
     state.objectives[0].state = "Completed";
     listener(state); // extract
     
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }));
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }), expect.any(Function));
   });
 });

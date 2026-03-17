@@ -22,8 +22,12 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       removeStateUpdateListener: vi.fn(),
       pause: vi.fn(),
       resume: vi.fn(),
+      freezeForDialog: vi.fn(),
+      unfreezeAfterDialog: vi.fn(),
     };
-    onMessage = vi.fn();
+    onMessage = vi.fn().mockImplementation((msg, cb) => {
+      if (cb) cb();
+    });
     uiOrchestrator = {
       setMissionHUDVisible: vi.fn(),
     };
@@ -119,7 +123,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       // Step 1: observe
       state.t = 16;
       listener(state);
-      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
+      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }), expect.any(Function));
       expect(directiveText()).toContain("ASSET DEPLOYMENT INITIALIZED");
       onMessage.mockClear();
       
@@ -151,7 +155,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       
       // Step 5: combat
       expect(directiveText()).toContain("HOSTILE CONTACT");
-      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
+      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }), expect.any(Function));
       onMessage.mockClear();
       
       // Complete Step 5: combat (enemy takes damage)
@@ -161,7 +165,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       
       // Step 6: engagement_ignore
       expect(directiveText()).toContain("Test Remote Intervention");
-      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "first_command" }));
+      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "first_command" }), expect.any(Function));
       onMessage.mockClear();
       
       // Complete Step 6: engagement_ignore
@@ -179,7 +183,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       
       // Step 8: move
       expect(directiveText()).toContain("Redirect asset to recovery target");
-      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
+      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }), expect.any(Function));
       onMessage.mockClear();
       
       // Complete Step 8: move (reach objective room)
@@ -197,7 +201,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       
       // Step 10: extract
       expect(directiveText()).toContain("Operation successful");
-      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }));
+      expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }), expect.any(Function));
       onMessage.mockClear();
       
       // Complete Step 9: extract (Won)
