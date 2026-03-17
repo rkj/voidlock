@@ -609,16 +609,19 @@ export class EquipmentScreen {
   private renderRightPanelItems() {
     const items = [];
     
-    items.push(this.inspector.renderArmory());
-
     if (this.isStoreLocked) {
       items.push(
-        <div class="locked-store-message" style={{ color: "var(--color-danger)", padding: "20px", textAlign: "center", border: "1px solid var(--color-danger)", borderRadius: "4px", marginTop: "20px" }}>
+        <div class="locked-store-message" style={{ color: "var(--color-danger)", padding: "20px", textAlign: "center", border: "1px solid var(--color-danger)", borderRadius: "4px", marginBottom: "20px" }}>
           <div style={{ fontSize: "1.5em", marginBottom: "10px" }}>🔒</div>
           <div style={{ fontWeight: "bold", marginBottom: "5px" }}>Terminal Offline</div>
           <div style={{ fontSize: "0.8em", opacity: "0.8" }}>Maintenance diagnostics in progress. Standard equipment loadouts only.</div>
         </div>
       );
+    }
+
+    items.push(this.inspector.renderArmory());
+
+    if (this.isStoreLocked) {
       return items;
     }
 
