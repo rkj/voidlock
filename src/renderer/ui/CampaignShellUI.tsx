@@ -25,7 +25,7 @@ export function CampaignShellTopBar({
   const currentSector = state?.currentSector ?? 1;
 
   return (
-    <div id="campaign-shell-top-bar" class="campaign-top-bar flex-row justify-between align-center" style={{ padding: "0 10px", flexWrap: "nowrap" }}>
+    <div id="campaign-shell-top-bar" class="campaign-top-bar flex-row justify-between align-center" style={{ padding: "0 10px", flexWrap: "wrap" }}>
       <div class="flex-col" style={{ flexShrink: "0" }}>
         {mode === "campaign" && (
           <Fragment>
@@ -55,7 +55,7 @@ export function CampaignShellTopBar({
         )}
       </div>
 
-      <div class="shell-controls-right flex-row align-center gap-20" style={{ flexShrink: "1", minWidth: "0", overflow: "hidden", maxWidth: "100%" }}>
+      <div class="shell-controls-right flex-row align-center gap-20" style={{ flexShrink: "1", minWidth: "0", overflow: "visible", maxWidth: "100%" }}>
         {mode === "campaign" && state && (
           <div class="shell-resources flex-row gap-15" style={window.innerWidth < 600 ? { display: "none" } : {}}>
             <div class="resource-item" title="Credits (Currency)">

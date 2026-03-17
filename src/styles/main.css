@@ -2888,6 +2888,7 @@ label {
   min-height: 52px;
   flex-wrap: wrap;
   gap: 10px;
+  overflow: visible !important;
 }
 
 .mobile-touch .shell-controls-right {
@@ -3038,6 +3039,7 @@ label {
     padding: 8px !important;
     gap: 8px !important;
     align-items: stretch !important;
+    overflow: visible !important;
   }
 
   .shell-controls-right {
