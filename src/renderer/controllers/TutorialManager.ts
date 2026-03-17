@@ -136,7 +136,7 @@ export class TutorialManager {
         portrait: "logo_gemini",
         blocking: true,
       },
-      inputGate: { allowedActions: ["SET_ENGAGEMENT"] }
+      inputGate: { allowedActions: ["SET_ENGAGEMENT", "SELECT_UNIT"] }
     },
     {
       id: "engagement_engage",
@@ -144,7 +144,7 @@ export class TutorialManager {
       directiveMobile: "Weapon lockout active. Tap 'Engagement' > 'Engage' to resume ROE.",
       highlightTarget: { selector: "#command-menu" },
       condition: (state, manager) => manager.checkEngagementEngage(state) && manager.checkEnemyDied(state),
-      inputGate: { allowedActions: ["SET_ENGAGEMENT"] }
+      inputGate: { allowedActions: ["SET_ENGAGEMENT", "SELECT_UNIT"] }
     },
     {
       id: "move",
@@ -170,7 +170,7 @@ export class TutorialManager {
           }
           return null;
       },
-      inputGate: { allowedActions: ["MOVE_TO"] }
+      inputGate: { allowedActions: ["MOVE_TO", "SELECT_UNIT"] }
     },
     {
       id: "pickup",
@@ -178,7 +178,7 @@ export class TutorialManager {
       directiveMobile: "Initiate collection: Tap 'Pickup' > Select DATA DISK.",
       highlightTarget: { cell: { x: 3, y: 2 } },
       condition: (state, manager) => manager.checkObjectiveCollected(state),
-      inputGate: { allowedActions: ["PICKUP"] }
+      inputGate: { allowedActions: ["PICKUP", "SELECT_UNIT"] }
     },
     {
       id: "extract",
@@ -193,7 +193,7 @@ export class TutorialManager {
         portrait: "logo_gemini",
         blocking: true,
       },
-      inputGate: { allowedActions: ["EXTRACT"] }
+      inputGate: { allowedActions: ["EXTRACT", "SELECT_UNIT"] }
     }
   ];
 
