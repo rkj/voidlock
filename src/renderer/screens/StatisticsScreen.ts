@@ -102,7 +102,8 @@ export class StatisticsScreen {
     statsGrid.className = "flex-col gap-10 p-20";
     statsGrid.style.background = "var(--color-surface-elevated)";
     statsGrid.style.border = "1px solid var(--color-border-strong)";
-    statsGrid.style.minWidth = "400px";
+    statsGrid.style.width = "100%";
+    statsGrid.style.maxWidth = "400px";
     scrollContainer.appendChild(statsGrid);
 
     const createStatRow = (
