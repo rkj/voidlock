@@ -139,7 +139,7 @@ export class SoldierInspector {
           </div>
         )}
         {this.isLocked && (
-          <div class="w-full dead-warning" style={{ background: "var(--color-danger)" }}>
+          <div class="w-full dead-warning">
             Terminal Offline - Modifications Locked
           </div>
         )}
