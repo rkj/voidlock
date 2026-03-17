@@ -313,7 +313,14 @@ export class TutorialManager {
     try {
         const stored = localStorage.getItem("voidlock_tutorial_state");
         if (stored) {
-            this.completedSteps = new Set(JSON.parse(stored));
+            const data = JSON.parse(stored);
+            if (Array.isArray(data)) {
+                // Migration for old format
+                this.completedSteps = new Set(data);
+            } else {
+                this.completedSteps = new Set(data.completedSteps || []);
+                this.currentStepIndex = typeof data.currentStepIndex === "number" ? data.currentStepIndex : -1;
+            }
         }
     } catch (e) {
         Logger.error("Failed to load tutorial state", e);
@@ -322,7 +329,10 @@ export class TutorialManager {
 
   private saveState() {
     try {
-        localStorage.setItem("voidlock_tutorial_state", JSON.stringify(Array.from(this.completedSteps)));
+        localStorage.setItem("voidlock_tutorial_state", JSON.stringify({
+            completedSteps: Array.from(this.completedSteps),
+            currentStepIndex: this.currentStepIndex
+        }));
     } catch (e) {
         Logger.error("Failed to save tutorial state", e);
     }
@@ -371,7 +381,13 @@ export class TutorialManager {
     if (!this.isPrologueActive && state.status === "Playing") {
         this.isPrologueActive = true;
         this.lastRescueCount = state.stats.prologueRescues || 0;
-        this.startPrologue(state);
+        
+        // Resume if we have a valid index, otherwise start at 0
+        if (this.currentStepIndex < 0) {
+            this.startPrologue(state);
+        } else {
+            this.enterStep(this.currentStepIndex, state);
+        }
     }
 
     if (!this.isPrologueActive) return;
@@ -447,6 +463,7 @@ export class TutorialManager {
 
   private startPrologue(state: GameState) {
       this.currentStepIndex = 0;
+      this.saveState();
       this.enterStep(0, state);
   }
 
@@ -457,6 +474,8 @@ export class TutorialManager {
       }
       
       this.currentStepIndex++;
+      this.saveState();
+      
       if (this.currentStepIndex < this.prologueSteps.length) {
           this.enterStep(this.currentStepIndex, state);
       } else {
