@@ -8,6 +8,9 @@ describe("Tutorial Input Gating Regression (voidlock-26y0x.8)", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
+    page.on("console", msg => {
+        console.log(`BROWSER ${msg.type().toUpperCase()}:`, msg.text());
+    });
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
   });
@@ -60,16 +63,26 @@ describe("Tutorial Input Gating Regression (voidlock-26y0x.8)", () => {
 
     // Press Space to complete pause step
     await page.keyboard.press(" ");
-
-    // Wait for "INTERVENTION" (engagement_ignore) step
-    await page.waitForFunction(() => {
-        const text = (document.querySelector("#tutorial-directive-text")?.textContent || "").toUpperCase();
-        return text.includes("INTERVENTION");
-    }, { timeout: 30000 });
+    await new Promise(r => setTimeout(r, 1000));
+    
+    // Resume to allow unit to reach door
+    await page.keyboard.press(" ");
 
     // Dismiss advisor
     await page.waitForSelector(".advisor-message", { visible: true });
     await page.click(".advisor-btn[data-id='dismiss']");
+
+    // Wait for "INTERVENTION" (engagement_ignore) step
+    try {
+        await page.waitForFunction(() => {
+            const text = (document.querySelector("#tutorial-directive-text")?.textContent || "").toUpperCase();
+            return text.includes("INTERVENTION");
+        }, { timeout: 30000 });
+    } catch (e) {
+        console.log("Stuck waiting for INTERVENTION. Current URL:", page.url());
+        await page.screenshot({ path: "tests/e2e/__snapshots__/tutorial_stuck_intervention.png" });
+        throw e;
+    }
 
     let directiveText = await page.$eval("#tutorial-directive-text", el => (el as HTMLElement).innerText);
     expect(directiveText.toUpperCase()).toContain("INTERVENTION");

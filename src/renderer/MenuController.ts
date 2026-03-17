@@ -803,30 +803,21 @@ export class MenuController {
   private isActionAllowedInTutorial(option: MenuOptionDefinition): boolean {
     if (!this.tutorialManager) return true;
 
-    if (option.commandType) {
-      return this.tutorialManager.isActionAllowed(option.commandType);
+    // Always allow back navigation
+    if (option.type === "BACK") return true;
+
+    // Always allow transitions to sub-menus to allow UI exploration
+    if (option.type === "TRANSITION" || option.nextState === "ITEM_SELECT" || option.nextState === "UNIT_SELECT" || option.nextState === "MODE_SELECT" || option.nextState === "TARGET_SELECT") {
+      return true;
     }
 
-    if (option.type === "TRANSITION" && option.nextState) {
-      const nextConfig = MENU_CONFIG[option.nextState];
-      if (nextConfig && nextConfig.options) {
-        // A transition is allowed if ANY of its child options (excluding BACK) are allowed
-        // Note: For dynamic states like ITEM_SELECT, we check the base command type
-        if (option.nextState === "ITEM_SELECT") {
-          return this.tutorialManager.isActionAllowed(CommandType.USE_ITEM);
-        }
-        if (option.nextState === "UNIT_SELECT") {
-          return this.tutorialManager.isActionAllowed("SELECT_UNIT");
-        }
-        return nextConfig.options.some((opt) => opt.type !== "BACK" && this.isActionAllowedInTutorial(opt));
-      }
+    if (option.commandType) {
+      return this.tutorialManager.isActionAllowed(option.commandType);
     }
 
     if (option.type === "MODE") {
       return this.tutorialManager.isActionAllowed(CommandType.SET_ENGAGEMENT);
     }
-
-    if (option.type === "BACK") return true;
 
     return true;
   }

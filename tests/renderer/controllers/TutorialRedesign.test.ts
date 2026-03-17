@@ -221,7 +221,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       
       // Step 1: observe
       listener(state);
-      expect(manager.isActionAllowed("SELECT_UNIT")).toBe(false);
+      expect(manager.isActionAllowed("SELECT_UNIT")).toBe(true);
       expect(manager.isActionAllowed("MOVE_TO")).toBe(false);
       
       // Advance to step 2: ui_tour

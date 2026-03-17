@@ -533,6 +533,10 @@ export class TutorialManager {
 
   public isActionAllowed(action: string): boolean {
     if (!this.isActive || !this.isPrologueActive) return true;
+    
+    // Always allow basic UI interactions and time control
+    if (action === "TOGGLE_PAUSE" || action === "SELECT_UNIT") return true;
+
     if (this.isProloguePassiveStep()) return false;
     const currentStep = this.prologueSteps[this.currentStepIndex];
     if (!currentStep || !currentStep.inputGate) return true;
