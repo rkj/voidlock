@@ -57,7 +57,6 @@
   display: none;
   min-width: 350px;
   box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-  text-transform: uppercase;
   letter-spacing: 1.5px;
   border-radius: 4px;
 }

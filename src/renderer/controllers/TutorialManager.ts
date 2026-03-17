@@ -531,7 +531,11 @@ export class TutorialManager {
   }
 
   private isMobile(): boolean {
-    return window.innerWidth < 768 || document.documentElement.classList.contains("mobile-touch");
+    return !!(
+      window.innerWidth < 768 ||
+      document.documentElement.classList.contains("mobile-touch") ||
+      (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)
+    );
   }
 
   private showDirective(text: string) {
