@@ -275,6 +275,23 @@ describe("HUDManager", () => {
     expect(onForceLose).toHaveBeenCalled();
   });
 
+  it("should return tutorial-dimmed for speed controls during prologue", () => {
+    const prologueState: GameState = {
+      ...mockState,
+      missionType: MissionType.Prologue,
+    };
+
+    // The transformer is registered in HUDManager constructor.
+    // We can test it by checking the class of the speed control if it was in the template.
+    // But since the template in beforeEach is minimal, let's just verify it via update if we add speed control to template.
+    
+    document.body.innerHTML += '<div id="speed-control" data-bind-class="missionType|speedDimmed"></div>';
+    hud.update(prologueState, null);
+    
+    const speedEl = document.getElementById("speed-control");
+    expect(speedEl?.classList.contains("tutorial-dimmed")).toBe(true);
+  });
+
   it("should render objectives in game over summary", () => {
     const gameOverState: GameState = {
       ...mockState,

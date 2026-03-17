@@ -37,7 +37,6 @@
 
 .tutorial-dimmed {
   opacity: 0.3 !important;
-  pointer-events: none !important;
   transition: opacity 0.5s ease;
 }
 
