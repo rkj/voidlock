@@ -25,8 +25,8 @@ export function CampaignShellTopBar({
   const currentSector = state?.currentSector ?? 1;
 
   return (
-    <div id="campaign-shell-top-bar" class="campaign-top-bar flex-row justify-between align-center p-10">
-      <div class="flex-col">
+    <div id="campaign-shell-top-bar" class="campaign-top-bar flex-row justify-between align-center" style={{ padding: "0 10px", flexWrap: "nowrap" }}>
+      <div class="flex-col" style={{ flexShrink: "0" }}>
         {mode === "campaign" && (
           <Fragment>
             <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Active Contract</div>
@@ -93,28 +93,34 @@ interface FooterProps {
 }
 
 export function CampaignShellFooter({ metaStats, syncStatus }: FooterProps) {
+  const isMobile = window.innerWidth < 600;
+
   return (
-    <div id="campaign-shell-footer" class="campaign-footer flex-row align-center p-10 gap-20" style={{ 
-      background: "rgba(0, 0, 0, 0.6)", 
+    <div id="campaign-shell-footer" class="campaign-footer flex-row align-center gap-20" style={{
+      background: "rgba(0, 0, 0, 0.6)",
       backdropFilter: "blur(4px)",
       borderTop: "1px solid var(--color-border)",
       fontSize: "0.7em",
       color: "var(--color-text-dim)",
+      padding: "4px 10px",
       pointerEvents: "none",
       boxSizing: "border-box",
       height: "28px",
-      flexShrink: "0"
+      flexShrink: "0",
+      overflow: "hidden",
+      flexWrap: "nowrap"
     }}>
-      <div class="flex-row gap-5" style={{ alignItems: "center" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>Total Biological Neutralizations:</span>
+
+      <div class="flex-row gap-5" style={{ alignItems: "center", flexShrink: "0" }}>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? "Kills:" : "Total Biological Neutralizations:"}</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalKills.toLocaleString()}</span>
       </div>
-      <div class="flex-row gap-5" style={{ alignItems: "center" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>Active Contracts:</span>
+      <div class="flex-row gap-5" style={{ alignItems: "center", flexShrink: "0" }}>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? "Contracts:" : "Active Contracts:"}</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalCampaignsStarted.toLocaleString()}</span>
       </div>
-      <div class="flex-row gap-5" style={{ alignItems: "center" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>Operations Closed:</span>
+      <div class="flex-row gap-5" style={{ alignItems: "center", flexShrink: "0" }}>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? "Wins:" : "Operations Closed:"}</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalMissionsWon.toLocaleString()}</span>
       </div>
       

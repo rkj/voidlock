@@ -63,6 +63,14 @@ export class CampaignShell {
     this.showTabs = showTabs;
     this.activeMissionType = missionType;
     this.container.style.display = "flex";
+
+    // Clean up any stray text nodes (whitespace) that might cause 1px overflow in flex-col
+    Array.from(this.container.childNodes).forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE && !node.textContent?.trim()) {
+        this.container.removeChild(node);
+      }
+    });
+
     this.render();
     this.pushInputContext();
   }
