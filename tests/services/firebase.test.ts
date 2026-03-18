@@ -7,7 +7,9 @@ vi.mock("firebase/app", () => ({
 
 vi.mock("firebase/firestore", () => ({
   getFirestore: vi.fn(() => ({})),
-  enableIndexedDbPersistence: vi.fn(() => Promise.resolve()),
+  initializeFirestore: vi.fn(() => ({})),
+  persistentLocalCache: vi.fn(() => ({})),
+  persistentMultipleTabManager: vi.fn(() => ({})),
 }));
 
 vi.mock("firebase/auth", () => ({
