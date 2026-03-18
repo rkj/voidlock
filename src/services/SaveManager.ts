@@ -176,7 +176,7 @@ export class SaveManager implements StorageProvider {
   }
 
   /**
-   * Resolves conflicts between local and cloud saves using version comparison.
+   * Resolves conflicts between local and cloud saves using version and timestamp comparison.
    */
   private resolveConflict(
     local: CampaignState,
@@ -196,6 +196,18 @@ export class SaveManager implements StorageProvider {
       Logger.info(
         `SaveManager: Local save is newer (v${localVer} > v${cloudVer}). Cloud will be updated on next save.`,
       );
+      return local;
+    }
+
+    // Versions are equal, check timestamps
+    const localTime = local.lastModifiedAt || 0;
+    const cloudTime = cloud.lastModifiedAt || 0;
+
+    if (cloudTime > localTime) {
+      Logger.info(
+        `SaveManager: Versions equal (v${localVer}), but cloud timestamp is newer. Using cloud save.`,
+      );
+      return cloud;
     }
 
     return local;

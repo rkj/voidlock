@@ -120,4 +120,33 @@ describe("SaveManager", () => {
     expect(result?.saveVersion).toBe(10);
     expect(result?.scrap).toBe(777);
   });
+
+  it("should resolve conflict using timestamp if versions are equal", async () => {
+    const localCampaign = {
+      ...mockCampaign,
+      saveVersion: 5,
+      lastModifiedAt: 1000,
+      scrap: 100,
+    };
+    const cloudCampaign = {
+      ...mockCampaign,
+      saveVersion: 5,
+      lastModifiedAt: 2000,
+      scrap: 200,
+    };
+
+    mockLocalStorage.save(CAMPAIGN_DEFAULTS.STORAGE_KEY, localCampaign);
+    mockCloudSync.loadCampaign.mockResolvedValue(cloudCampaign);
+
+    const result = await saveManager.loadWithSync<CampaignState>(
+      CAMPAIGN_DEFAULTS.STORAGE_KEY,
+    );
+
+    expect(result?.lastModifiedAt).toBe(2000);
+    expect(result?.scrap).toBe(200);
+    // Verify local storage was updated
+    expect(mockLocalStorage.load(CAMPAIGN_DEFAULTS.STORAGE_KEY)).toEqual(
+      cloudCampaign,
+    );
+  });
 });
