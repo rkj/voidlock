@@ -108,7 +108,7 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
                 x: newTarget.x + 0.5,
                 y: newTarget.y + 0.5,
               });
-              if (newDist < oldDist * 0.7) {
+              if (newDist < oldDist * 0.7 || currentUnit.state === UnitState.Idle) {
                 switchTarget = true;
               }
             }

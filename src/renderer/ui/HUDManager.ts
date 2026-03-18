@@ -211,14 +211,16 @@ export class HUDManager {
 
     const isMobile = window.innerWidth < 768;
     const actionContainer = isMobile && mobileActionPanel ? mobileActionPanel : rightPanel;
-    const inactiveContainer = isMobile && mobileActionPanel ? rightPanel : (mobileActionPanel || null);
+    const secondaryContainer = rightPanel; // Always visible on desktop, drawer on mobile
 
     // Clear action-related controls from the container they don't belong in to prevent a11y duplication
-    if (inactiveContainer) {
-      inactiveContainer.querySelector(".mission-controls")?.remove();
-      inactiveContainer.querySelector(".command-menu")?.remove();
-      inactiveContainer.querySelector(".deployment-summary")?.remove();
-      inactiveContainer.querySelector(".game-over-summary")?.remove();
+    if (isMobile && mobileActionPanel) {
+      rightPanel.querySelector(".mission-controls")?.remove();
+      rightPanel.querySelector(".command-menu")?.remove();
+      rightPanel.querySelector(".deployment-summary")?.remove();
+      rightPanel.querySelector(".game-over-summary")?.remove();
+    } else if (mobileActionPanel) {
+      mobileActionPanel.innerHTML = ""; // Clear mobile panel on desktop
     }
 
     // Sync ARIA state for right panel on mobile
@@ -234,6 +236,11 @@ export class HUDManager {
       return;
     }
 
+    // Explicitly clear deployment from desktop panel if transitioning to Play
+    if (!isMobile) {
+      rightPanel.querySelector(".deployment-summary")?.remove();
+    }
+
     if (state.status !== "Playing") {
       this.gameOverPanel.update(actionContainer, state);
       return;
@@ -241,11 +248,10 @@ export class HUDManager {
 
     this.commandMenuPanel.update(actionContainer, state);
 
-    const targetContainer = inactiveContainer || actionContainer;
-    this.objectivesPanel.update(targetContainer, state);
+    this.objectivesPanel.update(secondaryContainer, state);
 
-    this.updateDebugControls(targetContainer, state);
-    this.enemyIntelPanel.update(targetContainer, state);
+    this.updateDebugControls(secondaryContainer, state);
+    this.enemyIntelPanel.update(secondaryContainer, state);
   }
 
   private updateDebugControls(container: HTMLElement, state: GameState) {

@@ -806,13 +806,14 @@ export class MenuController {
     // Always allow back navigation
     if (option.type === "BACK") return true;
 
-    // Always allow transitions to sub-menus to allow UI exploration
-    if (option.type === "TRANSITION" || option.nextState === "ITEM_SELECT" || option.nextState === "UNIT_SELECT" || option.nextState === "MODE_SELECT" || option.nextState === "TARGET_SELECT") {
-      return true;
-    }
-
+    // Command types MUST be gated by the tutorial, even if they transition to a target/unit select
     if (option.commandType) {
       return this.tutorialManager.isActionAllowed(option.commandType);
+    }
+
+    // Always allow pure transitions to sub-menus to allow UI exploration
+    if (option.type === "TRANSITION") {
+      return true;
     }
 
     if (option.type === "MODE") {

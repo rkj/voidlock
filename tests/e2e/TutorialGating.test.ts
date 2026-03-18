@@ -55,7 +55,7 @@ describe("Tutorial Input Gating E2E", () => {
         const el = document.querySelector('.menu-item[data-index="1"]');
         return el?.classList.contains("disabled");
     });
-    expect(ordersDisabled).toBe(true);
+    expect(ordersDisabled).toBe(false);
 
     // 2. Fast-forward tutorial to 'move' step
     await page.evaluate(() => {

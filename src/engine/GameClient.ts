@@ -89,6 +89,10 @@ export class GameClient {
       type: "module",
     });
 
+    this.worker.onerror = (e) => {
+      console.error("Worker error:", e.message, e.filename, e.lineno);
+    };
+
     this.worker.onmessage = (e: MessageEvent<MainMessage>) => {
       if (this.isStopped) return;
       const msg = e.data;

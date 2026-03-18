@@ -11,6 +11,9 @@ describe("Tutorial Input Gating Regression (voidlock-26y0x.8)", () => {
     page.on("console", msg => {
         console.log(`BROWSER ${msg.type().toUpperCase()}:`, msg.text());
     });
+    page.on("pageerror", error => {
+        console.log(`BROWSER ERROR:`, error.message);
+    });
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
   });
@@ -61,12 +64,12 @@ describe("Tutorial Input Gating Regression (voidlock-26y0x.8)", () => {
         return text.toUpperCase().includes("PAUSE");
     }, { timeout: 60000 });
 
-    // Press Space to complete pause step
-    await page.keyboard.press(" ");
+    // Press pause button to complete pause step
+    await page.click("#btn-pause-toggle");
     await new Promise(r => setTimeout(r, 1000));
     
     // Resume to allow unit to reach door
-    await page.keyboard.press(" ");
+    await page.click("#btn-pause-toggle");
 
     // Dismiss advisor
     await page.waitForSelector(".advisor-message", { visible: true });
@@ -86,6 +89,10 @@ describe("Tutorial Input Gating Regression (voidlock-26y0x.8)", () => {
 
     let directiveText = await page.$eval("#tutorial-directive-text", el => (el as HTMLElement).innerText);
     expect(directiveText.toUpperCase()).toContain("INTERVENTION");
+
+    // Dismiss 'first_command' advisor message
+    await page.waitForSelector(".advisor-message", { visible: true });
+    await page.click(".advisor-btn[data-id='dismiss']");
 
     // 9. Engagement > Ignore > Select Unit
     await page.keyboard.press("2"); // Engagement

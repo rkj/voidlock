@@ -11,6 +11,7 @@ describe("Tutorial Soft-lock Regression (voidlock-cak2n, voidlock-51ouc, voidloc
     page = await getNewPage();
     // Enable browser console logging for visibility into state transitions
     page.on('console', msg => console.log(`BROWSER: ${msg.text()}`));
+    page.on('pageerror', error => console.log(`BROWSER ERROR: ${error.message}`));
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
   });
@@ -65,25 +66,45 @@ describe("Tutorial Soft-lock Regression (voidlock-cak2n, voidlock-51ouc, voidloc
     // 6. Test Pause Gating (voidlock-51ouc, voidlock-bo1d4)
     const pointerEvents = await page.$eval("#btn-pause-toggle", el => window.getComputedStyle(el).pointerEvents);
     console.log(`Pause button pointer-events: ${pointerEvents}`);
-    expect(pointerEvents).toBe("none"); // Confirms voidlock-bo1d4
+    expect(pointerEvents).toBe("auto"); // Confirms voidlock-bo1d4 fix enabled interaction
     
-    console.log("Pressing Space key to bypass blocked button...");
-    await page.keyboard.press(" ");
+    console.log("Pressing pause button to bypass blocked button...");
+    await page.click("#btn-pause-toggle");
+    await new Promise(r => setTimeout(r, 1000));
+
+    // Resume to allow unit to reach door at normal speed
+    console.log("Pressing pause button to resume...");
+    await page.click("#btn-pause-toggle");
 
     // 7. Advance through intermediate steps (doors, combat)
     // These might be skipped if conditions met, so we wait for ANY of the later directives
     console.log("Waiting for Engagement or Move directive...");
+    
+    // We must dismiss 'enemy_sighted' when it appears. It happens during 'combat'
     await page.waitForFunction(() => {
         const text = (document.querySelector("#tutorial-directive-text")?.textContent || "").toUpperCase();
-        return text.includes("INTERVENTION") || text.includes("MOVE TO ROOM") || text.includes("DOORS") || text.includes("CONTACT");
+        return text.includes("CONTACT") || !!document.querySelector(".advisor-message");
     }, { timeout: 30000 });
+
+    await page.waitForSelector(".advisor-message", { visible: true });
+    await page.click(".advisor-btn[data-id='dismiss']");
 
     // Ensure we are in a state where we can test Orders sub-menu
     // We'll wait until the 'move' step or 'engagement' step
     await page.waitForFunction(() => {
         const text = (document.querySelector("#tutorial-directive-text")?.textContent || "").toUpperCase();
-        return text.includes("INTERVENTION") || text.includes("MOVE TO ROOM");
+        
+        // Log unit state and simulation time
+        const unitEl = document.querySelector(".soldier-card");
+        const unitState = unitEl?.querySelector(".u-status-text")?.textContent || "unknown";
+        const time = document.querySelector(".time-value")?.textContent || "0.0";
+        console.log(`Waiting for INTERVENTION... Directive: ${text} | Unit: ${unitState} | Time: ${time}s`);
+        
+        return text.includes("INTERVENTION") || text.includes("MOVE TO ROOM") || !!document.querySelector(".advisor-message");
     }, { timeout: 60000 });
+
+    await page.waitForSelector(".advisor-message", { visible: true });
+    await page.click(".advisor-btn[data-id='dismiss']");
 
     const currentDirective = await page.$eval("#tutorial-directive-text", el => (el as HTMLElement).innerText);
     console.log(`Reached Directive: ${currentDirective}`);

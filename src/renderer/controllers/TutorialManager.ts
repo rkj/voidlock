@@ -613,7 +613,7 @@ export class TutorialManager {
   }
 
   public checkEnemyTookDamage(state: GameState): boolean {
-      return state.enemies.some(e => e.hp < e.maxHp);
+      return state.enemies.some(e => e.hp < e.maxHp || e.state === "Dead") || (state.stats.aliensKilled > 0);
   }
 
   public checkEngagementIgnore(state: GameState): boolean {

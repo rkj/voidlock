@@ -78,11 +78,11 @@ export class InteractionBehavior implements Behavior<BehaviorContext> {
           const isClaimedByMe =
             (currentUnit.activeCommand?.type === CommandType.PICKUP &&
               (currentUnit.activeCommand as PickupCommand).lootId === obj.id) ||
-            context.claimedObjectives.get(obj.id) === currentUnit.id;
+            (context.claimedObjectives && context.claimedObjectives.get(obj.id) === currentUnit.id);
 
           if (
             isAtTarget &&
-            (!context.claimedObjectives.has(obj.id) || isClaimedByMe)
+            (!context.claimedObjectives || !context.claimedObjectives.has(obj.id) || isClaimedByMe)
           ) {
             const baseTime = ITEMS.BASE_COLLECT_TIME;
             const duration =
@@ -100,7 +100,9 @@ export class InteractionBehavior implements Behavior<BehaviorContext> {
               targetPos: undefined,
               activeCommand: undefined,
             };
-            context.claimedObjectives.set(obj.id, currentUnit.id);
+            if (context.claimedObjectives) {
+                context.claimedObjectives.set(obj.id, currentUnit.id);
+            }
             return { unit: currentUnit, handled: true };
           }
         }
