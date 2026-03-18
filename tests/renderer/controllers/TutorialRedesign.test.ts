@@ -188,7 +188,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       
       // Complete Step 8: move (reach objective room)
       state.objectives[0].targetCell = { x: 5, y: 5 };
-      state.units[0].pos = { x: 5, y: 4 }; // Close to objective
+      state.units[0].pos = { x: 5, y: 5 }; // Close to objective
       listener(state);
       
       // Step 9: pickup
@@ -264,7 +264,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       
       // Advance to step 8: pickup
       state.objectives[0].targetCell = { x: 5, y: 5 };
-      state.units[0].pos = { x: 5, y: 4 };
+      state.units[0].pos = { x: 5, y: 5 };
       listener(state);
       expect(manager.isActionAllowed("PICKUP")).toBe(true);
       

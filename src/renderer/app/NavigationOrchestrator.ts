@@ -20,6 +20,7 @@ import { EventModal, OutcomeModal } from "../ui/EventModal";
 import { PRNG } from "@src/shared/PRNG";
 import { CampaignEvents } from "@src/content/CampaignEvents";
 import { TutorialManager } from "../controllers/TutorialManager";
+import { Logger } from "@src/shared/Logger";
 
 export interface NavigationScreens {
   mainMenu: MainMenuScreen;
@@ -195,13 +196,16 @@ export class NavigationOrchestrator {
     id: ScreenId,
     isCampaign: boolean = false,
   ) {
+    Logger.info(`NavOrch: handleExternalScreenChange(${id}, isCampaign=${isCampaign})`);
     switch (id) {
       case "campaign": {
         this.applyCampaignTheme();
         const state = this.campaignManager.getState();
+        Logger.info(`NavOrch: handleExternalScreenChange(campaign), history=${state?.history?.length}`);
 
-        if (state && state.history?.length === 1) {
+        if (state && state.history?.length === 1 && !state.rules.skipPrologue) {
           const nextNode = state.nodes.find((n) => n.status === "Accessible");
+          Logger.info(`NavOrch: Mission 2 tutorial check, nextNode=${nextNode?.id}`);
           if (nextNode) {
             this.onCampaignNodeSelect(nextNode);
             return;

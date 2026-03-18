@@ -17,6 +17,7 @@ import {
   CampaignNodeType,
 } from "../shared/types";
 import { MapFactory } from "./map/MapFactory";
+import { Logger } from "../shared/Logger";
 
 // Factory type for creating MapFactory instances based on config
 type MapGeneratorFactory = (config: MapGenerationConfig) => MapFactory;
@@ -210,6 +211,7 @@ export class GameClient {
 
     // Use the factory to get the map, based on type and data
     const generator = this.mapGeneratorFactory(config);
+    Logger.info(`GameClient: init mapGeneratorType=${mapGeneratorType}, hasMapData=${!!mapData}`);
     const map =
       mapGeneratorType === MapGeneratorType.Static
         ? generator.load(mapData!)

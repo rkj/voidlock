@@ -93,6 +93,7 @@ describe("HUDManager Stats & Hostile Contact Intel", () => {
 
     hud = new HUDManager(
       mockMenuController,
+      { getCurrentStepId: () => null } as any,
       onUnitClick,
       onAbortMission,
       onMenuInput,

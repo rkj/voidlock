@@ -8,6 +8,8 @@ describe("Regression voidlock-bpgp6: Engineering tab bar clipped on mobile", () 
 
   beforeAll(async () => {
     page = await getNewPage();
+    page.on('console', msg => console.log(`BROWSER: ${msg.text()}`));
+    page.on('pageerror', error => console.log(`BROWSER ERROR: ${error.message}`));
   });
 
   afterAll(async () => {
@@ -41,9 +43,9 @@ describe("Regression voidlock-bpgp6: Engineering tab bar clipped on mobile", () 
           { id: "s1", name: "Soldier 1", archetypeId: "assault", hp: 100, maxHp: 100, soldierAim: 60, xp: 0, level: 1, kills: 0, missions: 0, status: "Healthy", equipment: {}, recoveryTime: 0 }
         ],
         history: [
-          { nodeId: "node-0", type: "Combat", result: "Won", aliensKilled: 5, scrapGained: 100, intelGained: 2, soldierResults: [], timeSpent: 100 },
-          { nodeId: "node-00", type: "Combat", result: "Won", aliensKilled: 5, scrapGained: 100, intelGained: 2, soldierResults: [], timeSpent: 100 },
-          { nodeId: "node-000", type: "Combat", result: "Won", aliensKilled: 5, scrapGained: 100, intelGained: 2, soldierResults: [], timeSpent: 100 }
+          { nodeId: "node-0", seed: 123, result: "Won", aliensKilled: 5, scrapGained: 100, intelGained: 2, soldierResults: [], timeSpent: 100 },
+          { nodeId: "node-00", seed: 124, result: "Won", aliensKilled: 5, scrapGained: 100, intelGained: 2, soldierResults: [], timeSpent: 100 },
+          { nodeId: "node-000", seed: 125, result: "Won", aliensKilled: 5, scrapGained: 100, intelGained: 2, soldierResults: [], timeSpent: 100 }
         ],
         rules: { mode: "Preset", difficulty: "Standard", deathRule: "Iron", allowTacticalPause: true, mapGeneratorType: "DenseShip", difficultyScaling: 1.5, resourceScarcity: 0.7, startingScrap: 300, mapGrowthRate: 0.5, baseEnemyCount: 4, enemyGrowthPerMission: 1.5, economyMode: "Open", skipPrologue: false },
         unlockedArchetypes: ["assault"],
@@ -68,8 +70,9 @@ describe("Regression voidlock-bpgp6: Engineering tab bar clipped on mobile", () 
       localStorage.setItem("voidlock_meta_v1", JSON.stringify(mockMetaStats));
     });
 
-    // 4. Go to campaign directly
-    await page.goto(E2E_URL + "#campaign");
+    // 4. Reload and go to campaign directly
+    await page.goto(E2E_URL + "#campaign", { waitUntil: "load" });
+    await page.reload({ waitUntil: "load" }); // Explicit reload to ensure singleton reset
     await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
     await page.waitForSelector(".shell-tabs", { visible: true, timeout: 10000 });
 

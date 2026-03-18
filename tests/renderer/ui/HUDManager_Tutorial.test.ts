@@ -65,6 +65,7 @@ describe("HUDManager Tutorial Dimming", () => {
 
     hud = new HUDManager(
       mockMenuController,
+      { getCurrentStepId: () => null } as any,
       vi.fn(),
       vi.fn(),
       vi.fn(),

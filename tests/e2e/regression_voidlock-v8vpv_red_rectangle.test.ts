@@ -8,6 +8,8 @@ describe("Red Rectangle (Terminal Offline) Regression (voidlock-v8vpv)", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
+    page.on('console', msg => console.log(`BROWSER: ${msg.text()}`));
+    page.on('pageerror', error => console.log(`BROWSER ERROR: ${error.message}`));
     await page.setViewport({ width: 1920, height: 1080 });
   });
 
@@ -101,8 +103,7 @@ describe("Red Rectangle (Terminal Offline) Regression (voidlock-v8vpv)", () => {
 
     // Inject state into local storage
     await page.evaluate((state) => {
-        localStorage.setItem("voidlock_campaign_save_1", JSON.stringify(state));
-        localStorage.setItem("voidlock_active_campaign_slot", "1");
+        localStorage.setItem("voidlock_campaign_v1", JSON.stringify(state));
         // Ensure tutorial is active but Mission 1 is done
         localStorage.removeItem("voidlock_tutorial_state");
     }, mockState);
@@ -118,8 +119,9 @@ describe("Red Rectangle (Terminal Offline) Regression (voidlock-v8vpv)", () => {
     await page.waitForSelector(".advisor-narrative-modal button", { visible: true, timeout: 5000 }).catch(() => {});
     
     // Dismiss Advisor
+    await page.waitForSelector(".advisor-btn[data-id='dismiss']", { visible: true, timeout: 5000 }).catch(() => {});
     await page.evaluate(() => {
-        const btn = document.querySelector(".advisor-narrative-modal button") as HTMLElement;
+        const btn = document.querySelector(".advisor-btn[data-id='dismiss']") as HTMLElement;
         if (btn) btn.click();
     });
 

@@ -78,7 +78,7 @@ describe("Pause and Speed Synchronization Repro", () => {
 
   it("Reproduction: Incorrect speed slider mapping (ID mismatch)", () => {
     const hudManager = new HUDManager(
-      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+      null as any, { getCurrentStepId: () => null } as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
     const slider = document.getElementById("game-speed") as HTMLInputElement;
     
@@ -127,7 +127,7 @@ describe("Pause and Speed Synchronization Repro", () => {
 
   it("Reproduction: Speed slider desynchronization at mission start (HUDManager missing authoritative sync)", () => {
     const hudManager = new HUDManager(
-      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+      null as any, { getCurrentStepId: () => null } as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
 
     const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
@@ -153,7 +153,7 @@ describe("Pause and Speed Synchronization Repro", () => {
 
   it("Reproduction: Speed slider should reflect targetTimeScale even when paused", () => {
     const hudManager = new HUDManager(
-      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+      null as any, { getCurrentStepId: () => null } as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
 
     const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
@@ -195,7 +195,7 @@ describe("Pause and Speed Synchronization Repro", () => {
     };
 
     const hudManager = new HUDManager(
-      mockMenuController as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+      mockMenuController as any, { getCurrentStepId: () => null } as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
 
     const threatContainer = document.getElementById("top-threat-container") as HTMLElement;

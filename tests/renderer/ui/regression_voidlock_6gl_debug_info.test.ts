@@ -28,6 +28,7 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
 
     hud = new HUDManager(
       mockMenuController,
+      { getCurrentStepId: () => null } as any,
       vi.fn(),
       vi.fn(),
       vi.fn(),

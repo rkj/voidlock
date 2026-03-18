@@ -28,6 +28,7 @@ export class HUDManager {
 
   constructor(
     private menuController: MenuController,
+    private tutorialManager: any, // Use any for now to avoid circular dependency
     private onUnitClick: (unit: Unit, shiftHeld?: boolean) => void,
     private onAbortMission: () => void,
     private onMenuInput: (key: string, shiftHeld?: boolean) => void,
@@ -153,6 +154,12 @@ export class HUDManager {
     });
 
     this.binder.registerTransformer("pauseText", (isPaused) => (isPaused as boolean) ? "▶ Play" : "|| Pause");
+
+    const tutorial = this.tutorialManager;
+    this.binder.registerTransformer("tutorialStepId", () => {
+        if (!tutorial) return null;
+        return tutorial.getCurrentStepId();
+    });
 
     this.binder.registerTransformer("minSpeedValue", (allowTacticalPause) => (allowTacticalPause as boolean) ? "0" : "50");
 

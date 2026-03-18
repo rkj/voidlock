@@ -76,6 +76,7 @@ describe("HUDManager: Pause Constraints", () => {
 
     hud = new HUDManager(
       mockMenuController,
+      { getCurrentStepId: () => null } as any,
       onUnitClick,
       onAbortMission,
       onMenuInput,

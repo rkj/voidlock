@@ -76,6 +76,7 @@ describe("HUDManager Regression kvi1", () => {
 
     hud = new HUDManager(
       mockMenuController,
+      { getCurrentStepId: () => null } as any,
       onUnitClick,
       onAbortMission,
       onMenuInput,

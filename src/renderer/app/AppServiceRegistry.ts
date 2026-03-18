@@ -158,6 +158,7 @@ export class AppServiceRegistry {
     // 2. Initialize UI managers
     this.hudManager = new HUDManager(
       this.menuController,
+      this.tutorialManager,
       config.onUnitClick,
       config.onAbortMission,
       config.onMenuInput,

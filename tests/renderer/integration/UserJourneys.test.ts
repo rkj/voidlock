@@ -210,6 +210,7 @@ describe("Comprehensive User Journeys", () => {
     const cm = CampaignManager.getInstance();
     cm.startNewCampaign(123, "normal");
     const state = cm.getState()!;
+    state.rules.skipPrologue = true;
     state.currentNodeId = "node-1";
     state.nodes[0].status = "Cleared";
     state.nodes[1].status = "Accessible";

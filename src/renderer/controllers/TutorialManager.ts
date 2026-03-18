@@ -214,9 +214,13 @@ export class TutorialManager {
   }
 
   public highlightElement(selector: string) {
+    if (this.highlightedElementSelector === selector && (this.highlightedElement || document.querySelector(".tutorial-highlight"))) {
+        return;
+    }
+
     this.clearHighlight();
     this.highlightedElementSelector = selector;
-    
+
     const apply = (attempts = 0) => {
         if (this.highlightedElementSelector !== selector) return;
         const el = document.querySelector(selector) as HTMLElement;
@@ -229,10 +233,9 @@ export class TutorialManager {
             setTimeout(() => apply(attempts + 1), 100);
         }
     };
-    
+
     apply();
   }
-
   public highlightCell(x: number, y: number) {
     this.clearHighlight();
     this.highlightedCell = { x, y };
@@ -280,6 +283,13 @@ export class TutorialManager {
       this.cellHighlightEl.style.width = `${cellSize * scaleX}px`;
       this.cellHighlightEl.style.height = `${cellSize * scaleY}px`;
     }
+  }
+
+  public getCurrentStepId(): string | null {
+    if (!this.isActive || this.currentStepIndex < 0 || this.currentStepIndex >= this.prologueSteps.length) {
+        return null;
+    }
+    return this.prologueSteps[this.currentStepIndex].id;
   }
 
   public enable() {
@@ -344,6 +354,7 @@ export class TutorialManager {
 
   public onScreenShow(id: ScreenId) {
     if (!this.isActive) return;
+    Logger.info(`Tutorial: onScreenShow(${id}), isMission2=${this.isMission2Tutorial()}, isMission3=${this.isMission3Tutorial()}`);
 
     if (id === "equipment" && this.isMission2Tutorial()) {
       this.triggerEvent("ready_room_intro");
@@ -358,7 +369,11 @@ export class TutorialManager {
 
   private isMission2Tutorial(): boolean {
     const state = this.campaignManager.getState();
-    return !!(state && state.history.length === 1);
+    const isM2 = state?.history?.length === 1 && !state?.rules.skipPrologue;
+    if (state && !isM2) {
+        Logger.info(`Tutorial: isMission2Tutorial false. history=${state.history?.length}, skipPrologue=${state.rules.skipPrologue}`);
+    }
+    return !!isM2;
   }
 
   private isMission3Tutorial(): boolean {
@@ -368,6 +383,10 @@ export class TutorialManager {
 
   private onGameStateUpdate = (state: GameState) => {
     if (!this.isActive || this.isBlockingMessageActive) return;
+
+    if (state.t % 160 === 0) {
+        Logger.info(`Tutorial: onGameStateUpdate tick=${state.t}, step=${this.currentStepIndex}, active=${this.isActive}, blocking=${this.isBlockingMessageActive}`);
+    }
 
     if (state.missionType !== MissionType.Prologue) {
         if (this.isPrologueActive) {
@@ -581,6 +600,7 @@ export class TutorialManager {
     for (const unit of state.units) {
         if (!this.initialPositions.has(unit.id)) {
             this.initialPositions.set(unit.id, { x: unit.pos.x, y: unit.pos.y });
+            Logger.info(`Tutorial: Captured initial position for ${unit.id}: ${unit.pos.x.toFixed(2)},${unit.pos.y.toFixed(2)}`);
         }
     }
 
@@ -588,8 +608,12 @@ export class TutorialManager {
         const startPos = this.initialPositions.get(unit.id);
         if (startPos) {
             const dist = MathUtils.getDistance(startPos, unit.pos);
+            if (state.t % 1000 === 0) {
+                Logger.info(`Tutorial: Unit ${unit.id} at ${unit.pos.x.toFixed(2)},${unit.pos.y.toFixed(2)}, dist: ${dist.toFixed(2)}`);
+            }
             if (dist >= 2) {
                 this.hasMoved = true;
+                Logger.info(`Tutorial: Unit ${unit.id} moved 2 units. Advancing.`);
                 return true;
             }
         }
@@ -631,7 +655,7 @@ export class TutorialManager {
   public checkReachedObjectiveRoom(state: GameState): boolean {
       const obj = state.objectives.find(o => o.id === "obj-main" || o.kind === "Recover");
       if (!obj || !obj.targetCell) return false;
-      return state.units.some(u => MathUtils.getDistance(u.pos, obj.targetCell!) < 2.5);
+      return state.units.some(u => MathUtils.getDistance(u.pos, obj.targetCell!) < 0.5);
   }
 
   public checkObjectiveCollected(state: GameState): boolean {

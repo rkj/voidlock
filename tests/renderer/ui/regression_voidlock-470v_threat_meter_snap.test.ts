@@ -26,6 +26,7 @@ describe("HUDManager Threat Meter Snap Regression", () => {
           footer: "",
         }),
       } as any,
+      { getCurrentStepId: () => null } as any,
       vi.fn(),
       vi.fn(),
       vi.fn(),

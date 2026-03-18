@@ -58,6 +58,7 @@ describe("HUDManager Duplication Verification", () => {
 
     hud = new HUDManager(
       mockMenuController,
+      { getCurrentStepId: () => null } as any,
       vi.fn(), // onUnitClick
       vi.fn(), // onAbortMission
       vi.fn(), // onMenuInput

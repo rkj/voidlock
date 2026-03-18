@@ -59,19 +59,12 @@ describe("Tutorial Speed Interaction Regression (voidlock-bo1d4)", () => {
     console.log("Dismissing Advisor intro.");
     await page.evaluate((el) => (el as HTMLElement).click(), await page.$(dismissBtnSelector));
 
-    // 6. Wait for Mission Screen and Deployment
+    // 6. Wait for Mission Screen
     console.log("Waiting for Mission Screen...");
     await page.waitForSelector("#screen-mission", { visible: true, timeout: 15000 });
     
-    console.log("Waiting for Deployment elements...");
-    const startMissionBtn = await page.waitForSelector("#btn-start-mission", { timeout: 15000 });
-    
-    // Auto-fill and start
-    const autoFillBtn = await page.waitForSelector("#btn-autofill-deployment");
-    await page.evaluate((el) => (el as HTMLElement).click(), autoFillBtn);
-    await new Promise(r => setTimeout(r, 1000));
-    console.log("Clicked Auto-fill. Clicking Start Mission...");
-    await page.evaluate((el) => (el as HTMLElement).click(), startMissionBtn);
+    // In Prologue, deployment is skipped automatically
+    console.log("In Prologue, skipping deployment steps.");
 
     // 7. Mission starts. Tutorial message (OPERATOR NOTICE) appears.
     console.log("Waiting for Advisor (OPERATOR NOTICE)...");

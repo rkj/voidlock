@@ -216,7 +216,7 @@ describe("TutorialManager", () => {
     state.units[0].engagementPolicy = "ENGAGE";
     state.stats.aliensKilled = 1;
     listener(state); // move
-    state.units[0].pos = { x: 5, y: 4 };
+    state.units[0].pos = { x: 5, y: 5 };
     listener(state); // pickup
     state.objectives[0].state = "Completed";
     listener(state); // extract
