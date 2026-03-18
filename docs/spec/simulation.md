@@ -85,12 +85,36 @@ The visibility rules depend on the Mission/Map config:
 1. **Hardcore:**
    - Areas outside current LOS return to "Unknown/Fogged" state (map geometry hidden again).
 
-## 9) Persistence (LocalStorage)
+## 9) Persistence & Cloud Synchronization
 
-- `lastConfigJson`
-- `savedPresets[]`
-- `lastSeed`
-- Optional: `replays[]` (bounded ring buffer)
+### 9.1 Local Storage (Primary)
+
+The client uses `LocalStorage` for fast, synchronous persistence of the following data:
+
+-   `voidlock_campaign_active`: The current persistent campaign state.
+-   `voidlock_meta_stats`: Global statistics and unlocks across all saves.
+-   `voidlock_config`: User settings (Theme, Speed, Volume).
+-   `voidlock_presets`: Saved squad and mission configurations.
+
+### 9.2 Cloud Synchronization (Secondary)
+
+Voidlock supports optional cloud backups via Firebase Firestore. The system follows a **local-first, async-cloud** strategy.
+
+1.  **Write Queue (Coalescing)**:
+    -   All saves are performed locally first.
+    -   A `WriteQueue` manages asynchronous cloud updates.
+    -   Rapid, successive saves are coalesced; only the most recent state is sent to the cloud once the previous sync operation completes.
+    -   This ensures reliability during high-frequency save events (e.g., mission completion followed by event resolution).
+
+2.  **Conflict Resolution (Version & Timestamp)**:
+    -   Each save includes a `saveVersion` (counter) and a `lastModifiedAt` (ISO 8601 timestamp).
+    -   When loading, if local and cloud versions differ:
+        -   The save with the higher `saveVersion` is preferred.
+        -   If `saveVersion` is identical, the save with the more recent `lastModifiedAt` timestamp is preferred.
+
+3.  **Data Validation**:
+    -   All data loaded from the cloud is validated against Zod schemas (`CampaignStateSchema`, `CampaignSummarySchema`) before being accepted by the client.
+    -   Invalid cloud data is ignored, falling back to the local save.
 
 ## 10) Session Transitions
 

@@ -203,6 +203,7 @@ export class CampaignManager {
     this.state = {
       version: CAMPAIGN_DEFAULTS.VERSION,
       saveVersion: 1,
+      lastModifiedAt: Date.now(),
       seed: effectiveSeed,
       status: "Active",
       rules,
@@ -316,6 +317,7 @@ export class CampaignManager {
   public save(): void {
     if (!this.state) return;
     this.state.saveVersion = (this.state.saveVersion || 0) + 1;
+    this.state.lastModifiedAt = Date.now();
     this.storage.save(STORAGE_KEY, this.state);
     this.notifyListeners();
   }
@@ -395,6 +397,8 @@ export class CampaignManager {
       if (state.version === undefined)
         state.version = (data.version as string) || CAMPAIGN_DEFAULTS.VERSION;
       if (state.seed === undefined) state.seed = (data.seed as number) || 0;
+      if (state.lastModifiedAt === undefined)
+        state.lastModifiedAt = (data.lastModifiedAt as number) || 0;
       if (!["Active", "Victory", "Defeat"].includes(state.status))
         state.status = "Active";
       if (state.scrap === undefined) state.scrap = (data.scrap as number) || 0;
