@@ -6,6 +6,7 @@ import {
   collection,
   query,
   where,
+  deleteDoc,
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
@@ -285,6 +286,27 @@ export class CloudSyncService {
 
     // Sort by most recently updated
     return summaries.sort((a, b) => b.updatedAt - a.updatedAt);
+  }
+
+  /**
+   * Deletes a campaign from the cloud.
+   */
+  async deleteCampaign(campaignId: string): Promise<void> {
+    if (!this.syncEnabled || !this.userId) {
+      await this.initialize();
+      if (!this.syncEnabled || !this.userId) return;
+    }
+
+    const docId = `${this.userId}_${campaignId}`;
+    if (!db) throw new Error("Firebase Firestore not initialized");
+    const docRef = doc(db, "campaigns", docId);
+
+    try {
+      await deleteDoc(docRef);
+    } catch (error) {
+      Logger.error(`CloudSyncService: Failed to delete ${campaignId}:`, error);
+      throw error;
+    }
   }
 
   getUserId(): string | null {

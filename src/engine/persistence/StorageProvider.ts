@@ -20,8 +20,9 @@ export interface StorageProvider {
   /**
    * Remove data from storage.
    * @param key Unique key for the data.
+   * @param deleteFromCloud Optional: If true, also attempts to delete from cloud (if supported).
    */
-  remove(key: string): void;
+  remove(key: string, deleteFromCloud?: boolean): void;
 
   /**
    * Clear all data from storage.

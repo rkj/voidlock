@@ -25,7 +25,7 @@ export class LocalStorageProvider implements StorageProvider {
     }
   }
 
-  public remove(key: string): void {
+  public remove(key: string, _deleteFromCloud?: boolean): void {
     try {
       localStorage.removeItem(key);
     } catch (e) {

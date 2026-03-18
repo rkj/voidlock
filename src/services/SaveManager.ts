@@ -116,11 +116,16 @@ export class SaveManager implements StorageProvider {
   /**
    * Remove data from storage.
    * @param key Unique key for the data.
+   * @param deleteFromCloud If true, also attempts to delete from cloud.
    */
-  public remove(key: string): void {
+  public remove(key: string, deleteFromCloud: boolean = false): void {
     this.localStorage.remove(key);
-    // Note: Cloud deletion could be added here if needed,
-    // but usually we want to keep cloud backups even if local is cleared.
+
+    if (deleteFromCloud && key === CAMPAIGN_DEFAULTS.STORAGE_KEY) {
+      this.cloudSync.deleteCampaign(key).catch((err) => {
+        Logger.warn(`SaveManager: Failed to delete ${key} from cloud:`, err);
+      });
+    }
   }
 
   /**

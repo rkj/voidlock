@@ -16,7 +16,7 @@ export class MockStorageProvider implements StorageProvider {
     return JSON.parse(json) as T;
   }
 
-  public remove(key: string): void {
+  public remove(key: string, _deleteFromCloud?: boolean): void {
     this.storage.delete(key);
   }
 

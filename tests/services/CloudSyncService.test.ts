@@ -3,6 +3,7 @@ import { CloudSyncService } from "@src/services/CloudSyncService";
 import { CampaignState } from "@src/shared/campaign_types";
 import { MapGeneratorType } from "@src/shared/types/map";
 import pkg from "../../package.json";
+import { deleteDoc } from "firebase/firestore";
 
 // Mock firebase
 vi.mock("firebase/app", () => ({
@@ -36,7 +37,9 @@ const { MockTimestamp } = vi.hoisted(() => {
 
 vi.mock("firebase/firestore", () => ({
   getFirestore: vi.fn(() => ({})),
-  enableIndexedDbPersistence: vi.fn(() => Promise.resolve()),
+  initializeFirestore: vi.fn(() => ({})),
+  persistentLocalCache: vi.fn(() => ({})),
+  persistentMultipleTabManager: vi.fn(() => ({})),
   doc: (...args: any[]) => mockDoc(...args),
   setDoc: (...args: any[]) => mockSetDoc(...args),
   getDoc: (...args: any[]) => mockGetDoc(...args),
@@ -44,6 +47,7 @@ vi.mock("firebase/firestore", () => ({
   collection: (...args: any[]) => mockCollection(...args),
   query: (...args: any[]) => mockQuery(...args),
   where: (...args: any[]) => mockWhere(...args),
+  deleteDoc: vi.fn().mockResolvedValue(undefined),
   serverTimestamp: () => mockServerTimestamp(),
   Timestamp: MockTimestamp,
 }));
@@ -252,6 +256,21 @@ describe("CloudSyncService", () => {
     expect(list).toHaveLength(2);
     expect(list[0].campaignId).toBe("camp-2"); // Sorted by updatedAt desc
     expect(list[1].campaignId).toBe("camp-1");
+  });
+
+  it("should delete campaign", async () => {
+    mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb({ uid: "test-uid" });
+    });
+
+    await service.deleteCampaign("camp-1");
+
+    expect(mockDoc).toHaveBeenCalledWith(
+      expect.anything(),
+      "campaigns",
+      "test-uid_camp-1",
+    );
+    expect(vi.mocked(deleteDoc)).toHaveBeenCalled();
   });
 
   it("should return anonymous status correctly", async () => {

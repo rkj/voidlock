@@ -7,6 +7,7 @@ import { UIUtils } from "../utils/UIUtils";
 import { ThemeManager } from "../ThemeManager";
 import { CloudSyncService } from "@src/services/CloudSyncService";
 import { ModalService } from "../ui/ModalService";
+import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 
 export class SettingsScreen {
   private container: HTMLElement;
@@ -574,6 +575,58 @@ export class SettingsScreen {
       }
     };
     resetGroup.appendChild(resetBtn);
+
+    // Cloud Data Management
+    if (isConfigured && global.cloudSyncEnabled) {
+      const cloudDeleteBtn = document.createElement("button");
+      cloudDeleteBtn.className = "menu-button danger-button";
+      cloudDeleteBtn.style.width = "100%";
+      cloudDeleteBtn.style.marginTop = "10px";
+      cloudDeleteBtn.textContent = "Delete Cloud Backups";
+      cloudDeleteBtn.onclick = async () => {
+        const confirmed = await this.modalService.show<boolean>({
+          title: "Delete Cloud Data",
+          message:
+            "This will permanently delete all your campaign backups from the cloud. Local data will remain. Are you sure?",
+          buttons: [
+            {
+              label: "Cancel",
+              isCancel: true,
+              onClick: (modal) => modal.close(false),
+            },
+            {
+              label: "Delete Cloud Data",
+              isPrimary: true,
+              className: "menu-button danger-button",
+              onClick: (modal) => modal.close(true),
+            },
+          ],
+        });
+
+        if (confirmed) {
+          try {
+            await this.cloudSync.deleteCampaign(CAMPAIGN_DEFAULTS.STORAGE_KEY);
+            this.modalService.show({
+              title: "Success",
+              message: "Cloud backups have been deleted.",
+              buttons: [
+                { label: "OK", isPrimary: true, onClick: (m) => m.close() },
+              ],
+            });
+          } catch (err) {
+            this.modalService.show({
+              title: "Error",
+              message: "Failed to delete cloud data. Please try again later.",
+              buttons: [
+                { label: "OK", isPrimary: true, onClick: (m) => m.close() },
+              ],
+            });
+          }
+        }
+      };
+      resetGroup.appendChild(cloudDeleteBtn);
+    }
+
     settingsGrid.appendChild(resetGroup);
 
     scrollContainer.appendChild(settingsGrid);
