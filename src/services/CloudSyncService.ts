@@ -21,7 +21,10 @@ import {
   Auth,
 } from "firebase/auth";
 import { db, auth, isFirebaseConfigured } from "./firebase";
-import { CampaignStateSchema } from "@src/shared/schemas/campaign";
+import {
+  CampaignStateSchema,
+  CampaignSummarySchema,
+} from "@src/shared/schemas/campaign";
 import { CampaignState, CampaignSummary } from "@src/shared/campaign_types";
 import { Logger } from "@src/shared/Logger";
 import pkg from "../../package.json";
@@ -260,14 +263,24 @@ export class CloudSyncService {
           ? data.updatedAt.toMillis()
           : Date.now();
 
-      summaries.push({
+      const rawSummary = {
         campaignId: data.campaignId,
         updatedAt,
-        sector: data.metadata?.sector ?? 1,
-        difficulty: data.metadata?.difficulty ?? "Standard",
-        status: data.metadata?.status ?? "Active",
-        soldierCount: data.metadata?.soldierCount ?? 0,
-      });
+        sector: data.metadata?.sector,
+        difficulty: data.metadata?.difficulty,
+        status: data.metadata?.status,
+        soldierCount: data.metadata?.soldierCount,
+      };
+
+      const result = CampaignSummarySchema.safeParse(rawSummary);
+      if (result.success) {
+        summaries.push(result.data as CampaignSummary);
+      } else {
+        Logger.warn(
+          `CloudSyncService: Invalid summary for ${data.campaignId}:`,
+          result.error,
+        );
+      }
     });
 
     // Sort by most recently updated
