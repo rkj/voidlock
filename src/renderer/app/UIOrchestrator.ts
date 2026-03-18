@@ -25,11 +25,13 @@ export class UIOrchestrator {
       const rightPanel = document.getElementById("right-panel");
 
       if (toggleSquad && soldierPanel) {
+        e.stopPropagation();
         soldierPanel.classList.toggle("active");
         if (rightPanel) rightPanel.classList.remove("active");
       }
 
       if (toggleRight && rightPanel) {
+        e.stopPropagation();
         rightPanel.classList.toggle("active");
         if (soldierPanel) soldierPanel.classList.remove("active");
       }

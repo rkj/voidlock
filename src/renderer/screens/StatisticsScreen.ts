@@ -112,15 +112,18 @@ export class StatisticsScreen {
       color?: string,
     ) => {
       const row = document.createElement("div");
-      row.className = "flex-row justify-between w-full gap-20";
+      row.className = "stats-row flex-row justify-between w-full gap-10";
+      row.style.flexWrap = "wrap";
 
       const labelSpan = document.createElement("span");
       labelSpan.textContent = label + ":";
       labelSpan.style.color = "var(--color-text-dim)";
+      labelSpan.style.minWidth = "120px"; // Ensure label doesn't get too squashed
 
       const valueSpan = document.createElement("span");
       valueSpan.textContent = value.toString();
       if (color) valueSpan.style.color = color;
+      valueSpan.style.marginLeft = "auto"; // Push value to the right even if wrapped
 
       row.appendChild(labelSpan);
       row.appendChild(valueSpan);

@@ -69,7 +69,7 @@ export function CampaignShellTopBar({
           </div>
         )}
 
-        <div class="shell-tabs flex-row gap-5" style={{ overflowX: "auto", flexShrink: "1", minWidth: "0", maxWidth: "100%", scrollbarWidth: "none" }}>
+        <div class="shell-tabs flex-row gap-5" style={{ overflowX: "auto", flexShrink: "0", minWidth: "0", maxWidth: "100%", scrollbarWidth: "none" }}>
           {showTabs && renderTabs(mode, state, activeTabId, activeMissionType, onTabChange)}
         </div>
 
