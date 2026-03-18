@@ -19,6 +19,7 @@ export class SaveManager implements StorageProvider {
   private localStorage: StorageProvider;
   private cloudSync: CloudSyncService;
   private syncInProgress: boolean = false;
+  private pendingSync: { key: string; data: CampaignState } | null = null;
   private lastSyncFailed: boolean = false;
 
   constructor(localStorage?: StorageProvider, cloudSync?: CloudSyncService) {
@@ -33,7 +34,7 @@ export class SaveManager implements StorageProvider {
     if (!this.cloudSync.isSyncEnabled()) {
       return SyncStatus.LOCAL_ONLY;
     }
-    if (this.syncInProgress) {
+    if (this.syncInProgress || this.pendingSync) {
       return SyncStatus.SYNCING;
     }
     if (this.lastSyncFailed) {
@@ -130,25 +131,43 @@ export class SaveManager implements StorageProvider {
   }
 
   /**
-   * Performs async cloud sync.
+   * Performs async cloud sync using a coalescing queue.
    */
   private syncToCloud(campaignId: string, data: CampaignState): void {
+    // Always update pending with latest data
+    this.pendingSync = { key: campaignId, data };
+
     if (this.syncInProgress) return;
+
+    this.processQueue();
+  }
+
+  /**
+   * Processes the pending sync queue sequentially.
+   */
+  private async processQueue(): Promise<void> {
+    if (this.syncInProgress || !this.pendingSync) return;
 
     this.syncInProgress = true;
     this.lastSyncFailed = false;
-    this.cloudSync
-      .saveCampaign(campaignId, data)
-      .then(() => {
+
+    while (this.pendingSync) {
+      const { key, data } = this.pendingSync;
+      this.pendingSync = null; // Clear before starting so new requests can enqueue
+
+      try {
+        await this.cloudSync.saveCampaign(key, data);
         this.lastSyncFailed = false;
-      })
-      .catch((err) => {
+      } catch (err) {
         Logger.warn("SaveManager: Cloud sync failed:", err);
         this.lastSyncFailed = true;
-      })
-      .finally(() => {
-        this.syncInProgress = false;
-      });
+        // Break loop on failure to avoid infinite retry,
+        // pending data remains available for next manual/auto trigger
+        break;
+      }
+    }
+
+    this.syncInProgress = false;
   }
 
   /**
