@@ -14,29 +14,33 @@ export class UIOrchestrator {
   constructor(private deps: UIOrchestratorDependencies) {}
 
   public setupResponsiveDrawers() {
-    const toggleSquad = document.getElementById("btn-toggle-squad");
-    const toggleRight = document.getElementById("btn-toggle-right");
-    const soldierPanel = document.getElementById("soldier-panel");
-    const rightPanel = document.getElementById("right-panel");
+    // Use delegated event listeners at the body level because these toggles
+    // are injected/replaced dynamically by HUDManager (ADR 0052).
+    document.body.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      const toggleSquad = target.closest("#btn-toggle-squad");
+      const toggleRight = target.closest("#btn-toggle-right");
+      
+      const soldierPanel = document.getElementById("soldier-panel");
+      const rightPanel = document.getElementById("right-panel");
 
-    if (toggleSquad && soldierPanel) {
-      toggleSquad.addEventListener("click", () => {
+      if (toggleSquad && soldierPanel) {
         soldierPanel.classList.toggle("active");
         if (rightPanel) rightPanel.classList.remove("active");
-      });
-    }
+      }
 
-    if (toggleRight && rightPanel) {
-      toggleRight.addEventListener("click", () => {
+      if (toggleRight && rightPanel) {
         rightPanel.classList.toggle("active");
         if (soldierPanel) soldierPanel.classList.remove("active");
-      });
-    }
+      }
+    });
 
     const gameContainer = document.getElementById("game-container");
     if (gameContainer) {
       gameContainer.addEventListener("click", () => {
         if (window.innerWidth < 768) {
+          const soldierPanel = document.getElementById("soldier-panel");
+          const rightPanel = document.getElementById("right-panel");
           if (soldierPanel) soldierPanel.classList.remove("active");
           if (rightPanel) rightPanel.classList.remove("active");
         }
