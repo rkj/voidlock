@@ -3,6 +3,7 @@ import {
   Unit,
   UnitState,
   CommandType,
+  MissionType,
   PickupCommand,
   Vector2,
   Door,
@@ -45,6 +46,12 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
       currentUnit.activeCommand?.label === "Extracting"
     ) {
       return { unit: currentUnit, handled: true };
+    }
+
+    // Disable autonomous objective collection/extraction in Tutorial (Prologue)
+    // to allow player to practice manual commands (ADR 0058 / voidlock-26y0x.8)
+    if (state.missionType === MissionType.Prologue) {
+        return { unit: currentUnit, handled: false };
     }
 
     let actionTaken = false;
