@@ -84,11 +84,13 @@ export class HUDManager {
     const soldierPanel = document.getElementById("soldier-panel");
     const rightPanel = document.getElementById("right-panel");
     const mobileActionPanel = document.getElementById("mobile-action-panel");
+    const tutorialDirective = document.getElementById("tutorial-directive");
 
     if (topBar) topBar.remove();
     if (soldierPanel) soldierPanel.remove();
     if (rightPanel) rightPanel.remove();
     if (mobileActionPanel) mobileActionPanel.remove();
+    if (tutorialDirective) tutorialDirective.remove();
 
     missionScreen.insertBefore(HUDTopBar() as Node, missionBody);
     missionScreen.insertBefore(HUDTutorialDirective() as Node, missionBody);
@@ -157,8 +159,8 @@ export class HUDManager {
 
     const tutorial = this.tutorialManager;
     this.binder.registerTransformer("tutorialStepId", () => {
-        if (!tutorial) return null;
-        return tutorial.getCurrentStepId();
+        if (!tutorial) return "";
+        return tutorial.getCurrentStepId() || "";
     });
 
     this.binder.registerTransformer("minSpeedValue", (allowTacticalPause) => (allowTacticalPause as boolean) ? "0" : "50");

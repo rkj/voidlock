@@ -2,7 +2,7 @@ import { createElement } from "@src/renderer/jsx";
 
 export function HUDTutorialDirective() {
   return (
-    <div id="tutorial-directive" class="tutorial-directive-container">
+    <div id="tutorial-directive" class="tutorial-directive-container" data-bind-data-step="|tutorialStepId">
       <span id="tutorial-directive-text"></span>
     </div>
   );

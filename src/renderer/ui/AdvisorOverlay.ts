@@ -125,6 +125,7 @@ export class AdvisorOverlay {
         this.gameClient.freezeForDialog();
         const backdrop = document.createElement("div");
         backdrop.className = "advisor-modal-backdrop";
+        backdrop.setAttribute("data-msg-id", msg.id);
         backdrop.appendChild(messageEl);
         document.body.appendChild(backdrop);
 

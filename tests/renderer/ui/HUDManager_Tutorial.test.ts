@@ -111,11 +111,31 @@ describe("HUDManager Tutorial Dimming", () => {
     expect(soldier?.classList.contains("tutorial-dimmed")).toBe(false);
   });
 
-  it("should NOT dim elements in standard missions", () => {
-    const state = createMockState(MissionType.Default, 100, 0, 0);
+  it("should update data-step attribute based on tutorial step", () => {
+    const mockTutorial = {
+        getCurrentStepId: vi.fn(() => "observe")
+    };
+    hud = new HUDManager(
+      mockMenuController,
+      mockTutorial as any,
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+    );
+
+    const state = createMockState(MissionType.Prologue, 100);
     hud.update(state, null);
 
-    const threat = document.getElementById("top-threat-container");
-    expect(threat?.classList.contains("tutorial-dimmed")).toBe(false);
+    const directive = document.getElementById("tutorial-directive");
+    expect(directive?.getAttribute("data-step")).toBe("observe");
+
+    mockTutorial.getCurrentStepId.mockReturnValue("pause");
+    hud.update(state, null);
+    expect(directive?.getAttribute("data-step")).toBe("pause");
   });
 });

@@ -1,4 +1,4 @@
-import { GameState, MissionType } from "@src/shared/types";
+import { GameState, MissionType, MapGeneratorType } from "@src/shared/types";
 import { MissionReport } from "@src/shared/campaign_types";
 import { MissionCoordinator } from "./MissionCoordinator";
 import { MissionSetupManager } from "./MissionSetupManager";
@@ -67,13 +67,17 @@ export class MissionRunner {
 
     // Handle Prologue Map (ADR 0042)
     let staticMapData = this.deps.missionSetupManager.currentStaticMapData;
+    let mapGeneratorType = config.mapGeneratorType;
+
     if (config.missionType === MissionType.Prologue) {
       staticMapData = prologueMap as any;
+      mapGeneratorType = MapGeneratorType.Static;
     }
 
     this.deps.missionCoordinator.launchMission(
       {
         ...config,
+        mapGeneratorType,
         seed: config.lastSeed,
         staticMapData,
         campaignNode: this.deps.missionSetupManager.currentCampaignNode || undefined,
