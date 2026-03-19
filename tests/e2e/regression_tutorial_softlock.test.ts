@@ -103,18 +103,30 @@ describe("Tutorial Soft-lock Regression (voidlock-cak2n, voidlock-51ouc, voidloc
         return text.includes("INTERVENTION") || text.includes("MOVE TO ROOM") || !!document.querySelector(".advisor-message");
     }, { timeout: 60000 });
 
-    await page.waitForSelector(".advisor-message", { visible: true });
-    await page.click(".advisor-btn[data-id='dismiss']");
+    // Ensure advisor message is dismissed before interaction
+    await page.waitForFunction(() => !document.querySelector(".advisor-modal-backdrop"), { timeout: 5000 }).catch(() => {});
+    const isAdvisorPresent = await page.evaluate(() => !!document.querySelector(".advisor-message"));
+    if (isAdvisorPresent) {
+        console.log("Dismissing additional advisor message...");
+        await page.click(".advisor-btn[data-id='dismiss']");
+        await new Promise(r => setTimeout(r, 500));
+    }
 
     const currentDirective = await page.$eval("#tutorial-directive-text", el => (el as HTMLElement).innerText);
     console.log(`Reached Directive: ${currentDirective}`);
 
     // 8. Test unit selection if needed
+    // Click unit to ensure it's selected for command menu
+    await page.waitForSelector(".soldier-card", { visible: true });
     await page.click(".soldier-card");
+    await new Promise(r => setTimeout(r, 500));
 
     // 9. Test Orders/Engagement Sub-menu Visibility (voidlock-ldnso)
-    const ordersBtn = await page.waitForSelector(".command-item", { visible: true });
-    console.log("Clicking primary command menu item...");
+    const commandItems = await page.$$eval(".command-item", items => items.map(el => (el as HTMLElement).innerText));
+    console.log("Available command items:", commandItems);
+    
+    const ordersBtn = await page.waitForSelector(".command-item", { visible: true, timeout: 10000 });
+    console.log(`Clicking command menu item: ${await ordersBtn?.evaluate(el => (el as HTMLElement).innerText)}`);
     await ordersBtn?.click();
 
     // Verify sub-menu appears. In bug voidlock-ldnso, clicking doesn't show sub-menu

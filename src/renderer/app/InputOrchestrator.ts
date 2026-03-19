@@ -3,7 +3,7 @@ import { MenuController } from "../MenuController";
 import { HUDManager } from "../ui/HUDManager";
 import { MissionRunner } from "./MissionRunner";
 import { Renderer } from "../Renderer";
-import { Unit, UnitState, CommandType } from "@src/shared/types";
+import { Unit, UnitState, CommandType, Vector2 } from "@src/shared/types";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { MapUtils } from "@src/shared/utils/MapUtils";
 
@@ -40,8 +40,7 @@ export class InputOrchestrator {
   public handleMenuInput(key: string, shiftHeld: boolean = false) {
     const state = this.missionRunner.getCurrentGameState();
     if (!state) return;
-    this.menuController.isShiftHeld = shiftHeld;
-    this.menuController.handleMenuInput(key, state);
+    this.menuController.handleMenuInput(key, state, shiftHeld);
     this.missionRunner.updateUI(state);
   }
 
@@ -168,24 +167,16 @@ export class InputOrchestrator {
     }
   }
 
-  public handleCanvasClick(event: MouseEvent) {
+  public handleCanvasClick(worldPos: Vector2) {
     const renderer = this.getRenderer();
     if (!renderer) return;
     const state = this.missionRunner.getCurrentGameState();
     if (!state) return;
 
-    const clickedCell = renderer.getCellCoordinates(event.clientX, event.clientY);
+    const clickedCell = { x: Math.floor(worldPos.x), y: Math.floor(worldPos.y) };
 
     if (state.status === "Deployment") {
-      if (event.button === 2) {
-        const unit = state.units.find((u) => MathUtils.sameCellPosition(u.pos, clickedCell) && u.isDeployed !== false);
-        if (unit && unit.archetypeId !== "vip") {
-          this.gameClient.applyCommand({ type: CommandType.UNDEPLOY_UNIT, unitId: unit.id });
-        }
-        return;
-      }
-
-      if (event.button === 0 && this.missionRunner.getSelectedUnitId()) {
+      if (this.missionRunner.getSelectedUnitId()) {
         const unit = state.units.find((u) => u.id === this.missionRunner.getSelectedUnitId());
         if (unit && unit.archetypeId !== "vip") {
           const isValidSpawn = MapUtils.isValidSpawnPoint(state.map, clickedCell);

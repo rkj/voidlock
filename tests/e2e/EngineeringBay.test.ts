@@ -18,8 +18,11 @@ describe("Engineering Bay E2E Verification", () => {
   it("should display Engineering Bay tab and render content", async () => {
     await page.goto(E2E_URL);
 
+    // Wait for App to be ready and splash to complete
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 15000 });
+
     // 1. Navigate to Campaign
-    await page.waitForSelector("#btn-menu-campaign");
+    await page.waitForSelector("#btn-menu-campaign", { visible: true });
     await page.click("#btn-menu-campaign");
 
     // Give it time to transition

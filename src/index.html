@@ -34,9 +34,10 @@
           if (window.__VOIDLOCK_PANIC__) return;
           window.__VOIDLOCK_PANIC__ = true;
 
+          const errorStr = error instanceof Error ? error.message + "\n" + error.stack : String(error);
           console.error(
             "PANIC: Unhandled exception detected. Forcing UI recovery.",
-            error,
+            errorStr,
           );
 
           // Native browser dialog (Spec 8.12 / voidlock-fi6n)

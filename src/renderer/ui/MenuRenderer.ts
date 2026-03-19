@@ -27,7 +27,7 @@ export class MenuRenderer {
     }
 
     state.options.forEach((opt) => {
-      let cssClass = "menu-item";
+      let cssClass = "menu-item command-item";
       if (opt.disabled) {
         cssClass += " disabled";
       } else {

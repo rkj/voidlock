@@ -46,7 +46,7 @@ describe("Artifact Burden Regression", () => {
     engine.update(100);
     let updatedUnit = engine.getState().units[0];
     expect(updatedUnit.state).toBe(UnitState.Channeling);
-    expect(updatedUnit.channeling?.action).toBe("Collect");
+    expect(updatedUnit.channeling?.action).toBe("Pickup");
 
     // Advance time to complete collection (default 5000ms * (30/speed) = 5000 * (30/20) = 7500ms)
     // Actually speed of assault is 20 (0.66 tiles/s)

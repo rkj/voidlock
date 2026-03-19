@@ -194,9 +194,8 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       // Step 9: pickup
       expect(directiveText()).toContain("Initiate collection");
       
-      // Complete Step 9: pickup
-      state.objectives[0].state = "Completed";
-      state.status = "Won";
+      // Complete Step 9: pickup (carrying objective)
+      state.units[0].carriedObjectiveId = "obj-main";
       listener(state);
       
       // Step 10: extract
@@ -204,7 +203,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }), expect.any(Function));
       onMessage.mockClear();
       
-      // Complete Step 9: extract (Won)
+      // Complete Step 10: extract (Won)
       state.status = "Won";
       listener(state);
       
@@ -269,7 +268,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       expect(manager.isActionAllowed("PICKUP")).toBe(true);
       
       // Advance to step 9: extract
-      state.objectives[0].state = "Completed";
+      state.units[0].carriedObjectiveId = "obj-main";
       listener(state);
       expect(manager.isActionAllowed("EXTRACT")).toBe(true);
     });

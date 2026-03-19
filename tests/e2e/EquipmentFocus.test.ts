@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { getNewPage, closePage } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
@@ -11,7 +11,7 @@ describe("Equipment Focus Verification", () => {
   });
 
   afterAll(async () => {
-    await closeBrowser();
+    await closePage(page);
   });
 
   async function navigateToEquipment() {

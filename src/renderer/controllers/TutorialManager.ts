@@ -178,6 +178,15 @@ export class TutorialManager {
       directiveMobile: "Initiate collection: Tap 'Pickup' > Select DATA DISK.",
       highlightTarget: { cell: { x: 3, y: 2 } },
       condition: (state, manager) => manager.checkObjectiveCollected(state),
+      dynamicHighlight: (state, menuState) => {
+          if (menuState === "ACTION_SELECT") return { selector: ".command-item[data-index='4']" };
+          if (menuState === "TARGET_SELECT") {
+              const disk = state.objectives.find(o => o.id === "prologue-disk" || o.kind === "Recover");
+              if (disk) return { cell: { x: 3, y: 2 } };
+          }
+          if (menuState === "UNIT_SELECT") return { selector: ".soldier-card" };
+          return null;
+      },
       inputGate: { allowedActions: ["PICKUP", "SELECT_UNIT"] }
     },
     {
@@ -353,93 +362,106 @@ export class TutorialManager {
   }
 
   public onScreenShow(id: ScreenId) {
-    if (!this.isActive) return;
-    Logger.info(`Tutorial: onScreenShow(${id}), isMission2=${this.isMission2Tutorial()}, isMission3=${this.isMission3Tutorial()}`);
+    try {
+        if (!this.isActive) return;
+        Logger.info(`Tutorial: onScreenShow(${id}), isMission2=${this.isMission2Tutorial()}, isMission3=${this.isMission3Tutorial()}`);
 
-    if (id === "equipment" && this.isMission2Tutorial()) {
-      this.triggerEvent("ready_room_intro");
-    }
-    if (id === "campaign" && this.isMission3Tutorial()) {
-      this.triggerEvent("sector_map_intro");
-    }
-    if (id === "equipment" && this.isMission3Tutorial()) {
-      this.triggerEvent("squad_selection_intro");
+        if (id === "equipment" && this.isMission2Tutorial()) {
+          this.triggerEvent("ready_room_intro");
+        }
+        if (id === "campaign" && this.isMission3Tutorial()) {
+          this.triggerEvent("sector_map_intro");
+        }
+        if (id === "equipment" && this.isMission3Tutorial()) {
+          this.triggerEvent("squad_selection_intro");
+        }
+    } catch (e) {
+        Logger.error(`Tutorial: Error in onScreenShow(${id})`, e);
     }
   }
 
   private isMission2Tutorial(): boolean {
-    const state = this.campaignManager.getState();
-    const isM2 = state?.history?.length === 1 && !state?.rules.skipPrologue;
-    if (state && !isM2) {
-        Logger.info(`Tutorial: isMission2Tutorial false. history=${state.history?.length}, skipPrologue=${state.rules.skipPrologue}`);
+    try {
+        const state = this.campaignManager.getState();
+        const isM2 = state?.history?.length === 1 && !state?.rules?.skipPrologue;
+        return !!isM2;
+    } catch (e) {
+        return false;
     }
-    return !!isM2;
   }
 
   private isMission3Tutorial(): boolean {
-    const state = this.campaignManager.getState();
-    return !!(state && state.history.length === 2);
+    try {
+        const state = this.campaignManager.getState();
+        return !!(state && state.history?.length === 2);
+    } catch (e) {
+        return false;
+    }
   }
 
   private onGameStateUpdate = (state: GameState) => {
-    if (!this.isActive || this.isBlockingMessageActive) return;
+    try {
+        if (!this.isActive || this.isBlockingMessageActive) return;
 
-    if (state.t % 160 === 0) {
-        Logger.info(`Tutorial: onGameStateUpdate tick=${state.t}, step=${this.currentStepIndex}, active=${this.isActive}, blocking=${this.isBlockingMessageActive}`);
-    }
-
-    if (state.missionType !== MissionType.Prologue) {
-        if (this.isPrologueActive) {
-            this.isPrologueActive = false;
-            this.clearDirective();
-            this.clearHighlight();
+        if (state.t % 160 === 0) {
+            Logger.info(`Tutorial: onGameStateUpdate tick=${state.t}, step=${this.currentStepIndex}, active=${this.isActive}, blocking=${this.isBlockingMessageActive}`);
         }
-        return;
-    }
 
-    if (!this.isPrologueActive && state.status === "Playing") {
-        this.isPrologueActive = true;
-        this.lastRescueCount = state.stats.prologueRescues || 0;
-        
-        // Resume if we have a valid index, otherwise start at 0
-        if (this.currentStepIndex < 0) {
-            this.startPrologue(state);
-        } else {
-            this.enterStep(this.currentStepIndex, state);
+        if (state.missionType !== MissionType.Prologue) {
+            if (this.isPrologueActive) {
+                this.isPrologueActive = false;
+                this.clearDirective();
+                this.clearHighlight();
+            }
+            return;
         }
-    }
 
-    if (!this.isPrologueActive) return;
-
-    // Handle Scripted Rescue Message
-    const currentRescues = state.stats.prologueRescues || 0;
-    if (currentRescues > this.lastRescueCount) {
-        this.lastRescueCount = currentRescues;
-        this.onMessage({
-            id: `prologue_rescue_${currentRescues}`,
-            text: "EMERGENCY PROTOCOL: Asset integrity stabilized. Automated medical intervention complete. Budget adjustment pending.",
-            portrait: "logo_gemini",
-            duration: 4000,
-        });
-    }
-
-    // Update cell highlight position if map panned/zoomed
-    if (this.highlightedCell) {
-      this.updateCellHighlightPosition();
-    }
-
-    // Re-apply element highlight if it was lost (e.g. after re-render)
-    if (this.highlightedElementSelector && !document.querySelector(".tutorial-highlight")) {
-        this.highlightElement(this.highlightedElementSelector);
-    }
-
-    // Check current step completion
-    const currentStep = this.prologueSteps[this.currentStepIndex];
-    if (currentStep) {
-        this.updateDynamicHighlight(state, currentStep);
-        if (currentStep.condition(state, this)) {
-            this.advanceStep(state);
+        if (!this.isPrologueActive && state.status === "Playing") {
+            this.isPrologueActive = true;
+            this.lastRescueCount = state.stats.prologueRescues || 0;
+            
+            // Resume if we have a valid index, otherwise start at 0
+            if (this.currentStepIndex < 0) {
+                this.startPrologue(state);
+            } else {
+                this.enterStep(this.currentStepIndex, state);
+            }
         }
+
+        if (!this.isPrologueActive) return;
+
+        // Handle Scripted Rescue Message
+        const currentRescues = state.stats.prologueRescues || 0;
+        if (currentRescues > this.lastRescueCount) {
+            this.lastRescueCount = currentRescues;
+            this.onMessage({
+                id: `prologue_rescue_${currentRescues}`,
+                text: "EMERGENCY PROTOCOL: Asset integrity stabilized. Automated medical intervention complete. Budget adjustment pending.",
+                portrait: "logo_gemini",
+                duration: 4000,
+            });
+        }
+
+        // Update cell highlight position if map panned/zoomed
+        if (this.highlightedCell) {
+          this.updateCellHighlightPosition();
+        }
+
+        // Re-apply element highlight if it was lost (e.g. after re-render)
+        if (this.highlightedElementSelector && !document.querySelector(".tutorial-highlight")) {
+            this.highlightElement(this.highlightedElementSelector);
+        }
+
+        // Check current step completion
+        const currentStep = this.prologueSteps[this.currentStepIndex];
+        if (currentStep) {
+            this.updateDynamicHighlight(state, currentStep);
+            if (currentStep.condition(state, this)) {
+                this.advanceStep(state);
+            }
+        }
+    } catch (e) {
+        Logger.error("Tutorial: Error in onGameStateUpdate", e);
     }
   };
 
@@ -653,13 +675,15 @@ export class TutorialManager {
   }
 
   public checkReachedObjectiveRoom(state: GameState): boolean {
-      const obj = state.objectives.find(o => o.id === "obj-main" || o.kind === "Recover");
+      const obj = state.objectives.find(o => o.id === "prologue-disk" || o.kind === "Recover");
       if (!obj || !obj.targetCell) return false;
-      return state.units.some(u => MathUtils.getDistance(u.pos, obj.targetCell!) < 0.5);
+      return state.units.some(u => MathUtils.getDistance(u.pos, obj.targetCell!) < 1.5);
   }
 
   public checkObjectiveCollected(state: GameState): boolean {
-      return state.objectives.some(o => (o.id === "obj-main" || o.kind === "Recover") && o.state === "Completed");
+      // In prologue, unit needs to be carrying the disk to advance to Step 9 (Extract)
+      const obj = state.objectives.find(o => o.id === "prologue-disk" || o.kind === "Recover");
+      return !!(obj && state.units.some(u => u.carriedObjectiveId === obj.id));
   }
 
   public triggerEvent(eventId: string) {

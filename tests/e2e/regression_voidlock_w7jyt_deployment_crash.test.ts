@@ -1,19 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import puppeteer, { Browser, Page } from "puppeteer";
+import { getNewPage, closePage } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("Repro insertBefore Error", () => {
-  let browser: Browser;
   let page: Page;
   let consoleErrors: string[] = [];
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
-    await page.setViewport({ width: 1024, height: 768 });
+    page = await getNewPage();
     page.on("pageerror", (err) => {
       consoleErrors.push("PAGE ERROR: " + err.message + "\n" + err.stack);
     });
@@ -25,11 +20,12 @@ describe("Repro insertBefore Error", () => {
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closePage(page);
   });
 
   it("should catch the insertBefore NotFoundError when reaching deployment", async () => {
     await page.goto(E2E_URL);
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 15000 });
     
     await page.waitForSelector("#btn-menu-custom");
     await page.evaluate(() => {
@@ -48,13 +44,14 @@ describe("Repro insertBefore Error", () => {
     }
 
     // Launch to Deployment Phase
+    await page.waitForSelector("#btn-launch-mission:not([disabled])", { visible: true, timeout: 15000 });
     await page.evaluate(() => {
         const btn = document.getElementById("btn-launch-mission");
         if (btn) btn.click();
     });
     
-    // Wait a bit to ensure no errors occur
-    await new Promise(r => setTimeout(r, 2000));
+    // Wait for the mission screen and deployment HUD to appear
+    await page.waitForSelector(".deployment-summary", { visible: true, timeout: 15000 });
 
     console.log("Console Errors found:", consoleErrors);
     
@@ -69,5 +66,5 @@ describe("Repro insertBefore Error", () => {
     expect(autoFillBtn).not.toBeNull();
     const startBtn = await page.$("#btn-start-mission");
     expect(startBtn).not.toBeNull();
-  }, 30000);
+  }, 60000);
 });

@@ -19,6 +19,7 @@ describe("SquadBuilder Reproduction: Deployment Limit", () => {
 
   it("should fill subsequent slots when adding soldiers via Equipment Screen", async () => {
     await page.goto(E2E_URL);
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 15000 });
 
     // 1. Enter Custom Mission Setup
     await page.waitForSelector("#btn-menu-custom");

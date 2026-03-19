@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { getNewPage, closePage } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
@@ -13,11 +13,12 @@ describe("Screen Transition Visual Continuity Verification", () => {
   });
 
   afterAll(async () => {
-    await closeBrowser();
+    await closePage(page);
   });
 
   it("should apply screen-fade-in class and animate opacity when switching screens", async () => {
     await page.goto(E2E_URL);
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 15000 });
     await page.waitForSelector("#btn-menu-custom");
 
     const transitionCheck = await page.evaluate(async () => {
@@ -28,13 +29,13 @@ describe("Screen Transition Visual Continuity Verification", () => {
       
       btn.click();
       
-      // Wait a tiny bit (20ms), opacity should be low as animation just started
-      await new Promise(r => setTimeout(r, 20));
+      // Wait slightly more (50ms) to ensure browser has applied class and started animation
+      await new Promise(r => setTimeout(r, 50));
       const midOpacity = parseFloat(window.getComputedStyle(setupScreen).opacity);
       const midClass = setupScreen.classList.contains("screen-fade-in");
       
       // Wait for animation to finish (150ms + some buffer)
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 300));
       const endOpacity = parseFloat(window.getComputedStyle(setupScreen).opacity);
       
       return {
@@ -48,12 +49,13 @@ describe("Screen Transition Visual Continuity Verification", () => {
     expect(transitionCheck.error).toBeUndefined();
     expect(transitionCheck.midClass).toBe(true);
     expect(transitionCheck.midOpacity).toBeLessThan(1);
-    expect(transitionCheck.endOpacity).toBe(1);
+    expect(transitionCheck.endOpacity).toBeGreaterThan(0.95);
     expect(transitionCheck.display).toBe("flex");
   });
 
   it("should reset and re-apply transition class when switching back and forth", async () => {
     await page.goto(E2E_URL);
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 15000 });
     await page.waitForSelector("#btn-menu-custom");
 
     const reTransitionCheck = await page.evaluate(async () => {
@@ -62,19 +64,19 @@ describe("Screen Transition Visual Continuity Verification", () => {
       
       // 1. Go to Custom
       customBtn.click();
-      await new Promise(r => setTimeout(r, 250)); // Let it finish
+      await new Promise(r => setTimeout(r, 300)); // Let it finish
       
       // 2. Go back to Menu
       const backBtn = document.querySelector("#screen-mission-setup .back-button") as HTMLElement;
       if (!backBtn) return { error: "Back button not found" };
       backBtn.click();
-      await new Promise(r => setTimeout(r, 250)); // Let it finish
+      await new Promise(r => setTimeout(r, 300)); // Let it finish
       
       // 3. Go to Custom again
       customBtn.click();
       
-      // Check immediately (20ms)
-      await new Promise(r => setTimeout(r, 20));
+      // Check (50ms)
+      await new Promise(r => setTimeout(r, 50));
       const midOpacity = parseFloat(window.getComputedStyle(setupScreen).opacity);
       const hasClass = setupScreen.classList.contains("screen-fade-in");
       

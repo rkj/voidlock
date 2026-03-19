@@ -110,6 +110,7 @@ describe("Red Rectangle (Terminal Offline) Regression (voidlock-v8vpv)", () => {
 
     // Reload page to apply injected state
     await page.goto(E2E_URL, { waitUntil: "load" });
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 15000 });
 
     // Click Active Contracts to launch the campaign mode
     await page.waitForSelector("#btn-menu-campaign");

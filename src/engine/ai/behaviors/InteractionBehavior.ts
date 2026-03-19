@@ -12,6 +12,7 @@ import { MathUtils } from "../../../shared/utils/MathUtils";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
 import { ItemEffectHandler } from "../../interfaces/IDirector";
+import { Logger } from "../../../shared/Logger";
 
 export class InteractionBehavior implements Behavior<BehaviorContext> {
   constructor() {}
@@ -73,7 +74,8 @@ export class InteractionBehavior implements Behavior<BehaviorContext> {
         if (obj.state === "Pending") {
           const isAtTarget =
             obj.targetCell &&
-            MathUtils.sameCellPosition(currentUnit.pos, obj.targetCell);
+            Math.abs(currentUnit.pos.x - (obj.targetCell.x + 0.5)) < ITEMS.INTERACTION_RADIUS &&
+            Math.abs(currentUnit.pos.y - (obj.targetCell.y + 0.5)) < ITEMS.INTERACTION_RADIUS;
 
           const isClaimedByMe =
             (currentUnit.activeCommand?.type === CommandType.PICKUP &&
@@ -84,14 +86,20 @@ export class InteractionBehavior implements Behavior<BehaviorContext> {
             isAtTarget &&
             (!context.claimedObjectives || !context.claimedObjectives.has(obj.id) || isClaimedByMe)
           ) {
-            const baseTime = ITEMS.BASE_COLLECT_TIME;
+            Logger.info(`InteractionBehavior: Unit ${currentUnit.id} at target for objective ${obj.id}. Starting Pickup/Collect.`);
+            
+            // Only Artifacts and the Prologue Disk need to be carried to extraction.
+            // Regular 'Recover' objectives (Intel) are completed immediately.
+            const needsCarrying = obj.id.includes("artifact") || obj.id.includes("prologue-disk");
+            
+            const baseTime = needsCarrying ? ITEMS.BASE_PICKUP_TIME : ITEMS.BASE_COLLECT_TIME;
             const duration =
               baseTime * (SPEED_NORMALIZATION_CONST / currentUnit.stats.speed);
             currentUnit = {
               ...currentUnit,
               state: UnitState.Channeling,
               channeling: {
-                action: "Collect",
+                action: needsCarrying ? "Pickup" : "Collect",
                 remaining: duration,
                 totalDuration: duration,
                 targetId: obj.id,

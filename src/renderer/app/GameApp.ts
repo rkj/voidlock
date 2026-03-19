@@ -358,11 +358,7 @@ export class GameApp {
         this.registry.navigationOrchestrator.switchScreen("mission-setup", false);
       },
       onCampaignMenu: () => {
-        this.campaignFlowCoordinator.onCampaignMenu(
-          () => this.registry.navigationOrchestrator.applyCampaignTheme(),
-          (state) => this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, false, state),
-          () => this.registry.navigationOrchestrator.switchScreen("campaign", true),
-        );
+        this.registry.navigationOrchestrator.handleExternalScreenChange("campaign", true);
       },
       onResetData: () => this.campaignFlowCoordinator.onResetData(),
       onShowEquipment: () => {

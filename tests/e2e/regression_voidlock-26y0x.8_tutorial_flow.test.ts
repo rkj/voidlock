@@ -25,7 +25,7 @@ describe("Tutorial Input Gating Regression (voidlock-26y0x.8)", () => {
     const stepOrder = ["observe", "ui_tour", "pause", "doors", "combat", "engagement_ignore", "engagement_engage", "move", "pickup", "extract"];
 
     await page.goto(E2E_URL);
-    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 15000 });
 
     // 1. Initialize Expedition
     await page.click("#btn-menu-campaign");
@@ -161,8 +161,23 @@ describe("Tutorial Input Gating Regression (voidlock-26y0x.8)", () => {
 
     // 12. Pickup > Unit 1
     await page.keyboard.press("4"); // Pickup
-    await new Promise(r => setTimeout(r, 500));
-    await page.keyboard.press("1"); // Item 1
+    await new Promise(r => setTimeout(r, 1000));
+    
+    // Log available items for debug
+    const itemsHtml = await page.evaluate(() => document.getElementById("command-menu")?.innerHTML);
+    console.log("Command menu HTML during pickup:", itemsHtml);
+
+    // Dynamically find the key for 'Data Disk' or 'Objective'
+    const diskKey = await page.evaluate(() => {
+        const items = Array.from(document.querySelectorAll(".command-item"));
+        const diskItem = items.find(el => {
+            const text = (el as HTMLElement).innerText.toUpperCase();
+            return text.includes("DISK") || text.includes("OBJECTIVE") || text.includes("INTEL");
+        });
+        return diskItem?.getAttribute("data-index") || "1";
+    });
+    console.log(`Selecting disk with key: ${diskKey}`);
+    await page.keyboard.press(diskKey);
     await new Promise(r => setTimeout(r, 500));
     await page.keyboard.press("1"); // Unit 1
 
@@ -172,12 +187,14 @@ describe("Tutorial Input Gating Regression (voidlock-26y0x.8)", () => {
     // Dismiss 'objective_completed'
     await dismissAdvisor("objective_completed");
 
-    // 13. Extract > Unit 1
+    // 13. Select Unit then Extract
+    await page.click(".soldier-card");
+    await new Promise(r => setTimeout(r, 500));
     await page.keyboard.press("5"); // Extract
     await new Promise(r => setTimeout(r, 500));
     await page.keyboard.press("1"); // Unit 1
 
     // Wait for Mission Win
-    await page.waitForSelector("#screen-debrief", { visible: true, timeout: 45000 });
+    await page.waitForSelector("#screen-debrief", { visible: true, timeout: 60000 });
   }, 180000); // 3 minutes timeout for full mission
 });

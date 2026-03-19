@@ -218,7 +218,7 @@ describe("TutorialManager", () => {
     listener(state); // move
     state.units[0].pos = { x: 5, y: 5 };
     listener(state); // pickup
-    state.objectives[0].state = "Completed";
+    state.units[0].carriedObjectiveId = "obj-main";
     listener(state); // extract
     
     expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }), expect.any(Function));

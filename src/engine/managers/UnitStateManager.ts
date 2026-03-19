@@ -148,6 +148,8 @@ export class UnitStateManager {
     } else if (channeling.action === "Pickup") {
       if (channeling.targetId) {
         const loot = state.loot?.find((l) => l.id === channeling.targetId);
+        const objective = state.objectives?.find((o) => o.id === channeling.targetId);
+
         if (loot) {
           if (loot.objectiveId) {
             currentUnit = {
@@ -165,6 +167,13 @@ export class UnitStateManager {
             lootManager.awardScrap(state, itemId);
           }
           lootManager.removeLoot(state, loot.id);
+        } else if (objective) {
+          // Objective that is not spawned as loot (e.g. prologue-disk)
+          currentUnit = {
+            ...currentUnit,
+            carriedObjectiveId: objective.id,
+          };
+          currentUnit = this.statsManager.recalculateStats(currentUnit);
         }
       }
       return {
