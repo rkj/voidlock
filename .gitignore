@@ -38,3 +38,8 @@ coverage/
 *.png
 tests/e2e/__snapshots__
 
+
+# Dolt database files (added by bd init)
+.dolt/
+.beads/dolt/.dolt/
+*.db
