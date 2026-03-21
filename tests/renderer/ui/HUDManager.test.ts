@@ -88,18 +88,19 @@ describe("HUDManager", () => {
     onForceWin = vi.fn();
     onForceLose = vi.fn();
 
-    hud = new HUDManager(
-      mockMenuController,
-      { getCurrentStepId: () => null } as any,
-      onUnitClick,
-      onAbortMission,
-      onMenuInput,
-      onCopyWorldState,
-      onForceWin,
-      onForceLose,
-      vi.fn(), // onStartMission
-      vi.fn(), // onDeployUnit
-    );
+    hud = new HUDManager({
+      menuController: mockMenuController,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: onUnitClick,
+      onAbortMission: onAbortMission,
+      onMenuInput: onMenuInput,
+      onCopyWorldState: onCopyWorldState,
+      onForceWin: onForceWin,
+      onForceLose: onForceLose,
+      onStartMission: vi.fn(),
+      onDeployUnit: // onStartMission
+      vi.fn()
+    });
   });
 
   it("should update top bar stats", () => {

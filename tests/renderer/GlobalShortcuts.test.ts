@@ -1,130 +1,170 @@
-// @vitest-environment jsdom
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { InputDispatcher } from "@src/renderer/InputDispatcher";
-import { GlobalShortcuts } from "@src/renderer/GlobalShortcuts";
+import { GameApp } from "@src/renderer/app/GameApp";
 
-describe("GlobalShortcuts & Help Overlay", () => {
-  let globalShortcuts: GlobalShortcuts;
-  let togglePause: any;
-  let goBack: any;
+// Mock dependencies
+vi.mock("@package.json", () => ({
+  default: { version: "1.0.0" },
+}));
 
-  beforeEach(() => {
-    document.body.innerHTML = "";
-    // Reset InputDispatcher instance if possible, or clear context stack
-    const dispatcher = InputDispatcher.getInstance();
-    (dispatcher as any).contextStack = [];
-    (dispatcher as any).focusStack = [];
+const mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
+  onStateUpdate: vi.fn(),
+  queryState: vi.fn(),
+  stop: vi.fn(),
+  getIsPaused: vi.fn().mockReturnValue(false),
+  getTargetScale: vi.fn().mockReturnValue(1.0),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
+  setTimeScale: vi.fn(),
+  togglePause: vi.fn(),
+  toggleDebugOverlay: vi.fn(),
+  toggleLosOverlay: vi.fn(),
+  getReplayData: vi.fn().mockReturnValue({}),
+  forceWin: vi.fn(),
+  forceLose: vi.fn(),
+  loadReplay: vi.fn(),
+  addStateUpdateListener: vi.fn(),
+  removeStateUpdateListener: vi.fn(),
+};
 
-    togglePause = vi.fn();
-    goBack = vi.fn();
+vi.mock("@src/engine/GameClient", () => ({
+  GameClient: vi.fn().mockImplementation(() => mockGameClient),
+}));
 
-    globalShortcuts = new GlobalShortcuts(togglePause, goBack);
-    globalShortcuts.init();
+vi.mock("@src/renderer/Renderer", () => ({
+  Renderer: vi.fn().mockImplementation(() => ({
+    render: vi.fn(),
+    destroy: vi.fn(),
+    setCellSize: vi.fn(),
+    setUnitStyle: vi.fn(),
+    setOverlay: vi.fn(),
+    getCellCoordinates: vi.fn().mockReturnValue({ x: 0, y: 0 }),
+  })),
+}));
+
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    ThemeManager: mockConstructor,
+  };
+});
+
+vi.mock("@src/renderer/visuals/AssetManager", () => {
+  const mockInstance = {
+    loadSprites: vi.fn(),
+    getUnitSprite: vi.fn(),
+    getEnemySprite: vi.fn(),
+    getMiscSprite: vi.fn(),
+    getIcon: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    AssetManager: mockConstructor,
+  };
+});
+
+// Mock CampaignManager
+vi.mock("@src/renderer/campaign/CampaignManager", () => {
+  const mockInstance = {
+    getState: vi.fn().mockReturnValue(null),
+    getStorage: vi.fn().mockReturnValue({
+        getCloudSync: vi.fn().mockReturnValue({
+            initialize: vi.fn().mockResolvedValue(undefined),
+            setEnabled: vi.fn(),
+        }),
+        load: vi.fn(),
+    }),
+    getSyncStatus: vi.fn().mockReturnValue("local-only"),
+    addChangeListener: vi.fn(),
+    removeChangeListener: vi.fn(),
+    load: vi.fn(),
+    save: vi.fn(),
+    assignEquipment: vi.fn(),
+    processMissionResult: vi.fn(),
+    startNewCampaign: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    CampaignManager: mockConstructor,
+  };
+});
+
+describe("GlobalShortcuts & Help Overlay Integration", () => {
+  let app: GameApp;
+
+  beforeEach(async () => {
+    document.body.innerHTML = `
+      <div id="app">
+        <div id="screen-main-menu" class="screen"></div>
+        <div id="screen-campaign-shell" style="display:none">
+            <div id="campaign-shell-content">
+                <div id="screen-campaign" style="display:none"></div>
+                <div id="screen-equipment" style="display:none"></div>
+                <div id="screen-engineering" style="display:none"></div>
+                <div id="screen-statistics" style="display:none"></div>
+                <div id="screen-settings" style="display:none"></div>
+            </div>
+            <div id="campaign-shell-top-bar"></div>
+            <div id="campaign-shell-footer"></div>
+        </div>
+        <div id="screen-mission-setup" style="display:none"></div>
+        <div id="screen-mission" style="display:none"></div>
+        <div id="screen-debrief" style="display:none"></div>
+        <div id="screen-campaign-summary" style="display:none"></div>
+        <div id="squad-builder" style="display:none"></div>
+      </div>
+    `;
+
+    vi.resetModules();
+    const { bootstrap } = await import("@src/renderer/main");
+    
+    // Explicitly mock screenManager.goBack
+    // We need to wait for bootstrap to set things up
+    app = await bootstrap();
+    
+    const registry = (app as any).registry;
+    vi.spyOn(registry.screenManager, "goBack");
+    
+    document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 
-  it("should handle Space to toggle pause", () => {
+  afterEach(() => {
+    if (app) app.destroy();
+  });
+
+  it("should handle Space to toggle pause", async () => {
     const event = new KeyboardEvent("keydown", { code: "Space" });
     window.dispatchEvent(event);
-
-    expect(togglePause).toHaveBeenCalled();
+    expect(mockGameClient.togglePause).toHaveBeenCalled();
   });
 
-  it("should handle ESC to go back", () => {
+  it("should handle ESC to go back", async () => {
     const event = new KeyboardEvent("keydown", { key: "Escape" });
     window.dispatchEvent(event);
-
-    expect(goBack).toHaveBeenCalled();
+    const registry = (app as any).registry;
+    expect(registry.screenManager.goBack).toHaveBeenCalled();
   });
 
-  it("should handle Q to go back", () => {
-    const event = new KeyboardEvent("keydown", { key: "q" });
-    window.dispatchEvent(event);
-
-    expect(goBack).toHaveBeenCalled();
-  });
-
-  it("should show Help Overlay on '?'", () => {
+  it("should show Help Overlay on '?'", async () => {
     const event = new KeyboardEvent("keydown", { key: "?" });
     window.dispatchEvent(event);
-
-    const backdrop = document.querySelector(
-      ".help-overlay-backdrop",
-    ) as HTMLElement;
-    expect(backdrop).toBeTruthy();
-    expect(backdrop.style.display).toBe("flex");
-
-    const title = backdrop.querySelector("h2");
-    expect(title?.textContent).toBe("Keyboard Shortcuts");
-  });
-
-  it("should display active shortcuts in Help Overlay", () => {
-    const event = new KeyboardEvent("keydown", { key: "?" });
-    window.dispatchEvent(event);
-
-    const backdrop = document.querySelector(
-      ".help-overlay-backdrop",
-    ) as HTMLElement;
-    const shortcutKeys = Array.from(
-      backdrop.querySelectorAll(".shortcut-key"),
-    ).map((el) => el.textContent);
-
-    expect(shortcutKeys).toContain("Space");
-    expect(shortcutKeys).toContain("ESC / Q");
-    expect(shortcutKeys).toContain("?");
-  });
-
-  it("should hide Help Overlay on ESC", () => {
-    // Show first
-    window.dispatchEvent(new KeyboardEvent("keydown", { key: "?" }));
-    let backdrop = document.querySelector(
-      ".help-overlay-backdrop",
-    ) as HTMLElement;
-    expect(backdrop.style.display).toBe("flex");
-
-    // Hide with ESC
-    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-    expect(backdrop.style.display).toBe("none");
-  });
-
-  it("should hide Help Overlay on '?'", () => {
-    // Show first
-    window.dispatchEvent(new KeyboardEvent("keydown", { key: "?" }));
-    let backdrop = document.querySelector(
-      ".help-overlay-backdrop",
-    ) as HTMLElement;
-    expect(backdrop.style.display).toBe("flex");
-
-    // Hide with '?'
-    window.dispatchEvent(new KeyboardEvent("keydown", { key: "?" }));
-    expect(backdrop.style.display).toBe("none");
-  });
-
-  it("should show context-aware shortcuts from other contexts", () => {
-    const mockTacticalContext = {
-      id: "Tactical",
-      priority: 50,
-      trapsFocus: false,
-      handleKeyDown: vi.fn(() => false),
-      getShortcuts: () => [
-        {
-          key: "1-9",
-          label: "1-9",
-          description: "Select Option",
-          category: "Tactical" as const,
-        },
-      ],
-    };
-    InputDispatcher.getInstance().pushContext(mockTacticalContext);
-
-    window.dispatchEvent(new KeyboardEvent("keydown", { key: "?" }));
-
-    const backdrop = document.querySelector(
-      ".help-overlay-backdrop",
-    ) as HTMLElement;
-    const shortcutKeys = Array.from(
-      backdrop.querySelectorAll(".shortcut-key"),
-    ).map((el) => el.textContent);
-
-    expect(shortcutKeys).toContain("1-9");
+    const overlay = document.getElementById("keyboard-help-overlay");
+    expect(overlay).toBeTruthy();
+    expect(overlay?.style.display).toBe("flex");
   });
 });

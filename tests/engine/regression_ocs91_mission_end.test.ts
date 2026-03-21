@@ -42,14 +42,14 @@ describe("Mission End Regression (voidlock-ocs91)", () => {
         { id: "intel-0", kind: "Recover", targetCell: { x: 2, y: 2 } },
       ],
     };
-    const engine = new CoreEngine(
-      intelMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.RecoverIntel,
-    );
+    const engine = new CoreEngine({
+      map: intelMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.RecoverIntel
+    });
 
     // Complete objectives
     getInternalState(engine).objectives.forEach(
@@ -72,14 +72,14 @@ describe("Mission End Regression (voidlock-ocs91)", () => {
   });
 
   it("should NOT end DestroyHive mission until all soldiers are dead or extracted", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.DestroyHive,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.DestroyHive
+    });
 
     const hiveObj = getInternalState(engine).objectives.find(
       (o: Objective) => o.kind === "Kill",
@@ -98,14 +98,14 @@ describe("Mission End Regression (voidlock-ocs91)", () => {
   });
 
   it("should NOT end EscortVIP mission when VIP extracts if other soldiers are still active", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     const getUnitById = (id: string) => getInternalState(engine).units.find(u => u.id === id);
 

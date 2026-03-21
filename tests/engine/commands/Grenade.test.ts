@@ -16,19 +16,19 @@ describe("Grenade Command Behavior", () => {
   }
 
   it("should damage only entities in the exact same cell (regression test for voidlock-4rxw)", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [
           { archetypeId: "assault", id: "unit-1" },
           { archetypeId: "scout", id: "unit-2" },
         ],
         inventory: { frag_grenade: 1 },
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // Access private state for testing purposes
     const state = (engine as any).state;

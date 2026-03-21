@@ -48,26 +48,29 @@ describe("GameClient Pause Logic (sstg.2)", () => {
   });
 
   it("should use 0.1x for active pause when allowed", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+      squadConfig: defaultSquad,
+      missionType: MissionType.Default,
+      allowTacticalPause: 16,
+      startPaused: 16,
+      startingThreatLevel: 3,
+      enemyGrowthPerMission: false,
+      missionDepth: 0,
+      nodeType: 1.0,
+      campaignNodeId: // initial scale
       false,
+      startingPoints: // startPaused
       true,
-      UnitStyle.TacticalIcons,
-      "default",
-      defaultSquad,
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0, // initial scale
-      false, // startPaused
-      true, // allowTacticalPause
-    );
+      commandLog: // allowTacticalPause
+    });
 
     client.togglePause(); // Should pause
     expect(client.getIsPaused()).toBe(true);
@@ -85,26 +88,26 @@ describe("GameClient Pause Logic (sstg.2)", () => {
   });
 
   it("should resume to last non-paused scale", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      defaultSquad,
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0,
-      false,
-      true,
-    );
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+      squadConfig: defaultSquad,
+      missionType: MissionType.Default,
+      allowTacticalPause: 16,
+      startPaused: 16,
+      startingThreatLevel: 3,
+      enemyGrowthPerMission: false,
+      missionDepth: 0,
+      nodeType: 1.0,
+      campaignNodeId: false,
+      startingPoints: true
+    });
 
     client.setTimeScale(2.0);
     client.togglePause(); // Pause
@@ -127,26 +130,28 @@ describe("GameClient Pause Logic (sstg.2)", () => {
   });
 
   it("should disable togglePause when tactical pause is NOT allowed", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+      squadConfig: defaultSquad,
+      missionType: MissionType.Default,
+      allowTacticalPause: 16,
+      startPaused: 16,
+      startingThreatLevel: 3,
+      enemyGrowthPerMission: false,
+      missionDepth: 0,
+      nodeType: 1.0,
+      campaignNodeId: false,
+      startingPoints: // startPaused
       false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      defaultSquad,
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0,
-      false, // startPaused
-      false, // allowTacticalPause = FALSE
-    );
+      commandLog: // allowTacticalPause = FALSE
+    });
 
     client.togglePause();
     expect(client.getIsPaused()).toBe(false);
@@ -154,26 +159,27 @@ describe("GameClient Pause Logic (sstg.2)", () => {
   });
 
   it("should clamp setTimeScale to 1.0 when tactical pause is NOT allowed", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      defaultSquad,
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0,
-      false,
-      false, // allowTacticalPause = FALSE
-    );
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+      squadConfig: defaultSquad,
+      missionType: MissionType.Default,
+      allowTacticalPause: 16,
+      startPaused: 16,
+      startingThreatLevel: 3,
+      enemyGrowthPerMission: false,
+      missionDepth: 0,
+      nodeType: 1.0,
+      campaignNodeId: false,
+      startingPoints: false,
+      commandLog: // allowTacticalPause = FALSE
+    });
 
     client.setTimeScale(0.5);
     expect(client.getTimeScale()).toBe(1.0);
@@ -186,26 +192,26 @@ describe("GameClient Pause Logic (sstg.2)", () => {
   });
 
   it("should return 0.1 for getTimeScale when paused and tactical allowed", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      defaultSquad,
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0,
-      true,
-      true,
-    );
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+      squadConfig: defaultSquad,
+      missionType: MissionType.Default,
+      allowTacticalPause: 16,
+      startPaused: 16,
+      startingThreatLevel: 3,
+      enemyGrowthPerMission: false,
+      missionDepth: 0,
+      nodeType: 1.0,
+      campaignNodeId: true,
+      startingPoints: true
+    });
     expect(client.getIsPaused()).toBe(true);
     expect(client.getTimeScale()).toBe(0.1);
   });

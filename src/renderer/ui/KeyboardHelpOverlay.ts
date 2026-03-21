@@ -9,8 +9,9 @@ export class KeyboardHelpOverlay implements InputContext {
 
   private backdrop: HTMLElement;
 
-  constructor() {
+  constructor(private inputDispatcher: InputDispatcher) {
     this.backdrop = document.createElement("div");
+    this.backdrop.id = "keyboard-help-overlay";
     this.backdrop.className = "help-overlay-backdrop";
     this.backdrop.style.position = "fixed";
     this.backdrop.style.inset = "0";
@@ -38,12 +39,12 @@ export class KeyboardHelpOverlay implements InputContext {
   public show() {
     this.render();
     this.backdrop.style.display = "flex";
-    InputDispatcher.getInstance().pushContext(this);
+    this.inputDispatcher.pushContext(this);
   }
 
   public hide() {
     this.backdrop.style.display = "none";
-    InputDispatcher.getInstance().popContext(this.id);
+    this.inputDispatcher.popContext(this.id);
   }
 
   private render() {
@@ -58,7 +59,7 @@ export class KeyboardHelpOverlay implements InputContext {
     title.style.paddingBottom = "10px";
     this.container.appendChild(title);
 
-    const shortcuts = InputDispatcher.getInstance().getActiveShortcuts();
+    const shortcuts = this.inputDispatcher.getActiveShortcuts();
 
     // Group by category
     const grouped = new Map<string, ShortcutInfo[]>();

@@ -37,7 +37,13 @@ describe("Scrap Economy Regression", () => {
   const getInternalState = (engine: CoreEngine) => (engine as any).state;
 
   it("should reward scrap for killing elite enemies", () => {
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     expect(engine.getState().stats.scrapGained).toBe(0);
     expect(engine.getState().stats.elitesKilled).toBe(0);
@@ -73,7 +79,13 @@ describe("Scrap Economy Regression", () => {
   });
 
   it("should reward scrap for completing objectives", () => {
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // Move unit to objective - must modify internal state
     getInternalState(engine).units[0].pos = { x: 2.5, y: 0.5 };
@@ -93,7 +105,13 @@ describe("Scrap Economy Regression", () => {
   });
 
   it("should reward bonus scrap on mission win", () => {
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // Complete objective
     getInternalState(engine).units[0].pos = { x: 2.5, y: 0.5 };
@@ -118,7 +136,13 @@ describe("Scrap Economy Regression", () => {
   });
 
   it("should reward small scrap on mission loss", () => {
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // Kill all units
     getInternalState(engine).units.forEach((u: any) => {

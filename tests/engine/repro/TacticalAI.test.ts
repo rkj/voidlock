@@ -48,13 +48,13 @@ describe("Tactical AI Reproduction Tests", () => {
       soldiers: [{ archetypeId: "assault" }],
       inventory: {},
     };
-    engine = new CoreEngine(
-      createMinimalMap(),
-      12345,
-      defaultSquad,
-      true,
-      true,
-    );
+    engine = new CoreEngine({
+      map: createMinimalMap(),
+      seed: 12345,
+      squadConfig: defaultSquad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: true
+    });
     engine.clearUnits();
   });
 
@@ -148,7 +148,13 @@ describe("Tactical AI Reproduction Tests", () => {
         }
     }
 
-    engine = new CoreEngine(customMap, 12345, { soldiers: [], inventory: {} }, true, true);
+    engine = new CoreEngine({
+      map: customMap,
+      seed: 12345,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true
+    });
     engine.clearUnits();
 
     engine.addUnit({
@@ -207,7 +213,13 @@ describe("Tactical AI Reproduction Tests", () => {
         }
     }
     
-    engine = new CoreEngine(customMap, 12345, { soldiers: [], inventory: {} }, true, true);
+    engine = new CoreEngine({
+      map: customMap,
+      seed: 12345,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true
+    });
     engine.clearUnits();
 
     engine.addUnit({

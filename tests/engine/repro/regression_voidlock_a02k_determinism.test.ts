@@ -37,23 +37,24 @@ describe("Regression A02K: Replay Determinism", () => {
     const targetPos = { x: 5, y: 0 };
 
     // Run 1: Fixed 16ms steps
-    const engine1 = new CoreEngine(
-      mockMap,
-      seed,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-      [],
-      true,
-      0,
-      0, // baseEnemyCount 0
-    );
+    const engine1 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 0,
+      enemyGrowthPerMission: 0
+    });
 
     // Issue a move command
     engine1.applyCommand({
@@ -68,23 +69,24 @@ describe("Regression A02K: Replay Determinism", () => {
     const state1 = engine1.getState();
 
     // Run 2: 24ms steps
-    const engine2 = new CoreEngine(
-      mockMap,
-      seed,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-      [],
-      true,
-      0,
-      0, // baseEnemyCount 0
-    );
+    const engine2 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 0,
+      enemyGrowthPerMission: 0
+    });
 
     // Issue a move command
     engine2.applyCommand({
@@ -109,19 +111,19 @@ describe("Regression A02K: Replay Determinism", () => {
 
   it("should match original simulation when replaying with same commands", () => {
     const seed = 12345;
-    const engine1 = new CoreEngine(
-      mockMap,
-      seed,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-    );
+    const engine1 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation
+    });
 
     // Initial state has EXPLORE command automatically added
     const initialLog = [...engine1.getState().commandLog!];
@@ -136,20 +138,20 @@ describe("Regression A02K: Replay Determinism", () => {
     const finalLog = finalState1.commandLog!;
 
     // Replay run
-    const engine2 = new CoreEngine(
-      mockMap,
-      seed,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Replay,
-      finalLog,
-    );
+    const engine2 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Replay,
+      initialCommandLog: finalLog
+    });
 
     for (let i = 0; i < 10; i++) {
       engine2.update(16);

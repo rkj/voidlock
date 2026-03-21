@@ -43,29 +43,44 @@ describe("Replay Determinism", () => {
     const seed = 42;
 
     // 1. Play session
-    const engine1 = new CoreEngine(
-      mockMap,
-      seed,
-      defaultSquad,
-      false, // agentControl
-      false, // debugSnapshots
+    const engine1 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: // agentControl
+      false,
+      missionType: // debugSnapshots
       MissionType.Default,
-      false, // los
-      0, // threat
-      1.0, // timescale
-      false, // startPaused
+      losOverlayEnabled: false,
+      startingThreatLevel: // los
+      0,
+      initialTimeScale: // threat
+      1.0,
+      startPaused: // timescale
+      false,
+      mode: // startPaused
       EngineMode.Simulation,
-      [], // commandLog
-      true, // allowPause
-      0, // targetTick
-      1, // enemies
-      1, // growth
-      0, // depth
+      initialCommandLog: [],
+      allowTacticalPause: // commandLog
+      true,
+      targetTick: // allowPause
+      0,
+      baseEnemyCount: // targetTick
+      1,
+      enemyGrowthPerMission: // enemies
+      1,
+      missionDepth: // growth
+      0,
+      nodeType: // depth
       "Combat",
-      undefined, // campaignNodeId
-      undefined, // startingPoints
-      true, // skipDeployment
-    );
+      campaignNodeId: undefined,
+      startingPoints: // campaignNodeId
+      undefined,
+      skipDeployment: // startingPoints
+      true,
+      debugSnapshots: // skipDeployment
+    });
 
     // Run for 100 ticks
     for (let i = 0; i < 100; i++) {
@@ -89,29 +104,30 @@ describe("Replay Determinism", () => {
     // console.log("LOG:", JSON.stringify(log, null, 2));
 
     // 2. Replay session
-    const engine2 = new CoreEngine(
-      mockMap,
-      seed,
-      defaultSquad,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Replay,
-      log,
-      true,
-      0,
-      1,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      true, // skipDeployment
-    );
+    const engine2 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Replay,
+      initialCommandLog: log,
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 1,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: true,
+      debugSnapshots: // skipDeployment
+    });
 
     // Run for 200 ticks
     for (let i = 0; i < 200; i++) {

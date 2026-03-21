@@ -49,14 +49,16 @@ describe("Repro LXRDt: Recover Objective Pickup", () => {
       inventory: {}
     };
     
-    engine = new CoreEngine(
-      map as any,
-      123,
-      squadConfig as any,
-      true, // agentControlEnabled
-      false, // debugOverlayEnabled
+    engine = new CoreEngine({
+      map: map as any,
+      seed: 123,
+      squadConfig: squadConfig as any,
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled
+      false,
+      missionType: // debugOverlayEnabled
       MissionType.Default
-    );
+    });
     
     // Position unit at the objective
     const unit = engine.getState().units[0];
@@ -107,14 +109,16 @@ describe("Repro LXRDt: Recover Objective Pickup", () => {
       inventory: {}
     };
     
-    engine = new CoreEngine(
-      map as any,
-      123,
-      squadConfig as any,
-      true, // agentControlEnabled
-      false, // debugOverlayEnabled
+    engine = new CoreEngine({
+      map: map as any,
+      seed: 123,
+      squadConfig: squadConfig as any,
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled
+      false,
+      missionType: // debugOverlayEnabled
       MissionType.Default
-    );
+    });
     
     const unit = engine.getState().units[0];
     unit.pos = { x: 2.5, y: 2.5 };

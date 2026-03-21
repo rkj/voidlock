@@ -34,7 +34,13 @@ describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const unit = engine.getState().units[0];
 
     // Initial check: assault(90) + pulse_rifle(5) + heavy_armor(-10) = 85

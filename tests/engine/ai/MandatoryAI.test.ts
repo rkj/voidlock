@@ -30,7 +30,13 @@ describe("Mandatory AI Scenarios (ADR 0041)", () => {
       extraction: { x: 9, y: 0 },
     };
 
-    const engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
 
     engine.addUnit({
@@ -117,7 +123,13 @@ describe("Mandatory AI Scenarios (ADR 0041)", () => {
       extraction: { x: 0, y: 5 },
     };
 
-    const engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
 
     engine.addUnit({
@@ -173,7 +185,13 @@ describe("Mandatory AI Scenarios (ADR 0041)", () => {
       objectives: [{ id: "obj1", kind: "Recover", targetCell: { x: 5, y: 0 }, state: "Pending", visible: true }],
     };
 
-    const engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
 
     engine.addUnit({
@@ -220,7 +238,13 @@ describe("Mandatory AI Scenarios (ADR 0041)", () => {
       extraction: { x: 4, y: 4 }, // Far from start
     };
 
-    const engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
 
     engine.addUnit({

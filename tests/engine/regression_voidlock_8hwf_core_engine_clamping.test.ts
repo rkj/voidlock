@@ -12,21 +12,22 @@ describe("CoreEngine: allowTacticalPause Clamping", () => {
   const squadConfig: SquadConfig = { soldiers: [], inventory: {} };
 
   it("should clamp timeScale to 1.0 when allowTacticalPause is false", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-      [],
-      false, // allowTacticalPause = false
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: false,
+      targetTick: // allowTacticalPause = false
+    });
 
     engine.setTimeScale(0.5);
     expect(engine.getState().settings.timeScale).toBe(1.0);
@@ -40,21 +41,22 @@ describe("CoreEngine: allowTacticalPause Clamping", () => {
   });
 
   it("should NOT clamp timeScale when allowTacticalPause is true", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-      [],
-      true, // allowTacticalPause = true
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: // allowTacticalPause = true
+    });
 
     engine.setTimeScale(0.5);
     expect(engine.getState().settings.timeScale).toBe(0.5);

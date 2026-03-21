@@ -15,6 +15,7 @@ import {
   CommandLogEntry,
   MapGenerationConfig,
   CampaignNodeType,
+  GameClientConfig,
 } from "../shared/types";
 import { MapFactory } from "./map/MapFactory";
 import { Logger } from "../shared/Logger";
@@ -143,40 +144,41 @@ export class GameClient {
     };
   }
 
-  public init(
-    seed: number,
-    mapGeneratorType: MapGeneratorType,
-    mapData?: MapDefinition,
-    fogOfWarEnabled: boolean = true,
-    debugOverlayEnabled: boolean = false,
-    agentControlEnabled: boolean = true,
-    unitStyle: UnitStyle = UnitStyle.TacticalIcons,
-    themeId: string = "default",
-    squadConfig: SquadConfig = { soldiers: [], inventory: {} }, // Default to empty squad if not provided
-    missionType: MissionType = MissionType.Default,
-    width: number = 16,
-    height: number = 16,
-    spawnPointCount: number = 3,
-    losOverlayEnabled: boolean = false,
-    startingThreatLevel: number = 0,
-    initialTimeScale: number = 1.0,
-    startPaused: boolean = false,
-    allowTacticalPause: boolean = true,
-    mode: EngineMode = EngineMode.Simulation,
-    commandLog: CommandLogEntry[] = [],
-    campaignNodeId?: string,
-    targetTick: number = 0,
-    baseEnemyCount: number = 3,
-    enemyGrowthPerMission: number = 1,
-    missionDepth: number = 0,
-    nodeType?: CampaignNodeType,
-    startingPoints?: number,
-    bonusLootCount: number = 0,
-    skipDeployment: boolean = true,
-    debugSnapshots: boolean = false,
-    debugSnapshotInterval: number = 0,
-    initialSnapshots: GameState[] = [],
-  ) {
+  public init(config: GameClientConfig) {
+    const {
+      seed,
+      mapGeneratorType,
+      map: mapData,
+      fogOfWarEnabled = true,
+      debugOverlayEnabled = false,
+      agentControlEnabled = true,
+      unitStyle = UnitStyle.TacticalIcons,
+      themeId = "default",
+      squadConfig = { soldiers: [], inventory: {} },
+      missionType = MissionType.Default,
+      width = 16,
+      height = 16,
+      spawnPointCount = 3,
+      losOverlayEnabled = false,
+      startingThreatLevel = 0,
+      initialTimeScale = 1.0,
+      startPaused = false,
+      allowTacticalPause = true,
+      mode = EngineMode.Simulation,
+      commandLog = [],
+      campaignNodeId,
+      targetTick = 0,
+      baseEnemyCount = 3,
+      enemyGrowthPerMission = 1,
+      missionDepth = 0,
+      nodeType,
+      startingPoints,
+      bonusLootCount = 0,
+      skipDeployment = true,
+      debugSnapshots = false,
+      debugSnapshotInterval = 0,
+      initialSnapshots = [],
+    } = config;
     this.isStopped = false;
     this.currentSessionId = Math.random().toString(36).substring(2, 15);
     this.initialSeed = seed;
@@ -200,7 +202,7 @@ export class GameClient {
     const effectiveAllowTacticalPause =
       mode === EngineMode.Replay ? false : allowTacticalPause;
 
-    const config: MapGenerationConfig = {
+    const generatorConfig: MapGenerationConfig = {
       seed,
       width,
       height,
@@ -210,7 +212,7 @@ export class GameClient {
     };
 
     // Use the factory to get the map, based on type and data
-    const generator = this.mapGeneratorFactory(config);
+    const generator = this.mapGeneratorFactory(generatorConfig);
     Logger.info(`GameClient: init mapGeneratorType=${mapGeneratorType}, hasMapData=${!!mapData}`);
     const map =
       mapGeneratorType === MapGeneratorType.Static
@@ -278,7 +280,7 @@ export class GameClient {
         startPaused: this.isPaused,
         allowTacticalPause: effectiveAllowTacticalPause,
         mode,
-        commandLog,
+        initialCommandLog: commandLog,
         initialSnapshots,
         targetTick,
         targetTimeScale: this.lastNonPausedScale,
@@ -544,40 +546,40 @@ export class GameClient {
       this.snapshots = data.snapshots;
     }
 
-    this.init(
-      data.seed,
-      MapGeneratorType.Static,
-      data.map,
-      true, // fog
-      false, // debug
-      data.agentControlEnabled ?? true,
-      data.unitStyle ?? UnitStyle.TacticalIcons,
-      data.themeId ?? "default",
-      data.squadConfig,
-      data.missionType || MissionType.Default,
-      data.map.width,
-      data.map.height,
-      0, // spawnPointCount (static map)
-      false, // los
-      data.startingThreatLevel ?? 0,
-      1.0, // initialTimeScale
-      false, // startPaused
-      data.allowTacticalPause ?? true,
-      EngineMode.Replay,
+    this.init({
+      seed: data.seed,
+      mapGeneratorType: MapGeneratorType.Static,
+      map: data.map,
+      fogOfWarEnabled: true,
+      debugOverlayEnabled: false,
+      agentControlEnabled: data.agentControlEnabled ?? true,
+      unitStyle: data.unitStyle ?? UnitStyle.TacticalIcons,
+      themeId: data.themeId ?? "default",
+      squadConfig: data.squadConfig,
+      missionType: data.missionType || MissionType.Default,
+      width: data.map.width,
+      height: data.map.height,
+      spawnPointCount: 0,
+      losOverlayEnabled: false,
+      startingThreatLevel: data.startingThreatLevel ?? 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      allowTacticalPause: data.allowTacticalPause ?? true,
+      mode: EngineMode.Replay,
       commandLog,
-      undefined, // campaignNodeId
-      0, // targetTick
-      data.baseEnemyCount ?? 3,
-      data.enemyGrowthPerMission ?? 1,
-      data.missionDepth ?? 0,
-      data.nodeType,
-      data.startingPoints,
-      data.bonusLootCount ?? 0,
-      data.skipDeployment ?? true,
-      true, // debugSnapshots
-      100, // debugSnapshotInterval (1.6s)
-      this.snapshots,
-    );
+      campaignNodeId: undefined,
+      targetTick: 0,
+      baseEnemyCount: data.baseEnemyCount ?? 3,
+      enemyGrowthPerMission: data.enemyGrowthPerMission ?? 1,
+      missionDepth: data.missionDepth ?? 0,
+      nodeType: data.nodeType,
+      startingPoints: data.startingPoints,
+      bonusLootCount: data.bonusLootCount ?? 0,
+      skipDeployment: data.skipDeployment ?? true,
+      debugSnapshots: true,
+      debugSnapshotInterval: 100,
+      initialSnapshots: this.snapshots,
+    });
   }
 
   public seek(tick: number) {
@@ -589,40 +591,40 @@ export class GameClient {
       command: rc.cmd,
     }));
 
-    this.init(
-      data.seed,
-      MapGeneratorType.Static,
-      data.map,
-      true, // fog
-      false, // debug
-      data.agentControlEnabled ?? true,
-      data.unitStyle ?? UnitStyle.TacticalIcons,
-      data.themeId ?? "default",
-      data.squadConfig,
-      data.missionType || MissionType.Default,
-      data.map.width,
-      data.map.height,
-      0, // spawnPointCount (static map)
-      false, // los
-      data.startingThreatLevel ?? 0,
-      this.currentScale, // preserve current speed
-      this.isPaused, // preserve paused state
-      data.allowTacticalPause ?? true,
-      EngineMode.Replay,
+    this.init({
+      seed: data.seed,
+      mapGeneratorType: MapGeneratorType.Static,
+      map: data.map,
+      fogOfWarEnabled: true,
+      debugOverlayEnabled: false,
+      agentControlEnabled: data.agentControlEnabled ?? true,
+      unitStyle: data.unitStyle ?? UnitStyle.TacticalIcons,
+      themeId: data.themeId ?? "default",
+      squadConfig: data.squadConfig,
+      missionType: data.missionType || MissionType.Default,
+      width: data.map.width,
+      height: data.map.height,
+      spawnPointCount: 0,
+      losOverlayEnabled: false,
+      startingThreatLevel: data.startingThreatLevel ?? 0,
+      initialTimeScale: this.currentScale,
+      startPaused: this.isPaused,
+      allowTacticalPause: data.allowTacticalPause ?? true,
+      mode: EngineMode.Replay,
       commandLog,
-      undefined, // campaignNodeId
-      tick, // targetTick
-      data.baseEnemyCount ?? 3,
-      data.enemyGrowthPerMission ?? 1,
-      data.missionDepth ?? 0,
-      data.nodeType,
-      data.startingPoints,
-      data.bonusLootCount ?? 0,
-      data.skipDeployment ?? true,
-      true, // debugSnapshots
-      100, // debugSnapshotInterval (1.6s)
-      this.snapshots,
-    );
+      campaignNodeId: undefined,
+      targetTick: tick,
+      baseEnemyCount: data.baseEnemyCount ?? 3,
+      enemyGrowthPerMission: data.enemyGrowthPerMission ?? 1,
+      missionDepth: data.missionDepth ?? 0,
+      nodeType: data.nodeType,
+      startingPoints: data.startingPoints,
+      bonusLootCount: data.bonusLootCount ?? 0,
+      skipDeployment: data.skipDeployment ?? true,
+      debugSnapshots: true,
+      debugSnapshotInterval: 100,
+      initialSnapshots: this.snapshots,
+    });
   }
 
   public onStateUpdate(cb: ((state: GameState) => void) | null) {

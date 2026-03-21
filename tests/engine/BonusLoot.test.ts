@@ -45,28 +45,29 @@ describe("Bonus Loot (Scrap Crates)", () => {
       bonusLoot: [{ x: 2, y: 0 }],
     };
 
-    const engine = new CoreEngine(
-      map,
-      12345,
-      squadConfig,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
+    const engine = new CoreEngine({
+      map: map,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: undefined,
+      campaignNodeId: // nodeType defaults to undefined
       undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      undefined, // nodeType defaults to undefined
-      undefined,
-      0,
-    );
+      startingPoints: 0
+    });
     const state = engine.getState();
 
     expect(state.loot).toBeDefined();
@@ -94,28 +95,29 @@ describe("Bonus Loot (Scrap Crates)", () => {
       objectives: [{ id: "o1", kind: "Recover", targetCell: { x: 3, y: 0 } }],
     };
 
-    const engine = new CoreEngine(
-      map,
-      12345,
-      squadConfig,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
+    const engine = new CoreEngine({
+      map: map,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: undefined,
+      campaignNodeId: // nodeType defaults to undefined
       undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      undefined, // nodeType defaults to undefined
-      undefined,
-      0,
-    );
+      startingPoints: 0
+    });
 
     // Initial scrap should be 0 (stats.scrapGained)
     expect(engine.getState().stats.scrapGained).toBe(0);
@@ -157,28 +159,28 @@ describe("Bonus Loot (Scrap Crates)", () => {
       }
     }
 
-    const engine = new CoreEngine(
-      map,
-      12345,
-      squadConfig,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Elite",
-      undefined,
-      0,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Elite",
+      campaignNodeId: undefined,
+      startingPoints: 0
+    });
 
     // Ensure there is an objective
     expect(engine.getState().objectives.length).toBeGreaterThan(0);

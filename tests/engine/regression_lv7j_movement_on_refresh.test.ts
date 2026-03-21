@@ -29,19 +29,19 @@ describe("Regression lv7j: Unit Movement on Refresh", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(
-      map,
-      seed,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation
+    });
 
     const unitId = engine.getState().units[0].id;
 
@@ -64,22 +64,23 @@ describe("Regression lv7j: Unit Movement on Refresh", () => {
 
     // 3. Simulate Refresh: Create new engine with the SAME command log
     // BUT we don't have a command at tickBeforeRefresh.
-    const recoveredEngine = new CoreEngine(
-      map,
-      seed,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-      commandLog,
-      true, // allowTacticalPause
-      tickBeforeRefresh,
-    );
+    const recoveredEngine = new CoreEngine({
+      map: map,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: commandLog,
+      allowTacticalPause: true,
+      targetTick: // allowTacticalPause
+      tickBeforeRefresh
+    });
 
     const recoveredState = recoveredEngine.getState();
 

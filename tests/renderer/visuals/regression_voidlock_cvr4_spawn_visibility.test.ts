@@ -33,7 +33,17 @@ describe("Regression voidlock-cvr4: Spawn Point Visibility", () => {
       lineTo: vi.fn(),
     };
 
-    sharedState = new SharedRendererState();
+    const mockTheme = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    const mockAssetManager = {
+      iconImages: {},
+      unitSprites: {},
+      enemySprites: {},
+    };
+
+    sharedState = new SharedRendererState(mockTheme as any, mockAssetManager as any);
     sharedState.cellSize = 32;
     layer = new MapEntityLayer(sharedState);
   });

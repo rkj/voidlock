@@ -42,3 +42,5 @@ tests/e2e/__snapshots__
 .dolt/
 .beads/dolt/.dolt/
 *.db
+.debugging/
+

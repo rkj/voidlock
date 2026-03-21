@@ -13,12 +13,14 @@ interface QueuedMessage {
 
 export class AdvisorOverlay {
   private container: HTMLElement;
-  private gameClient: GameClient;
   private messageQueue: QueuedMessage[] = [];
   private isShowingBlockingMessage = false;
 
-  constructor(gameClient: GameClient) {
-    this.gameClient = gameClient;
+  constructor(
+    private gameClient: GameClient,
+    private themeManager: ThemeManager,
+    private inputDispatcher: InputDispatcher,
+  ) {
     this.container = this.createContainer();
     this.injectStyles();
   }
@@ -82,9 +84,8 @@ export class AdvisorOverlay {
         messageEl.classList.add("advisor-narrative-modal");
     }
 
-    const theme = ThemeManager.getInstance();
     const portrait = msg.portrait || "logo_gemini"; // logical name fallback
-    let portraitUrl = theme.getAssetUrl(portrait);
+    let portraitUrl = this.themeManager.getAssetUrl(portrait);
     if (!portraitUrl && portrait.includes(".")) {
       portraitUrl = `assets/${portrait}`; // Backward compatibility
     }
@@ -92,7 +93,7 @@ export class AdvisorOverlay {
       portraitUrl = `assets/logo_gemini.webp`; // Absolute fallback
     }
     
-    let illustrationUrl = msg.illustration ? theme.getAssetUrl(msg.illustration) : null;
+    let illustrationUrl = msg.illustration ? this.themeManager.getAssetUrl(msg.illustration) : null;
     if (!illustrationUrl && msg.illustration && msg.illustration.includes(".")) {
       illustrationUrl = `assets/${msg.illustration}`; // Backward compatibility
     }
@@ -130,7 +131,7 @@ export class AdvisorOverlay {
         document.body.appendChild(backdrop);
 
         const dismiss = () => {
-            InputDispatcher.getInstance().popContext(`advisor-${msg.id}`);
+            this.inputDispatcher.popContext(`advisor-${msg.id}`);
             backdrop.remove();
             this.gameClient.unfreezeAfterDialog();
             Logger.info(`Advisor message dismissed: ${msg.id}`);
@@ -142,7 +143,7 @@ export class AdvisorOverlay {
             btn.addEventListener("click", dismiss);
         }
 
-        InputDispatcher.getInstance().pushContext({
+        this.inputDispatcher.pushContext({
             id: `advisor-${msg.id}`,
             priority: InputPriority.Overlay,
             trapsFocus: true,

@@ -24,13 +24,14 @@ describe("Timed Actions (Extraction/Collection)", () => {
   }
 
   it("should delay extraction by 5 seconds", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "scout" }], inventory: {} },
-      false, // Manual control
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: // Manual control
+      false
+    });
 
     const realUnit = (engine as any).state.units[0];
     // Teleport unit near extraction
@@ -81,13 +82,13 @@ describe("Timed Actions (Extraction/Collection)", () => {
       objectives: [{ id: "obj1", kind: "Recover", targetCell: { x: 2, y: 2 } }],
     };
 
-    const engine = new CoreEngine(
-      objMap,
-      123,
-      { soldiers: [{ archetypeId: "scout" }], inventory: {} },
-      false,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: objMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const realUnit = (engine as any).state.units[0];
     realUnit.pos = { x: 1.5, y: 2.5 };
@@ -126,13 +127,13 @@ describe("Timed Actions (Extraction/Collection)", () => {
   });
 
   it("should interrupt channeling on STOP command", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "scout" }], inventory: {} },
-      false,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const realUnit = (engine as any).state.units[0];
     realUnit.pos = { x: 4.5, y: 4.5 }; // Already at extraction
@@ -165,13 +166,13 @@ describe("Timed Actions (Extraction/Collection)", () => {
   });
 
   it("should interrupt channeling on MOVE command", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "scout" }], inventory: {} },
-      false,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const realUnit = (engine as any).state.units[0];
     realUnit.pos = { x: 4.5, y: 4.5 };
@@ -201,13 +202,13 @@ describe("Timed Actions (Extraction/Collection)", () => {
   });
 
   it("should couple extraction to game time (scaledDt)", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "scout" }], inventory: {} },
-      false,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const realUnit = (engine as any).state.units[0];
     realUnit.pos = { x: 4.5, y: 4.5 }; // Already at extraction

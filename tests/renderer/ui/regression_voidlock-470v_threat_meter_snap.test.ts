@@ -18,24 +18,24 @@ describe("HUDManager Threat Meter Snap Regression", () => {
       <div id="soldier-list"></div>
     `;
 
-    hud = new HUDManager(
-      {
+    hud = new HUDManager({
+      menuController: {
         getRenderableState: vi.fn().mockReturnValue({
           title: "COMMANDS",
           options: [],
           footer: "",
         }),
       } as any,
-      { getCurrentStepId: () => null } as any,
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-    );
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: vi.fn(),
+      onAbortMission: vi.fn(),
+      onMenuInput: vi.fn(),
+      onCopyWorldState: vi.fn(),
+      onForceWin: vi.fn(),
+      onForceLose: vi.fn(),
+      onStartMission: vi.fn(),
+      onDeployUnit: vi.fn(),
+    });
 
     mockState = {
       t: 0,

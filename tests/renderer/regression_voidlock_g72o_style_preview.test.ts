@@ -9,6 +9,7 @@ vi.mock("@package.json", () => ({
 }));
 
 const mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
   init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   onStateUpdate: vi.fn(),
   queryState: vi.fn(),
@@ -54,64 +55,43 @@ const mockThemeManager = {
   getCurrentThemeId: vi.fn().mockReturnValue("default"),
 };
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue(mockThemeManager),
-  },
-}));
-
-// Mock AssetManager
-vi.mock("@src/renderer/visuals/AssetManager", () => ({
-  AssetManager: {
-    getInstance: () => ({
-      loadSprites: vi.fn(),
-      loadIcons: vi.fn(),
-      getUnitSprite: vi.fn().mockReturnValue({
-        complete: true,
-        naturalWidth: 64,
-        addEventListener: vi.fn(),
-      }),
-      getEnemySprite: vi.fn().mockReturnValue({
-        complete: true,
-        naturalWidth: 64,
-        addEventListener: vi.fn(),
-      }),
-      getMiscSprite: vi.fn().mockReturnValue({
-        complete: true,
-        naturalWidth: 64,
-        addEventListener: vi.fn(),
-      }),
-      getIcon: vi.fn().mockReturnValue({
-        complete: true,
-        naturalWidth: 64,
-        addEventListener: vi.fn(),
-      }),
-    }),
-  },
-}));
-
-const mockModalService = {
-  alert: vi.fn().mockResolvedValue(undefined),
-  confirm: vi.fn().mockResolvedValue(true),
-  show: vi.fn().mockResolvedValue(undefined),
-};
-
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
-}));
-
-vi.mock("@src/renderer/campaign/CampaignManager", () => {
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
   return {
-    CampaignManager: {
-      getInstance: vi.fn().mockReturnValue({
-        getState: vi.fn(() => null),
-        getStorage: vi.fn(),
-        getSyncStatus: vi.fn().mockReturnValue("local-only"),
-        addChangeListener: vi.fn(),
-        removeChangeListener: vi.fn(),
-        load: vi.fn(),
-      }),
-    },
+    ThemeManager: mockConstructor,
+  };
+});
+
+vi.mock("@src/renderer/visuals/AssetManager", () => {
+  const mockSprite = {
+    complete: true,
+    naturalWidth: 100,
+    naturalHeight: 100,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  } as any;
+
+  const mockInstance = {
+    loadSprites: vi.fn(),
+    getUnitSprite: vi.fn().mockReturnValue(mockSprite),
+    getEnemySprite: vi.fn().mockReturnValue(mockSprite),
+    getMiscSprite: vi.fn().mockReturnValue(mockSprite),
+    getIcon: vi.fn().mockReturnValue(mockSprite),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    AssetManager: mockConstructor,
   };
 });
 
@@ -207,7 +187,8 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
     `;
 
     vi.resetModules();
-    await import("@src/renderer/main");
+    const { bootstrap } = await import("@src/renderer/main");
+    await bootstrap();
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 

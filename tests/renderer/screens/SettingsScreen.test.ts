@@ -9,6 +9,7 @@ import { ConfigManager } from "@src/renderer/ConfigManager";
 vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
     loadGlobal: vi.fn(),
+    clearCampaign: vi.fn(),
     saveGlobal: vi.fn(),
   },
 }));
@@ -20,13 +21,31 @@ vi.mock("@src/services/firebase", () => ({
 }));
 
 describe("SettingsScreen", () => {
+  let onBack: any;
   let context: any;
   let screen: SettingsScreen;
 
   beforeEach(() => {
+    onBack = vi.fn();
     document.body.innerHTML = '<div id="screen-settings"></div>';
     
     context = {
+      inputDispatcher: {
+        pushContext: vi.fn(),
+        popContext: vi.fn(),
+      },
+      themeManager: {
+        getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+        getColor: vi.fn().mockReturnValue("#ffffff"),
+        getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      },
+      assetManager: {
+        loadSprites: vi.fn(),
+        getUnitSprite: vi.fn(),
+        getEnemySprite: vi.fn(),
+        getMiscSprite: vi.fn(),
+        getIcon: vi.fn(),
+      },
       cloudSync: {
         isConfigured: vi.fn().mockReturnValue(false),
         isSyncEnabled: vi.fn().mockReturnValue(false),
@@ -60,13 +79,15 @@ describe("SettingsScreen", () => {
       cloudSyncEnabled: true, // Enabled but not configured
     });
 
-    screen = new SettingsScreen(
-      "screen-settings",
-      context.themeManager,
-      context.cloudSync,
-      context.modalService,
-      vi.fn(),
-    );
+    screen = new SettingsScreen({
+      containerId: "screen-settings",
+      themeManager: context.themeManager,
+      assetManager: context.assetManager,
+      inputDispatcher: context.inputDispatcher,
+      cloudSync: context.cloudSync,
+      modalService: context.modalService,
+      onBack: onBack,
+    });
   });
 
   it("should show error message and have toggle enabled when cloudSyncEnabled is true but not configured", () => {

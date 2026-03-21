@@ -23,19 +23,19 @@ describe("Item Targeting (voidlock-awkp)", () => {
   }
 
   it("Medkit should only heal the actor even if targetUnitId is specified", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [
           { archetypeId: "assault", id: "unit-1", hp: 50, maxHp: 100 },
           { archetypeId: "medic", id: "unit-2", hp: 10, maxHp: 100 },
         ],
         inventory: { medkit: 1 },
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // Unit 1 uses medkit on Unit 2
     const cmd: Command = {
@@ -63,16 +63,16 @@ describe("Item Targeting (voidlock-awkp)", () => {
   });
 
   it("Grenade should support targetUnitId and damage that enemy", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [{ archetypeId: "assault", id: "unit-1" }],
         inventory: { frag_grenade: 1 },
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // Manually add an enemy
     engine.addEnemy({

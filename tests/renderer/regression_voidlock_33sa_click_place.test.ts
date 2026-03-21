@@ -60,16 +60,18 @@ describe("SquadBuilder Click-to-Place", () => {
 
   it("should auto-assign to first available slot on single click of roster card", () => {
     const onUpdate = vi.fn();
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      true, // isCampaign
-      onUpdate,
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: // isCampaign
+      onUpdate
+    });
     builder.render();
 
     const rosterCards = container.querySelectorAll(
@@ -85,16 +87,17 @@ describe("SquadBuilder Click-to-Place", () => {
   });
 
   it("should highlight the next available soldier after assignment", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      true,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     const rosterCards = container.querySelectorAll(
@@ -121,16 +124,17 @@ describe("SquadBuilder Click-to-Place", () => {
   });
 
   it("should allow assigning highlighted soldier by clicking an empty slot", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      true,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     // Select the first one
@@ -164,16 +168,17 @@ describe("SquadBuilder Click-to-Place", () => {
       },
     ];
 
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      true,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     let rosterCards = container.querySelectorAll(".roster-panel .soldier-card");

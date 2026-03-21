@@ -14,7 +14,13 @@ describe("State Snapshot Integrity", () => {
       soldiers: [{ archetypeId: "assault" }],
       inventory: {},
     };
-    const engine = new CoreEngine(mockMap, 123, defaultSquad, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const state1 = engine.getState();
     const unit1 = state1.units[0];

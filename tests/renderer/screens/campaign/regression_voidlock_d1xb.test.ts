@@ -6,17 +6,28 @@ import { NewCampaignWizard } from "@src/renderer/screens/campaign/NewCampaignWiz
 import { ConfigManager } from "@src/renderer/ConfigManager";
 
 // Mock MetaManager
-vi.mock("@src/renderer/campaign/MetaManager", () => ({
-  MetaManager: {
-    getInstance: () => ({
-      getStats: () => ({
-        totalKills: 0,
-        totalCampaignsStarted: 0,
-        totalMissionsWon: 0,
-      }),
+vi.mock("@src/renderer/campaign/MetaManager", () => {
+  const mockInstance = {
+    getStats: vi.fn().mockReturnValue({
+      totalKills: 0,
+      totalCampaignsStarted: 0,
+      campaignsWon: 0,
+      campaignsLost: 0,
+      totalMissionsWon: 0,
+      totalMissionsPlayed: 0,
+      totalCasualties: 0,
+      totalScrapEarned: 0,
+      currentIntel: 0,
+      unlockedArchetypes: [],
+      unlockedItems: [],
+      prologueCompleted: false,
     }),
-  },
-}));
+    load: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return { MetaManager: mockConstructor };
+});
 
 // Mock ConfigManager
 vi.mock("@src/renderer/ConfigManager", () => ({

@@ -19,14 +19,14 @@ describe("Timer Accuracy Regression", () => {
   };
 
   it("should correctly track elapsed real-time when 1.0x speed is simulated", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      defaultSquad,
-      false,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
     // Simulate 10 seconds of real time at 1.0x speed
     // In the worker, TICK_RATE is 16ms
@@ -48,14 +48,14 @@ describe("Timer Accuracy Regression", () => {
   });
 
   it("should correctly track elapsed real-time when 2.0x speed is simulated", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      defaultSquad,
-      false,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
     const TICK_RATE = 16;
     const timeScale = 2.0;

@@ -26,13 +26,13 @@ describe("SoldierCoreAI", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    ); // agentControlEnabled = true
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    }); // agentControlEnabled = true
     engine.clearUnits(); // Clear default spawns
   });
 

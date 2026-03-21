@@ -7,32 +7,52 @@ import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
 
+export interface CampaignScreenConfig {
+  containerId: string;
+  campaignManager: CampaignManager;
+  themeManager: ThemeManager;
+  inputDispatcher: InputDispatcher;
+  modalService: ModalService;
+  onNodeSelect: (node: CampaignNode) => void;
+  onMainMenu: () => void;
+  onCampaignStart?: () => void;
+  onShowSummary?: () => void;
+}
+
 export class CampaignScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
+  private themeManager: ThemeManager;
+  private inputDispatcher: InputDispatcher;
   private modalService: ModalService;
   private onNodeSelect: (node: CampaignNode) => void;
-  private onBack: () => void;
+  private onMainMenu: () => void;
   private onCampaignStart?: () => void;
   private onShowSummary?: () => void;
   private wizard: NewCampaignWizard | null = null;
 
-  constructor(
-    containerId: string,
-    campaignManager: CampaignManager,
-    modalService: ModalService,
-    onNodeSelect: (node: CampaignNode) => void,
-    onBack: () => void,
-    onCampaignStart?: () => void,
-    onShowSummary?: () => void,
-  ) {
+  constructor(config: CampaignScreenConfig) {
+    const {
+      containerId,
+      campaignManager,
+      themeManager,
+      inputDispatcher,
+      modalService,
+      onNodeSelect,
+      onMainMenu,
+      onCampaignStart,
+      onShowSummary,
+    } = config;
+
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = campaignManager;
+    this.themeManager = themeManager;
+    this.inputDispatcher = inputDispatcher;
     this.modalService = modalService;
     this.onNodeSelect = onNodeSelect;
-    this.onBack = onBack;
+    this.onMainMenu = onMainMenu;
     this.onCampaignStart = onCampaignStart;
     this.onShowSummary = onShowSummary;
   }
@@ -45,11 +65,11 @@ export class CampaignScreen {
 
   public hide() {
     this.container.style.display = "none";
-    InputDispatcher.getInstance().popContext("campaign");
+    this.inputDispatcher.popContext("campaign");
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "campaign",
       priority: InputPriority.UI,
       trapsFocus: true,
@@ -127,7 +147,7 @@ export class CampaignScreen {
     viewport.className = "campaign-map-viewport";
 
     // Dynamic background from manifest
-    const bgUrl = ThemeManager.getInstance().getAssetUrl("bg_station");
+    const bgUrl = this.themeManager.getAssetUrl("bg_station");
     if (bgUrl) {
       viewport.style.setProperty("--campaign-bg", `url("${bgUrl}")`);
     }
@@ -175,7 +195,7 @@ export class CampaignScreen {
         if (this.onCampaignStart) this.onCampaignStart();
         this.render();
       },
-      onBack: () => this.onBack(),
+      onBack: () => this.onMainMenu(),
     });
     this.wizard.render();
   }

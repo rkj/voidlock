@@ -26,13 +26,13 @@ describe("Artifact Burden Regression", () => {
   }
 
   it("should reduce unit speed and accuracy when an artifact is picked up", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     const unit = (engine as any).state.units[0];
     const initialSpeed = unit.stats.speed;
@@ -64,13 +64,13 @@ describe("Artifact Burden Regression", () => {
   });
 
   it("should drop the artifact and restore stats when unit dies", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     let unit = (engine as any).state.units[0];
     const initialSpeed = unit.stats.speed;
@@ -101,14 +101,14 @@ describe("Artifact Burden Regression", () => {
   });
 
   it("should win ExtractArtifacts mission only if artifact is extracted", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
     let unit = (engine as any).state.units[0];
 

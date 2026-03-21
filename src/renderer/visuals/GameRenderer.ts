@@ -13,22 +13,34 @@ import { UnitLayer } from "./UnitLayer";
 import { EffectLayer } from "./EffectLayer";
 import { OverlayLayer } from "./OverlayLayer";
 import { Graph } from "@src/engine/Graph";
+import { ThemeManager } from "../ThemeManager";
+import { AssetManager } from "./AssetManager";
+
+export interface GameRendererConfig {
+  canvas: HTMLCanvasElement;
+  themeManager: ThemeManager;
+  assetManager: AssetManager;
+}
 
 export class GameRenderer {
   private ctx: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
-  private sharedState: SharedRendererState = new SharedRendererState();
+  private sharedState: SharedRendererState;
   private layers: RenderLayer[] = [];
   private lastTime: number = 0;
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas;
-    const ctx = canvas.getContext("2d");
+  constructor(config: GameRendererConfig) {
+    this.canvas = config.canvas;
+    const ctx = this.canvas.getContext("2d");
     if (!ctx) {
       throw new Error("GameRenderer: Failed to get 2D context from canvas.");
     }
     this.ctx = ctx;
     this.lastTime = performance.now();
+    this.sharedState = new SharedRendererState(
+      config.themeManager,
+      config.assetManager,
+    );
 
     // Default layer stack
     this.layers = [
@@ -98,12 +110,13 @@ export class GameRenderer {
     this.lastTime = now;
 
     // Update Graph if map changed
-    if (state.map.cells && state.map.cells.length > 0) {
-      const mapId = `${state.seed}-${state.map.width}x${state.map.height}-${state.map.cells.length}`;
+    const hasMapData = (state.map.cells && state.map.cells.length > 0) || (state.map.walls && state.map.walls.length > 0);
+    if (hasMapData) {
+      const mapId = `${state.seed}-${state.map.width}x${state.map.height}-${state.map.cells?.length || 0}`;
       if (this.sharedState.currentMapId !== mapId) {
         this.sharedState.graph = new Graph(state.map);
         this.sharedState.currentMapId = mapId;
-        this.sharedState.cells = state.map.cells;
+        this.sharedState.cells = state.map.cells || [];
       }
     }
 

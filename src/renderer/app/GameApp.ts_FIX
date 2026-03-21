@@ -1,0 +1,38 @@
+    if (!document.getElementById("squad-builder")) {
+      const sb = document.createElement("div");
+      sb.id = "squad-builder";
+      sb.style.display = "none";
+      document.body.appendChild(sb);
+    }
+
+    this.squadBuilder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: this.registry.campaignManager,
+      campaignShell: this.registry.campaignShell,
+      modalService: this.registry.modalService,
+      initialSquad: this.registry.missionSetupManager.currentSquad,
+      missionType: this.registry.missionSetupManager.missionType,
+      isCampaign: this.registry.missionSetupManager.isCampaign,
+      onSquadUpdated: (squad) => {
+        this.registry.missionSetupManager.currentSquad = squad;
+        this.registry.missionSetupManager.saveCurrentConfig();
+      },
+    });
+
+    this.registry.finalizeNavigation(
+      {
+        mainMenu: this.mainMenuScreen,
+        campaign: this.campaignScreen,
+        debrief: this.debriefScreen,
+        equipment: this.equipmentScreen,
+        missionSetup: this.missionSetupScreen,
+        campaignSummary: this.campaignSummaryScreen,
+        statistics: this.statisticsScreen,
+        engineering: this.engineeringScreen,
+        settings: this.settingsScreen,
+      },
+      this.squadBuilder,
+      {
+        showMainMenu: () => this.showMainMenu(),
+      },
+    );

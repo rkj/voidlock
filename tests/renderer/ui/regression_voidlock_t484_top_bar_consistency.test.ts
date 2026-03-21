@@ -39,13 +39,12 @@ describe("CampaignShell Consistency", () => {
       }),
     };
 
-    shell = new CampaignShell(
-      "screen-campaign-shell",
-      manager as any,
-      mockMetaManager as any,
-      onTabChange,
-      onMenu,
-    );
+    shell = new CampaignShell({ containerId: "screen-campaign-shell",
+      manager: manager as any,
+      metaManager: mockMetaManager as any,
+      onTabChange: onTabChange,
+      onMenu: onMenu,
+      inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any });
   });
 
   it("should render Main Menu button in the far right and NOT in tabs during Statistics mode", () => {

@@ -33,7 +33,13 @@ describe("CoreEngine getState Benchmark", () => {
   });
 
   it("should measure getState performance with many entities", () => {
-    const engine = new CoreEngine(map, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // Add many enemies
     for (let i = 0; i < 100; i++) {

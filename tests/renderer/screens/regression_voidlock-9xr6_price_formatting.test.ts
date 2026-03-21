@@ -1,9 +1,11 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { SquadConfig } from "@src/shared/types";
 
 describe("EquipmentScreen Regression: Price Formatting", () => {
+  let mockInputDispatcher: any;
   let container: HTMLElement;
   let initialConfig: SquadConfig;
   let onSave: any;
@@ -11,6 +13,10 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
   let mockManager: any;
 
   beforeEach(() => {
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
     document.body.innerHTML = '<div id="screen-equipment"></div>';
     container = document.getElementById("screen-equipment")!;
 
@@ -41,15 +47,16 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
       show: vi.fn().mockResolvedValue(undefined),
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      null as any,
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: null as any
+    });
     screen.show();
 
     // Find a weapon button in the armory panel
@@ -74,15 +81,16 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
       show: vi.fn().mockResolvedValue(undefined),
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      null as any,
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: null as any
+    });
     screen.show();
 
     // Find Frag Grenade row

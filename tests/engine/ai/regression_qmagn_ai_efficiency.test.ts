@@ -25,13 +25,13 @@ describe("AI Efficiency (Step Count)", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      openRoomMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    );
+    engine = new CoreEngine({
+      map: openRoomMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

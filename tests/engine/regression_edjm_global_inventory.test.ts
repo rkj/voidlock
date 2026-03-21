@@ -27,16 +27,16 @@ describe("Global Squad Inventory", () => {
   };
 
   it("should decrease global inventory count when USE_ITEM is called", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [{ archetypeId: "assault" }],
         inventory: { medkit: 1 },
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const units = (engine as unknown as { state: GameState }).state.units;
     units[0].hp = 50;

@@ -25,13 +25,13 @@ describe("Unit Command State UI Tracking", () => {
   };
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      map,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      false,
-      false,
-    );
+    engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
   });
 
   it("should set activeCommand and label for manual MOVE_TO", () => {
@@ -88,13 +88,13 @@ describe("Unit Command State UI Tracking", () => {
       longMap.cells.push({ x: i, y: 1, type: CellType.Floor });
     }
 
-    engine = new CoreEngine(
-      longMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    );
+    engine = new CoreEngine({
+      map: longMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     engine.clearUnits();
     engine.addUnit({

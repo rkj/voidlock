@@ -101,6 +101,7 @@ export class UIOrchestrator {
   }
 
   public togglePause() {
+    console.log("[UIOrch] togglePause");
     this.deps.gameClient.togglePause();
   }
 

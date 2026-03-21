@@ -18,14 +18,16 @@ describe("Regression IHFP: Unit Kill Tracking", () => {
   };
 
   it("should increment unit.kills when a unit kills an enemy", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      false, // agentControlEnabled
-      false, // debugOverlayEnabled
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: // agentControlEnabled
+      false,
+      missionType: // debugOverlayEnabled
+      MissionType.Default
+    });
 
     engine.clearUnits();
     const unit = createMockUnit({

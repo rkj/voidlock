@@ -2,12 +2,18 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { AssetManager } from "@src/renderer/visuals/AssetManager";
 import { Icons } from "@src/renderer/Icons";
+import { vi } from "vitest";
 
 describe("voidlock-tgdk: Asset Registration", () => {
+  let assetManager: AssetManager;
+
   beforeEach(() => {
-    // Reset singleton if possible, or just use the instance
-    // AssetManager.instance is private, but we can access it via getInstance()
-    // It loads icons in constructor
+    const mockTheme = {
+      getAssetUrl: vi.fn(),
+      getColor: vi.fn(),
+    };
+    assetManager = new AssetManager(mockTheme as any);
+    AssetManager.setInstance(assetManager);
   });
 
   it("should have LootStar and ObjectiveDisk registered in Icons", () => {
@@ -18,7 +24,6 @@ describe("voidlock-tgdk: Asset Registration", () => {
   });
 
   it("should load LootStar and ObjectiveDisk in AssetManager", () => {
-    const assetManager = AssetManager.getInstance();
     expect(assetManager.iconImages["LootStar"]).toBeDefined();
     expect(assetManager.iconImages["ObjectiveDisk"]).toBeDefined();
 

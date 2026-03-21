@@ -8,10 +8,15 @@ import { ModalService } from "@src/renderer/ui/ModalService";
 import { InputDispatcher } from "@src/renderer/InputDispatcher";
 
 describe("EquipmentScreen Isolation", () => {
+  let mockInputDispatcher: any;
   let manager: CampaignManager;
   let container: HTMLElement;
 
   beforeEach(async () => {
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
     document.body.innerHTML = '<div id="screen-equipment"></div><div id="modal-container"></div>';
     container = document.getElementById("screen-equipment")!;
     
@@ -46,17 +51,18 @@ describe("EquipmentScreen Isolation", () => {
       inventory: {}
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      new ModalService(),
-      squadConfig,
-      () => {},
-      () => {},
-      undefined, // onLaunch
-      false, // isShop
-      true  // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      modalService: new ModalService() as any,
+      currentSquad: squadConfig,
+      onBack: () => {},
+      onUpdate: () => {},
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true  // isCampaign
+    });
 
     screen.show();
 
@@ -85,17 +91,18 @@ describe("EquipmentScreen Isolation", () => {
       inventory: {}
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      new ModalService(),
-      squadConfig,
-      () => {},
-      () => {},
-      undefined, // onLaunch
-      false, // isShop
-      false // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      modalService: new ModalService() as any,
+      currentSquad: squadConfig,
+      onBack: () => {},
+      onUpdate: () => {},
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: false // isCampaign
+    });
 
     screen.show();
 
@@ -116,17 +123,18 @@ describe("EquipmentScreen Isolation", () => {
       inventory: {}
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      new ModalService(),
-      squadConfig,
-      () => {},
-      () => {},
-      undefined, // onLaunch
-      false, // isShop
-      false // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      modalService: new ModalService() as any,
+      currentSquad: squadConfig,
+      onBack: () => {},
+      onUpdate: () => {},
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: false // isCampaign
+    });
 
     screen.show();
 

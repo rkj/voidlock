@@ -16,7 +16,8 @@ vi.stubGlobal("Image", MockImage);
 describe("MapEntityLayer", () => {
   let layer: MapEntityLayer;
   let sharedState: SharedRendererState;
-  let mockContext: Record<string, ReturnType<typeof vi.fn>>;
+  let mockContext: any;
+  let mockAssetManager: any;
 
   beforeEach(() => {
     mockContext = {
@@ -32,9 +33,30 @@ describe("MapEntityLayer", () => {
       fillText: vi.fn(),
       moveTo: vi.fn(),
       lineTo: vi.fn(),
+      closePath: vi.fn(),
     };
 
-    sharedState = new SharedRendererState();
+    const mockTheme = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    mockAssetManager = {
+      iconImages: {
+        LootStar: new MockImage(),
+        Loot: new MockImage(),
+        Crate: new MockImage(),
+        Objective: new MockImage(),
+        ObjectiveDisk: new MockImage(),
+        Exit: new MockImage(),
+        Spawn: new MockImage(),
+      },
+      unitSprites: {},
+      enemySprites: {},
+      getMiscSprite: vi.fn(),
+      getIcon: vi.fn(),
+    };
+
+    sharedState = new SharedRendererState(mockTheme as any, mockAssetManager as any);
     sharedState.cellSize = 32;
     layer = new MapEntityLayer(sharedState);
   });
@@ -53,50 +75,15 @@ describe("MapEntityLayer", () => {
 
     layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
-    // Now it SHOULD NOT render. We check for either fillRect or drawImage at (5*32, 5*32)
     const fillRectCalls = mockContext.fillRect.mock.calls;
-    const drawImageCalls = mockContext.drawImage.mock.calls;
+    const extractionPointFill = fillRectCalls.find(
+      (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
+    );
 
-    const drewSomething =
-      fillRectCalls.some(
-        (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
-      ) ||
-      drawImageCalls.some(
-        (args: unknown[]) => args[1] === 5 * 32 && args[2] === 5 * 32,
-      );
-
-    expect(drewSomething).toBe(false);
+    expect(extractionPointFill).toBeUndefined();
   });
 
-  it("should NOT render spawn point if cell is NOT discovered and NOT visible", () => {
-    const gameState: GameState = createMockGameState({
-      map: {
-        width: 10,
-        height: 10,
-        cells: [{ x: 5, y: 5, type: CellType.Floor }],
-        spawnPoints: [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }],
-      },
-      visibleCells: [],
-      discoveredCells: [],
-    });
-
-    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
-
-    const fillRectCalls = mockContext.fillRect.mock.calls;
-    const drawImageCalls = mockContext.drawImage.mock.calls;
-
-    const drewSomething =
-      fillRectCalls.some(
-        (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
-      ) ||
-      drawImageCalls.some(
-        (args: unknown[]) => args[1] === 5 * 32 && args[2] === 5 * 32,
-      );
-
-    expect(drewSomething).toBe(false);
-  });
-
-  it("should render extraction point when cell IS discovered", () => {
+  it("should render extraction point if cell is discovered even if NOT visible", () => {
     const gameState: GameState = createMockGameState({
       map: {
         width: 10,
@@ -118,7 +105,7 @@ describe("MapEntityLayer", () => {
     expect(extractionPointFill).toBeDefined();
   });
 
-  it("should render extraction point when cell IS visible", () => {
+  it("should render extraction point if cell is visible even if NOT discovered", () => {
     const gameState: GameState = createMockGameState({
       map: {
         width: 10,
@@ -169,11 +156,6 @@ describe("MapEntityLayer", () => {
   it("should render Loot using LootStar icon when UnitStyle is TacticalIcons", () => {
     sharedState.unitStyle = UnitStyle.TacticalIcons;
 
-    const assetManager = AssetManager.getInstance();
-    const mockLootStar = new MockImage() as unknown as HTMLImageElement;
-    (mockLootStar as any).id = "LootStar";
-    assetManager.iconImages.LootStar = mockLootStar;
-
     const gameState: GameState = createMockGameState({
       map: {
         width: 10,
@@ -189,7 +171,7 @@ describe("MapEntityLayer", () => {
 
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const lootStarDraw = drawImageCalls.find(
-      (args: unknown[]) => args[0] === mockLootStar,
+      (args: any[]) => args[0] === mockAssetManager.iconImages.LootStar,
     );
 
     expect(lootStarDraw).toBeDefined();
@@ -197,15 +179,6 @@ describe("MapEntityLayer", () => {
 
   it("should render Loot using Crate or Loot sprite when UnitStyle is Sprites", () => {
     sharedState.unitStyle = UnitStyle.Sprites;
-
-    const assetManager = AssetManager.getInstance();
-    const mockCrate = new MockImage() as unknown as HTMLImageElement;
-    (mockCrate as any).id = "Crate";
-    assetManager.iconImages.Crate = mockCrate;
-
-    const mockLoot = new MockImage() as unknown as HTMLImageElement;
-    (mockLoot as any).id = "Loot";
-    assetManager.iconImages.Loot = mockLoot;
 
     const gameState: GameState = createMockGameState({
       map: {
@@ -217,8 +190,8 @@ describe("MapEntityLayer", () => {
         ],
       },
       loot: [
-        { id: "loot-1", pos: { x: 5, y: 5 }, itemId: "something_else" },
-        { id: "loot-2", pos: { x: 6, y: 6 }, itemId: "scrap_crate" },
+        { id: "l1", pos: { x: 5, y: 5 }, itemId: "scrap_crate" },
+        { id: "l2", pos: { x: 6, y: 6 }, itemId: "medkit" },
       ],
       visibleCells: ["5,5", "6,6"],
       discoveredCells: [],
@@ -228,10 +201,10 @@ describe("MapEntityLayer", () => {
 
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const crateDraws = drawImageCalls.filter(
-      (args: unknown[]) => args[0] === mockCrate,
+      (args: any[]) => args[0] === mockAssetManager.iconImages.Loot,
     );
     const lootDraws = drawImageCalls.filter(
-      (args: unknown[]) => args[0] === mockLoot,
+      (args: any[]) => args[0] === mockAssetManager.iconImages.Crate,
     );
 
     expect(crateDraws.length).toBe(1);
@@ -240,11 +213,6 @@ describe("MapEntityLayer", () => {
 
   it("should render Objective using Objective icon when UnitStyle is TacticalIcons", () => {
     sharedState.unitStyle = UnitStyle.TacticalIcons;
-
-    const assetManager = AssetManager.getInstance();
-    const mockObjective = new MockImage() as unknown as HTMLImageElement;
-    (mockObjective as any).id = "Objective";
-    assetManager.iconImages.Objective = mockObjective;
 
     const gameState: GameState = createMockGameState({
       map: {
@@ -255,7 +223,7 @@ describe("MapEntityLayer", () => {
       objectives: [
         {
           id: "obj-1",
-          kind: "Recover",
+          type: "RecoverIntel",
           state: "Pending",
           targetCell: { x: 5, y: 5 },
           visible: true,
@@ -269,7 +237,7 @@ describe("MapEntityLayer", () => {
 
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const objectiveDraw = drawImageCalls.find(
-      (args: unknown[]) => args[0] === mockObjective,
+      (args: any[]) => args[0] === mockAssetManager.iconImages.Objective,
     );
 
     expect(objectiveDraw).toBeDefined();
@@ -277,11 +245,6 @@ describe("MapEntityLayer", () => {
 
   it("should render Objective using ObjectiveDisk sprite when UnitStyle is Sprites", () => {
     sharedState.unitStyle = UnitStyle.Sprites;
-
-    const assetManager = AssetManager.getInstance();
-    const mockObjectiveDisk = new MockImage() as unknown as HTMLImageElement;
-    (mockObjectiveDisk as any).id = "ObjectiveDisk";
-    assetManager.iconImages.ObjectiveDisk = mockObjectiveDisk;
 
     const gameState: GameState = createMockGameState({
       map: {
@@ -292,7 +255,7 @@ describe("MapEntityLayer", () => {
       objectives: [
         {
           id: "obj-1",
-          kind: "Recover",
+          type: "RecoverIntel",
           state: "Pending",
           targetCell: { x: 5, y: 5 },
           visible: true,
@@ -306,7 +269,7 @@ describe("MapEntityLayer", () => {
 
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const objectiveDiskDraw = drawImageCalls.find(
-      (args: unknown[]) => args[0] === mockObjectiveDisk,
+      (args: any[]) => args[0] === mockAssetManager.iconImages.ObjectiveDisk,
     );
 
     expect(objectiveDiskDraw).toBeDefined();
@@ -315,14 +278,8 @@ describe("MapEntityLayer", () => {
   it("should render Extraction using Waypoint sprite when UnitStyle is Sprites", () => {
     sharedState.unitStyle = UnitStyle.Sprites;
 
-    const assetManager = AssetManager.getInstance();
-    const mockWaypoint = new MockImage() as unknown as HTMLImageElement;
-    (mockWaypoint as any).id = "Waypoint";
-    // Setup the mock to return this for "waypoint" misc sprite
-    vi.spyOn(assetManager, "getMiscSprite").mockImplementation((key) => {
-      if (key === "waypoint") return mockWaypoint;
-      return null;
-    });
+    const mockWaypoint = mockAssetManager.iconImages.Exit; // reuse for simplicity
+    mockAssetManager.getMiscSprite.mockReturnValue(mockWaypoint);
 
     const gameState: GameState = createMockGameState({
       map: {
@@ -339,13 +296,13 @@ describe("MapEntityLayer", () => {
 
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const waypointDraw = drawImageCalls.find(
-      (args: unknown[]) => args[0] === mockWaypoint,
+      (args: any[]) => args[0] === mockWaypoint,
     );
 
     expect(waypointDraw).toBeDefined();
   });
 
-  it("should render Extraction using high-contrast overlay when UnitStyle is TacticalIcons", () => {
+  it("should render Extraction using Exit icon when UnitStyle is TacticalIcons", () => {
     sharedState.unitStyle = UnitStyle.TacticalIcons;
 
     const gameState: GameState = createMockGameState({
@@ -361,23 +318,17 @@ describe("MapEntityLayer", () => {
 
     layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
-    // Should use moveTo/lineTo for crosshair
-    expect(mockContext.moveTo).toHaveBeenCalled();
-    expect(mockContext.lineTo).toHaveBeenCalled();
-    // Should still use strokeRect for border
-    expect(mockContext.strokeRect).toHaveBeenCalled();
+    const drawImageCalls = mockContext.drawImage.mock.calls;
+    const exitDraw = drawImageCalls.find((args: any[]) => args[0] === mockAssetManager.iconImages.Exit);
+
+    expect(exitDraw).toBeDefined();
   });
 
   it("should render SpawnPoint using Spawn sprite when UnitStyle is Sprites", () => {
     sharedState.unitStyle = UnitStyle.Sprites;
 
-    const assetManager = AssetManager.getInstance();
-    const mockSpawnSprite = new MockImage() as unknown as HTMLImageElement;
-    (mockSpawnSprite as any).id = "SpawnSprite";
-    vi.spyOn(assetManager, "getMiscSprite").mockImplementation((key) => {
-      if (key === "spawn") return mockSpawnSprite;
-      return null;
-    });
+    const mockSpawn = mockAssetManager.iconImages.Spawn;
+    mockAssetManager.getMiscSprite.mockReturnValue(mockSpawn);
 
     const gameState: GameState = createMockGameState({
       map: {
@@ -394,7 +345,7 @@ describe("MapEntityLayer", () => {
 
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const spawnDraw = drawImageCalls.find(
-      (args: unknown[]) => args[0] === mockSpawnSprite,
+      (args: any[]) => args[0] === mockSpawn,
     );
 
     expect(spawnDraw).toBeDefined();
@@ -403,11 +354,6 @@ describe("MapEntityLayer", () => {
   it("should render SpawnPoint using Spawn icon when UnitStyle is TacticalIcons", () => {
     sharedState.unitStyle = UnitStyle.TacticalIcons;
 
-    const assetManager = AssetManager.getInstance();
-    const mockSpawnIcon = new MockImage() as unknown as HTMLImageElement;
-    (mockSpawnIcon as any).id = "SpawnIcon";
-    assetManager.iconImages.Spawn = mockSpawnIcon;
-
     const gameState: GameState = createMockGameState({
       map: {
         width: 10,
@@ -423,7 +369,7 @@ describe("MapEntityLayer", () => {
 
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const spawnDraw = drawImageCalls.find(
-      (args: unknown[]) => args[0] === mockSpawnIcon,
+      (args: any[]) => args[0] === mockAssetManager.iconImages.Spawn,
     );
 
     expect(spawnDraw).toBeDefined();

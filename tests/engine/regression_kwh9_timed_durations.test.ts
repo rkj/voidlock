@@ -30,19 +30,19 @@ describe("Regression (voidlock-kwh9): Standardized Timed Durations", () => {
   }
 
   it("Medkit duration should scale with unit speed (Base 3000ms)", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [
           { archetypeId: "assault", id: "unit-slow" }, // Speed 20
           { archetypeId: "scout", id: "unit-fast" }, // Speed 30
         ],
         inventory: { medkit: 2 },
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const state = engine.getState();
     const unitSlow = state.units.find((u) => u.id === "unit-slow")!;
@@ -85,18 +85,18 @@ describe("Regression (voidlock-kwh9): Standardized Timed Durations", () => {
   });
 
   it("Pickup duration should scale with unit speed (Base 3000ms)", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [
           { archetypeId: "assault", id: "unit-slow" }, // Speed 20
         ],
         inventory: {},
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const internal = engine as unknown as CoreEngineInternal;
     const unit = internal.state.units[0];
@@ -123,18 +123,18 @@ describe("Regression (voidlock-kwh9): Standardized Timed Durations", () => {
   });
 
   it("Extraction duration should scale with unit speed (Base 5000ms)", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [
           { archetypeId: "assault", id: "unit-slow" }, // Speed 20
         ],
         inventory: {},
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const internal = engine as unknown as CoreEngineInternal;
     const unit = internal.state.units[0];

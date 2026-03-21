@@ -1,17 +1,16 @@
 import {
-  MapDefinition,
   GameState,
   Unit,
   Enemy,
   UnitState,
   Command,
-  SquadConfig,
   MissionType,
   Door,
   EngineMode,
   CommandLogEntry,
   CommandType,
   UseItemCommand,
+  CoreEngineConfig,
 } from "@src/shared/types";
 import { PRNG } from "../shared/PRNG";
 import { MathUtils } from "../shared/utils/MathUtils";
@@ -64,34 +63,35 @@ export class CoreEngine {
     return this.doorManager.getDoors();
   }
 
-  constructor(
-    map: MapDefinition,
-    seed: number,
-    squadConfig: SquadConfig,
-    agentControlEnabled: boolean,
-    debugOverlayEnabled: boolean,
-    missionType: MissionType = MissionType.Default,
-    losOverlayEnabled: boolean = false,
-    startingThreatLevel: number = 0,
-    initialTimeScale: number = 1.0,
-    startPaused: boolean = false,
-    mode: EngineMode = EngineMode.Simulation,
-    initialCommandLog: CommandLogEntry[] = [],
-    allowTacticalPause: boolean = true,
-    targetTick: number = 0,
-    baseEnemyCount: number = 3,
-    enemyGrowthPerMission: number = 1,
-    missionDepth: number = 0,
-    nodeType?: "Combat" | "Elite" | "Boss" | "Event" | "Shop",
-    campaignNodeId?: string,
-    startingPoints?: number,
-    skipDeployment: boolean = true,
-    debugSnapshots: boolean = false,
-    debugSnapshotInterval: number = 0,
-    initialSnapshots: GameState[] = [],
-    targetTimeScale: number = 1.0,
-    sessionId?: string,
-  ) {
+  constructor(config: CoreEngineConfig) {
+    const {
+      map,
+      seed,
+      squadConfig,
+      agentControlEnabled = true,
+      debugOverlayEnabled = false,
+      missionType = MissionType.Default,
+      losOverlayEnabled = false,
+      startingThreatLevel = 0,
+      initialTimeScale = 1.0,
+      startPaused = false,
+      mode = EngineMode.Simulation,
+      initialCommandLog = [],
+      allowTacticalPause = true,
+      targetTick = 0,
+      baseEnemyCount = 3,
+      enemyGrowthPerMission = 1,
+      missionDepth = 0,
+      nodeType,
+      campaignNodeId,
+      startingPoints,
+      skipDeployment = true,
+      debugSnapshots = false,
+      debugSnapshotInterval = 0,
+      initialSnapshots = [],
+      targetTimeScale = 1.0,
+      sessionId,
+    } = config;
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
     this.doorManager = new DoorManager(map.doors || [], this.gameGrid);

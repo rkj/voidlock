@@ -9,7 +9,7 @@ describe("ThemeManager", () => {
   let theme: ThemeManager;
 
   beforeEach(() => {
-    theme = ThemeManager.getInstance();
+    theme = new ThemeManager();
     // @ts-ignore - access private for reset
     theme.colorCache.clear();
     document.body.style.cssText = "";

@@ -101,7 +101,33 @@ describe("Renderer Regression: LTH3 Redundant Objective Marker", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    renderer = new Renderer(mockCanvas);
+    const mockThemeManager = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    };
+    const mockExitImg = new MockImage();
+    mockExitImg.src = Icons.Exit;
+    const mockObjImg = new MockImage();
+    mockObjImg.src = Icons.Objective;
+
+    const mockAssetManager = {
+      iconImages: {
+        Exit: mockExitImg,
+        Objective: mockObjImg,
+      },
+      unitSprites: {},
+      enemySprites: {},
+      getUnitSprite: vi.fn(),
+      getEnemySprite: vi.fn(),
+      getMiscSprite: vi.fn(),
+      getIcon: vi.fn(),
+    };
+    renderer = new Renderer({
+      canvas: mockCanvas,
+      themeManager: mockThemeManager as any,
+      assetManager: mockAssetManager as any
+    });
     renderer.setUnitStyle(UnitStyle.TacticalIcons);
     renderer.setCellSize(32);
   });

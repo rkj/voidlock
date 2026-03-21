@@ -51,7 +51,13 @@ describe("Turret (Auto Cannon)", () => {
   };
 
   it("should be deployable and automatically shoot enemies", () => {
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const state = engine.getState();
     const unit = state.units[0];
 

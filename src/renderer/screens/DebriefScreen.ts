@@ -4,11 +4,27 @@ import { GameClient } from "@src/engine/GameClient";
 import { UnitStyle, InputPriority } from "@src/shared/types";
 import { ReplayController } from "@src/renderer/controllers/ReplayController";
 import { InputDispatcher } from "../InputDispatcher";
+import { ThemeManager } from "../ThemeManager";
+import { AssetManager } from "../visuals/AssetManager";
 import { UIUtils } from "../utils/UIUtils";
+
+export interface DebriefScreenConfig {
+  containerId: string;
+  gameClient: GameClient;
+  themeManager: ThemeManager;
+  assetManager: AssetManager;
+  inputDispatcher: InputDispatcher;
+  onContinue: () => void;
+  onReplay?: () => void;
+  onExport?: () => void;
+}
 
 export class DebriefScreen {
   private container: HTMLElement;
   private gameClient: GameClient;
+  private themeManager: ThemeManager;
+  private assetManager: AssetManager;
+  private inputDispatcher: InputDispatcher;
   private onContinue: () => void;
   private onReplay?: () => void;
   private onExport?: () => void;
@@ -20,23 +36,33 @@ export class DebriefScreen {
   private scrubber: HTMLInputElement | null = null;
   private unitStyle: UnitStyle = UnitStyle.TacticalIcons;
 
-  constructor(
-    containerId: string,
-    gameClient: GameClient,
-    onContinue: () => void,
-    onReplay?: () => void,
-    onExport?: () => void,
-  ) {
+  constructor(config: DebriefScreenConfig) {
+    const {
+      containerId,
+      gameClient,
+      themeManager,
+      assetManager,
+      inputDispatcher,
+      onContinue,
+      onReplay,
+      onExport,
+    } = config;
+
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.gameClient = gameClient;
+    this.themeManager = themeManager;
+    this.assetManager = assetManager;
+    this.inputDispatcher = inputDispatcher;
     this.onContinue = onContinue;
     this.onReplay = onReplay;
     this.onExport = onExport;
-    this.replayController = new ReplayController(
-      this.gameClient,
-      (progress) => {
+    this.replayController = new ReplayController({
+      gameClient: this.gameClient,
+      themeManager: this.themeManager,
+      assetManager: this.assetManager,
+      onProgressUpdate: (progress) => {
         if (this.progressFill) {
           this.progressFill.style.width = `${progress}%`;
         }
@@ -45,14 +71,23 @@ export class DebriefScreen {
         }
         this.updatePlaybackUI();
       },
-    );
+    });
+  }
+
+  public setReport(report: MissionReport) {
+    this.report = report;
   }
 
   public show(
-    report: MissionReport,
+    report?: MissionReport,
     unitStyle: UnitStyle = UnitStyle.TacticalIcons,
   ) {
-    this.report = report;
+    if (report) {
+      this.report = report;
+    }
+    if (!this.report) {
+      throw new Error("DebriefScreen: report not set.");
+    }
     this.unitStyle = unitStyle;
     this.container.style.display = "flex";
 
@@ -73,11 +108,11 @@ export class DebriefScreen {
     this.canvas = null;
     this.playbackBtn = null;
     this.progressFill = null;
-    InputDispatcher.getInstance().popContext("debrief");
+    this.inputDispatcher.popContext("debrief");
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "debrief",
       priority: InputPriority.UI,
       trapsFocus: true,

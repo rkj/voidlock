@@ -9,6 +9,7 @@ vi.mock("@package.json", () => ({
 }));
 
 const mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
   init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   onStateUpdate: vi.fn(),
   queryState: vi.fn(),
@@ -43,78 +44,77 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      applyTheme: vi.fn(),
-    }),
-  },
-}));
-
-const mockModalService = {
-  alert: vi.fn().mockResolvedValue(undefined),
-  confirm: vi.fn().mockResolvedValue(true),
-  prompt: vi.fn().mockResolvedValue("New Recruit"),
-  show: vi.fn().mockResolvedValue(undefined),
-};
-
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
-}));
-
-// Mock CampaignManager
-let currentCampaignState: any = null;
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    ThemeManager: mockConstructor,
+  };
+});
 
 vi.mock("@src/renderer/campaign/CampaignManager", () => {
-  return {
-    CampaignManager: {
-      getInstance: vi.fn().mockReturnValue({
-        getState: vi.fn(() => currentCampaignState),
-        getStorage: vi.fn(),
-        getSyncStatus: vi.fn().mockReturnValue("local-only"),
-        addChangeListener: vi.fn(),
-        removeChangeListener: vi.fn(),
+  const mockInstance = {
+    getState: vi.fn(() => currentCampaignState),
+    getStorage: vi.fn().mockReturnValue({
+        getCloudSync: vi.fn().mockReturnValue({
+            initialize: vi.fn().mockResolvedValue(undefined),
+            setEnabled: vi.fn(),
+        }),
         load: vi.fn(),
-        processMissionResult: vi.fn(),
-        save: vi.fn(), assignEquipment: vi.fn(),
-        startNewCampaign: vi.fn((_seed, _diff, _pause, _theme) => {
-          currentCampaignState = {
+    }),
+    getSyncStatus: vi.fn().mockReturnValue("local-only"),
+    addChangeListener: vi.fn(),
+    removeChangeListener: vi.fn(),
+    load: vi.fn(),
+    save: vi.fn(),
+    assignEquipment: vi.fn(),
+    processMissionResult: vi.fn(),
+    startNewCampaign: vi.fn((seed, diff, overrides) => {
+        currentCampaignState = {
             status: "Active",
             nodes: [
-              {
-                id: "node-1",
-                type: "Combat",
-                status: "Accessible",
-                difficulty: 1,
-                mapSeed: 123,
-                connections: [],
-                position: { x: 0, y: 0 },
-              },
+                {
+                    id: "node-1",
+                    type: "Combat",
+                    status: "Accessible",
+                    rank: 0,
+                    difficulty: 1,
+                    mapSeed: 123,
+                    connections: [],
+                    position: { x: 0, y: 0 },
+                    bonusLootCount: 0,
+                },
             ],
             roster: [
-              {
-                id: "s1",
-                name: "Soldier 1",
-                archetypeId: "scout",
-                status: "Healthy",
-                level: 1,
-                hp: 100,
-                maxHp: 100,
-                xp: 0,
-                soldierAim: 80,
-                equipment: {
-                  rightHand: "pulse_rifle",
-                  leftHand: null,
-                  body: "basic_armor",
-                  feet: null,
+                {
+                    id: "s1",
+                    name: "Soldier 1",
+                    archetypeId: "scout",
+                    status: "Healthy",
+                    level: 1,
+                    hp: 100,
+                    maxHp: 100,
+                    xp: 0,
+                    kills: 0,
+                    missions: 0,
+                    recoveryTime: 0,
+                    soldierAim: 80,
+                    equipment: {
+                        rightHand: "pulse_rifle",
+                        leftHand: undefined,
+                        body: "basic_armor",
+                        feet: undefined,
+                    },
                 },
-              },
             ],
             scrap: 100,
             intel: 0,
@@ -123,33 +123,34 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             history: [],
             unlockedArchetypes: ["scout", "heavy", "medic", "demolition"],
             rules: {
-              allowTacticalPause: true,
-              themeId: "default",
-              mode: "Preset",
-              difficulty: "normal",
-              deathRule: "Simulation",
-              mapGeneratorType: "DenseShip",
-              difficultyScaling: 1,
-              resourceScarcity: 1,
+                mode: "Preset",
+                difficulty: diff || "Standard",
+                deathRule: "Simulation",
+                allowTacticalPause: true,
+                mapGeneratorType: "DenseShip",
+                difficultyScaling: 1,
+                resourceScarcity: 1,
+                startingScrap: 100,
+                mapGrowthRate: 1,
+                baseEnemyCount: 3,
+                enemyGrowthPerMission: 1,
+                economyMode: "Open",
+                themeId: "default",
             },
-          };
-        }),
-        reset: vi.fn(() => {
-          currentCampaignState = null;
-        }),
-        deleteSave: vi.fn(() => {
-          currentCampaignState = null;
-        }),
-        healSoldier: vi.fn(),
-        recruitSoldier: vi.fn(),
-        assignEquipment: vi.fn(),
-        applyEventChoice: vi.fn(),
-        advanceCampaignWithoutMission: vi.fn(),
-      }),
-    },
+        };
+    }),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    CampaignManager: mockConstructor,
   };
 });
 
+import { GameApp } from "@src/renderer/app/GameApp";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+
+let currentCampaignState: any = null;
 describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
   beforeEach(async () => {
     currentCampaignState = null;
@@ -238,7 +239,8 @@ describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
 
     // Import main.ts
     vi.resetModules();
-    await import("@src/renderer/main");
+    const { bootstrap } = await import("@src/renderer/main");
+    await bootstrap();
 
     // Trigger DOMContentLoaded
     document.dispatchEvent(new Event("DOMContentLoaded"));

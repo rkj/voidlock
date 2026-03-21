@@ -56,7 +56,13 @@ describe("Escort Command", () => {
       soldiers: [],
       inventory: {},
     };
-    engine = new CoreEngine(mockMap as any, 123, squad, false, false);
+    engine = new CoreEngine({
+      map: mockMap as any,
+      seed: 123,
+      squadConfig: squad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
 
     // Setup target unit (Heavy - Speed 15)

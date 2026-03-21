@@ -40,16 +40,18 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
   });
 
   it("should generate a name and stats when adding an archetype to custom squad", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false, // isCampaign = false
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: // isCampaign = false
+      () => {}
+    });
     builder.render();
 
     const assaultCard = container.querySelector(

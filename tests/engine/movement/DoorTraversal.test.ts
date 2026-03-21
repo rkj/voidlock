@@ -45,7 +45,13 @@ describe("Movement through Doors", () => {
       soldiers: [{ archetypeId: "assault" }],
       inventory: {},
     }; // Default unit for tests
-    engine = new CoreEngine(map, 123, defaultSquad, false, false);
+    engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
     engine.addUnit({
       id: "u1",

@@ -22,6 +22,7 @@ describe("Pause and Speed Synchronization Repro", () => {
     let timeScale = 1.0;
 
     mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
       getIsPaused: vi.fn(() => isPaused),
       getTimeScale: vi.fn(() => (isPaused ? 0.1 : timeScale)),
       getTargetScale: vi.fn(() => timeScale),
@@ -77,9 +78,18 @@ describe("Pause and Speed Synchronization Repro", () => {
   });
 
   it("Reproduction: Incorrect speed slider mapping (ID mismatch)", () => {
-    const hudManager = new HUDManager(
-      null as any, { getCurrentStepId: () => null } as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
-    );
+    const hudManager = new HUDManager({
+      menuController: null as any,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: () => {},
+      onAbortMission: () => {},
+      onMenuInput: () => {},
+      onCopyWorldState: () => {},
+      onForceWin: () => {},
+      onForceLose: () => {},
+      onStartMission: () => {},
+      onDeployUnit: () => {}
+    });
     const slider = document.getElementById("game-speed") as HTMLInputElement;
     
     // 1. Mission state with 2.0x speed
@@ -126,9 +136,18 @@ describe("Pause and Speed Synchronization Repro", () => {
   });
 
   it("Reproduction: Speed slider desynchronization at mission start (HUDManager missing authoritative sync)", () => {
-    const hudManager = new HUDManager(
-      null as any, { getCurrentStepId: () => null } as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
-    );
+    const hudManager = new HUDManager({
+      menuController: null as any,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: () => {},
+      onAbortMission: () => {},
+      onMenuInput: () => {},
+      onCopyWorldState: () => {},
+      onForceWin: () => {},
+      onForceLose: () => {},
+      onStartMission: () => {},
+      onDeployUnit: () => {}
+    });
 
     const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
     speedSlider.value = "50"; // Default
@@ -152,9 +171,18 @@ describe("Pause and Speed Synchronization Repro", () => {
   });
 
   it("Reproduction: Speed slider should reflect targetTimeScale even when paused", () => {
-    const hudManager = new HUDManager(
-      null as any, { getCurrentStepId: () => null } as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
-    );
+    const hudManager = new HUDManager({
+      menuController: null as any,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: () => {},
+      onAbortMission: () => {},
+      onMenuInput: () => {},
+      onCopyWorldState: () => {},
+      onForceWin: () => {},
+      onForceLose: () => {},
+      onStartMission: () => {},
+      onDeployUnit: () => {}
+    });
 
     const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
     speedSlider.value = "50"; // Default
@@ -194,9 +222,18 @@ describe("Pause and Speed Synchronization Repro", () => {
         getRenderableState: vi.fn(() => ({ title: "Actions", options: [] }))
     };
 
-    const hudManager = new HUDManager(
-      mockMenuController as any, { getCurrentStepId: () => null } as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
-    );
+    const hudManager = new HUDManager({
+      menuController: mockMenuController as any,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: () => {},
+      onAbortMission: () => {},
+      onMenuInput: () => {},
+      onCopyWorldState: () => {},
+      onForceWin: () => {},
+      onForceLose: () => {},
+      onStartMission: () => {},
+      onDeployUnit: () => {}
+    });
 
     const threatContainer = document.getElementById("top-threat-container") as HTMLElement;
     const speedControl = document.getElementById("speed-control") as HTMLElement;

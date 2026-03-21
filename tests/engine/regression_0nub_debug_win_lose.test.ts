@@ -31,14 +31,14 @@ describe("Regression 0nub: Debug Force Win/Lose Buttons", () => {
   };
 
   it("should force win when DEBUG_FORCE_WIN command is received", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
     const state = engine.getState();
     expect(state.status).toBe("Playing");
     expect(state.objectives[0].state).toBe("Pending");
@@ -53,14 +53,14 @@ describe("Regression 0nub: Debug Force Win/Lose Buttons", () => {
   });
 
   it("should force lose when DEBUG_FORCE_LOSE command is received", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
     const state = engine.getState();
     expect(state.status).toBe("Playing");
 

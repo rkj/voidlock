@@ -1,3 +1,4 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
@@ -6,6 +7,7 @@ import { ModalService } from "@src/renderer/ui/ModalService";
 import { SquadConfig } from "@src/shared/types";
 
 describe("EquipmentScreen - Squad Management Refactor", () => {
+  let mockInputDispatcher: any;
   let container: HTMLElement;
   let manager: CampaignManager;
   let modalService: ModalService;
@@ -13,6 +15,10 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
   let onBack: any;
 
   beforeEach(() => {
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
     document.body.innerHTML = '<div id="screen-equipment"></div>';
     container = document.getElementById("screen-equipment")!;
 
@@ -53,13 +59,14 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
   });
 
   it("should show 4 slots in the soldier list even if fewer soldiers are in squad", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      modalService,
-      initialConfig,
-      onBack,
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      modalService: modalService as any,
+      currentSquad: initialConfig,
+      onBack: onBack
+    });
     screen.show();
 
     const slots = container.querySelectorAll(".soldier-item-container");
@@ -71,17 +78,18 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
 
   it("should show Recruit/Revive options in the inspector when an empty slot is selected", () => {
     manager.startNewCampaign(123, "normal");
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      modalService,
-      initialConfig,
-      onBack,
-      undefined,
-      undefined,
-      false,
-      true, // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      modalService: modalService as any,
+      currentSquad: initialConfig,
+      onBack: onBack,
+      onUpdate: undefined,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     // Select an empty slot
@@ -127,17 +135,18 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
       },
     ];
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      modalService,
-      { soldiers: [state.roster[0]], inventory: {} },
-      onBack,
-      undefined,
-      undefined,
-      false,
-      true,
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      modalService: modalService as any,
+      currentSquad: { soldiers: [state.roster[0]], inventory: {} },
+      onBack: onBack,
+      onUpdate: undefined,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     // Select an empty slot
@@ -157,17 +166,18 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
       { id: "s2", name: "Soldier 2", status: "Healthy", equipment: {}, xp: 0, level: 1, archetypeId: "medic", hp: 100, maxHp: 100, soldierAim: 70, kills: 0, missions: 0 },
     ];
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      modalService,
-      { soldiers: [state.roster[0]], inventory: {} },
-      onBack,
-      undefined,
-      undefined,
-      false,
-      true,
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      modalService: modalService as any,
+      currentSquad: { soldiers: [state.roster[0]], inventory: {} },
+      onBack: onBack,
+      onUpdate: undefined,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     // Select empty slot
@@ -190,13 +200,14 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
   });
 
   it("should allow removing a soldier from the squad", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      modalService,
-      initialConfig,
-      onBack,
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      modalService: modalService as any,
+      currentSquad: initialConfig,
+      onBack: onBack
+    });
     screen.show();
 
     const removeBtn = container.querySelector(".slot-remove") as HTMLElement;
@@ -212,17 +223,18 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     const state = manager.getState()!;
     state.unlockedArchetypes = ["assault", "medic"];
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      modalService,
-      { soldiers: [], inventory: {} },
-      onBack,
-      undefined,
-      undefined,
-      false,
-      true,
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      modalService: modalService as any,
+      currentSquad: { soldiers: [], inventory: {} },
+      onBack: onBack,
+      onUpdate: undefined,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     // Select empty slot

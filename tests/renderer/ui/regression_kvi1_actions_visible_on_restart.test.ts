@@ -74,18 +74,18 @@ describe("HUDManager Regression kvi1", () => {
     onMenuInput = vi.fn();
     onCopyWorldState = vi.fn();
 
-    hud = new HUDManager(
-      mockMenuController,
-      { getCurrentStepId: () => null } as any,
-      onUnitClick,
-      onAbortMission,
-      onMenuInput,
-      onCopyWorldState,
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-    );
+    hud = new HUDManager({
+      menuController: mockMenuController,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: onUnitClick,
+      onAbortMission: onAbortMission,
+      onMenuInput: onMenuInput,
+      onCopyWorldState: onCopyWorldState,
+      onForceWin: vi.fn(),
+      onForceLose: vi.fn(),
+      onStartMission: vi.fn(),
+      onDeployUnit: vi.fn()
+    });
   });
 
   it("should repopulate command menu after right panel is cleared (mission restart)", () => {

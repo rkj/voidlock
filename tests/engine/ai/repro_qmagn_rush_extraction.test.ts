@@ -27,13 +27,13 @@ describe("AI Discipline (Extraction) - RUSH Repro", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      corridorMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    );
+    engine = new CoreEngine({
+      map: corridorMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

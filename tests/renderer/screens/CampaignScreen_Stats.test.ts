@@ -5,6 +5,8 @@ import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
+import { ThemeManager } from "@src/renderer/ThemeManager";
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 
 describe("CampaignScreen - Global Stats", () => {
   let container: HTMLElement;
@@ -12,6 +14,8 @@ describe("CampaignScreen - Global Stats", () => {
   let modalService: ModalService;
   let screen: CampaignScreen;
   let storage: MockStorageProvider;
+  let themeManager: ThemeManager;
+  let inputDispatcher: InputDispatcher;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="app"></div>';
@@ -37,6 +41,10 @@ describe("CampaignScreen - Global Stats", () => {
 
     manager = CampaignManager.getInstance(storage);
     modalService = new ModalService();
+    themeManager = new ThemeManager();
+    vi.spyOn(themeManager, "init").mockResolvedValue(undefined);
+    vi.spyOn(themeManager, "getAssetUrl").mockReturnValue("mock-url");
+    inputDispatcher = new InputDispatcher();
 
     // Mock HTMLCanvasElement.getContext
     HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
@@ -56,13 +64,15 @@ describe("CampaignScreen - Global Stats", () => {
       setLineDash: vi.fn(),
     });
 
-    screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      modalService,
-      vi.fn(),
-      vi.fn(),
-    );
+    screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: themeManager as any,
+      inputDispatcher: inputDispatcher as any,
+      modalService: modalService as any,
+      onNodeSelect: vi.fn(),
+      onMainMenu: vi.fn()
+    });
   });
 
   it("should NOT render global stats in the campaign map (responsibility moved to shell)", () => {
@@ -109,6 +119,7 @@ describe("CampaignScreen - Global Stats", () => {
 
   it("should NOT render global stats when no campaign is active (responsibility moved to shell)", () => {
     vi.spyOn(manager, "getState").mockReturnValue(null);
+
     screen.show();
 
     const footer = container.querySelector(".campaign-footer");

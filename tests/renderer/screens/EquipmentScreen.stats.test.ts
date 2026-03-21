@@ -1,9 +1,11 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { SquadConfig } from "@src/shared/types";
 
 describe("EquipmentScreen Stats and Tooltips", () => {
+  let mockInputDispatcher: any;
   let container: HTMLElement;
   let initialConfig: SquadConfig;
   let onSave: any;
@@ -12,6 +14,10 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   let mockModalService: any;
 
   beforeEach(() => {
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
     document.body.innerHTML = '<div id="screen-equipment"></div>';
     container = document.getElementById("screen-equipment")!;
 
@@ -45,18 +51,18 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   });
 
   it("should display compact stats for weapons in the armory", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true // isCampaign
+    });
     screen.show();
 
     // With the refactor, armory items are in .armory-panel
@@ -77,18 +83,18 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   });
 
   it("should display compact stats for items (armor/boots) in the armory", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true // isCampaign
+    });
     screen.show();
 
     const armoryItems = Array.from(
@@ -107,18 +113,18 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   });
 
   it("should have tooltips with descriptions and full stats for armory items", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true // isCampaign
+    });
     screen.show();
 
     const armoryItems = Array.from(
@@ -137,18 +143,18 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   });
 
   it("should have tooltips for global supply items", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true // isCampaign
+    });
     screen.show();
 
     // Global supplies are in rows with class 'card' in .armory-panel

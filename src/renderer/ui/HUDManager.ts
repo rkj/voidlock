@@ -14,10 +14,34 @@ import {
   GameOverPanel
 } from "@src/renderer/ui/panels/HUDPanels";
 
+export interface HUDManagerConfig {
+  menuController: MenuController;
+  tutorialManager: any;
+  onUnitClick: (unit: Unit, shiftHeld?: boolean) => void;
+  onAbortMission: () => void;
+  onMenuInput: (key: string, shiftHeld?: boolean) => void;
+  onCopyWorldState: () => void;
+  onForceWin: () => void;
+  onForceLose: () => void;
+  onStartMission: () => void;
+  onDeployUnit: (unitId: string, x: number, y: number) => void;
+}
+
 export class HUDManager {
   private binder: UIBinder;
   private currentState: GameState | null = null;
   private selectedUnitId: string | null = null;
+
+  private menuController: MenuController;
+  private tutorialManager: any;
+  private onUnitClick: (unit: Unit, shiftHeld?: boolean) => void;
+  private onAbortMission: () => void;
+  private onMenuInput: (key: string, shiftHeld?: boolean) => void;
+  private onCopyWorldState: () => void;
+  private onForceWin: () => void;
+  private onForceLose: () => void;
+  private onStartMission: () => void;
+  private onDeployUnit: (unitId: string, x: number, y: number) => void;
 
   private deploymentPanel: DeploymentPanel;
   private commandMenuPanel: CommandMenuPanel;
@@ -26,18 +50,18 @@ export class HUDManager {
   private soldierListPanel: SoldierListPanel;
   private gameOverPanel: GameOverPanel;
 
-  constructor(
-    private menuController: MenuController,
-    private tutorialManager: any, // Use any for now to avoid circular dependency
-    private onUnitClick: (unit: Unit, shiftHeld?: boolean) => void,
-    private onAbortMission: () => void,
-    private onMenuInput: (key: string, shiftHeld?: boolean) => void,
-    private onCopyWorldState: () => void,
-    private onForceWin: () => void,
-    private onForceLose: () => void,
-    private onStartMission: () => void,
-    private onDeployUnit: (unitId: string, x: number, y: number) => void,
-  ) {
+  constructor(config: HUDManagerConfig) {
+    this.menuController = config.menuController;
+    this.tutorialManager = config.tutorialManager;
+    this.onUnitClick = config.onUnitClick;
+    this.onAbortMission = config.onAbortMission;
+    this.onMenuInput = config.onMenuInput;
+    this.onCopyWorldState = config.onCopyWorldState;
+    this.onForceWin = config.onForceWin;
+    this.onForceLose = config.onForceLose;
+    this.onStartMission = config.onStartMission;
+    this.onDeployUnit = config.onDeployUnit;
+
     this.binder = new UIBinder();
     
     this.deploymentPanel = new DeploymentPanel({

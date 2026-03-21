@@ -34,19 +34,25 @@ describe("CoreEngine Replay Termination", () => {
     } as any;
 
     // 1. Create a simulation and make it fail
-    const engine = new CoreEngine(
-      map,
-      12345,
-      squadConfig,
-      false, // agentControl
-      false, // debug
+    const engine = new CoreEngine({
+      map: map,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: // agentControl
+      false,
+      missionType: // debug
       MissionType.Default,
-      false, // losOverlay
-      0, // threat
-      1.0, // timescale
-      false, // paused
-      EngineMode.Simulation,
-    );
+      losOverlayEnabled: false,
+      startingThreatLevel: // losOverlay
+      0,
+      initialTimeScale: // threat
+      1.0,
+      startPaused: // timescale
+      false,
+      mode: // paused
+      EngineMode.Simulation
+    });
 
     // Force failure by killing the only unit
     const state = engine.getState();
@@ -57,20 +63,20 @@ describe("CoreEngine Replay Termination", () => {
     expect(engine.getState().status).toBe("Lost");
 
     // 2. Create a replay engine with the same log
-    const replayEngine = new CoreEngine(
-      map,
-      12345,
-      squadConfig,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Replay,
-      engine.getState().commandLog,
-    );
+    const replayEngine = new CoreEngine({
+      map: map,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Replay,
+      initialCommandLog: engine.getState().commandLog
+    });
 
     // Run until it hits Lost
     for (let i = 0; i < 1000; i++) {

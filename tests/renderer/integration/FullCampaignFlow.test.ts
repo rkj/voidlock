@@ -12,6 +12,7 @@ vi.mock("@package.json", () => ({
 }));
 
 const mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
   init: vi.fn(), 
   pause: vi.fn(), 
   resume: vi.fn(),
@@ -53,19 +54,22 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      applyTheme: vi.fn(),
-    }),
-  },
-}));
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    ThemeManager: mockConstructor,
+  };
+});
 
 vi.mock("@src/renderer/controllers/TutorialManager", () => ({
   TutorialManager: vi.fn().mockImplementation(() => ({
@@ -157,6 +161,11 @@ describe("Full Campaign Flow Integration", () => {
         <div id="modal-container"></div>
       </div>
     `;
+
+    localStorage.clear();
+    // Reset singleton instances
+    (CampaignManager as any).instance = null;
+    (MetaManager as any).instance = null;
 
     // Mock storage to ensure clean slate
     CampaignManager.getInstance(new MockStorageProvider());

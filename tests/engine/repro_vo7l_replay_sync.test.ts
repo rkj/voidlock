@@ -78,15 +78,15 @@ describe("Repro VO7L: Replay Command Synchronization", () => {
   });
 
   it("should capture automatically issued EXPLORE command in replay data", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      defaultSquad,
-    );
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: defaultSquad
+    });
 
     // Simulate state update from worker that includes the EXPLORE command in commandLog
     // (CoreEngine automatically adds this if commandLog is empty)
@@ -114,15 +114,15 @@ describe("Repro VO7L: Replay Command Synchronization", () => {
   });
 
   it("should maintain correct command ticks even when sent between state updates", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      defaultSquad,
-    );
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: defaultSquad
+    });
 
     // Engine is at tick 0
     (client as any).worker.onmessage({

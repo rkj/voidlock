@@ -22,16 +22,16 @@ describe("Scanner Targeting Regression (voidlock-3dpu)", () => {
       boundaries: [{ x1: 0, y1: 0, x2: 1, y2: 0, type: BoundaryType.Wall }],
     };
 
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [{ archetypeId: "assault" }],
         inventory: { scanner: 1 },
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // Run update to trigger initial visibility
     engine.update(16);

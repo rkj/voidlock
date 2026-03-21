@@ -35,14 +35,14 @@ const mockMap: MapDefinition = {
 
 describe("Melee Lock & Ignore Policy", () => {
   it("should force combat and block movement when in same cell, even if IGNORE", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
     // Manually add Soldier
     engine.addUnit({
@@ -126,14 +126,14 @@ describe("Melee Lock & Ignore Policy", () => {
   });
 
   it("should lock enemy movement if soldier is in same cell", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
     // Manually add Soldier at 1,0
     engine.addUnit({

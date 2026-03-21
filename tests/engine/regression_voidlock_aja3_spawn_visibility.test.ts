@@ -27,7 +27,13 @@ describe("Regression voidlock-aja3: Authoritative Entity Visibility", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(mockMap, 123, defaultSquad, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // First call to getState() sets sentMap = true
     const state1 = engine.getState(true);

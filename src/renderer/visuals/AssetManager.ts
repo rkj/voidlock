@@ -7,7 +7,11 @@ export class AssetManager {
   public iconImages: Record<string, HTMLImageElement> = {};
   public unitSprites: Record<string, HTMLImageElement> = {};
   public enemySprites: Record<string, HTMLImageElement> = {};
-  private theme = ThemeManager.getInstance();
+
+  public constructor(private theme: ThemeManager) {
+    this.loadIcons();
+    this.loadSprites();
+  }
 
   private readonly UNIT_SPRITE_MAP: Record<string, string> = {
     assault: "soldier_demolition",
@@ -30,16 +34,21 @@ export class AssetManager {
     waypoint: "waypoint",
   };
 
-  private constructor() {
-    this.loadIcons();
-    this.loadSprites();
-  }
-
+  /**
+   * @deprecated Use constructor injection via AppServiceRegistry.
+   */
   public static getInstance(): AssetManager {
     if (!AssetManager.instance) {
-      AssetManager.instance = new AssetManager();
+      throw new Error("AssetManager: instance not initialized. Use constructor injection.");
     }
     return AssetManager.instance;
+  }
+
+  /**
+   * For testing purposes only.
+   */
+  public static setInstance(instance: AssetManager) {
+    AssetManager.instance = instance;
   }
 
   private loadIcons() {

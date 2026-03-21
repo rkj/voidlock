@@ -42,7 +42,13 @@ describe("AI Target Stability", () => {
   };
 
   beforeEach(() => {
-    engine = new CoreEngine(mapDef, 12345, defaultSquad, true, false);
+    engine = new CoreEngine({
+      map: mapDef,
+      seed: 12345,
+      squadConfig: defaultSquad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

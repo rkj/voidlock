@@ -28,7 +28,13 @@ describe("Regression a7qk - New Accuracy Formula", () => {
       inventory: {},
     };
     // Use a fixed seed for deterministic results
-    engine = new CoreEngine(mockMap, 12345, defaultSquad, false, false);
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 12345,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

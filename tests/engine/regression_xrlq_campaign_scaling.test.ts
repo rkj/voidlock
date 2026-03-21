@@ -23,25 +23,29 @@ describe("Director & Campaign Scaling Regression (xrlq)", () => {
 
   it("CoreEngine: should calculate correct startingPoints for Director at rank 0", () => {
     // Rank 0, base 3, growth 1.0 => startingPoints = 0 (Mission 1 safety)
-    const engine = new CoreEngine(
-      map,
-      12345,
-      squadConfig,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0, // startingThreatLevel
+    const engine = new CoreEngine({
+      map: map,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: // startingThreatLevel
       1.0,
-      true,
-      EngineMode.Simulation,
-      [],
-      true,
+      startPaused: true,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: // baseEnemyCount
+      1.0,
+      missionDepth: // enemyGrowthPerMission
       0,
-      3, // baseEnemyCount
-      1.0, // enemyGrowthPerMission
-      0, // missionDepth
-    );
+      nodeType: // missionDepth
+    });
 
     const state = engine.getState();
     // 0 enemies should be pre-spawned for Mission 1
@@ -50,25 +54,25 @@ describe("Director & Campaign Scaling Regression (xrlq)", () => {
 
   it("CoreEngine: should calculate correct startingPoints for Director at rank 5", () => {
     // Rank 5, base 3, growth 1.0 => startingPoints = 3 + 5*1 = 8
-    const engine = new CoreEngine(
-      map,
-      12345,
-      squadConfig,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      true,
-      EngineMode.Simulation,
-      [],
-      true,
-      0,
-      3,
-      1.0,
-      5,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: true,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1.0,
+      missionDepth: 5
+    });
 
     const state = engine.getState();
     // 8 enemies should be pre-spawned

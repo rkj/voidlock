@@ -4,7 +4,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { MetaManager } from "@src/engine/campaign/MetaManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { MissionType, UnitState, GameState, MapGeneratorType } from "@src/shared/types";
 
@@ -14,6 +14,7 @@ vi.mock("@package.json", () => ({
 }));
 
 const mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
   init: vi.fn(), 
   pause: vi.fn(), 
   resume: vi.fn(),
@@ -55,19 +56,22 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      applyTheme: vi.fn(),
-    }),
-  },
-}));
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    ThemeManager: mockConstructor,
+  };
+});
 
 vi.mock("@src/renderer/controllers/TutorialManager", () => ({
   TutorialManager: vi.fn().mockImplementation(() => ({
@@ -104,7 +108,7 @@ describe("Comprehensive User Journeys", () => {
   beforeEach(async () => {
     localStorage.clear();
     // Reset singleton instances
-    (CampaignManager as any).instance = null;
+    CampaignManager.resetSingleton();
     (MetaManager as any).instance = null;
 
     // Standard DOM setup for tests

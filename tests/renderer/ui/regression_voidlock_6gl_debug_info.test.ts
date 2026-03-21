@@ -26,18 +26,18 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
       })),
     };
 
-    hud = new HUDManager(
-      mockMenuController,
-      { getCurrentStepId: () => null } as any,
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-    );
+    hud = new HUDManager({
+      menuController: mockMenuController,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: vi.fn(),
+      onAbortMission: vi.fn(),
+      onMenuInput: vi.fn(),
+      onCopyWorldState: vi.fn(),
+      onForceWin: vi.fn(),
+      onForceLose: vi.fn(),
+      onStartMission: vi.fn(),
+      onDeployUnit: vi.fn()
+    });
 
     mockState = {
       t: 1000,

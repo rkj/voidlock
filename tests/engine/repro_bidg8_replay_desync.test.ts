@@ -53,11 +53,29 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
     const startingThreatLevel = 25;
 
     // 1. Play session
-    const engine1 = new CoreEngine(
-      mockMap, seed, defaultSquad, false, false, MissionType.Default, false, 
-      startingThreatLevel, 1.0, false, EngineMode.Simulation, [], true, 0, 1, 1, 0, "Combat", 
-      undefined, undefined, skipDeployment
-    );
+    const engine1 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: startingThreatLevel,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 1,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: skipDeployment
+    });
 
     engine1.applyCommand({
       type: CommandType.DEPLOY_UNIT,
@@ -72,11 +90,29 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
     const log = state1.commandLog!;
 
     // 2. Replay session with MATCHING parameters
-    const engine2 = new CoreEngine(
-      mockMap, seed, defaultSquad, false, false, MissionType.Default, false, 
-      startingThreatLevel, 1.0, false, EngineMode.Replay, log, true, 0, 1, 1, 0, "Combat", 
-      undefined, undefined, skipDeployment
-    );
+    const engine2 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: startingThreatLevel,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Replay,
+      initialCommandLog: log,
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 1,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: skipDeployment
+    });
 
     for (let i = 0; i < 100; i++) engine2.update(16);
     const state2 = engine2.getState(false);
@@ -88,21 +124,57 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
   it("should diverge when skipDeployment MISMATCHES", () => {
     const seed = 42;
 
-    const engine1 = new CoreEngine(
-      mockMap, seed, defaultSquad, false, false, MissionType.Default, false, 
-      0, 1.0, false, EngineMode.Simulation, [], true, 0, 1, 1, 0, "Combat", 
-      undefined, undefined, false
-    );
+    const engine1 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 1,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
     engine1.applyCommand({ type: CommandType.DEPLOY_UNIT, unitId: "s1", target: { x: 0.5, y: 0.5 } });
     engine1.applyCommand({ type: CommandType.START_MISSION });
     for (let i = 0; i < 100; i++) engine1.update(16);
     const state1 = engine1.getState(false);
 
-    const engine2 = new CoreEngine(
-      mockMap, seed, defaultSquad, false, false, MissionType.Default, false, 
-      0, 1.0, false, EngineMode.Replay, state1.commandLog!, true, 0, 1, 1, 0, "Combat", 
-      undefined, undefined, true
-    );
+    const engine2 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Replay,
+      initialCommandLog: state1.commandLog!,
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 1,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: true
+    });
     for (let i = 0; i < 100; i++) engine2.update(16);
     const state2 = engine2.getState(false);
 
@@ -112,19 +184,55 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
   it("should diverge when startingThreatLevel MISMATCHES", () => {
     const seed = 42;
 
-    const engine1 = new CoreEngine(
-      mockMap, seed, defaultSquad, false, false, MissionType.Default, false, 
-      0, 1.0, false, EngineMode.Simulation, [], true, 0, 1, 1, 0, "Combat", 
-      undefined, undefined, true
-    );
+    const engine1 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 1,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: true
+    });
     for (let i = 0; i < 100; i++) engine1.update(16);
     const state1 = engine1.getState(false);
 
-    const engine2 = new CoreEngine(
-      mockMap, seed, defaultSquad, false, false, MissionType.Default, false, 
-      50, 1.0, false, EngineMode.Replay, state1.commandLog!, true, 0, 1, 1, 0, "Combat", 
-      undefined, undefined, true
-    );
+    const engine2 = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 50,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Replay,
+      initialCommandLog: state1.commandLog!,
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 1,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: true
+    });
     for (let i = 0; i < 100; i++) engine2.update(16);
     const state2 = engine2.getState(false);
 

@@ -3,10 +3,17 @@ import { TutorialManager } from "../../../src/renderer/controllers/TutorialManag
 
 describe("TutorialManager inputGate fix", () => {
     it("should allow SELECT_UNIT in all command steps", () => {
-        const mockGameClient = { addStateUpdateListener: vi.fn(), removeStateUpdateListener: vi.fn() } as any;
+        const mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(), addStateUpdateListener: vi.fn(), removeStateUpdateListener: vi.fn() } as any;
         const mockCampaignManager = {} as any;
         const mockMenuController = {} as any;
-        const manager = new TutorialManager(mockGameClient, mockCampaignManager, mockMenuController, vi.fn(), () => "s1");
+        const manager = new TutorialManager({
+      gameClient: mockGameClient,
+      campaignManager: mockCampaignManager,
+      menuController: mockMenuController,
+      onMessage: vi.fn(),
+      getSelectedUnitId: () => "s1"
+    });
         
         const steps = (manager as any).prologueSteps;
         

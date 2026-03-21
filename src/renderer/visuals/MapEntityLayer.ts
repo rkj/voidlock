@@ -3,12 +3,14 @@ import { SharedRendererState } from "./SharedRendererState";
 import { GameState } from "@src/shared/types";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
-import { ThemeManager } from "@src/renderer/ThemeManager";
-import { AssetManager } from "./AssetManager";
 
 export class MapEntityLayer implements RenderLayer {
-  private theme = ThemeManager.getInstance();
-  private assets = AssetManager.getInstance();
+  private get theme() {
+    return this.sharedState.theme;
+  }
+  private get assets() {
+    return this.sharedState.assets;
+  }
 
   constructor(private sharedState: SharedRendererState) {}
 
@@ -189,6 +191,7 @@ export class MapEntityLayer implements RenderLayer {
 
       const isVisible = isCellVisible(state, cell.x, cell.y);
       const isDiscovered = isCellDiscovered(state, cell.x, cell.y);
+      console.log(`[MapEntityLayer] renderSpawnPoints: ${sp.id}, cell: ${cell.x},${cell.y}, isVisible: ${isVisible}, isDiscovered: ${isDiscovered}`);
 
       if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled)
         return;

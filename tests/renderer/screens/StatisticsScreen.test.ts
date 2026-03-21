@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { StatisticsScreen } from "@src/renderer/screens/StatisticsScreen";
 import { MetaManager } from "@src/engine/managers/MetaManager";
 
@@ -25,7 +25,11 @@ describe("StatisticsScreen", () => {
   });
 
   it("should render correctly with default stats", () => {
-    const screen = new StatisticsScreen("screen-statistics", MetaManager.getInstance());
+    const screen = new StatisticsScreen({
+      containerId: "screen-statistics",
+      metaManager: MetaManager.getInstance(),
+      inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any
+    });
     screen.show();
 
     expect(container.textContent).toContain("Service Record");
@@ -43,7 +47,11 @@ describe("StatisticsScreen", () => {
     meta.recordMissionResult(10, 2, true, 500);
     meta.recordCampaignResult(true);
 
-    const screen = new StatisticsScreen("screen-statistics", MetaManager.getInstance());
+    const screen = new StatisticsScreen({
+      containerId: "screen-statistics",
+      metaManager: MetaManager.getInstance(),
+      inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any
+    });
     screen.show();
 
     expect(container.textContent).toContain("Total Xeno Purged:");

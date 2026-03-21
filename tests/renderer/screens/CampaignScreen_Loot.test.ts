@@ -9,6 +9,8 @@ describe("CampaignScreen Bonus Loot Pips", () => {
   let onNodeSelect: any;
   let onBack: any;
   let mockModalService: any;
+  let mockTheme: any;
+  let mockInput: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-campaign"></div>';
@@ -38,6 +40,15 @@ describe("CampaignScreen Bonus Loot Pips", () => {
       alert: vi.fn().mockResolvedValue(undefined),
       confirm: vi.fn().mockResolvedValue(true),
     };
+    mockTheme = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    };
+    mockInput = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
 
     // Mock HTMLCanvasElement.getContext
     HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
@@ -61,23 +72,22 @@ describe("CampaignScreen Bonus Loot Pips", () => {
   it("should render loot pips for Simulation difficulty", () => {
     manager.startNewCampaign(12345, "simulation");
     const state = manager.getState()!;
-    // Force bonusLootCount on the first node
     state.nodes[0].bonusLootCount = 3;
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
-      onNodeSelect,
-      onBack,
-    );
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockTheme as any,
+      inputDispatcher: mockInput as any,
+      modalService: mockModalService as any,
+      onNodeSelect: onNodeSelect,
+      onMainMenu: onBack
+    });
     screen.show();
 
     const nodeEl = container.querySelector(`[data-id="${state.nodes[0].id}"]`);
     expect(nodeEl).not.toBeNull();
 
-    // Check for pips. We expect 3 stars or dots.
-    // Based on the task: "Draw X 'Star' pips (or dots) next to the node icon"
     const pips = nodeEl?.querySelectorAll(".loot-pip");
     expect(pips?.length).toBe(3);
   });
@@ -87,13 +97,15 @@ describe("CampaignScreen Bonus Loot Pips", () => {
     const state = manager.getState()!;
     state.nodes[0].bonusLootCount = 2;
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
-      onNodeSelect,
-      onBack,
-    );
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockTheme as any,
+      inputDispatcher: mockInput as any,
+      modalService: mockModalService as any,
+      onNodeSelect: onNodeSelect,
+      onMainMenu: onBack
+    });
     screen.show();
 
     const nodeEl = container.querySelector(`[data-id="${state.nodes[0].id}"]`);
@@ -106,13 +118,15 @@ describe("CampaignScreen Bonus Loot Pips", () => {
     const state = manager.getState()!;
     state.nodes[0].bonusLootCount = 3;
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
-      onNodeSelect,
-      onBack,
-    );
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockTheme as any,
+      inputDispatcher: mockInput as any,
+      modalService: mockModalService as any,
+      onNodeSelect: onNodeSelect,
+      onMainMenu: onBack
+    });
     screen.show();
 
     const nodeEl = container.querySelector(`[data-id="${state.nodes[0].id}"]`);
@@ -125,13 +139,15 @@ describe("CampaignScreen Bonus Loot Pips", () => {
     const state = manager.getState()!;
     state.nodes[0].bonusLootCount = 3;
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
-      onNodeSelect,
-      onBack,
-    );
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockTheme as any,
+      inputDispatcher: mockInput as any,
+      modalService: mockModalService as any,
+      onNodeSelect: onNodeSelect,
+      onMainMenu: onBack
+    });
     screen.show();
 
     const nodeEl = container.querySelector(`[data-id="${state.nodes[0].id}"]`);

@@ -2,16 +2,23 @@ import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
 
+export interface MissionSetupScreenConfig {
+  containerId: string;
+  inputDispatcher: InputDispatcher;
+  onBack: () => void;
+}
+
 export class MissionSetupScreen {
   private container: HTMLElement;
+  private inputDispatcher: InputDispatcher;
+  private onBack: () => void;
 
-  constructor(
-    containerId: string,
-    private onBack: () => void,
-  ) {
-    const el = document.getElementById(containerId);
-    if (!el) throw new Error(`Container #${containerId} not found`);
+  constructor(config: MissionSetupScreenConfig) {
+    const el = document.getElementById(config.containerId);
+    if (!el) throw new Error(`Container #${config.containerId} not found`);
     this.container = el;
+    this.inputDispatcher = config.inputDispatcher;
+    this.onBack = config.onBack;
   }
 
   public show() {
@@ -27,11 +34,11 @@ export class MissionSetupScreen {
 
   public hide() {
     this.container.style.display = "none";
-    InputDispatcher.getInstance().popContext("mission-setup");
+    this.inputDispatcher.popContext("mission-setup");
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "mission-setup",
       priority: InputPriority.UI,
       trapsFocus: true,

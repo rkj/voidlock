@@ -38,29 +38,45 @@ describe("Deployment Validation and Interaction", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false, // allowTacticalPause
-      false, // debugOverlayEnabled
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: // allowTacticalPause
+      false,
+      missionType: // debugOverlayEnabled
       MissionType.Default,
-      false, // isCampaign
-      0, // missionDepth
-      1.0, // enemyGrowthPerMission
-      false, // isSlowMotion
+      losOverlayEnabled: false,
+      startingThreatLevel: // isCampaign
+      0,
+      initialTimeScale: // missionDepth
+      1.0,
+      startPaused: // enemyGrowthPerMission
+      false,
+      mode: // isSlowMotion
       EngineMode.Simulation,
-      [], // initialCommandLog
-      true, // isNewGame
-      0, // startTick
-      3, // baseEnemyCount
-      1, // spawnPointCount
-      0, // bonusLootCount
-      "Combat", // missionNodeCategory
-      undefined, // missionId
-      undefined, // seed
-      false, // skipDeployment = false
-    );
+      initialCommandLog: [],
+      allowTacticalPause: // initialCommandLog
+      true,
+      targetTick: // isNewGame
+      0,
+      baseEnemyCount: // startTick
+      3,
+      enemyGrowthPerMission: // baseEnemyCount
+      1,
+      missionDepth: // spawnPointCount
+      0,
+      nodeType: // bonusLootCount
+      "Combat",
+      campaignNodeId: // missionNodeCategory
+      undefined,
+      startingPoints: // missionId
+      undefined,
+      skipDeployment: // seed
+      false,
+      debugSnapshots: // skipDeployment = false
+    });
   });
 
   it("should allow deploying a unit to a valid squad spawn point", () => {
@@ -133,29 +149,29 @@ describe("Deployment Validation and Interaction", () => {
       inventory: {},
     };
 
-    const fullEngine = new CoreEngine(
-      mockMap,
-      123,
-      fullSquadConfig,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const fullEngine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: fullSquadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
 
     // Deploy s1, s4, s5, s2 to spawns[0] to fill it up (4 units)
     fullEngine.applyCommand({ type: CommandType.DEPLOY_UNIT, unitId: "s1", target: { x: 1.5, y: 1.5 } });
@@ -184,29 +200,29 @@ describe("Deployment Validation and Interaction", () => {
 
   it("should ignore deployment commands for VIP units", () => {
     // We need a map with a VIP to test this properly
-    const escortEngine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      MissionType.EscortVIP,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const escortEngine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
 
     const vip = escortEngine
       .getState()
@@ -239,29 +255,29 @@ describe("Deployment Validation and Interaction", () => {
       extraction: { x: 0, y: 0 },
     };
 
-    const singularEngine = new CoreEngine(
-      singularMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const singularEngine = new CoreEngine({
+      map: singularMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
 
     singularEngine.applyCommand({
       type: CommandType.DEPLOY_UNIT,

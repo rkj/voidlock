@@ -38,14 +38,14 @@ async function runSimulation() {
     };
 
     // Enable agent control
-    const engine = new CoreEngine(
+    const engine = new CoreEngine({
       map,
       seed,
-      squad,
-      true,
-      false,
-      MissionType.Default,
-    );
+      squadConfig: squad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+    });
 
     // Auto-start for simulator
     engine.applyCommand({ type: CommandType.START_MISSION });

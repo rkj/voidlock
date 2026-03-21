@@ -11,10 +11,10 @@ describe("Regression IHFP: Leveling Stat Boosts", () => {
   };
 
   it("should apply soldierAim boost correctly in the engine", () => {
-    const baseEngine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const baseEngine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [
           {
             archetypeId: "assault",
@@ -23,17 +23,17 @@ describe("Regression IHFP: Leveling Stat Boosts", () => {
         ],
         inventory: {},
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const baseUnit = baseEngine.getState().units[0];
     expect(baseUnit.stats.soldierAim).toBe(90);
     expect(baseUnit.stats.accuracy).toBeGreaterThanOrEqual(90); // 90 + weapon bonus
 
-    const boostedEngine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const boostedEngine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [
           {
             archetypeId: "assault",
@@ -42,19 +42,19 @@ describe("Regression IHFP: Leveling Stat Boosts", () => {
         ],
         inventory: {},
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const boostedUnit = boostedEngine.getState().units[0];
     expect(boostedUnit.stats.soldierAim).toBe(95);
     expect(boostedUnit.stats.accuracy).toBe(baseUnit.stats.accuracy + 5);
   });
 
   it("should apply HP boost correctly in the engine", () => {
-    const boostedEngine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const boostedEngine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [
           {
             archetypeId: "assault",
@@ -64,9 +64,9 @@ describe("Regression IHFP: Leveling Stat Boosts", () => {
         ],
         inventory: {},
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const boostedUnit = boostedEngine.getState().units[0];
     expect(boostedUnit.hp).toBe(120);
     expect(boostedUnit.maxHp).toBe(120);

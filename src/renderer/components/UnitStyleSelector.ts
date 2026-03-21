@@ -10,6 +10,7 @@ export class UnitStyleSelector {
   constructor(
     container: HTMLElement | null,
     private themeManager: ThemeManager,
+    private assetManager: AssetManager,
     initialStyle: UnitStyle,
     onChange: (style: UnitStyle) => void,
   ) {
@@ -238,7 +239,7 @@ export class UnitStyleSelector {
     cellSize: number,
     type: string,
   ) {
-    const assets = AssetManager.getInstance();
+    const assets = this.assetManager;
     let sprite: HTMLImageElement | null = null;
     const spriteSize = cellSize * 0.6;
 

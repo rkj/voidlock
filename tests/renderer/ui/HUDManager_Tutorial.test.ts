@@ -63,18 +63,18 @@ describe("HUDManager Tutorial Dimming", () => {
       })),
     };
 
-    hud = new HUDManager(
-      mockMenuController,
-      { getCurrentStepId: () => null } as any,
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-    );
+    hud = new HUDManager({
+      menuController: mockMenuController,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: vi.fn(),
+      onAbortMission: vi.fn(),
+      onMenuInput: vi.fn(),
+      onCopyWorldState: vi.fn(),
+      onForceWin: vi.fn(),
+      onForceLose: vi.fn(),
+      onStartMission: vi.fn(),
+      onDeployUnit: vi.fn()
+    });
   });
 
   it("should dim elements in prologue with no contact", () => {
@@ -115,18 +115,18 @@ describe("HUDManager Tutorial Dimming", () => {
     const mockTutorial = {
         getCurrentStepId: vi.fn(() => "observe")
     };
-    hud = new HUDManager(
-      mockMenuController,
-      mockTutorial as any,
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-    );
+    hud = new HUDManager({
+      menuController: mockMenuController,
+      tutorialManager: mockTutorial as any,
+      onUnitClick: vi.fn(),
+      onAbortMission: vi.fn(),
+      onMenuInput: vi.fn(),
+      onCopyWorldState: vi.fn(),
+      onForceWin: vi.fn(),
+      onForceLose: vi.fn(),
+      onStartMission: vi.fn(),
+      onDeployUnit: vi.fn()
+    });
 
     const state = createMockState(MissionType.Prologue, 100);
     hud.update(state, null);

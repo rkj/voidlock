@@ -55,13 +55,13 @@ describe("AI Coordination (Y-Split)", () => {
 
   beforeEach(() => {
     Logger.setLevel(LogLevel.DEBUG);
-    engine = new CoreEngine(
-      yMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    );
+    engine = new CoreEngine({
+      map: yMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

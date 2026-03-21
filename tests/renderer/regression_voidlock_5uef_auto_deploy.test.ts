@@ -49,16 +49,16 @@ describe("SquadBuilder Auto-Deploy Regression", () => {
 
   it("should auto-deploy newly recruited soldier", async () => {
     const onUpdate = vi.fn();
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      true,
-      onUpdate,
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: onUpdate
+    });
     builder.render();
 
     // Mock that after recruitment, the roster contains the new soldier
@@ -114,16 +114,16 @@ describe("SquadBuilder Auto-Deploy Regression", () => {
     });
 
     const onUpdate = vi.fn();
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      true,
-      onUpdate,
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: onUpdate
+    });
     builder.render();
 
     // Mock that after revival, the soldier is healthy

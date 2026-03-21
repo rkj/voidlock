@@ -32,7 +32,13 @@ describe("Regression Task 0adr: Default EXPLORE command", () => {
     };
 
     // Initialize engine with agent control ENABLED
-    const engine = new CoreEngine(mockMap, 123, squadConfig, true, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     const state = engine.getState();
 
     expect(state.units.length).toBe(2);
@@ -48,14 +54,14 @@ describe("Regression Task 0adr: Default EXPLORE command", () => {
     };
 
     // Use a mission type that spawns a VIP (EscortVIP)
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
     const state = engine.getState();
 
     const vips = state.units.filter((u) => u.archetypeId === "vip");

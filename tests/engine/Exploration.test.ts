@@ -35,13 +35,13 @@ describe("Exploration Logic", () => {
       });
     }
 
-    const engine = new CoreEngine(
-      map,
-      1,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 1,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     engine.applyCommand({
       type: CommandType.EXPLORE,
@@ -127,15 +127,15 @@ describe("Exploration Logic", () => {
     // Grid handles missing cells as Void/Wall usually.
     // But let's be safe and only add floors.
 
-    const engine = new CoreEngine(
-      map,
-      1,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true,
-      false,
-      MissionType.Default,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 1,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false
+    });
 
     engine.applyCommand({
       type: CommandType.EXPLORE,

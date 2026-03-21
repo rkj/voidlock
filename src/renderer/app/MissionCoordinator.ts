@@ -16,21 +16,45 @@ import { GameClient } from "@src/engine/GameClient";
 import { ScreenManager } from "@src/renderer/ScreenManager";
 import { MenuController } from "@src/renderer/MenuController";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { ThemeManager } from "../ThemeManager";
+import { AssetManager } from "../visuals/AssetManager";
 
 import { ConfigManager } from "../ConfigManager";
+
+export interface MissionCoordinatorConfig {
+  campaignShell: CampaignShell;
+  gameClient: GameClient;
+  screenManager: ScreenManager;
+  menuController: MenuController;
+  campaignManager: CampaignManager;
+  themeManager: ThemeManager;
+  assetManager: AssetManager;
+  onRendererCreated: (renderer: Renderer) => void;
+}
 
 export class MissionCoordinator {
   private debriefShown = false;
   private renderer: Renderer | null = null;
 
-  constructor(
-    private campaignShell: CampaignShell,
-    private gameClient: GameClient,
-    private screenManager: ScreenManager,
-    private menuController: MenuController,
-    private campaignManager: CampaignManager,
-    private onRendererCreated: (renderer: Renderer) => void,
-  ) {}
+  private campaignShell: CampaignShell;
+  private gameClient: GameClient;
+  private screenManager: ScreenManager;
+  private menuController: MenuController;
+  private campaignManager: CampaignManager;
+  private themeManager: ThemeManager;
+  private assetManager: AssetManager;
+  private onRendererCreated: (renderer: Renderer) => void;
+
+  constructor(config: MissionCoordinatorConfig) {
+    this.campaignShell = config.campaignShell;
+    this.gameClient = config.gameClient;
+    this.screenManager = config.screenManager;
+    this.menuController = config.menuController;
+    this.campaignManager = config.campaignManager;
+    this.themeManager = config.themeManager;
+    this.assetManager = config.assetManager;
+    this.onRendererCreated = config.onRendererCreated;
+  }
 
   public launchMission(
     config: {
@@ -73,39 +97,39 @@ export class MissionCoordinator {
     syncSpeedUI();
     this.setupGameClientCallbacks(config, setupCallbacks, updateUI);
 
-    this.gameClient.init(
-      config.seed,
-      config.mapGeneratorType,
-      config.staticMapData,
-      config.fogOfWarEnabled,
-      config.debugOverlayEnabled,
-      config.agentControlEnabled,
-      globalConfig.unitStyle,
-      globalConfig.themeId,
-      config.squadConfig,
-      config.missionType,
-      config.mapWidth,
-      config.mapHeight,
-      config.spawnPointCount,
-      config.losOverlayEnabled,
-      config.startingThreatLevel,
+    this.gameClient.init({
+      seed: config.seed,
+      mapGeneratorType: config.mapGeneratorType,
+      map: config.staticMapData,
+      fogOfWarEnabled: config.fogOfWarEnabled,
+      debugOverlayEnabled: config.debugOverlayEnabled,
+      agentControlEnabled: config.agentControlEnabled,
+      unitStyle: globalConfig.unitStyle,
+      themeId: globalConfig.themeId,
+      squadConfig: config.squadConfig,
+      missionType: config.missionType,
+      width: config.mapWidth,
+      height: config.mapHeight,
+      spawnPointCount: config.spawnPointCount,
+      losOverlayEnabled: config.losOverlayEnabled,
+      startingThreatLevel: config.startingThreatLevel,
       initialTimeScale,
-      false, // startPaused
-      config.allowTacticalPause,
-      EngineMode.Simulation,
-      [], // commandLog
-      config.campaignNode?.id,
-      0, // targetTick
-      config.baseEnemyCount,
-      config.enemyGrowthPerMission,
+      startPaused: false,
+      allowTacticalPause: config.allowTacticalPause,
+      mode: EngineMode.Simulation,
+      commandLog: [],
+      campaignNodeId: config.campaignNode?.id,
+      targetTick: 0,
+      baseEnemyCount: config.baseEnemyCount,
+      enemyGrowthPerMission: config.enemyGrowthPerMission,
       missionDepth,
-      config.campaignNode?.type,
-      undefined, // startingPoints
-      config.campaignNode?.bonusLootCount || 0,
-      config.skipDeployment,
-      globalConfig.debugSnapshots,
-      config.debugSnapshotInterval,
-    );
+      nodeType: config.campaignNode?.type,
+      startingPoints: undefined,
+      bonusLootCount: config.campaignNode?.bonusLootCount || 0,
+      skipDeployment: config.skipDeployment,
+      debugSnapshots: globalConfig.debugSnapshots,
+      debugSnapshotInterval: config.debugSnapshotInterval,
+    });
 
     this.screenManager.show("mission", true, !!config.campaignNode);
   }
@@ -128,7 +152,11 @@ export class MissionCoordinator {
         ) as HTMLCanvasElement;
         const container = document.getElementById("game-container");
         if (canvas) {
-          this.renderer = new Renderer(canvas);
+          this.renderer = new Renderer({
+            canvas,
+            themeManager: this.themeManager,
+            assetManager: this.assetManager,
+          });
           let initialCellSize = 128;
           if (container && state && state.map) {
             const fitWidth = container.clientWidth / state.map.width;
@@ -211,39 +239,39 @@ export class MissionCoordinator {
         updateUI,
       );
 
-      this.gameClient.init(
-        config.seed,
-        config.mapGeneratorType,
-        config.mapData,
-        config.fogOfWarEnabled,
-        config.debugOverlayEnabled,
-        config.agentControlEnabled,
-        globalConfig.unitStyle,
-        globalConfig.themeId,
-        config.squadConfig,
-        config.missionType,
-        config.width,
-        config.height,
-        config.spawnPointCount,
-        config.losOverlayEnabled,
-        config.startingThreatLevel,
+      this.gameClient.init({
+        seed: config.seed,
+        mapGeneratorType: config.mapGeneratorType,
+        map: config.mapData,
+        fogOfWarEnabled: config.fogOfWarEnabled,
+        debugOverlayEnabled: config.debugOverlayEnabled,
+        agentControlEnabled: config.agentControlEnabled,
+        unitStyle: globalConfig.unitStyle,
+        themeId: globalConfig.themeId,
+        squadConfig: config.squadConfig,
+        missionType: config.missionType,
+        width: config.width,
+        height: config.height,
+        spawnPointCount: config.spawnPointCount,
+        losOverlayEnabled: config.losOverlayEnabled,
+        startingThreatLevel: config.startingThreatLevel,
         initialTimeScale,
-        false,
-        allowTacticalPause,
-        EngineMode.Simulation,
-        commandLog,
-        config.campaignNodeId,
-        targetTick,
-        baseEnemyCount,
-        enemyGrowthPerMission,
+        startPaused: false,
+        allowTacticalPause: allowTacticalPause,
+        mode: EngineMode.Simulation,
+        commandLog: commandLog,
+        campaignNodeId: config.campaignNodeId,
+        targetTick: targetTick,
+        baseEnemyCount: baseEnemyCount,
+        enemyGrowthPerMission: enemyGrowthPerMission,
         missionDepth,
-        config.nodeType,
-        undefined, // startingPoints
-        config.bonusLootCount || 0,
-        config.skipDeployment !== undefined ? config.skipDeployment : true,
-        config.debugSnapshots,
-        config.debugSnapshotInterval || 0,
-      );
+        nodeType: config.nodeType,
+        startingPoints: undefined,
+        bonusLootCount: config.bonusLootCount || 0,
+        skipDeployment: config.skipDeployment !== undefined ? config.skipDeployment : true,
+        debugSnapshots: config.debugSnapshots,
+        debugSnapshotInterval: config.debugSnapshotInterval || 0,
+      });
 
       syncSpeedUI();
       this.screenManager.show("mission", true, !!campaignNode);

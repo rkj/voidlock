@@ -16,9 +16,23 @@ import { FocusManager } from "../utils/FocusManager";
 
 import { ModalService } from "@src/renderer/ui/ModalService";
 
+export interface EquipmentScreenConfig {
+  containerId: string;
+  campaignManager: CampaignManager;
+  inputDispatcher: InputDispatcher;
+  modalService: ModalService;
+  currentSquad: SquadConfig;
+  onBack: (config: SquadConfig) => void;
+  onUpdate?: () => void;
+  onLaunch?: (config: SquadConfig) => void;
+  isShop?: boolean;
+  isCampaign?: boolean;
+}
+
 export class EquipmentScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
+  private inputDispatcher: InputDispatcher;
   private modalService: ModalService;
   private config: SquadConfig;
   private selectedSoldierIndex: number = 0;
@@ -41,23 +55,27 @@ export class EquipmentScreen {
   };
   private changeListener: () => void;
 
-  constructor(
-    containerId: string,
-    manager: CampaignManager,
-    modalService: ModalService,
-    initialConfig: SquadConfig,
-    onBack: (config: SquadConfig) => void,
-    onUpdate?: () => void,
-    onLaunch?: (config: SquadConfig) => void,
-    isShop: boolean = false,
-    isCampaign: boolean = false,
-  ) {
+  constructor(config: EquipmentScreenConfig) {
+    const {
+      containerId,
+      campaignManager,
+      inputDispatcher,
+      modalService,
+      currentSquad,
+      onBack,
+      onUpdate,
+      onLaunch,
+      isShop = false,
+      isCampaign = false,
+    } = config;
+
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
-    this.manager = manager;
+    this.manager = campaignManager;
+    this.inputDispatcher = inputDispatcher;
     this.modalService = modalService;
-    this.config = JSON.parse(JSON.stringify(initialConfig)); // Deep copy (Vitest mock safe)
+    this.config = JSON.parse(JSON.stringify(currentSquad)); // Deep copy (Vitest mock safe)
     if (!this.config.inventory) this.config.inventory = {};
     this.applyDefaults();
     this.onBack = onBack;
@@ -148,11 +166,11 @@ export class EquipmentScreen {
 
   public hide() {
     this.container.style.display = "none";
-    InputDispatcher.getInstance().popContext("equipment");
+    this.inputDispatcher.popContext("equipment");
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "equipment",
       priority: InputPriority.UI,
       trapsFocus: true,
@@ -272,6 +290,7 @@ export class EquipmentScreen {
           {(this.isCampaign && this.hasNodeSelected && !this.isShop && this.onLaunch) && (
             <button
               class="primary-button"
+              id="btn-launch-mission"
               style={{
                 background: "var(--color-hive)",
                 borderColor: "var(--color-hive)",
@@ -448,18 +467,9 @@ export class EquipmentScreen {
 
     const squadIds = new Set(this.config.soldiers.map((s) => s.id).filter(Boolean));
     const available = state.roster.filter((s) => s.status === "Healthy" && !squadIds.has(s.id));
+    const deadSoldiers = state.roster.filter(s => s.status === "Dead");
 
-    if (available.length === 0) {
-      return (
-        <div class="flex-col align-center justify-center h-full" style={{ color: "var(--color-text-dim)", padding: "20px", textAlign: "center" }}>
-          <div style={{ fontSize: "2em", marginBottom: "10px" }}>📋</div>
-          <div>No healthy assets available in roster.</div>
-          <div style={{ fontSize: "0.8em", marginTop: "10px" }}>Acquire a new asset in the center panel.</div>
-        </div>
-      );
-    }
-
-    return available.map((soldier) => {
+    const items: any[] = available.map((soldier) => {
       const item = SoldierWidget.render(soldier, {
         context: "roster",
         onClick: () => {
@@ -482,6 +492,40 @@ export class EquipmentScreen {
       item.setAttribute("data-focus-id", `roster-${soldier.id}`);
       return item;
     });
+
+    if (deadSoldiers.length > 0 && state.rules.deathRule === "Clone") {
+        const cost = 250;
+        const canAfford = state.scrap >= cost;
+        items.push(
+            <div class="flex-col gap-10" style={{ marginTop: "20px", borderTop: "1px solid var(--color-border)", paddingTop: "10px" }}>
+                <h3 class="stat-label" style={{ color: "var(--color-danger)", margin: "0" }}>Personnel Losses</h3>
+                <button 
+                    class="menu-button w-full revive-button" 
+                    disabled={!canAfford}
+                    data-focus-id="btn-revive-large"
+                    onClick={() => {
+                        this.reviveMode = true;
+                        this.render();
+                    }}
+                >
+                    <div class="btn-label">Restore Lost Assets</div>
+                    <div class="btn-sub">Cost: {cost} Credits</div>
+                </button>
+            </div>
+        );
+    }
+
+    if (items.length === 0) {
+      return (
+        <div class="flex-col align-center justify-center h-full" style={{ color: "var(--color-text-dim)", padding: "20px", textAlign: "center" }}>
+          <div style={{ fontSize: "2em", marginBottom: "10px" }}>📋</div>
+          <div>No healthy assets available in roster.</div>
+          <div style={{ fontSize: "0.8em", marginTop: "10px" }}>Acquire a new asset in the center panel.</div>
+        </div>
+      );
+    }
+
+    return <Fragment>{items}</Fragment>;
   }
 
   private renderRecruitmentItems() {

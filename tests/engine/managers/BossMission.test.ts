@@ -37,26 +37,26 @@ describe("Boss Mission Objectives and Rewards", () => {
   };
 
   it("should generate 3 objectives for a Boss mission (2x Recover, 1x Hive)", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Boss",
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Boss"
+    });
 
     const state = engine.getState();
     expect(state.objectives.length).toBe(3);
@@ -76,26 +76,26 @@ describe("Boss Mission Objectives and Rewards", () => {
   });
 
   it("should reward 3x scrap for Boss objectives and mission completion", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Boss",
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Boss"
+    });
 
     let state = engine.getState();
     const initialScrap = state.stats.scrapGained;
@@ -154,26 +154,26 @@ describe("Boss Mission Objectives and Rewards", () => {
   });
 
   it("should generate 2 objectives for an Elite mission (1x Recover, 1x Hive)", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Elite",
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Elite"
+    });
 
     const state = engine.getState();
     expect(state.objectives.length).toBe(2);
@@ -193,26 +193,26 @@ describe("Boss Mission Objectives and Rewards", () => {
   });
 
   it("should reward 2x scrap for Elite objectives and mission completion", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Elite",
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Elite"
+    });
 
     let state = engine.getState();
     const initialScrap = state.stats.scrapGained;

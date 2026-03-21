@@ -2,6 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { ThemeManager } from "@src/renderer/ThemeManager";
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 
 describe("CampaignScreen Unit Style Default Regression", () => {
   let container: HTMLElement;
@@ -9,6 +11,8 @@ describe("CampaignScreen Unit Style Default Regression", () => {
   let onNodeSelect: any;
   let onBack: any;
   let mockModalService: any;
+  let themeManager: ThemeManager;
+  let inputDispatcher: InputDispatcher;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-campaign"></div>';
@@ -38,6 +42,10 @@ describe("CampaignScreen Unit Style Default Regression", () => {
       alert: vi.fn().mockResolvedValue(undefined),
       confirm: vi.fn().mockResolvedValue(true),
     };
+    themeManager = new ThemeManager();
+    vi.spyOn(themeManager, "init").mockResolvedValue(undefined);
+    vi.spyOn(themeManager, "getAssetUrl").mockReturnValue("mock-url");
+    inputDispatcher = new InputDispatcher();
 
     // Mock HTMLCanvasElement.getContext
     HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
@@ -58,13 +66,15 @@ describe("CampaignScreen Unit Style Default Regression", () => {
   });
 
   it("should have 'Tactical Icons' as the default selection for unit style in wizard", () => {
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
-      onNodeSelect,
-      onBack,
-    );
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: themeManager as any,
+      inputDispatcher: inputDispatcher as any,
+      modalService: mockModalService as any,
+      onNodeSelect: onNodeSelect,
+      onMainMenu: onBack
+    });
     screen.show();
 
     const statusText = container.querySelector(".global-status-text");

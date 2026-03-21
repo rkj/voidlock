@@ -28,81 +28,84 @@ describe("Manual Deployment Feature", () => {
   };
 
   it("should respect skipDeployment = false and stay in Deployment status", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false, // skipDeployment = false
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false,
+      debugSnapshots: // skipDeployment = false
+    });
     expect(engine.getState().status).toBe("Deployment");
   });
 
   it("should not randomly assign units if we want manual deployment?", () => {
     // Actually, currently it DOES randomly assign them as a starting point.
     // Let's see if we want to change that.
-    const engine1 = new CoreEngine(
-      mockMap,
-      1, // seed 1
+    const engine1 = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: // seed 1
       squadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
-    const engine2 = new CoreEngine(
-      mockMap,
-      2, // seed 2
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
+    const engine2 = new CoreEngine({
+      map: mockMap,
+      seed: 2,
+      squadConfig: // seed 2
       squadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
 
     const pos1 = engine1
       .getState()

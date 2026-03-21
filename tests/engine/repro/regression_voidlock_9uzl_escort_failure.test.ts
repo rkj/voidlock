@@ -38,14 +38,16 @@ describe("Regression voidlock-9uzl: Escort mission failure when soldiers extract
   };
 
   it("should not lose if a soldier extracts but VIP is still active", () => {
-    const engine = new CoreEngine(
-      map,
-      12345,
-      squadConfig,
-      false, // agentControlEnabled
-      false, // debugOverlayEnabled
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: // agentControlEnabled
+      false,
+      missionType: // debugOverlayEnabled
+      MissionType.EscortVIP
+    });
 
     const state = engine.getState();
     const vips = state.units.filter((u) => u.archetypeId === "vip");
@@ -66,14 +68,14 @@ describe("Regression voidlock-9uzl: Escort mission failure when soldiers extract
   });
 
   it("should lose if the VIP dies", () => {
-    const engine = new CoreEngine(
-      map,
-      12345,
-      squadConfig,
-      false,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     const state = engine.getState();
     const vip = state.units.find((u) => u.archetypeId === "vip")!;

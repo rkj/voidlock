@@ -33,7 +33,13 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
       }
     }
 
-    engine = new CoreEngine(mockMap, 123, defaultSquad, true, false);
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
     engine.addUnit({
       id: "u1",

@@ -36,26 +36,37 @@ describe("Regression voidlock-lece: Elite/Boss mission completion", () => {
     (engine as any).state;
 
   it("should win Elite Default mission only after extraction, even if objectives are complete", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: // losOverlayEnabled
+      0,
+      initialTimeScale: // startingThreatLevel
+      1.0,
+      startPaused: // initialTimeScale
       false,
-      MissionType.Default,
-      false, // losOverlayEnabled
-      0, // startingThreatLevel
-      1.0, // initialTimeScale
-      false, // startPaused
-      undefined, // mode
-      [], // initialCommandLog
-      true, // allowTacticalPause
-      0, // targetTick
-      3, // baseEnemyCount
-      1, // enemyGrowthPerMission
-      0, // missionDepth
-      "Elite",
-    );
+      mode: // startPaused
+      undefined,
+      initialCommandLog: // mode
+      [],
+      allowTacticalPause: // initialCommandLog
+      true,
+      targetTick: // allowTacticalPause
+      0,
+      baseEnemyCount: // targetTick
+      3,
+      enemyGrowthPerMission: // baseEnemyCount
+      1,
+      missionDepth: // enemyGrowthPerMission
+      0,
+      nodeType: // missionDepth
+      "Elite"
+    });
 
     const state = getInternalState(engine);
     expect(state.nodeType).toBe("Elite");
@@ -77,26 +88,26 @@ describe("Regression voidlock-lece: Elite/Boss mission completion", () => {
   });
 
   it("should win Boss Default mission only after extraction", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Boss",
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Boss" as any,
+    });
 
     const state = getInternalState(engine);
     expect(state.nodeType).toBe("Boss");
@@ -113,26 +124,26 @@ describe("Regression voidlock-lece: Elite/Boss mission completion", () => {
   });
 
   it("should still win DestroyHive instantly even if it is an Elite node", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.DestroyHive,
-      false,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Elite",
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.DestroyHive,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Elite" as any,
+    });
 
     const state = getInternalState(engine);
     state.objectives.forEach((o: Objective) => (o.state = "Completed"));

@@ -15,17 +15,15 @@ export class MetaManager {
   private stats: MetaStats;
 
   /**
-   * Private constructor to enforce singleton pattern.
    * @param storage The storage provider to use for persistence.
    */
-  private constructor(storage: StorageProvider) {
+  public constructor(storage: StorageProvider) {
     this.storage = storage;
     this.stats = this.loadInitialStats();
   }
 
   /**
-   * Returns the singleton instance of the MetaManager.
-   * @param storage Optional storage provider (required for first call).
+   * @deprecated Use constructor injection via AppServiceRegistry.
    */
   public static getInstance(storage?: StorageProvider): MetaManager {
     if (!MetaManager.instance) {

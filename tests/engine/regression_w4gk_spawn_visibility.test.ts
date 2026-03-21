@@ -34,7 +34,13 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
       soldiers: [{ archetypeId: "assault" }],
       inventory: {},
     };
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     // Initial state (tick 0)
     let state = engine.getState(true);

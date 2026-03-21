@@ -48,7 +48,20 @@ describe("Renderer Door Drawing", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    renderer = new Renderer(mockCanvas);
+    const mockThemeManager = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    const mockAssetManager = {
+      iconImages: {},
+      unitSprites: {},
+      enemySprites: {},
+    };
+    renderer = new Renderer({
+      canvas: mockCanvas,
+      themeManager: mockThemeManager as any,
+      assetManager: mockAssetManager as any
+    });
     renderer.setCellSize(100);
   });
 

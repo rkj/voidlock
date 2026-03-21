@@ -69,16 +69,17 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     mockCampaignManager.getState.mockReturnValue(mockState);
 
     const initialSquad: SquadConfig = { soldiers: [], inventory: {} };
-    const builder = new SquadBuilder(
-      "squad-builder",
-      mockCampaignManager as any,
-      mockCampaignShell as any,
-      mockModalService as any,
-      initialSquad,
-      MissionType.Default,
-      true, // isCampaign
-      vi.fn(),
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: mockCampaignManager as any as any,
+      campaignShell: mockCampaignShell as any as any,
+      modalService: mockModalService as any as any,
+      initialSquad: initialSquad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: // isCampaign
+      vi.fn()
+    });
 
     builder.render();
 
@@ -130,16 +131,16 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
       inventory: {},
     };
 
-    const builder = new SquadBuilder(
-      "squad-builder",
-      mockCampaignManager as any,
-      mockCampaignShell as any,
-      mockModalService as any,
-      initialSquad,
-      MissionType.Default,
-      true,
-      vi.fn(),
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: mockCampaignManager as any as any,
+      campaignShell: mockCampaignShell as any as any,
+      modalService: mockModalService as any as any,
+      initialSquad: initialSquad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: vi.fn()
+    });
 
     builder.render();
 

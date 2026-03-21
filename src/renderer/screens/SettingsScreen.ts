@@ -9,23 +9,39 @@ import { CloudSyncService } from "@src/services/CloudSyncService";
 import { ModalService } from "../ui/ModalService";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 
+import { AssetManager } from "../visuals/AssetManager";
+
+export interface SettingsScreenConfig {
+  containerId: string;
+  themeManager: ThemeManager;
+  assetManager: AssetManager;
+  inputDispatcher: InputDispatcher;
+  cloudSync: CloudSyncService;
+  modalService: ModalService;
+  onBack: () => void;
+}
+
 export class SettingsScreen {
   private container: HTMLElement;
-  private unitStyleSelector?: UnitStyleSelector;
+  private themeManager: ThemeManager;
+  private assetManager: AssetManager;
+  private inputDispatcher: InputDispatcher;
+  private cloudSync: CloudSyncService;
+  private modalService: ModalService;
   private onBack: () => void;
+  private unitStyleSelector?: UnitStyleSelector;
   private authUnsubscribe?: () => void;
 
-  constructor(
-    containerId: string,
-    private themeManager: ThemeManager,
-    private cloudSync: CloudSyncService,
-    private modalService: ModalService,
-    onBack: () => void,
-  ) {
-    const el = document.getElementById(containerId);
-    if (!el) throw new Error(`Container #${containerId} not found`);
+  constructor(config: SettingsScreenConfig) {
+    const el = document.getElementById(config.containerId);
+    if (!el) throw new Error(`Container #${config.containerId} not found`);
     this.container = el;
-    this.onBack = onBack;
+    this.themeManager = config.themeManager;
+    this.assetManager = config.assetManager;
+    this.inputDispatcher = config.inputDispatcher;
+    this.cloudSync = config.cloudSync;
+    this.modalService = config.modalService;
+    this.onBack = config.onBack;
   }
 
   public show() {
@@ -36,7 +52,7 @@ export class SettingsScreen {
 
   public hide() {
     this.container.style.display = "none";
-    InputDispatcher.getInstance().popContext("settings");
+    this.inputDispatcher.popContext("settings");
     if (this.authUnsubscribe) {
       this.authUnsubscribe();
       this.authUnsubscribe = undefined;
@@ -44,7 +60,7 @@ export class SettingsScreen {
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "settings",
       priority: InputPriority.UI,
       trapsFocus: true,
@@ -96,7 +112,7 @@ export class SettingsScreen {
   }
 
   private render() {
-    const global = ConfigManager.loadGlobal();
+    const globalConfig = ConfigManager.loadGlobal();
 
     this.container.innerHTML = "";
     this.container.className = "screen screen-centered flex-col p-20 atmospheric-bg bg-station";
@@ -158,7 +174,8 @@ export class SettingsScreen {
     this.unitStyleSelector = new UnitStyleSelector(
       stylePreview,
       this.themeManager,
-      global.unitStyle,
+      this.assetManager,
+      globalConfig.unitStyle,
       (style) => {
         ConfigManager.saveGlobal({
           ...ConfigManager.loadGlobal(),
@@ -189,7 +206,7 @@ export class SettingsScreen {
       const opt = document.createElement("option");
       opt.value = t.id;
       opt.textContent = t.label;
-      if (t.id === global.themeId) opt.selected = true;
+      if (t.id === globalConfig.themeId) opt.selected = true;
       themeSelect.appendChild(opt);
     });
 
@@ -225,7 +242,7 @@ export class SettingsScreen {
       const opt = document.createElement("option");
       opt.value = m.id;
       opt.textContent = m.label;
-      if (m.id === global.phosphor) opt.selected = true;
+      if (m.id === globalConfig.phosphor) opt.selected = true;
       phosphorSelect.appendChild(opt);
     });
 
@@ -270,7 +287,7 @@ export class SettingsScreen {
       const opt = document.createElement("option");
       opt.value = l;
       opt.textContent = l;
-      if (l === global.logLevel) opt.selected = true;
+      if (l === globalConfig.logLevel) opt.selected = true;
       logSelect.appendChild(opt);
     });
     logSelect.onchange = () => {
@@ -303,7 +320,7 @@ export class SettingsScreen {
 
     const snapshotToggle = document.createElement("input");
     snapshotToggle.type = "checkbox";
-    snapshotToggle.checked = global.debugSnapshots;
+    snapshotToggle.checked = globalConfig.debugSnapshots;
     snapshotToggle.onchange = () => {
       ConfigManager.saveGlobal({
         ...ConfigManager.loadGlobal(),
@@ -327,7 +344,7 @@ export class SettingsScreen {
     intervalInput.min = "0";
     intervalInput.max = "1000";
     intervalInput.style.width = "60px";
-    intervalInput.value = global.debugSnapshotInterval.toString();
+    intervalInput.value = globalConfig.debugSnapshotInterval.toString();
     intervalInput.onchange = () => {
       ConfigManager.saveGlobal({
         ...ConfigManager.loadGlobal(),
@@ -348,7 +365,7 @@ export class SettingsScreen {
 
     const overlayToggle = document.createElement("input");
     overlayToggle.type = "checkbox";
-    overlayToggle.checked = global.debugOverlayEnabled;
+    overlayToggle.checked = globalConfig.debugOverlayEnabled;
     overlayToggle.onchange = () => {
       ConfigManager.saveGlobal({
         ...ConfigManager.loadGlobal(),
@@ -386,7 +403,7 @@ export class SettingsScreen {
 
     const syncToggle = document.createElement("input");
     syncToggle.type = "checkbox";
-    syncToggle.checked = global.cloudSyncEnabled && isConfigured;
+    syncToggle.checked = globalConfig.cloudSyncEnabled && isConfigured;
     syncToggle.disabled = !isConfigured;
     syncToggle.onchange = () => {
       const enabled = syncToggle.checked;
@@ -414,7 +431,7 @@ export class SettingsScreen {
       errorMsg.style.color = "var(--color-error)";
       errorMsg.style.fontSize = "0.8em";
       accountGroup.appendChild(errorMsg);
-    } else if (global.cloudSyncEnabled) {
+    } else if (globalConfig.cloudSyncEnabled) {
       const user = this.cloudSync.getUser();
       const isAnonymous = this.cloudSync.isAnonymous();
 
@@ -577,7 +594,7 @@ export class SettingsScreen {
     resetGroup.appendChild(resetBtn);
 
     // Cloud Data Management
-    if (isConfigured && global.cloudSyncEnabled) {
+    if (isConfigured && globalConfig.cloudSyncEnabled) {
       const cloudDeleteBtn = document.createElement("button");
       cloudDeleteBtn.className = "menu-button danger-button";
       cloudDeleteBtn.style.width = "100%";

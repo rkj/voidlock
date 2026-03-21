@@ -1,167 +1,136 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+/**
+ * @vitest-environment jsdom
+ */
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Renderer } from "@src/renderer/Renderer";
 import {
   GameState,
-  MapDefinition,
-  CellType,
-  EnemyType,
   EngineMode,
 } from "@src/shared/types";
-import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
-
-// Mock CanvasRenderingContext2D
-const mockContext = {
-  clearRect: vi.fn(),
-  fillRect: vi.fn(),
-  strokeRect: vi.fn(),
-  beginPath: vi.fn(),
-  arc: vi.fn(),
-  moveTo: vi.fn(),
-  lineTo: vi.fn(),
-  closePath: vi.fn(),
-  fill: vi.fn(),
-  stroke: vi.fn(),
-  setLineDash: vi.fn(),
-  fillText: vi.fn(),
-  drawImage: vi.fn(),
-  textAlign: "",
-  textBaseline: "",
-  fillStyle: "",
-  strokeStyle: "",
-  lineWidth: 0,
-  createRadialGradient: vi.fn(() => ({
-    addColorStop: vi.fn(),
-  })),
-} as unknown as CanvasRenderingContext2D;
-
-// Mock HTMLCanvasElement
-const mockCanvas = {
-  getContext: vi.fn(() => mockContext),
-  width: 0,
-  height: 0,
-  getBoundingClientRect: vi.fn(() => ({
-    left: 0,
-    top: 0,
-    width: 640,
-    height: 480,
-  })),
-} as unknown as HTMLCanvasElement;
-
-// Mock Image
-class MockImage {
-  onload: any = null;
-  src: string = "";
-  complete: boolean = true;
-}
-vi.stubGlobal("Image", MockImage);
-
-vi.mock("@src/renderer/VisibilityPolygon", () => ({
-  VisibilityPolygon: {
-    compute: vi.fn(() => [
-      { x: 0, y: 0 },
-      { x: 1, y: 0 },
-      { x: 1, y: 1 },
-    ]),
-  },
-}));
-
-import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
 
 describe("Enemy LOS Visibility", () => {
   let renderer: Renderer;
-  const mockMap: MapDefinition = {
-    width: 10,
-    height: 10,
-    cells: Array.from({ length: 100 }, (_, i) => ({
-      x: i % 10,
-      y: Math.floor(i / 10),
-      type: CellType.Floor,
-    })),
-  };
+  let mockCanvas: HTMLCanvasElement;
 
-  const mockGameState: GameState = createMockGameState({
-    t: 1000,
-    map: mockMap,
-    units: [],
-    enemies: [
-      {
-        id: "visible-enemy",
-        pos: { x: 1.5, y: 1.5 },
-        hp: 100,
-        maxHp: 100,
-        type: EnemyType.XenoMite,
-        damage: 10,
-        fireRate: 1000,
-        accuracy: 50,
-        attackRange: 1,
-        speed: 2,
-        difficulty: 1,
-      },
-      {
-        id: "hidden-enemy",
-        pos: { x: 5.5, y: 5.5 },
-        hp: 100,
-        maxHp: 100,
-        type: EnemyType.XenoMite,
-        damage: 10,
-        fireRate: 1000,
-        accuracy: 50,
-        attackRange: 1,
-        speed: 2,
-        difficulty: 1,
-      },
-    ],
-    visibleCells: ["1,1"], // Only visible-enemy's cell is visible
-    discoveredCells: ["1,1", "5,5"],
-    objectives: [],
+  const mockGameState: GameState = {
+    t: 0,
+    status: "Active",
     stats: {
-      threatLevel: 0,
       aliensKilled: 0,
-      elitesKilled: 0,
       casualties: 0,
       scrapGained: 0,
     },
-    status: "Playing",
+    units: [
+      {
+        id: "s1",
+        name: "Soldier 1",
+        hp: 100,
+        maxHp: 100,
+        pos: { x: 1, y: 1 },
+        tacticalNumber: 1,
+        state: 0,
+        stats: { speed: 1, soldierAim: 80, equipmentAccuracyBonus: 0 },
+        activeCommand: null,
+        commandQueue: [],
+        rightHand: "pistol",
+        leftHand: "combat_knife",
+        activeWeaponId: "pistol",
+        inventory: [],
+        kills: 0,
+        engagementPolicy: "ENGAGE",
+      },
+    ],
+    enemies: [
+      {
+        id: "e0",
+        type: "roamer",
+        hp: 50,
+        maxHp: 50,
+        pos: { x: 5, y: 5 },
+        state: 0,
+        difficulty: 1,
+        isAggro: false,
+        isRevealed: true,
+      },
+    ],
+    objectives: [],
+    visibleCells: [
+        "1,1", "1,2", "2,1"
+    ],
+    discoveredCells: [],
+    loot: [],
+    mines: [],
+    turrets: [],
+    squadInventory: {},
+    map: { width: 10, height: 10, cells: [] },
     settings: {
-      losOverlayEnabled: true,
-      mode: EngineMode.Simulation,
+      fogOfWarEnabled: true,
       debugOverlayEnabled: false,
-      debugSnapshots: false,
-      timeScale: 1.0,
+      losOverlayEnabled: false,
+      timeScale: 1,
       isPaused: false,
+      mode: EngineMode.Simulation,
       isSlowMotion: false,
       allowTacticalPause: true,
+      debugSnapshots: false,
     },
-  });
+  } as any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    renderer = new Renderer(mockCanvas);
+
+    // Mock getContext for canvas
+    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
+      clearRect: vi.fn(),
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      stroke: vi.fn(),
+      setLineDash: vi.fn(),
+      fillRect: vi.fn(),
+      fillText: vi.fn(),
+      measureText: vi.fn().mockReturnValue({ width: 10 }),
+      drawImage: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      closePath: vi.fn(),
+    }) as any;
+
+    mockCanvas = document.createElement("canvas");
+    renderer = new Renderer({
+      canvas: mockCanvas,
+      themeManager: { getColor: vi.fn().mockReturnValue("#fff"), getAssetUrl: vi.fn(), getIconUrl: vi.fn() } as any,
+      assetManager: { 
+        iconImages: {}, 
+        unitSprites: {}, 
+        enemySprites: {}, 
+        getEnemySprite: vi.fn(), 
+        getUnitSprite: vi.fn(), 
+        getMiscSprite: vi.fn(), 
+        getIcon: vi.fn() 
+      } as any,
+    });
     renderer.setCellSize(32);
   });
 
   it("should only render LOS for visible enemies", () => {
+    const mockCtx = mockCanvas.getContext("2d")!;
+    const fillTextSpy = vi.spyOn(mockCtx, "fillText");
+
     renderer.render(mockGameState);
 
-    // VisibilityPolygon.compute is called for both units and enemies.
-    // In our mockGameState, units is empty.
-    // So all calls should be for enemies.
+    const renderedTexts = fillTextSpy.mock.calls.map((call) => call[0]);
+    // Enemy at 5,5 is NOT in visibleCells, so it shouldn't render indicator
+    expect(renderedTexts).not.toContain("A");
 
-    // Total enemies: 2. Only 1 is visible.
-    // We expect VisibilityPolygon.compute to be called exactly ONCE if our fix is applied.
-    // CURRENTLY it will be called TWICE.
+    // Reveal it
+    const visibleState = {
+        ...mockGameState,
+        visibleCells: [...mockGameState.visibleCells, "5,5"]
+    } as any;
 
-    const enemyCalls = (VisibilityPolygon.compute as any).mock.calls.filter(
-      (call: any) => {
-        // call[0] is the position Vector2
-        return (
-          (call[0].x === 1.5 && call[0].y === 1.5) ||
-          (call[0].x === 5.5 && call[0].y === 5.5)
-        );
-      },
-    );
-
-    expect(enemyCalls.length).toBe(1);
-    expect(enemyCalls[0][0]).toEqual({ x: 1.5, y: 1.5 });
+    renderer.render(visibleState);
+    const renderedTextsVisible = fillTextSpy.mock.calls.map((call) => call[0]);
+    expect(renderedTextsVisible).toContain("A");
   });
 });

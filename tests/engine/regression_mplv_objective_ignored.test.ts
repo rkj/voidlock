@@ -63,7 +63,13 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
     }
 
     // Initialize engine with all cells discovered EXCEPT where the objective is
-    engine = new CoreEngine(mockMap, 123, defaultSquad, true, false);
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     const state = (engine as any).state;
     state.discoveredCells = [];
 

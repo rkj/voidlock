@@ -56,18 +56,25 @@ describe("HUDManager Duplication Verification", () => {
       })),
     };
 
-    hud = new HUDManager(
-      mockMenuController,
-      { getCurrentStepId: () => null } as any,
-      vi.fn(), // onUnitClick
-      vi.fn(), // onAbortMission
-      vi.fn(), // onMenuInput
-      vi.fn(), // onCopyWorldState
-      vi.fn(), // onForceWin
-      vi.fn(), // onForceLose
-      vi.fn(), // onStartMission
-      vi.fn(), // onDeployUnit
-    );
+    hud = new HUDManager({
+      menuController: mockMenuController,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: vi.fn(),
+      onAbortMission: // onUnitClick
+      vi.fn(),
+      onMenuInput: // onAbortMission
+      vi.fn(),
+      onCopyWorldState: // onMenuInput
+      vi.fn(),
+      onForceWin: // onCopyWorldState
+      vi.fn(),
+      onForceLose: // onForceWin
+      vi.fn(),
+      onStartMission: // onForceLose
+      vi.fn(),
+      onDeployUnit: // onStartMission
+      vi.fn()
+    });
   });
 
   afterEach(() => {

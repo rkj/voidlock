@@ -32,14 +32,14 @@ describe("Regression MPLV: Escort Objective Ignored", () => {
       }
     }
 
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      squadWithVip,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadWithVip,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
   });
 
   it("should prioritize escort objective (extraction) when visible", () => {

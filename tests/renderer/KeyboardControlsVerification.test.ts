@@ -16,6 +16,7 @@ describe("KeyboardControlsVerification", () => {
       getCurrentScreen: vi.fn(() => "mission"),
     };
     mockMenuController = {
+      getRenderableState: vi.fn().mockReturnValue({}),
       menuState: "ACTION_SELECT",
     };
     cycleUnits = vi.fn();
@@ -24,6 +25,10 @@ describe("KeyboardControlsVerification", () => {
     inputManager = new InputManager({
       screenManager: mockScreenManager,
       menuController: mockMenuController,
+      inputDispatcher: {
+        pushContext: vi.fn(),
+        popContext: vi.fn(),
+      } as any,
       togglePause: vi.fn(),
       handleMenuInput: vi.fn(),
       abortMission: vi.fn(),
@@ -52,13 +57,13 @@ describe("KeyboardControlsVerification", () => {
 
   it("should call cycleUnits on Tab", () => {
     const event = new KeyboardEvent("keydown", { key: "Tab" });
-    document.dispatchEvent(event);
+    inputManager.handleKeyDown(event);
     expect(cycleUnits).toHaveBeenCalledWith(false);
   });
 
   it("should call cycleUnits(true) on Shift+Tab", () => {
     const event = new KeyboardEvent("keydown", { key: "Tab", shiftKey: true });
-    document.dispatchEvent(event);
+    inputManager.handleKeyDown(event);
     expect(cycleUnits).toHaveBeenCalledWith(true);
   });
 
@@ -71,7 +76,7 @@ describe("KeyboardControlsVerification", () => {
     };
     Object.entries(keyMap).forEach(([key, expected]) => {
       const event = new KeyboardEvent("keydown", { key });
-      document.dispatchEvent(event);
+      inputManager.handleKeyDown(event);
       expect(panMap).toHaveBeenCalledWith(expected);
     });
   });

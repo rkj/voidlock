@@ -6,62 +6,39 @@ import { MissionSetupManager } from "@src/renderer/app/MissionSetupManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { MissionType } from "@src/shared/types";
 
-vi.mock("@src/renderer/visuals/AssetManager", () => ({
-  AssetManager: {
-    getInstance: vi.fn().mockReturnValue({
-      getUnitSprite: vi.fn().mockReturnValue({ complete: true }),
-      getEnemySprite: vi.fn().mockReturnValue({ complete: true }),
-      getMiscSprite: vi.fn().mockReturnValue({ complete: true }),
-      getIcon: vi.fn().mockReturnValue({ complete: true }),
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    loadCampaign: vi.fn(),
+    saveCampaign: vi.fn(),
+    loadGlobal: vi.fn().mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
+    saveGlobal: vi.fn(),
+    getDefault: vi.fn().mockReturnValue({
+      squadConfig: { soldiers: [], inventory: {} },
+      spawnPointCount: 3,
+      mapGeneratorType: "DenseShip",
+      width: 16,
+      height: 16,
+      fogOfWarEnabled: true,
+      debugOverlayEnabled: false,
+      agentControlEnabled: true,
+      manualDeployment: true,
+      debugSnapshotInterval: 0,
     }),
   },
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getColor: vi.fn().mockReturnValue("#000000"),
-    }),
-  },
-}));
-
-vi.mock("@src/renderer/ConfigManager", () => {
-  const defaults = {
-    mapWidth: 10,
-    mapHeight: 10,
-    spawnPointCount: 3,
-    fogOfWarEnabled: true,
-    debugOverlayEnabled: false,
-    losOverlayEnabled: false,
-    agentControlEnabled: true,
-    allowTacticalPause: true,
-    unitStyle: "TacticalIcons",
-    mapGeneratorType: "DenseShip",
-    missionType: "Default",
-    lastSeed: 12345,
-    themeId: "default",
-    startingThreatLevel: 0,
-    baseEnemyCount: 3,
-    enemyGrowthPerMission: 1,
-    bonusLootCount: 0,
-    manualDeployment: true,
-    squadConfig: { soldiers: [], inventory: {} },
+vi.mock("@src/renderer/visuals/AssetManager", () => {
+  const mockInstance = {
+    loadSprites: vi.fn(),
+    getUnitSprite: vi.fn(),
+    getEnemySprite: vi.fn(),
+    getMiscSprite: vi.fn(),
+    getIcon: vi.fn(),
   };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
   return {
-    ConfigManager: {
-      getDefault: vi.fn().mockReturnValue(defaults),
-      loadCustom: vi.fn().mockReturnValue(null),
-      loadCampaign: vi.fn().mockReturnValue(null),
-      loadGlobal: vi
-        .fn()
-        .mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
-      saveCustom: vi.fn(),
-      saveCampaign: vi.fn(),
-      saveGlobal: vi.fn(),
-      loadGlobalConfig: vi.fn().mockReturnValue({}),
-    },
+    AssetManager: mockConstructor,
   };
 });
 

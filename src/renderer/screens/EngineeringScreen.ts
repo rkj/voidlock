@@ -8,8 +8,17 @@ import {
 import { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
 
+export interface EngineeringScreenConfig {
+  containerId: string;
+  metaManager: MetaManager;
+  inputDispatcher: InputDispatcher;
+  onUpdate: () => void;
+}
+
 export class EngineeringScreen {
   private container: HTMLElement;
+  private metaManager: MetaManager;
+  private inputDispatcher: InputDispatcher;
   private onUpdate: () => void;
 
   private unlockables = {
@@ -65,24 +74,22 @@ export class EngineeringScreen {
     ],
   };
 
-  constructor(
-    containerId: string,
-    private metaManager: MetaManager,
-    onUpdate: () => void,
-  ) {
-    let el = document.getElementById(containerId);
+  constructor(config: EngineeringScreenConfig) {
+    let el = document.getElementById(config.containerId);
     if (!el) {
       const isTest = typeof process !== "undefined" && process.env?.VITEST;
       if (isTest) {
         el = document.createElement("div");
-        el.id = containerId;
+        el.id = config.containerId;
         document.body.appendChild(el);
       } else {
-        throw new Error(`Container #${containerId} not found`);
+        throw new Error(`Container #${config.containerId} not found`);
       }
     }
     this.container = el!;
-    this.onUpdate = onUpdate;
+    this.metaManager = config.metaManager;
+    this.inputDispatcher = config.inputDispatcher;
+    this.onUpdate = config.onUpdate;
   }
 
   public show() {
@@ -93,11 +100,11 @@ export class EngineeringScreen {
 
   public hide() {
     this.container.style.display = "none";
-    InputDispatcher.getInstance().popContext("engineering");
+    this.inputDispatcher.popContext("engineering");
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "engineering",
       priority: InputPriority.UI,
       trapsFocus: true,
@@ -143,7 +150,8 @@ export class EngineeringScreen {
     const unlockedItems = stats.unlockedItems;
 
     this.container.innerHTML = "";
-    this.container.className = "screen screen-centered flex-col p-20 atmospheric-bg bg-station";
+    this.container.className =
+      "screen screen-centered flex-col p-20 atmospheric-bg bg-station";
     this.container.style.overflowY = "hidden";
 
     // Grain effect

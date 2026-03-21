@@ -34,84 +34,84 @@ describe("Deployment Phase", () => {
   };
 
   it("should start in Deployment status", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
     expect(engine.getState().status).toBe("Deployment");
   });
 
   it("should NOT update time during Deployment", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
     engine.update(100);
     expect(engine.getState().t).toBe(0);
   });
 
   it("should allow moving units during Deployment", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
     const unit1 = engine.getState().units.find((u) => u.id === "s1")!;
     const originalPos = { ...unit1.pos };
 
@@ -128,29 +128,29 @@ describe("Deployment Phase", () => {
   });
 
   it("should allow overlapping units when deploying onto an occupied tile", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
 
     // Manually place s1 at cell (1, 1) and s2 at cell (2, 1)
     engine.applyCommand({
@@ -200,29 +200,29 @@ describe("Deployment Phase", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      fullSquadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: fullSquadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
 
     // Deploy s1, s2, s3, s4 to spawns[0]
     engine.applyCommand({ type: CommandType.DEPLOY_UNIT, unitId: "s1", target: { x: 1.5, y: 1.5 } });
@@ -249,29 +249,29 @@ describe("Deployment Phase", () => {
   });
 
   it("should transition to Playing on START_MISSION", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
     engine.applyCommand({ type: CommandType.START_MISSION });
     expect(engine.getState().status).toBe("Playing");
 
@@ -281,29 +281,29 @@ describe("Deployment Phase", () => {
   });
 
   it("should reveal spawn points during Deployment", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      undefined,
-      undefined,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      undefined,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: undefined,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false
+    });
     const state = engine.getState();
 
     // squadSpawns: (1,1), (2,1), (3,1)

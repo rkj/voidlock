@@ -39,13 +39,12 @@ describe("CampaignShell", () => {
       })),
     };
 
-    shell = new CampaignShell(
-      "screen-campaign-shell",
-      mockManager,
-      mockMetaManager as any,
-      onTabChange,
-      onBack,
-    );
+    shell = new CampaignShell({ containerId: "screen-campaign-shell",
+      manager: mockManager,
+      metaManager: mockMetaManager as any,
+      onTabChange: onTabChange,
+      onMenu: onBack,
+      inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any });
   });
 
   it("should render correctly when shown", () => {

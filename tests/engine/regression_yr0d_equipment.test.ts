@@ -31,7 +31,13 @@ describe("Equipment System - Passive Buffs", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const unit = engine.getState().units[0];
 
     // Assault base HP is 100. Heavy Plate gives +100.
@@ -50,7 +56,13 @@ describe("Equipment System - Passive Buffs", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const unit = engine.getState().units[0];
 
     // Assault base Speed: 20, Accuracy: 95.
@@ -70,7 +82,13 @@ describe("Equipment System - Passive Buffs", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const unit = engine.getState().units[0];
 
     // Assault base Speed: 20. Combat Boots: Speed +5.
@@ -89,7 +107,13 @@ describe("Equipment System - Passive Buffs", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const unit = engine.getState().units[0];
 
     // Assault: HP 100, Speed 20, Acc 95
@@ -107,7 +131,13 @@ describe("Equipment System - Passive Buffs", () => {
       inventory: { frag_grenade: 2, medkit: 1 },
     };
 
-    const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const state = engine.getState();
 
     expect(state.squadInventory["frag_grenade"]).toBe(2);

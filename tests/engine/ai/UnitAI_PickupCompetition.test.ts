@@ -32,7 +32,13 @@ describe("UnitAI Pickup Competition", () => {
       mockMap.cells.push({ x, y: 0, type: CellType.Floor });
     }
 
-    engine = new CoreEngine(mockMap, 123, defaultSquad, true, false);
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

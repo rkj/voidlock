@@ -26,14 +26,14 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
   const getInternalState = (engine: CoreEngine) => (engine as any).state;
 
   it("should definitely fail if VIP dies", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     // Find the VIP
     const vip = getInternalState(engine).units.find(
@@ -55,14 +55,14 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
       objectives: [{ id: "obj-1", kind: "Kill", targetEnemyId: "enemy-1" }],
     };
 
-    const engine = new CoreEngine(
-      mapWithObjective,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mapWithObjective,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     // Complete the other objective
     getInternalState(engine).objectives.find(
@@ -85,14 +85,14 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
       soldiers: [{ archetypeId: "assault" }, { archetypeId: "vip" }],
       inventory: {},
     };
-    const engine2 = new CoreEngine(
-      mockMap,
-      123,
-      squadWithVip,
-      true,
-      false,
-      MissionType.Default,
-    );
+    const engine2 = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadWithVip,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
     expect(
       getInternalState(engine2).objectives.some(
@@ -124,14 +124,14 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
       soldiers: [{ archetypeId: "assault" }, { archetypeId: "vip" }],
       inventory: {},
     };
-    const engine = new CoreEngine(
-      mapNoObj,
-      123,
-      squadWithVip,
-      true,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mapNoObj,
+      seed: 123,
+      squadConfig: squadWithVip,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
     // In Default mission, setupMission adds obj-escort if hasVipInSquad is true.
     expect(
@@ -178,14 +178,14 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     };
 
     // We need a seed that guarantees artifacts can be placed
-    const engine = new CoreEngine(
-      artifactMap,
-      1,
-      squadWithVip,
-      true,
-      false,
-      MissionType.ExtractArtifacts,
-    );
+    const engine = new CoreEngine({
+      map: artifactMap,
+      seed: 1,
+      squadConfig: squadWithVip,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.ExtractArtifacts
+    });
 
     // Kill the VIP
     const internalVip = getInternalState(engine).units.find(

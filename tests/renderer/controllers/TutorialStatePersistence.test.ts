@@ -25,14 +25,14 @@ describe("Tutorial State Persistence Repro", () => {
       menuState: "ACTION_SELECT",
       pendingAction: null,
     };
-    manager = new TutorialManager(
-      gameClient, 
-      campaignManager as any, 
-      menuController as any,
-      onMessage, 
-      () => null,
-      {} as any
-    );
+    manager = new TutorialManager({
+      gameClient: gameClient,
+      campaignManager: campaignManager as any,
+      menuController: menuController as any,
+      onMessage: onMessage,
+      getSelectedUnitId: () => null,
+      uiOrchestrator: {} as any
+    });
     
     localStorage.clear();
     
@@ -88,14 +88,14 @@ describe("Tutorial State Persistence Repro", () => {
     // 4. SIMULATE REFRESH: Disable current manager, create new manager instance
     manager.disable();
     
-    const newManager = new TutorialManager(
-      gameClient,
-      { getState: () => ({ history: [] }) } as any,
-      { menuState: "ACTION_SELECT" } as any,
-      onMessage,
-      () => null,
-      {} as any
-    );
+    const newManager = new TutorialManager({
+      gameClient: gameClient,
+      campaignManager: { getState: () => ({ history: [] }) } as any,
+      menuController: { menuState: "ACTION_SELECT" } as any,
+      onMessage: onMessage,
+      getSelectedUnitId: () => null,
+      uiOrchestrator: {} as any
+    });
     newManager.enable();
     const newListener = gameClient.addStateUpdateListener.mock.calls[1][0];
 

@@ -9,11 +9,13 @@ import { ConfigManager } from "@src/renderer/ConfigManager";
 vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
     loadGlobal: vi.fn(),
+    clearCampaign: vi.fn(),
     saveGlobal: vi.fn(),
   },
 }));
 
 describe("SettingsScreen Cloud Sync", () => {
+  let onBack: any;
   let context: any;
   let screen: SettingsScreen;
 
@@ -28,9 +30,26 @@ describe("SettingsScreen Cloud Sync", () => {
   };
 
   beforeEach(() => {
+    onBack = vi.fn();
     document.body.innerHTML = '<div id="screen-settings"></div>';
     
     context = {
+      inputDispatcher: {
+        pushContext: vi.fn(),
+        popContext: vi.fn(),
+      },
+      themeManager: {
+        getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+        getColor: vi.fn().mockReturnValue("#ffffff"),
+        getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      },
+      assetManager: {
+        loadSprites: vi.fn(),
+        getUnitSprite: vi.fn(),
+        getEnemySprite: vi.fn(),
+        getMiscSprite: vi.fn(),
+        getIcon: vi.fn(),
+      },
       cloudSync: {
         isConfigured: vi.fn(),
         isSyncEnabled: vi.fn(),
@@ -67,13 +86,15 @@ describe("SettingsScreen Cloud Sync", () => {
     // GIVEN Firebase is not configured
     context.cloudSync.isConfigured.mockReturnValue(false);
     
-    screen = new SettingsScreen(
-      "screen-settings",
-      context?.themeManager,
-      context?.cloudSync,
-      context?.modalService,
-      vi.fn(),
-    );
+    screen = new SettingsScreen({
+      containerId: "screen-settings",
+      themeManager: context?.themeManager,
+      assetManager: context?.assetManager,
+      inputDispatcher: context?.inputDispatcher,
+      cloudSync: context?.cloudSync,
+      modalService: context?.modalService,
+      onBack: onBack,
+    });
     screen.show();
     
     const body = document.body.innerHTML;
@@ -97,13 +118,15 @@ describe("SettingsScreen Cloud Sync", () => {
     // GIVEN cloudSync service is missing
     context.cloudSync = null;
     
-    screen = new SettingsScreen(
-      "screen-settings",
-      context?.themeManager,
-      context?.cloudSync,
-      context?.modalService,
-      vi.fn(),
-    );
+    screen = new SettingsScreen({
+      containerId: "screen-settings",
+      themeManager: context?.themeManager,
+      assetManager: context?.assetManager,
+      inputDispatcher: context?.inputDispatcher,
+      cloudSync: context?.cloudSync,
+      modalService: context?.modalService,
+      onBack: onBack,
+    });
     screen.show();
     
     const body = document.body.innerHTML;
@@ -122,13 +145,15 @@ describe("SettingsScreen Cloud Sync", () => {
       cloudSyncEnabled: false,
     });
     
-    screen = new SettingsScreen(
-      "screen-settings",
-      context?.themeManager,
-      context?.cloudSync,
-      context?.modalService,
-      vi.fn(),
-    );
+    screen = new SettingsScreen({
+      containerId: "screen-settings",
+      themeManager: context?.themeManager,
+      assetManager: context?.assetManager,
+      inputDispatcher: context?.inputDispatcher,
+      cloudSync: context?.cloudSync,
+      modalService: context?.modalService,
+      onBack: onBack,
+    });
     screen.show();
     
     const syncToggle = getSyncToggle();

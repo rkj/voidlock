@@ -28,13 +28,14 @@ describe("Regression: Unit visibility and state pruning", () => {
   });
 
   it("should prune enemies out of LOS when debug mode is OFF", () => {
-    const engine = new CoreEngine(
-      map,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false, // debugOverlayEnabled = false
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: // debugOverlayEnabled = false
+    });
     engine.clearUnits();
 
     // Soldier at (0,0)
@@ -73,13 +74,13 @@ describe("Regression: Unit visibility and state pruning", () => {
     ];
 
     // Re-init engine with walls
-    const engineWithWalls = new CoreEngine(
-      map,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    );
+    const engineWithWalls = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engineWithWalls.clearUnits();
     engineWithWalls.addUnit({
       id: "s1",
@@ -141,13 +142,14 @@ describe("Regression: Unit visibility and state pruning", () => {
       { p1: { x: 2, y: 3 }, p2: { x: 2, y: 4 } },
       { p1: { x: 2, y: 4 }, p2: { x: 2, y: 5 } },
     ];
-    const engine = new CoreEngine(
-      map,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      true, // debugOverlayEnabled = true
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true,
+      missionType: // debugOverlayEnabled = true
+    });
     engine.clearUnits();
 
     engine.addUnit({

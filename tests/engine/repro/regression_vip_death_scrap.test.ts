@@ -30,14 +30,14 @@ describe("Regression: VIP Death Scrap Reward", () => {
   const getInternalState = (engine: CoreEngine) => (engine as any).state;
 
   it("should reward consolation scrap when VIP dies", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     expect(engine.getState().stats.scrapGained).toBe(0);
 

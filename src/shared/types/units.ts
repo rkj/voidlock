@@ -334,6 +334,8 @@ export type Enemy = Entity & {
   lastAttackTarget?: Vector2;
   forcedTargetId?: string;
   targetLockUntil?: number;
+  isTargeted?: boolean;
+  targetIndex?: number;
 };
 
 export type SquadSoldierConfig = {

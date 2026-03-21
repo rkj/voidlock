@@ -43,6 +43,7 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
 
     const screen = new CampaignSummaryScreen(
       "screen-campaign-summary",
+      { pushContext: vi.fn(), popContext: vi.fn() } as any,
       onMainMenu,
     );
     screen.show(state);
@@ -80,6 +81,7 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
 
     const screen = new CampaignSummaryScreen(
       "screen-campaign-summary",
+      { pushContext: vi.fn(), popContext: vi.fn() } as any,
       onMainMenu,
     );
     screen.show(state);
@@ -106,6 +108,7 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
 
     const screen = new CampaignSummaryScreen(
       "screen-campaign-summary",
+      { pushContext: vi.fn(), popContext: vi.fn() } as any,
       onMainMenu,
     );
     screen.show(state);

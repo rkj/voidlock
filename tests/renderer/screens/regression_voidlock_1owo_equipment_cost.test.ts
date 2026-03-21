@@ -1,3 +1,4 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 /**
  * @vitest-environment jsdom
  */
@@ -7,6 +8,7 @@ import { CampaignShell } from "@src/renderer/ui/CampaignShell";
 import { SquadConfig } from "@src/shared/types";
 
 describe("EquipmentScreen Economics", () => {
+  let mockInputDispatcher: any;
   let container: HTMLElement;
   let initialConfig: SquadConfig;
   let onSave: any;
@@ -17,6 +19,10 @@ describe("EquipmentScreen Economics", () => {
   let shell: CampaignShell;
 
   beforeEach(() => {
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
     document.body.innerHTML = `
       <div id="screen-campaign-shell">
         <div id="campaign-shell-top-bar"></div>
@@ -80,28 +86,28 @@ describe("EquipmentScreen Economics", () => {
       }),
     };
 
-    shell = new CampaignShell(
-      "screen-campaign-shell",
-      mockManager,
-      mockMetaManager as any,
-      vi.fn(),
-      vi.fn(),
-    );
+    shell = new CampaignShell({containerId: "screen-campaign-shell",
+      manager: mockManager,
+      metaManager: mockMetaManager as any,
+      onTabChange: vi.fn(),
+      onMenu: vi.fn(),
+      inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any});
     shell.show("campaign");
   });
 
   it("should not charge for items already in roster", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      () => shell.refresh(),
-      undefined, // onLaunch
-      false, // isShop
-      true, // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: () => shell.refresh(),
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
@@ -121,17 +127,18 @@ describe("EquipmentScreen Economics", () => {
   });
 
   it("should charge for new items", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      () => shell.refresh(),
-      undefined, // onLaunch
-      false, // isShop
-      true, // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: () => shell.refresh(),
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
@@ -150,17 +157,18 @@ describe("EquipmentScreen Economics", () => {
 
   it("should prevent equipping items that cannot be afforded", () => {
     mockState.scrap = 5; // Cannot afford Pistol (10)
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      () => shell.refresh(),
-      undefined, // onLaunch
-      false, // isShop
-      true, // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: () => shell.refresh(),
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
@@ -179,17 +187,18 @@ describe("EquipmentScreen Economics", () => {
   });
 
   it("should update Scrap display after purchase", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      () => shell.refresh(),
-      undefined, // onLaunch
-      false, // isShop
-      true, // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: () => shell.refresh(),
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
@@ -214,17 +223,18 @@ describe("EquipmentScreen Economics", () => {
   });
 
   it("should not charge for unequipping", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      () => shell.refresh(),
-      undefined, // onLaunch
-      false, // isShop
-      true, // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: () => shell.refresh(),
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     // Find the Right Hand slot remove button
@@ -243,17 +253,18 @@ describe("EquipmentScreen Economics", () => {
   });
 
   it("should allow re-equipping original roster items for free", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      () => shell.refresh(),
-      undefined, // onLaunch
-      false, // isShop
-      true, // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: () => shell.refresh(),
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
@@ -282,17 +293,18 @@ describe("EquipmentScreen Economics", () => {
   });
 
   it("should show Owned for items in roster", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      () => shell.refresh(),
-      undefined, // onLaunch
-      false, // isShop
-      true, // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: () => shell.refresh(),
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     // Find the Armory panel

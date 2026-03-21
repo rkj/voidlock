@@ -73,26 +73,26 @@ describe("Regression 3dz9: GameClient startTime Synchronization", () => {
     // Initial time is 10000
     vi.setSystemTime(10000);
 
-    client.init(
-      123,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      defaultSquad,
-      "Default" as any,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0,
-      false,
-      true,
-      EngineMode.Simulation,
-      commandLog,
-    );
+    client.init({
+      seed: 123,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: defaultSquad,
+      themeId: "Default" as any,
+      squadConfig: 16,
+      missionType: 16,
+      allowTacticalPause: 3,
+      startPaused: false,
+      startingThreatLevel: 0,
+      enemyGrowthPerMission: 1.0,
+      missionDepth: false,
+      nodeType: true,
+      campaignNodeId: EngineMode.Simulation,
+      startingPoints: commandLog
+    });
 
     // Advance time by 200ms (to 10200)
     vi.advanceTimersByTime(200);

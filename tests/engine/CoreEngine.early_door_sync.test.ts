@@ -37,14 +37,14 @@ describe("CoreEngine Early Door Sync", () => {
   };
 
   it("should update Graph boundary type IMMEDIATELY when door starts opening", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      false,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
     const grid = (engine as any).gameGrid;
     const graph = grid.getGraph();
     const boundary = graph.getBoundary(0, 0, 1, 0);

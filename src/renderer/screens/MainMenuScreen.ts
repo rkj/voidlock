@@ -7,7 +7,10 @@ export class MainMenuScreen {
   private hasPlayedTitleSplash = false;
   private splashTimer: number | null = null;
 
-  constructor(containerId: string) {
+  constructor(
+    containerId: string,
+    private inputDispatcher: InputDispatcher,
+  ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
@@ -64,11 +67,11 @@ export class MainMenuScreen {
       this.container.classList.remove("title-splash-active");
       this.container.classList.add("title-splash-complete");
     }
-    InputDispatcher.getInstance().popContext("main-menu");
+    this.inputDispatcher.popContext("main-menu");
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "main-menu",
       priority: InputPriority.UI,
       trapsFocus: true,

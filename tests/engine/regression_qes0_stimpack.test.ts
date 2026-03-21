@@ -21,16 +21,16 @@ describe("Stimpack Item", () => {
   };
 
   it("should heal the unit instantly by 25 HP", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [{ archetypeId: "assault" }],
         inventory: { stimpack: 1 },
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const units = (engine as any).state.units;
     units[0].hp = 50;

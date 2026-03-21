@@ -18,6 +18,7 @@ import { ArchetypeLibrary } from "@src/shared/types/units";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { ModalService } from "@src/renderer/ui/ModalService";
+import { Logger } from "@src/shared/Logger";
 
 export class MissionSetupManager {
   public fogOfWarEnabled = ConfigManager.getDefault().fogOfWarEnabled;
@@ -42,6 +43,10 @@ export class MissionSetupManager {
   public currentSquad: SquadConfig = ConfigManager.getDefault().squadConfig;
   public currentSpawnPointCount = ConfigManager.getDefault().spawnPointCount;
   public currentCampaignNode: CampaignNode | null = null;
+
+  public isCampaign(): boolean {
+    return this.currentCampaignNode !== null;
+  }
 
   constructor(
     private campaignManager: CampaignManager,
@@ -102,6 +107,7 @@ export class MissionSetupManager {
   }
 
   public saveCurrentConfig() {
+    Logger.debug("[MissionSetupManager] saveCurrentConfig, hasNode:", !!this.currentCampaignNode);
     const mapSeedInput = document.getElementById(
       "map-seed",
     ) as HTMLInputElement;

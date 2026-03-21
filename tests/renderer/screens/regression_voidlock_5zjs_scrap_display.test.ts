@@ -1,3 +1,4 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 /**
  * @vitest-environment jsdom
  */
@@ -7,6 +8,7 @@ import { CampaignShell } from "@src/renderer/ui/CampaignShell";
 import { SquadConfig } from "@src/shared/types";
 
 describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => {
+  let mockInputDispatcher: any;
   let initialConfig: SquadConfig;
   let onSave: any;
   let onBack: any;
@@ -14,6 +16,10 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
   let shell: CampaignShell;
 
   beforeEach(() => {
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
     document.body.innerHTML = `
       <div id="screen-campaign-shell">
         <div id="campaign-shell-top-bar"></div>
@@ -52,13 +58,12 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       }),
     };
 
-    shell = new CampaignShell(
-      "screen-campaign-shell",
-      mockManager,
-      mockMetaManager as any,
-      vi.fn(),
-      vi.fn(),
-    );
+    shell = new CampaignShell({containerId: "screen-campaign-shell",
+      manager: mockManager,
+      metaManager: mockMetaManager as any,
+      onTabChange: vi.fn(),
+      onMenu: vi.fn(),
+      inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any});
 
     const mockModalService = {
       alert: vi.fn().mockResolvedValue(undefined),
@@ -66,15 +71,16 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       show: vi.fn().mockResolvedValue(undefined),
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      () => shell.refresh(),
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: () => shell.refresh()
+    });
 
     shell.show("campaign");
     screen.show();
@@ -104,13 +110,12 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       }),
     };
 
-    shell = new CampaignShell(
-      "screen-campaign-shell",
-      mockManager,
-      mockMetaManager as any,
-      vi.fn(),
-      vi.fn(),
-    );
+    shell = new CampaignShell({containerId: "screen-campaign-shell",
+      manager: mockManager,
+      metaManager: mockMetaManager as any,
+      onTabChange: vi.fn(),
+      onMenu: vi.fn(),
+      inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any});
 
     const mockModalService = {
       alert: vi.fn().mockResolvedValue(undefined),
@@ -118,15 +123,16 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       show: vi.fn().mockResolvedValue(undefined),
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      () => shell.refresh(),
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: () => shell.refresh()
+    });
 
     shell.show("custom");
     screen.show();

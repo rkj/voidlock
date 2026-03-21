@@ -29,27 +29,37 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      applyTheme: vi.fn(),
-    }),
-  },
-}));
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    ThemeManager: mockConstructor,
+  };
+});
 
-vi.mock("@src/renderer/visuals/AssetManager", () => ({
-  AssetManager: {
-    getInstance: vi.fn().mockReturnValue({
-      loadSprites: vi.fn(),
-    }),
-  },
-}));
+vi.mock("@src/renderer/visuals/AssetManager", () => {
+  const mockInstance = {
+    loadSprites: vi.fn(),
+    getUnitSprite: vi.fn(),
+    getEnemySprite: vi.fn(),
+    getMiscSprite: vi.fn(),
+    getIcon: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    AssetManager: mockConstructor,
+  };
+});
 
 const mockModalService = {
   alert: vi.fn().mockResolvedValue(undefined),
@@ -159,7 +169,8 @@ describe("Reset Data Location", () => {
 
     // Import main.ts to initialize the app
     vi.resetModules();
-    await import("@src/renderer/main");
+    const { bootstrap } = await import("@src/renderer/main");
+    await bootstrap();
 
     // Trigger DOMContentLoaded
     document.dispatchEvent(new Event("DOMContentLoaded"));

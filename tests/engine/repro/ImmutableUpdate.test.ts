@@ -29,7 +29,13 @@ describe("Immutable Update Integrity", () => {
       soldiers: [{ archetypeId: "scout" }],
       inventory: {},
     };
-    const engine = new CoreEngine(mockMap, 123, defaultSquad, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     engine.addUnit({
       id: "u1",
       pos: { x: 0.5, y: 0.5 },

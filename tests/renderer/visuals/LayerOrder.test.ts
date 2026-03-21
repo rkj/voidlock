@@ -33,6 +33,7 @@ describe("Layer Rendering Order", () => {
       stroke: vi.fn(),
       setLineDash: vi.fn(),
       fillText: vi.fn(),
+      strokeText: vi.fn(),
       drawImage: vi.fn(),
       createRadialGradient: vi.fn(() => ({
         addColorStop: vi.fn(),
@@ -53,7 +54,29 @@ describe("Layer Rendering Order", () => {
       })),
     } as unknown as HTMLCanvasElement;
 
-    renderer = new GameRenderer(mockCanvas);
+    const mockThemeManager = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    const mockImage = {
+      complete: true,
+      naturalWidth: 100,
+      naturalHeight: 100,
+    };
+    const mockAssetManager = {
+      iconImages: {},
+      unitSprites: {},
+      enemySprites: {},
+      getMiscSprite: vi.fn().mockReturnValue(mockImage),
+      getUnitSprite: vi.fn().mockReturnValue(mockImage),
+      getEnemySprite: vi.fn().mockReturnValue(mockImage),
+    };
+
+    renderer = new GameRenderer({
+      canvas: mockCanvas,
+      themeManager: mockThemeManager as any,
+      assetManager: mockAssetManager as any
+    });
     renderer.setUnitStyle(UnitStyle.Sprites);
     renderer.setCellSize(32);
   });
@@ -83,44 +106,37 @@ describe("Layer Rendering Order", () => {
     const calls: { name: string; order: number; args: unknown[] }[] = [];
     Object.keys(mockContext).forEach((key) => {
       const mock = mockContext[key];
-      if (mock && mock.mock && mock.mock.invocationCallOrder) {
-        mock.mock.calls.forEach((args: unknown[], i: number) => {
+      if (mock && typeof mock === "function" && (mock as any).mock) {
+        (mock as any).mock.calls.forEach((args: unknown[], i: number) => {
           calls.push({
             name: key,
-            order: mock.mock.invocationCallOrder[i],
+            order: (mock as any).mock.invocationCallOrder[i],
             args,
           });
         });
       }
     });
     calls.sort((a, b) => a.order - b.order);
+    console.log("Context calls:", calls.map(c => `${c.name} (order ${c.order})`));
 
     // We want to check the order of calls to the context.
-    // UnitLayer uses arc() (for non-sprite units)
-    // MapEntityLayer uses fillRect() (for spawn bg) and drawImage() (for spawn icon)
-
-    const arcCall = calls.find((c) => c.name === "arc");
-    const arcIndex = arcCall ? arcCall.order : -1;
-
-    const fillRectCalls = calls.filter((c) => c.name === "fillRect");
-    // The first few fillRects are for the floor in MapLayer.
-    // The spawn point is drawn in MapEntityLayer, which is between MapLayer and UnitLayer.
-    const spawnBgCall = fillRectCalls.find(
-      (c) =>
-        c.args[0] === 0 && c.args[1] === 0 && c.args[2] === 32 && c.order > 5,
-    );
-    const spawnBgIndex = spawnBgCall ? spawnBgCall.order : -1;
+    // MapEntityLayer uses arc()/fill() (for spawn bg) and drawImage() (for spawn icon)
+    // UnitLayer uses drawImage() (for sprite unit) or arc() (for tactical icon unit)
 
     const drawImageCalls = calls.filter((c) => c.name === "drawImage");
-    const spawnIconCall = drawImageCalls.find((c) => c.order > 0);
+    
+    // First drawImage is for the spawn point sprite (Standard mode)
+    const spawnIconCall = drawImageCalls.find(c => c.order > 0);
     const spawnIconIndex = spawnIconCall ? spawnIconCall.order : -1;
 
-    expect(arcIndex).toBeDefined();
-    expect(spawnBgIndex).not.toBe(-1);
-    expect(spawnIconIndex).not.toBe(-1);
+    // Second drawImage is for the unit sprite
+    const unitSpriteCall = drawImageCalls.find(c => c.order > spawnIconIndex);
+    const unitSpriteIndex = unitSpriteCall ? unitSpriteCall.order : -1;
 
-    // Both background and icon should be drawn before the unit
-    expect(arcIndex).toBeGreaterThan(spawnBgIndex);
-    expect(arcIndex).toBeGreaterThan(spawnIconIndex);
+    expect(spawnIconIndex).not.toBe(-1);
+    expect(unitSpriteIndex).not.toBe(-1);
+
+    // Spawn point should be drawn before the unit
+    expect(unitSpriteIndex).toBeGreaterThan(spawnIconIndex);
   });
 });

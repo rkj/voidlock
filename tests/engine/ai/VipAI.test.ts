@@ -36,14 +36,14 @@ describe("VIP AI Behavior", () => {
         { p1: { x: 2, y: 0 }, p2: { x: 2, y: 1 } }, // Wall between (1,0) and (2,0)
       ],
     };
-    const engine = new CoreEngine(
-      wallMap,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: wallMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     // Clear and manually place units for predictable test
     engine.clearUnits();
@@ -118,14 +118,14 @@ describe("VIP AI Behavior", () => {
 
   it("should flee from nearby enemies", () => {
     const squadConfig: SquadConfig = { soldiers: [], inventory: {} };
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
     engine.clearUnits();
 
     // Rescued VIP at (2,2)
@@ -188,14 +188,14 @@ describe("VIP AI Behavior", () => {
 
   it("should prioritize extraction once discovered", () => {
     const squadConfig: SquadConfig = { soldiers: [], inventory: {} };
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
     engine.clearUnits();
 
     // Rescued VIP at (0,0)
@@ -230,14 +230,14 @@ describe("VIP AI Behavior", () => {
 
   it("should ignore objectives", () => {
     const squadConfig: SquadConfig = { soldiers: [], inventory: {} };
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
     engine.clearUnits();
 
     // Rescued VIP at (0,0)

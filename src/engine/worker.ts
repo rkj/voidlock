@@ -13,35 +13,13 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
   switch (msg.type) {
     case "INIT": {
       if (loopId) clearInterval(loopId);
-      timeScale = msg.payload.initialTimeScale ?? 1.0;
-      engine = new CoreEngine(
-        msg.payload.map,
-        msg.payload.seed,
-        msg.payload.squadConfig,
-        msg.payload.agentControlEnabled,
-        msg.payload.debugOverlayEnabled,
-        msg.payload.missionType,
-        msg.payload.losOverlayEnabled ?? false,
-        msg.payload.startingThreatLevel,
-        timeScale,
-        msg.payload.startPaused ?? false,
-        msg.payload.mode ?? EngineMode.Simulation,
-        msg.payload.commandLog ?? [],
-        msg.payload.allowTacticalPause ?? true,
-        msg.payload.targetTick ?? 0,
-        msg.payload.baseEnemyCount,
-        msg.payload.enemyGrowthPerMission,
-        msg.payload.missionDepth,
-        msg.payload.nodeType,
-        msg.payload.campaignNodeId,
-        msg.payload.startingPoints,
-        msg.payload.skipDeployment ?? false,
-        msg.payload.debugSnapshots ?? false,
-        msg.payload.debugSnapshotInterval ?? 0,
-        msg.payload.initialSnapshots ?? [],
-        msg.payload.targetTimeScale ?? timeScale,
-        msg.payload.sessionId,
-      );
+      const config = msg.payload;
+      timeScale = config.initialTimeScale ?? 1.0;
+      engine = new CoreEngine({
+        ...config,
+        initialTimeScale: timeScale,
+        targetTimeScale: config.targetTimeScale ?? timeScale,
+      });
 
       // Start loop
       let lastSnapshotCount = 0;

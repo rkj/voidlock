@@ -30,19 +30,25 @@ describe("Regression 3dz9: Session Recovery / Catch-up", () => {
     };
 
     // First, run a simulation to get a command log
-    const engine = new CoreEngine(
-      map,
-      seed,
-      squadConfig,
-      true, // agent
-      false, // debug
+    const engine = new CoreEngine({
+      map: map,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agent
+      false,
+      missionType: // debug
       MissionType.Default,
-      false, // los
-      0, // threat
-      1.0, // timeScale
-      false, // startPaused
-      EngineMode.Simulation,
-    );
+      losOverlayEnabled: false,
+      startingThreatLevel: // los
+      0,
+      initialTimeScale: // threat
+      1.0,
+      startPaused: // timeScale
+      false,
+      mode: // startPaused
+      EngineMode.Simulation
+    });
 
     // Give a move command
     const state = engine.getState();
@@ -72,20 +78,20 @@ describe("Regression 3dz9: Session Recovery / Catch-up", () => {
     expect(commandLog.length).toBeGreaterThan(0);
 
     // Now, create a NEW engine with this command log
-    const recoveredEngine = new CoreEngine(
-      map,
-      seed,
-      squadConfig,
-      true,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Simulation,
-      commandLog,
-    );
+    const recoveredEngine = new CoreEngine({
+      map: map,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
+      initialCommandLog: commandLog
+    });
 
     const recoveredState = recoveredEngine.getState();
 

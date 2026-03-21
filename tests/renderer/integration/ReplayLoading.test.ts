@@ -13,6 +13,7 @@ vi.mock("@package.json", () => ({
 // let stateUpdateCallback: ((state: GameState) => void) | null = null;
 
 const mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
   init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   onStateUpdate: vi.fn(),
   queryState: vi.fn(),
@@ -42,19 +43,22 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      applyTheme: vi.fn(),
-    }),
-  },
-}));
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    ThemeManager: mockConstructor,
+  };
+});
 
 const mockModalService = {
   alert: vi.fn().mockResolvedValue(undefined),
@@ -187,7 +191,8 @@ describe("Replay Loading Integration", () => {
 
     // Import main.ts
     vi.resetModules();
-    await import("@src/renderer/main");
+    const { bootstrap } = await import("@src/renderer/main");
+    await bootstrap();
 
     // Wait for GameApp to initialize
     await new Promise((resolve) => setTimeout(resolve, 300));

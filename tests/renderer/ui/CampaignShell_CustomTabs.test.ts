@@ -28,13 +28,12 @@ describe("CampaignShell Custom Mode Tabs", () => {
       }),
     };
 
-    shell = new CampaignShell(
-      "screen-campaign-shell",
-      mockManager,
-      mockMetaManager as any,
-      vi.fn(),
-      vi.fn(),
-    );
+    shell = new CampaignShell({ containerId: "screen-campaign-shell",
+      manager: mockManager,
+      metaManager: mockMetaManager as any,
+      onTabChange: vi.fn(),
+      onMenu: vi.fn(),
+      inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any });
   });
 
   it("should render Protocol, Terminal and Asset Logs tabs in custom mode", () => {

@@ -26,13 +26,14 @@ describe("AI Commitment Guard", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true, // agentControlEnabled = true
-      false,
-    );
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled = true
+      false
+    });
     engine.clearUnits();
   });
 

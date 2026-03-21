@@ -3,21 +3,32 @@ import { GameState, EngineMode, UnitStyle } from "@src/shared/types";
 import { Renderer } from "@src/renderer/Renderer";
 import { Logger } from "@src/shared/Logger";
 
+import { ThemeManager } from "../ThemeManager";
+import { AssetManager } from "../visuals/AssetManager";
+
+export interface ReplayControllerConfig {
+  gameClient: GameClient;
+  themeManager: ThemeManager;
+  assetManager: AssetManager;
+  onProgressUpdate: (progress: number) => void;
+}
+
 export class ReplayController {
   public static readonly INITIAL_SPEED = 5.0;
   private gameClient: GameClient;
+  private themeManager: ThemeManager;
+  private assetManager: AssetManager;
   private renderer: Renderer | null = null;
   private onProgressUpdate: (progress: number) => void;
   private isReplaying: boolean = false;
   private totalTime: number = 0;
   private isLooping: boolean = false;
 
-  constructor(
-    gameClient: GameClient,
-    onProgressUpdate: (progress: number) => void,
-  ) {
-    this.gameClient = gameClient;
-    this.onProgressUpdate = onProgressUpdate;
+  constructor(config: ReplayControllerConfig) {
+    this.gameClient = config.gameClient;
+    this.themeManager = config.themeManager;
+    this.assetManager = config.assetManager;
+    this.onProgressUpdate = config.onProgressUpdate;
   }
 
   public setLooping(looping: boolean) {
@@ -25,7 +36,11 @@ export class ReplayController {
   }
 
   public setRenderer(canvas: HTMLCanvasElement, unitStyle: UnitStyle) {
-    this.renderer = new Renderer(canvas);
+    this.renderer = new Renderer({
+      canvas,
+      themeManager: this.themeManager,
+      assetManager: this.assetManager,
+    });
     this.renderer.setCellSize(128);
     this.renderer.setUnitStyle(unitStyle);
   }

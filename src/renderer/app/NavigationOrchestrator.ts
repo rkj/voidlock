@@ -1,6 +1,6 @@
 import { ScreenManager, ScreenId } from "../ScreenManager";
 import { CampaignShell, CampaignTabId, CampaignShellMode } from "../ui/CampaignShell";
-import { CampaignManager } from "../campaign/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { ThemeManager } from "../ThemeManager";
 import { MissionSetupManager } from "./MissionSetupManager";
 import { SquadBuilder } from "../components/SquadBuilder";
@@ -34,23 +34,49 @@ export interface NavigationScreens {
   settings: SettingsScreen;
 }
 
+export interface NavigationOrchestratorCallbacks {
+  showMainMenu: () => void;
+  launchMission: () => void;
+  resumeMission: () => void;
+}
+
+export interface NavigationOrchestratorConfig {
+  screenManager: ScreenManager;
+  campaignShell: CampaignShell;
+  campaignManager: CampaignManager;
+  themeManager: ThemeManager;
+  modalService: ModalService;
+  missionSetupManager: MissionSetupManager;
+  squadBuilder: SquadBuilder;
+  screens: NavigationScreens;
+  tutorialManager: TutorialManager;
+  callbacks: NavigationOrchestratorCallbacks;
+}
+
 export class NavigationOrchestrator {
-  constructor(
-    private screenManager: ScreenManager,
-    private campaignShell: CampaignShell,
-    private campaignManager: CampaignManager,
-    private themeManager: ThemeManager,
-    private modalService: ModalService,
-    private missionSetupManager: MissionSetupManager,
-    private squadBuilder: SquadBuilder,
-    private screens: NavigationScreens,
-    private tutorialManager: TutorialManager,
-    private callbacks: {
-      showMainMenu: () => void;
-      launchMission: () => void;
-      resumeMission: () => void;
-    }
-  ) {}
+  private screenManager: ScreenManager;
+  private campaignShell: CampaignShell;
+  private campaignManager: CampaignManager;
+  private themeManager: ThemeManager;
+  private modalService: ModalService;
+  private missionSetupManager: MissionSetupManager;
+  private squadBuilder: SquadBuilder;
+  private screens: NavigationScreens;
+  private tutorialManager: TutorialManager;
+  private callbacks: NavigationOrchestratorCallbacks;
+
+  constructor(config: NavigationOrchestratorConfig) {
+    this.screenManager = config.screenManager;
+    this.campaignShell = config.campaignShell;
+    this.campaignManager = config.campaignManager;
+    this.themeManager = config.themeManager;
+    this.modalService = config.modalService;
+    this.missionSetupManager = config.missionSetupManager;
+    this.squadBuilder = config.squadBuilder;
+    this.screens = config.screens;
+    this.tutorialManager = config.tutorialManager;
+    this.callbacks = config.callbacks;
+  }
 
   /**
    * Centralized screen switcher that ensures all other screens are hidden

@@ -26,13 +26,15 @@ describe("Anti-Backtracking", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true, // agentControlEnabled = true
-      true, // skipDeployment = true
-    );
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled = true
+      true,
+      missionType: // skipDeployment = true
+    });
     engine.clearUnits();
     engine.clearEnemies();
   });

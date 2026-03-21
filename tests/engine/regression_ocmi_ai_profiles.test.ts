@@ -24,16 +24,16 @@ describe("Regression OCMI: Innate AI Profiles", () => {
   }
 
   it("STAND_GROUND (Heavy) should stay put and shoot", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: {
         soldiers: [{ archetypeId: "heavy" }],
         inventory: {},
       },
-      true,
-      false,
-    );
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     // Manually add an enemy nearby
     engine.addEnemy({
@@ -68,16 +68,16 @@ describe("Regression OCMI: Innate AI Profiles", () => {
   });
 
   it("RUSH (Assault) should move toward enemy", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: {
         soldiers: [{ archetypeId: "assault" }],
         inventory: {},
       },
-      true,
-      false,
-    );
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     engine.addEnemy({
       id: "enemy-1",
@@ -113,16 +113,16 @@ describe("Regression OCMI: Innate AI Profiles", () => {
   });
 
   it("RETREAT (Medic) should move away from enemy while maintaining LOF", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: {
         soldiers: [{ archetypeId: "medic" }],
         inventory: {},
       },
-      true,
-      false,
-    );
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     // Start medic closer to enemy
     engine.clearUnits();

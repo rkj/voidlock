@@ -4,47 +4,57 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NewCampaignWizard } from "@src/renderer/screens/campaign/NewCampaignWizard";
 
-// Mock MetaManager
-vi.mock("@src/renderer/campaign/MetaManager", () => ({
-  MetaManager: {
-    getInstance: () => ({
-      getStats: () => ({
-        totalKills: 1000,
-        totalCampaignsStarted: 5,
-        totalMissionsWon: 10,
-      }),
-    }),
+// Pre-define mocks for usage in instance members
+const mockConfig = {
+  unitStyle: "TacticalIcons",
+  themeId: "default",
+};
+
+// Mock ConfigManager
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    loadGlobal: vi.fn(() => mockConfig),
+    saveGlobal: vi.fn(),
+    loadCampaign: vi.fn().mockReturnValue(null),
+    saveCampaign: vi.fn(),
+    clearCampaign: vi.fn(),
   },
 }));
 
+// Mock MetaManager
+vi.mock("@src/renderer/campaign/MetaManager", () => {
+  const mockInstance = {
+    getStats: vi.fn().mockReturnValue({
+      totalKills: 0,
+      totalCampaignsStarted: 0,
+      campaignsWon: 0,
+      campaignsLost: 0,
+      totalMissionsWon: 0,
+      totalMissionsPlayed: 0,
+      totalCasualties: 0,
+      totalScrapEarned: 0,
+      currentIntel: 0,
+      unlockedArchetypes: [],
+      unlockedItems: [],
+      prologueCompleted: false,
+    }),
+    load: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return { MetaManager: mockConstructor };
+});
+
 describe("NewCampaignWizard", () => {
   let container: HTMLElement;
-  const onStartCampaign = vi.fn();
-  const onBack = vi.fn();
+  let onStartCampaign: any;
+  let onBack: any;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="container"></div>';
-    container = document.getElementById("container")!;
-    onStartCampaign.mockClear();
-    onBack.mockClear();
-
-    // Mock HTMLCanvasElement.getContext
-    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
-      clearRect: vi.fn(),
-      fillRect: vi.fn(),
-      strokeRect: vi.fn(),
-      beginPath: vi.fn(),
-      arc: vi.fn(),
-      fill: vi.fn(),
-      stroke: vi.fn(),
-      fillText: vi.fn(),
-      strokeText: vi.fn(),
-      drawImage: vi.fn(),
-      moveTo: vi.fn(),
-      lineTo: vi.fn(),
-      closePath: vi.fn(),
-      setLineDash: vi.fn(),
-    });
+    document.body.innerHTML = '<div id="wizard-container"></div>';
+    container = document.getElementById("wizard-container")!;
+    onStartCampaign = vi.fn();
+    onBack = vi.fn();
   });
 
   it("should render the wizard title and content", () => {
@@ -82,7 +92,7 @@ describe("NewCampaignWizard", () => {
     expect(onStartCampaign).toHaveBeenCalled();
     const [seed, difficulty, overrides] = onStartCampaign.mock.calls[0];
     expect(typeof seed).toBe("number");
-    expect(difficulty).toBe("hard");
+    expect(difficulty).toBe("Standard");
     expect(overrides.allowTacticalPause).toBe(true);
   });
 

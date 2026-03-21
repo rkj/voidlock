@@ -30,13 +30,13 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     const baseChannelTime = 3000;
 
     // Test with standard speed (30)
-    const engine30 = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: { mine: 1 } },
-      false,
-      false,
-    );
+    const engine30 = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: { mine: 1 } },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const unit30 = (engine30 as unknown as { state: GameState }).state.units[0];
     unit30.stats.speed = 30;
     unit30.pos = { x: 2.5, y: 2.5 };
@@ -56,13 +56,13 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     expect(state30.channeling?.totalDuration).toBe(baseChannelTime);
 
     // Test with slow speed (15)
-    const engine15 = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: { mine: 1 } },
-      false,
-      false,
-    );
+    const engine15 = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: { mine: 1 } },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const unit15 = (engine15 as unknown as { state: GameState }).state.units[0];
     unit15.stats.speed = 15;
     unit15.pos = { x: 2.5, y: 2.5 };
@@ -81,13 +81,13 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     expect(state15.channeling?.totalDuration).toBe(baseChannelTime * 2);
 
     // Test with fast speed (60)
-    const engine60 = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: { mine: 1 } },
-      false,
-      false,
-    );
+    const engine60 = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: { mine: 1 } },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const unit60 = (engine60 as unknown as { state: GameState }).state.units[0];
     unit60.stats.speed = 60;
     unit60.pos = { x: 2.5, y: 2.5 };
@@ -107,13 +107,13 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
   });
 
   it("should follow Move -> Channel -> Place flow for mines", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: { mine: 1 } },
-      false,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: { mine: 1 } },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const unit = (engine as unknown as { state: GameState }).state.units[0];
     unit.stats.speed = 30;
     unit.pos = { x: 0.5, y: 0.5 };

@@ -29,13 +29,13 @@ describe("AI Opportunism (Shiny Object)", () => {
 
   beforeEach(() => {
     Logger.setLevel(LogLevel.DEBUG);
-    engine = new CoreEngine(
-      roomMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    );
+    engine = new CoreEngine({
+      map: roomMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

@@ -29,13 +29,13 @@ describe("Enemy Movement", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(
-      map,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    );
+    engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

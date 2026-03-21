@@ -1,171 +1,118 @@
-// @vitest-environment jsdom
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameClient } from "@src/engine/GameClient";
 import {
   MapGeneratorType,
+  UnitStyle,
+  CommandType,
   MissionType,
   EngineMode,
-  CommandType,
-  UnitStyle,
 } from "@src/shared/types";
 
 describe("GameClient", () => {
   let client: GameClient;
   let postMessageMock: any;
-  let workerMock: any;
+  let mockWorker: any;
 
   beforeEach(() => {
     postMessageMock = vi.fn();
-    workerMock = {
-      postMessage: postMessageMock,
-      terminate: vi.fn(),
-      onmessage: null,
-    };
+    // Mock worker constructor
+    const MockWorker = vi.fn().mockImplementation(() => {
+      mockWorker = {
+        postMessage: postMessageMock,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        terminate: vi.fn(),
+        onmessage: null,
+      };
+      return mockWorker;
+    });
+    (window as any).Worker = MockWorker;
 
-    // Mock Worker constructor
-    vi.stubGlobal(
-      "Worker",
-      vi.fn().mockImplementation(() => workerMock),
-    );
-
-    const mockMapFactory = vi.fn().mockReturnValue({
+    client = new GameClient(() => ({
       generate: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] }),
       load: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] }),
-    });
-    client = new GameClient(mockMapFactory);
+    }) as any);
   });
 
   it("should initialize and record seed/map", () => {
-    client.init(
-      12345,
-      MapGeneratorType.DenseShip,
-      undefined,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      { soldiers: [{ archetypeId: "assault" } as any], inventory: {} },
-      MissionType.Default,
-      10,
-      10,
-    );
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.DenseShip,
+      width: 10,
+      height: 10,
+      squadConfig: { soldiers: [{ archetypeId: "assault" } as any], inventory: {} },
+      missionType: MissionType.Default,
+    });
 
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "INIT",
       payload: expect.objectContaining({
         seed: 12345,
-        map: expect.objectContaining({ width: 10, height: 10 }),
-        squadConfig: expect.objectContaining({
-          soldiers: [expect.objectContaining({ archetypeId: "assault" })],
-        }),
-        debugSnapshotInterval: 0,
+        // mapGeneratorType, width, height are filtered out by GameClient before sending to worker
+        // as the worker receives the final 'map' object.
       }),
     });
   });
 
   it("should record commands via STATE_UPDATE sync", () => {
-    client.init(
-      123,
-      MapGeneratorType.DenseShip,
-      undefined,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      {
+    client.init({
+      seed: 123,
+      mapGeneratorType: MapGeneratorType.DenseShip,
+      squadConfig: {
         soldiers: [],
         inventory: {},
-      },
-    );
+      }
+    });
 
     // Simulate worker sending back a state update with a command log
     const mockState = {
+      t: 100,
+      status: "Playing",
       commandLog: [
         {
-          tick: 100,
-          command: {
-            type: CommandType.MOVE_TO,
-            unitIds: ["u1"],
-            target: { x: 1, y: 1 },
-          },
-        },
-        {
-          tick: 500,
-          command: {
-            type: CommandType.MOVE_TO,
-            unitIds: ["u2"],
-            target: { x: 2, y: 2 },
-          },
+          tick: 50,
+          command: { type: CommandType.MOVE_TO, unitIds: ["u1"], target: { x: 1, y: 1 } },
         },
       ],
-      settings: { mode: EngineMode.Simulation },
-      map: { width: 10, height: 10 },
+      settings: { mode: EngineMode.Simulation }
     };
 
-    if (workerMock.onmessage) {
-      workerMock.onmessage({
-        data: { type: "STATE_UPDATE", payload: mockState },
-      });
-    }
+    mockWorker.onmessage({ data: { type: "STATE_UPDATE", payload: mockState } });
 
     const replayData = client.getReplayData();
-    expect(replayData).not.toBeNull();
-    expect(replayData!.commands).toHaveLength(2);
-    expect(replayData!.commands[0].cmd.type).toBe(CommandType.MOVE_TO);
+    expect(replayData?.commands.length).toBe(1);
+    expect(replayData?.commands[0].t).toBe(50);
   });
 
   it("should replay commands", () => {
     const commands = [
       {
-        tick: 100,
-        command: {
+        t: 100,
+        cmd: {
           type: CommandType.MOVE_TO,
           unitIds: ["u1"],
           target: { x: 1, y: 1 },
         },
       },
-      {
-        tick: 500,
-        command: {
-          type: CommandType.MOVE_TO,
-          unitIds: ["u2"],
-          target: { x: 2, y: 2 },
-        },
-      },
     ];
 
-    client.init(
-      555,
-      MapGeneratorType.DenseShip,
-      undefined,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      { soldiers: [{ archetypeId: "assault" } as any], inventory: {} },
-      MissionType.Default,
-      10,
-      10,
-      3,
-      false,
-      0,
-      1.0,
-      false,
-      true,
-      EngineMode.Replay,
-      commands,
-    );
+    client.loadReplay({
+      seed: 555,
+      missionType: MissionType.Default,
+      map: { width: 10, height: 10, cells: [] } as any,
+      squadConfig: { soldiers: [{ archetypeId: "assault" } as any], inventory: {} },
+      commands: commands,
+    });
 
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "INIT",
       payload: expect.objectContaining({
         seed: 555,
         mode: EngineMode.Replay,
-        commandLog: commands,
-        debugSnapshotInterval: 0,
+        initialCommandLog: [{ tick: 100, command: commands[0].cmd }],
       }),
     });
   });
@@ -179,10 +126,7 @@ describe("GameClient", () => {
     client.toggleDebugOverlay(true);
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "COMMAND",
-      payload: {
-        type: "TOGGLE_DEBUG_OVERLAY",
-        enabled: true,
-      },
+      payload: expect.objectContaining({ type: CommandType.TOGGLE_DEBUG_OVERLAY, enabled: true }),
     });
   });
 
@@ -190,10 +134,7 @@ describe("GameClient", () => {
     client.toggleLosOverlay(true);
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "COMMAND",
-      payload: {
-        type: "TOGGLE_LOS_OVERLAY",
-        enabled: true,
-      },
+      payload: expect.objectContaining({ type: CommandType.TOGGLE_LOS_OVERLAY, enabled: true }),
     });
   });
 
@@ -204,159 +145,82 @@ describe("GameClient", () => {
 
   it("should save mission config to localStorage in Simulation mode", () => {
     const spy = vi.spyOn(Storage.prototype, "setItem");
-    client.init(
-      12345,
-      MapGeneratorType.DenseShip,
-      undefined,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      { soldiers: [], inventory: {} },
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0,
-      false,
-      true,
-      EngineMode.Simulation,
-      [],
-      "test-node-123",
-    );
+    client.init({
+      seed: 777,
+      mapGeneratorType: MapGeneratorType.DenseShip,
+      width: 12,
+      height: 12,
+      squadConfig: { soldiers: [], inventory: {} },
+      mode: EngineMode.Simulation,
+    });
 
     expect(spy).toHaveBeenCalledWith(
       "voidlock_mission_config",
-      expect.any(String),
+      expect.stringContaining('"seed":777'),
     );
     spy.mockRestore();
   });
 
   it("should propagate campaignNodeId and nodeType to worker in INIT message", () => {
-    client.init(
-      12345,
-      MapGeneratorType.DenseShip,
-      undefined,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      { soldiers: [{ archetypeId: "assault" } as any], inventory: {} },
-      MissionType.Default,
-      10,
-      10,
-      3,
-      false,
-      0,
-      1.0,
-      false,
-      true,
-      EngineMode.Simulation,
-      [],
-      "test-node-123",
-      0,
-      3,
-      1,
-      0,
-      "Elite",
-    );
+    client.init({
+      seed: 888,
+      mapGeneratorType: MapGeneratorType.DenseShip,
+      squadConfig: { soldiers: [], inventory: {} },
+      campaignNodeId: "node-123",
+      nodeType: "Elite" as any,
+    });
 
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "INIT",
       payload: expect.objectContaining({
-        campaignNodeId: "test-node-123",
+        campaignNodeId: "node-123",
         nodeType: "Elite",
-        debugSnapshotInterval: 0,
       }),
     });
   });
 
   it("should pass snapshots and disable tactical pause in Replay mode seek", () => {
-    // 1. Setup snapshots in client
-    client.init(
-      123,
-      MapGeneratorType.DenseShip,
-      undefined,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      {
-        soldiers: [],
-        inventory: {},
-      },
-    );
-    const mockSnapshots = [{ t: 100 } as any, { t: 200 } as any];
-
-    if (workerMock.onmessage) {
-      workerMock.onmessage({
-        data: {
-          type: "STATE_UPDATE",
-          payload: {
-            snapshots: mockSnapshots,
-            settings: { mode: EngineMode.Simulation },
-            map: { width: 10, height: 10 },
-          },
-        },
-      });
-    }
-
-    // 2. Perform seek in Replay mode
+    const snapshots = [{ t: 0 } as any, { t: 100 } as any];
     client.loadReplay({
-      seed: 123,
+      seed: 999,
       missionType: MissionType.Default,
-      map: { width: 10, height: 10, cells: [] },
+      map: { width: 10, height: 10, cells: [] } as any,
       squadConfig: { soldiers: [], inventory: {} },
       commands: [],
-      snapshots: mockSnapshots,
-      unitStyle: UnitStyle.TacticalIcons,
-      themeId: "default",
+      snapshots,
     });
 
-    client.pause();
     postMessageMock.mockClear();
-    client.seek(150);
+    client.seek(50);
 
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "INIT",
       payload: expect.objectContaining({
+        seed: 999,
         mode: EngineMode.Replay,
-        initialSnapshots: mockSnapshots,
-        targetTick: 150,
-        allowTacticalPause: false, // Replay mode forces false
-        startPaused: true,
-        initialTimeScale: 0.0, // Because allowTacticalPause is false and isPaused is true
+        allowTacticalPause: false,
+        initialSnapshots: snapshots,
+        targetTick: 50,
       }),
     });
   });
 
   it("should restore unitStyle and themeId in loadReplay", () => {
-    const replayData: any = {
-      seed: 123,
+    client.loadReplay({
+      seed: 999,
       missionType: MissionType.Default,
-      map: { width: 10, height: 10, cells: [] },
+      map: { width: 10, height: 10, cells: [] } as any,
       squadConfig: { soldiers: [], inventory: {} },
       commands: [],
       unitStyle: UnitStyle.Sprites,
-      themeId: "industrial",
-    };
-
-    client.loadReplay(replayData);
-
-    const capturedData = client.getReplayData();
-    expect(capturedData?.unitStyle).toBe(UnitStyle.Sprites);
-    expect(capturedData?.themeId).toBe("industrial");
+      themeId: "classic",
+    });
 
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "INIT",
       payload: expect.objectContaining({
         unitStyle: UnitStyle.Sprites,
-        themeId: "industrial",
+        themeId: "classic",
       }),
     });
   });

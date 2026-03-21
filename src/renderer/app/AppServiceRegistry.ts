@@ -1,10 +1,11 @@
 import { GameClient } from "@src/engine/GameClient";
-import { CampaignManager } from "../campaign/CampaignManager";
-import { MetaManager } from "../campaign/MetaManager";
-import { ThemeManager } from "../ThemeManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { ThemeManager } from "@src/renderer/ThemeManager";
 import { MenuController } from "../MenuController";
 import { HUDManager } from "../ui/HUDManager";
 import { InputManager } from "../InputManager";
+import { InputDispatcher } from "../InputDispatcher";
 import { ModalService } from "../ui/ModalService";
 import { CampaignShell, CampaignTabId } from "../ui/CampaignShell";
 import { CloudSyncService } from "@src/services/CloudSyncService";
@@ -12,6 +13,7 @@ import { TutorialManager } from "../controllers/TutorialManager";
 import { AdvisorOverlay } from "../ui/AdvisorOverlay";
 import { ScreenManager, ScreenId } from "../ScreenManager";
 import { SaveManager } from "@src/services/SaveManager";
+import { LocalStorageProvider } from "@src/engine/persistence/LocalStorageProvider";
 import { AssetManager } from "../visuals/AssetManager";
 import { ConfigManager } from "../ConfigManager";
 import { Logger, LogLevel } from "@src/shared/Logger";
@@ -43,6 +45,8 @@ export interface AppServiceRegistryConfig {
   onTogglePause: () => void;
   onToggleDebug: (enabled: boolean) => void;
   onToggleLos: (enabled: boolean) => void;
+  onForceWin: () => void;
+  onForceLose: () => void;
   onCanvasClick: (e: MouseEvent) => void;
   onRendererCreated: (renderer: IRenderer) => void;
   getCurrentGameState: () => GameState | null;
@@ -62,9 +66,11 @@ export class AppServiceRegistry {
   public campaignManager!: CampaignManager;
   public metaManager!: MetaManager;
   public themeManager!: ThemeManager;
+  public assetManager!: AssetManager;
   public menuController!: MenuController;
   public hudManager!: HUDManager;
   public inputManager!: InputManager;
+  public inputDispatcher!: InputDispatcher;
   public modalService!: ModalService;
   public campaignShell!: CampaignShell;
   public cloudSync!: CloudSyncService;
@@ -78,38 +84,45 @@ export class AppServiceRegistry {
   public navigationOrchestrator!: NavigationOrchestrator;
   public uiOrchestrator!: UIOrchestrator;
 
+  public destroy() {
+    if (this.inputDispatcher) this.inputDispatcher.destroy();
+    if (this.missionRunner) this.missionRunner.stop();
+  }
+
   public async initialize(config: AppServiceRegistryConfig) {
     // 1. Initialize core managers
     const globalConfig = ConfigManager.loadGlobal();
     Logger.setLevel(LogLevel[globalConfig.logLevel as keyof typeof LogLevel]);
 
-    this.themeManager = ThemeManager.getInstance();
+    this.themeManager = new ThemeManager();
     await this.themeManager.init();
     
-    // Ensure sprites are loaded now that the asset manifest is available
-    AssetManager.getInstance().loadSprites();
+    this.assetManager = new AssetManager(this.themeManager);
+    this.assetManager.loadSprites();
     
-    this.campaignManager = CampaignManager.getInstance();
-    this.metaManager = MetaManager.getInstance();
+    this.inputDispatcher = new InputDispatcher();
+    
+    const saveManager = new SaveManager();
+    saveManager.getCloudSync().setEnabled(globalConfig.cloudSyncEnabled);
+    this.campaignManager = CampaignManager.getInstance(saveManager);
+    this.metaManager = MetaManager.getInstance(new LocalStorageProvider());
 
     // Initialize cloudSync from SaveManager
-    const storage = this.campaignManager.getStorage();
-    if (storage instanceof SaveManager) {
-      this.cloudSync = storage.getCloudSync();
-      await this.cloudSync.initialize();
-    }
+    this.cloudSync = saveManager.getCloudSync();
+    await this.cloudSync.initialize();
 
     await this.campaignManager.load();
     this.modalService = new ModalService();
     this.screenManager = new ScreenManager(config.onScreenChange);
 
-    this.campaignShell = new CampaignShell(
-      "screen-campaign-shell",
-      this.campaignManager,
-      this.metaManager,
-      config.onShellTabChange,
-      config.onShellMainMenu,
-    );
+    this.campaignShell = new CampaignShell({
+      containerId: "screen-campaign-shell",
+      manager: this.campaignManager,
+      metaManager: this.metaManager,
+      inputDispatcher: this.inputDispatcher,
+      onTabChange: config.onShellTabChange,
+      onMenu: config.onShellMainMenu,
+    });
 
     const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
       return new MapFactory(config);
@@ -125,18 +138,20 @@ export class AppServiceRegistry {
       getCurrentGameState: () => config.getCurrentGameState(),
     });
 
-    this.advisorOverlay = new AdvisorOverlay(this.gameClient);
-    this.tutorialManager = new TutorialManager(
+    this.advisorOverlay = new AdvisorOverlay(
       this.gameClient,
-      this.campaignManager,
-      this.menuController,
-      (msg, onDismiss) => {
+      this.themeManager,
+      this.inputDispatcher,
+    );
+    this.tutorialManager = new TutorialManager({
+      gameClient: this.gameClient,
+      campaignManager: this.campaignManager,
+      menuController: this.menuController,
+      onMessage: (msg, onDismiss) => {
         this.advisorOverlay.showMessage(msg, onDismiss);
       },
-      config.getSelectedUnitId,
-      this.uiOrchestrator,
-      () => config.getRenderer(),
-    );
+      getRenderer: () => config.getRenderer(),
+    });
     this.menuController.setTutorialManager(this.tutorialManager);
     this.tutorialManager.enable();
 
@@ -146,28 +161,30 @@ export class AppServiceRegistry {
       this.modalService,
     );
 
-    this.missionCoordinator = new MissionCoordinator(
-      this.campaignShell,
-      this.gameClient,
-      this.screenManager,
-      this.menuController,
-      this.campaignManager,
-      (renderer) => config.onRendererCreated(renderer),
-    );
+    this.missionCoordinator = new MissionCoordinator({
+      campaignShell: this.campaignShell,
+      gameClient: this.gameClient,
+      screenManager: this.screenManager,
+      menuController: this.menuController,
+      campaignManager: this.campaignManager,
+      themeManager: this.themeManager,
+      assetManager: this.assetManager,
+      onRendererCreated: (renderer: IRenderer) => config.onRendererCreated(renderer),
+    });
 
     // 2. Initialize UI managers
-    this.hudManager = new HUDManager(
-      this.menuController,
-      this.tutorialManager,
-      config.onUnitClick,
-      config.onAbortMission,
-      config.onMenuInput,
-      config.onCopyWorldState,
-      config.onDebugForceWin,
-      config.onDebugForceLose,
-      config.onStartMission,
-      config.onDeployUnit,
-    );
+    this.hudManager = new HUDManager({
+      menuController: this.menuController,
+      tutorialManager: this.tutorialManager,
+      onUnitClick: config.onUnitClick,
+      onAbortMission: config.onAbortMission,
+      onMenuInput: config.onMenuInput,
+      onCopyWorldState: config.onCopyWorldState,
+      onForceWin: config.onForceWin,
+      onForceLose: config.onForceLose,
+      onStartMission: config.onStartMission,
+      onDeployUnit: config.onDeployUnit,
+    });
 
     this.missionRunner = new MissionRunner({
       missionCoordinator: this.missionCoordinator,
@@ -192,6 +209,7 @@ export class AppServiceRegistry {
     this.inputManager = new InputManager({
       screenManager: this.screenManager,
       menuController: this.menuController,
+      inputDispatcher: this.inputDispatcher,
       togglePause: config.onTogglePause,
       handleMenuInput: (key, shift) => this.inputOrchestrator.handleMenuInput(key, shift),
       abortMission: config.onAbortMission,
@@ -221,22 +239,22 @@ export class AppServiceRegistry {
       showMainMenu: () => void;
     }
   ) {
-    this.navigationOrchestrator = new NavigationOrchestrator(
-      this.screenManager,
-      this.campaignShell,
-      this.campaignManager,
-      this.themeManager,
-      this.modalService,
-      this.missionSetupManager,
-      squadBuilder,
-      screens,
-      this.tutorialManager,
-      {
+    this.navigationOrchestrator = new NavigationOrchestrator({
+      screenManager: this.screenManager,
+      campaignShell: this.campaignShell,
+      campaignManager: this.campaignManager,
+      themeManager: this.themeManager,
+      modalService: this.modalService,
+      missionSetupManager: this.missionSetupManager,
+      squadBuilder: squadBuilder,
+      screens: screens,
+      tutorialManager: this.tutorialManager,
+      callbacks: {
         showMainMenu: callbacks.showMainMenu,
         launchMission: () => this.missionRunner.launchMission(),
         resumeMission: () => this.missionRunner.resumeMission(),
       }
-    );
+    });
 
     this.missionRunner.setNavigationOrchestrator(this.navigationOrchestrator);
   }

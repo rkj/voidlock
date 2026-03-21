@@ -4,8 +4,7 @@ import { ScreenId } from "@src/renderer/ScreenManager";
 import { Logger } from "@src/shared/Logger";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { Vector2 } from "@src/shared/types/geometry";
-import { UIOrchestrator } from "../app/UIOrchestrator";
-import { CampaignManager } from "../campaign/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { Renderer } from "../Renderer";
 
 export interface AdvisorMessage {
@@ -19,6 +18,14 @@ export interface AdvisorMessage {
 }
 
 export type TutorialCondition = (state: GameState, manager: TutorialManager) => boolean;
+
+export interface TutorialManagerConfig {
+  gameClient: GameClient;
+  campaignManager: CampaignManager;
+  menuController: any;
+  onMessage: (msg: AdvisorMessage, onDismiss?: () => void) => void;
+  getRenderer: () => Renderer | null;
+}
 
 export interface TutorialStep {
   id: string;
@@ -205,23 +212,13 @@ export class TutorialManager {
       inputGate: { allowedActions: ["EXTRACT", "SELECT_UNIT"] }
     }
   ];
-
-  constructor(
-    gameClient: GameClient,
-    campaignManager: CampaignManager,
-    menuController: any,
-    onMessage: (msg: AdvisorMessage, onDismiss?: () => void) => void,
-    _getSelectedUnitId: () => string | null,
-    _uiOrchestrator?: UIOrchestrator,
-    getRenderer: () => Renderer | null = () => null
-  ) {
-    this.gameClient = gameClient;
-    this.campaignManager = campaignManager;
-    this.menuController = menuController;
-    this.onMessage = onMessage;
-    this.getRenderer = getRenderer;
+constructor(config: TutorialManagerConfig) {
+  this.gameClient = config.gameClient;
+  this.campaignManager = config.campaignManager;
+  this.menuController = config.menuController;
+  this.onMessage = config.onMessage;
+  this.getRenderer = config.getRenderer;
   }
-
   public highlightElement(selector: string) {
     if (this.highlightedElementSelector === selector && (this.highlightedElement || document.querySelector(".tutorial-highlight"))) {
         return;

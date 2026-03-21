@@ -16,13 +16,13 @@ describe("CoreEngine sentMap Logic (voidlock-0u4r)", () => {
   };
 
   it("should NOT set sentMap=true when getState is called without pruneForObservation", () => {
-    const engine = new CoreEngine(
-      mockMap as any,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap as any,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     // Call getState as a snapshot would (pruneForObservation = false)
     const snapshot = engine.getState(false);

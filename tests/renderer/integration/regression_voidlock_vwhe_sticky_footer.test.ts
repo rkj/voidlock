@@ -9,6 +9,7 @@ vi.mock("@package.json", () => ({
 }));
 
 const mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
   init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   onStateUpdate: vi.fn(),
   queryState: vi.fn(),
@@ -43,42 +44,22 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      applyTheme: vi.fn(),
-    }),
-  },
-}));
-
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => ({
-    alert: vi.fn().mockResolvedValue(undefined),
-    confirm: vi.fn().mockResolvedValue(true),
-    prompt: vi.fn().mockResolvedValue("New Recruit"),
-    show: vi.fn().mockResolvedValue(undefined),
-  })),
-}));
-
-vi.mock("@src/renderer/campaign/CampaignManager", () => ({
-  CampaignManager: {
-    getInstance: vi.fn().mockReturnValue({
-      getState: vi.fn(() => null),
-      getStorage: vi.fn(),
-      getSyncStatus: vi.fn().mockReturnValue("local-only"),
-      addChangeListener: vi.fn(),
-      removeChangeListener: vi.fn(),
-      load: vi.fn(),
-      save: vi.fn(), assignEquipment: vi.fn(),
-    }),
-  },
-}));
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    ThemeManager: mockConstructor,
+  };
+});
 
 describe("Regression: Mission Setup Sticky Footer (voidlock-vwhe)", () => {
   beforeEach(async () => {
@@ -128,7 +109,8 @@ describe("Regression: Mission Setup Sticky Footer (voidlock-vwhe)", () => {
 
     // Reset modules and import main
     vi.resetModules();
-    await import("@src/renderer/main");
+    const { bootstrap } = await import("@src/renderer/main");
+    await bootstrap();
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 

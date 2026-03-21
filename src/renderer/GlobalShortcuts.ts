@@ -10,20 +10,26 @@ export class GlobalShortcuts implements InputContext {
   private helpOverlay: KeyboardHelpOverlay;
 
   constructor(
+    private inputDispatcher: InputDispatcher,
     private togglePause: () => void,
     private goBack: () => void,
   ) {
-    this.helpOverlay = new KeyboardHelpOverlay();
+    this.helpOverlay = new KeyboardHelpOverlay(this.inputDispatcher);
   }
 
   public init() {
-    InputDispatcher.getInstance().pushContext(this);
+    this.inputDispatcher.pushContext(this);
+  }
+
+  public destroy() {
+    this.inputDispatcher.popContext(this.id);
   }
 
   public handleKeyDown(e: KeyboardEvent): boolean {
+    const target = e.target as HTMLElement;
     if (
-      (e.target as HTMLElement).tagName === "INPUT" ||
-      (e.target as HTMLElement).tagName === "TEXTAREA"
+      target &&
+      (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
     ) {
       return false;
     }

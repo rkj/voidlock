@@ -36,14 +36,14 @@ describe("UnitManager Door Movement", () => {
   };
 
   it("should NOT allow movement through a door that is still opening", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      false,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
     // Add unit at (0,0) moving to (1,0)
     engine.addUnit({

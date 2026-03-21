@@ -30,7 +30,31 @@ describe("Snapshot Hydration Regression (voidlock-22u0)", () => {
     };
     
     // 1. Create original engine and get a snapshot
-    const originalEngine = new CoreEngine(mockMap, 123, defaultSquad, false, false, undefined, false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Combat", undefined, undefined, true, true, 16);
+    const originalEngine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: true,
+      debugSnapshots: true,
+      debugSnapshotInterval: 16
+    });
     
     // First getState should have cells, sets sentMap = true
     const firstState = originalEngine.getState(true);
@@ -44,7 +68,32 @@ describe("Snapshot Hydration Regression (voidlock-22u0)", () => {
 
     // 2. Create a new engine and hydrate from that snapshot
     // We simulate what init does when targetTick > 0
-    const newEngine = new CoreEngine(mockMap, 123, defaultSquad, false, false, undefined, false, 0, 1.0, false, EngineMode.Replay, [], true, 16, 3, 1, 0, "Combat", undefined, undefined, true, true, 16, [snapshot]);
+    const newEngine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Replay,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 16,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: true,
+      debugSnapshots: true,
+      debugSnapshotInterval: 16,
+      initialSnapshots: [snapshot]
+    });
     
     // The first getState from the new engine should have the full map, 
     // but because it hydrated from a snapshot that had cells=[], it will have cells=[]!

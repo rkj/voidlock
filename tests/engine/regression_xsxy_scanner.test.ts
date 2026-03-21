@@ -25,16 +25,16 @@ describe("Scanner Item Regression", () => {
   }
 
   it("should reveal FOW in a radius when scanner is used", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [{ archetypeId: "assault" }],
         inventory: { scanner: 1 },
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const target = { x: 10, y: 10 };
     const units = engine.getState().units;

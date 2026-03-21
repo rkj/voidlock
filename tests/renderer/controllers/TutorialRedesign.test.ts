@@ -39,14 +39,15 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
       pendingAction: null,
     };
     selectedUnitId = null;
-    manager = new TutorialManager(
-      gameClient, 
-      campaignManager as any, 
-      menuController as any,
-      onMessage, 
-      () => selectedUnitId,
-      uiOrchestrator
-    );
+    manager = new TutorialManager({
+      gameClient: gameClient,
+      campaignManager: campaignManager as any,
+      menuController: menuController as any,
+      onMessage: onMessage,
+      getSelectedUnitId: () => selectedUnitId,
+      uiOrchestrator: uiOrchestrator,
+      getRenderer: () => null
+    });
     
     // Clear localStorage
     localStorage.clear();

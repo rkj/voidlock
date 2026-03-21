@@ -20,14 +20,16 @@ describe("Prologue Honest Difficulty & Scripted Rescue", () => {
   };
 
   it("should remove HP clamp and implement scripted rescue in prologue", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      12345,
-      squadConfig,
-      false, // agentControlEnabled
-      false, // debugOverlayEnabled
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: // agentControlEnabled
+      false,
+      missionType: // debugOverlayEnabled
       MissionType.Prologue
-    );
+    });
 
     const state = engine.getState();
     const unit = state.units[0];
@@ -50,14 +52,14 @@ describe("Prologue Honest Difficulty & Scripted Rescue", () => {
   });
 
   it("should spawn the tutorial enemy with correct stats in prologue", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      12345,
-      squadConfig,
-      false,
-      false,
-      MissionType.Prologue
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Prologue
+    });
 
     const state = engine.getState();
     const tutorialEnemy = state.enemies.find(e => e.type === EnemyType.Tutorial);

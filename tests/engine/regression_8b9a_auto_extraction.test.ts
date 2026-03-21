@@ -33,13 +33,14 @@ describe("Regression 8b9a: Auto Extraction Discovery", () => {
       map.cells.push({ x, y: 0, type: CellType.Floor });
     }
 
-    const engine = new CoreEngine(
-      map,
-      1,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true, // Agent control enabled
-      false,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 1,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // Agent control enabled
+      false
+    });
 
     engine.applyCommand({
       type: CommandType.EXPLORE,

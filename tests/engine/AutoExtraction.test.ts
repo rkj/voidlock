@@ -25,13 +25,15 @@ describe("Auto Extraction Logic", () => {
       });
     }
 
-    const engine = new CoreEngine(
-      map,
-      1,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true, // Agent control enabled
-      false, // random seed
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 1,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // Agent control enabled
+      false,
+      missionType: // random seed
+    });
 
     // Initial tick to spawn
     engine.update(100);

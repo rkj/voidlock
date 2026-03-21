@@ -21,13 +21,14 @@ describe("Collection Interruption Repro", () => {
 
   it("should start collection and NOT be interrupted by autonomous exploration", () => {
     // Enable agent control (AI)
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true, // agentControlEnabled: true
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled: true
+      false
+    });
 
     const realUnit = (engine as any).state.units[0];
 

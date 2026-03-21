@@ -39,13 +39,13 @@ describe("AI Efficiency (Complex Map)", () => {
 
   beforeEach(() => {
     Logger.setLevel(LogLevel.DEBUG);
-    engine = new CoreEngine(
-      complexMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-    );
+    engine = new CoreEngine({
+      map: complexMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

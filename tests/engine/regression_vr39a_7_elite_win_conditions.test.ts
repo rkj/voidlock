@@ -36,15 +36,26 @@ describe("Regression voidlock-vr39a.7: Elite Escort/DestroyHive win conditions",
     (engine as any).state;
 
   it("should LOSE Elite Escort mission if VIP extracts but other mandatory objectives are not complete", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-      false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Elite"
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Elite"
+    });
 
     const state = getInternalState(engine);
     expect(state.nodeType).toBe("Elite");
@@ -73,15 +84,26 @@ describe("Regression voidlock-vr39a.7: Elite Escort/DestroyHive win conditions",
   });
 
   it("should win Elite DestroyHive mission only after all objectives are complete and squad is gone", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.DestroyHive,
-      false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Elite"
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.DestroyHive,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Elite"
+    });
 
     const state = getInternalState(engine);
     expect(state.objectives.length).toBeGreaterThan(1);
@@ -98,15 +120,26 @@ describe("Regression voidlock-vr39a.7: Elite Escort/DestroyHive win conditions",
     expect(engine.getState().status).toBe("Lost");
 
     // Re-test with all complete
-    const engine2 = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.DestroyHive,
-      false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Elite"
-    );
+    const engine2 = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.DestroyHive,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Elite"
+    });
     const state2 = getInternalState(engine2);
     state2.objectives.forEach(o => o.state = "Completed");
     state2.units.forEach(u => u.hp = 0);

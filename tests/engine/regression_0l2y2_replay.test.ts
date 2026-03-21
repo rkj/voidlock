@@ -23,14 +23,16 @@ describe("Mission Replay Regression", () => {
   const squadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
   it("should reproduce the same state in Replay mode", () => {
     const seed = 12345;
-    const engineSim = new CoreEngine(
-      mockMap,
-      seed,
-      squadConfig,
-      false, // agentControl
-      false, // debug
-      MissionType.Default,
-    );
+    const engineSim = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: // agentControl
+      false,
+      missionType: // debug
+      MissionType.Default
+    });
 
     // 1. Simulation Phase
     engineSim.update(112);
@@ -51,20 +53,20 @@ describe("Mission Replay Regression", () => {
     expect(commandLog[1].command).toEqual(moveCmd);
 
     // 2. Replay Phase
-    const engineReplay = new CoreEngine(
-      mockMap,
-      seed,
-      squadConfig,
-      false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
-      EngineMode.Replay,
-      commandLog,
-    );
+    const engineReplay = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Replay,
+      initialCommandLog: commandLog
+    });
 
     engineReplay.update(112); // Should trigger no command yet
     engineReplay.update(1008); // Should trigger command and move

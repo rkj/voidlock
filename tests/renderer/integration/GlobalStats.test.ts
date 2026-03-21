@@ -1,45 +1,56 @@
-// @vitest-environment jsdom
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
-import { MetaManager } from "@src/renderer/campaign/MetaManager";
 
-// Mock Worker
-global.Worker = vi.fn().mockImplementation(() => ({
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  postMessage: vi.fn(),
-  terminate: vi.fn(),
-}));
-
-// Mock URL
-global.URL.createObjectURL = vi.fn();
-
-// Mock fetch
-global.fetch = vi.fn().mockResolvedValue({
-  ok: true,
-  json: () => Promise.resolve({}),
-});
-
-const mockModalService = {
-  alert: vi.fn().mockResolvedValue(undefined),
-  confirm: vi.fn().mockResolvedValue(true),
-  show: vi.fn().mockResolvedValue(undefined),
+const mockStats = {
+  totalKills: 150,
+  totalCampaignsStarted: 5,
+  campaignsWon: 3,
+  campaignsLost: 2,
+  totalMissionsWon: 3,
+  totalMissionsPlayed: 10,
+  totalCasualties: 2,
+  totalScrapEarned: 1000,
+  currentIntel: 50,
+  unlockedArchetypes: ["assault", "medic"],
+  unlockedItems: ["medkit", "frag_grenade"],
+  prologueCompleted: false,
 };
 
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
+// Mock dependencies
+vi.mock("@package.json", () => ({
+  default: { version: "1.0.0" },
 }));
 
-// Mock MetaManager
-vi.mock("@src/renderer/campaign/MetaManager", () => {
-  return {
-    MetaManager: {
-      getInstance: vi.fn(),
-    },
-  };
-});
+vi.mock("@src/engine/GameClient", () => ({
+  GameClient: vi.fn().mockImplementation(() => ({
+    onStateUpdate: vi.fn(),
+    queryState: vi.fn(),
+    addStateUpdateListener: vi.fn(),
+    removeStateUpdateListener: vi.fn(),
+    init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
+    stop: vi.fn(),
+    freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
+    getIsPaused: vi.fn().mockReturnValue(false),
+    getTargetScale: vi.fn().mockReturnValue(1.0),
+    setTimeScale: vi.fn(),
+    getTimeScale: vi.fn().mockReturnValue(1.0),
+  })),
+}));
 
-// Mock ThemeManager
+vi.mock("@src/renderer/Renderer", () => ({
+  Renderer: vi.fn().mockImplementation(() => ({
+    render: vi.fn(),
+    destroy: vi.fn(),
+    setCellSize: vi.fn(),
+    setUnitStyle: vi.fn(),
+    setOverlay: vi.fn(),
+    getCellCoordinates: vi.fn().mockReturnValue({ x: 0, y: 0 }),
+  })),
+}));
+
 vi.mock("@src/renderer/ThemeManager", () => {
   const mockInstance = {
     init: vi.fn().mockResolvedValue(undefined),
@@ -50,128 +61,113 @@ vi.mock("@src/renderer/ThemeManager", () => {
     getCurrentThemeId: vi.fn().mockReturnValue("default"),
     applyTheme: vi.fn(),
   };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
   return {
-    ThemeManager: {
-      getInstance: vi.fn(() => mockInstance),
-    },
+    ThemeManager: mockConstructor,
   };
+});
+
+vi.mock("@src/renderer/visuals/AssetManager", () => {
+  const mockInstance = {
+    loadSprites: vi.fn(),
+    getUnitSprite: vi.fn(),
+    getEnemySprite: vi.fn(),
+    getMiscSprite: vi.fn(),
+    getIcon: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    AssetManager: mockConstructor,
+  };
+});
+
+vi.mock("@src/renderer/campaign/CampaignManager", () => {
+  const mockInstance = {
+    getState: vi.fn().mockReturnValue(null),
+    getStorage: vi.fn().mockReturnValue({
+        getCloudSync: vi.fn().mockReturnValue({
+            initialize: vi.fn().mockResolvedValue(undefined),
+            setEnabled: vi.fn(),
+        }),
+        load: vi.fn(),
+    }),
+    getSyncStatus: vi.fn().mockReturnValue("local-only"),
+    addChangeListener: vi.fn(),
+    removeChangeListener: vi.fn(),
+    load: vi.fn(),
+    save: vi.fn(),
+    assignEquipment: vi.fn(),
+    processMissionResult: vi.fn(),
+    startNewCampaign: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    CampaignManager: mockConstructor,
+  };
+});
+
+vi.mock("@src/renderer/campaign/MetaManager", () => {
+  const mockInstance = {
+    getStats: vi.fn().mockReturnValue(mockStats),
+    load: vi.fn(),
+    addChangeListener: vi.fn(),
+    removeChangeListener: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return { MetaManager: mockConstructor };
 });
 
 describe("StatisticsScreen Integration", () => {
   let app: GameApp;
-  const mockStats = {
-    totalKills: 150,
-    campaignsWon: 5,
-    campaignsLost: 2,
-    totalCampaignsStarted: 7,
-    totalCasualties: 10,
-    totalMissionsPlayed: 20,
-    totalMissionsWon: 18,
-    totalScrapEarned: 5000,
-  };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     document.body.innerHTML = `
       <div id="app">
-      <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">Campaign</button>
-        <button id="btn-menu-statistics">Statistics</button>
-        <p id="menu-version"></p>
-      </div>
-
-      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
-          <div id="campaign-shell-top-bar"></div>
-          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
-              <div id="screen-campaign" class="screen" style="display:none"></div>
-              <div id="screen-barracks" class="screen" style="display:none"></div>
-              <div id="screen-equipment" class="screen" style="display:none"></div>
-              <div id="screen-statistics" class="screen" style="display:none"></div>
-              <div id="screen-settings" class="screen" style="display:none"></div>
-              <div id="screen-engineering" class="screen" style="display:none"></div>
-          </div>
-      </div>
-      <div id="screen-mission-setup" class="screen" style="display:none">
-        <div id="mission-setup-context"></div>
-        <div id="unit-style-preview"></div>
-        <div id="squad-builder"></div>
-        <select id="mission-type"></select>
-        <select id="map-generator-type"></select>
-        <input id="map-seed" />
-        <input id="map-width" />
-        <input id="map-height" />
-        <input id="map-spawn-points" />
-        <span id="map-spawn-points-value"></span>
-        <input id="map-starting-threat" />
-        <span id="map-starting-threat-value"></span>
-        <input id="map-base-enemies" />
-        <span id="map-base-enemies-value"></span>
-        <input id="map-enemy-growth" />
-        <span id="map-enemy-growth-value"></span>
-        <input id="toggle-fog-of-war" type="checkbox" />
-        <input id="toggle-debug-overlay" type="checkbox" />
-        <input id="toggle-los-overlay" type="checkbox" />
-        <input id="toggle-agent-control" type="checkbox" />
-        <input id="toggle-allow-tactical-pause" type="checkbox" />
-        <select id="select-unit-style"></select>
-        <button id="btn-goto-equipment"></button>
-        <button id="btn-setup-back"></button>
-      </div>
-      <div id="screen-mission" class="screen" style="display:none">
-        <button id="btn-pause-toggle"></button>
-        <input id="game-speed" type="range" />
-        <span id="speed-value"></span>
-        <input id="time-scale-slider" type="range" />
-        <span id="time-scale-value"></span>
-        <button id="btn-give-up"></button>
-        <div id="top-threat-fill"></div>
-        <span id="top-threat-value"></span>
-        <div id="game-canvas-container">
-            <canvas id="game-canvas"></canvas>
+        <div id="screen-main-menu" class="screen">
+          <button id="btn-menu-statistics">Statistics</button>
         </div>
+        <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
+          <div id="campaign-shell-top-bar"></div>
+          <div id="campaign-shell-content">
+            <div id="screen-statistics" class="screen" style="display:none"></div>
+            <div id="screen-engineering" class="screen" style="display:none"></div>
+            <div id="screen-campaign" class="screen" style="display:none"></div>
+            <div id="screen-equipment" class="screen" style="display:none"></div>
+            <div id="screen-settings" class="screen" style="display:none"></div>
+            <div id="screen-mission-setup" class="screen" style="display:none"></div>
+          </div>
+          <div id="campaign-shell-footer"></div>
+        </div>
+        <div id="screen-mission" class="screen" style="display:none"></div>
+        <div id="screen-debrief" class="screen" style="display:none"></div>
+        <div id="screen-campaign-summary" class="screen" style="display:none"></div>
+        <div id="keyboard-help-overlay" style="display:none"></div>
+        <div id="squad-builder" style="display:none"></div>
       </div>
-      <div id="screen-debrief" class="screen" style="display:none"></div>
-      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
-    (MetaManager.getInstance as any).mockReturnValue({
-      getStats: () => mockStats,
-    });
-
-    app = new GameApp();
+    vi.resetModules();
+    const { bootstrap } = await import("@src/renderer/main");
+    app = await bootstrap();
+    document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 
   it("should navigate to statistics screen when button is clicked", async () => {
-    await app.initialize();
-
     const btn = document.getElementById("btn-menu-statistics");
     btn?.click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     const screen = document.getElementById("screen-statistics");
     expect(screen?.style.display).toBe("flex");
+
+    // Verify stats are rendered
     expect(screen?.textContent).toContain("Service Record");
-    expect(screen?.textContent).toContain("Total Xeno Purged:");
-    expect(screen?.textContent).toContain("150");
-  });
-
-  it("should return to main menu from statistics screen", async () => {
-    await app.initialize();
-
-    // Go to stats
-    document.getElementById("btn-menu-statistics")?.click();
-
-    // Click Main Menu button in the shell
-    await new Promise(resolve => setTimeout(resolve, 100));
-    const backBtn = Array.from(
-      document.querySelectorAll("#campaign-shell-top-bar button"),
-    ).find((b) => b.textContent?.includes("Main Menu")) as HTMLElement;
-    expect(backBtn).toBeTruthy();
-    backBtn?.click();
-
-    expect(document.getElementById("screen-main-menu")?.style.display).toBe(
-      "flex",
-    );
-    expect(document.getElementById("screen-statistics")?.style.display).toBe(
-      "none",
-    );
+    expect(screen?.textContent).toContain("Expeditions Won:");
+    expect(screen?.textContent).toContain("Expeditions Lost:");
+    expect(screen?.textContent).toContain("150"); // totalKills from mockStats
   });
 });

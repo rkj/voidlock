@@ -1,13 +1,14 @@
 import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { GameState, UnitState } from "@src/shared/types";
-import { ThemeManager } from "@src/renderer/ThemeManager";
 import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class OverlayLayer implements RenderLayer {
-  private theme = ThemeManager.getInstance();
+  private get theme() {
+    return this.sharedState.theme;
+  }
 
   constructor(private sharedState: SharedRendererState) {}
 

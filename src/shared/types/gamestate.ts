@@ -1,6 +1,6 @@
 import { Vector2 } from "./geometry";
 import { LootItem, Mine, Turret } from "./items";
-import { MapDefinition, Objective } from "./map";
+import { MapDefinition, Objective, MapGeneratorType } from "./map";
 import { Command, Enemy, SquadConfig, Unit, UnitStyle } from "./units";
 import { CampaignNodeType } from "../campaign_types";
 
@@ -115,42 +115,54 @@ export type GameState = {
   snapshots?: GameState[];
 };
 
+export interface CoreEngineConfig {
+  map: MapDefinition;
+  seed: number;
+  width?: number;
+  height?: number;
+  spawnPointCount?: number;
+  bonusLootCount?: number;
+  fogOfWarEnabled?: boolean;
+  debugOverlayEnabled?: boolean;
+  debugSnapshots?: boolean;
+  debugSnapshotInterval?: number;
+  agentControlEnabled?: boolean;
+  unitStyle?: UnitStyle;
+  themeId?: string;
+  squadConfig: SquadConfig;
+  missionType?: MissionType;
+  nodeType?: CampaignNodeType;
+  losOverlayEnabled?: boolean;
+  startingThreatLevel?: number;
+  baseEnemyCount?: number;
+  enemyGrowthPerMission?: number;
+  missionDepth?: number;
+  startingPoints?: number;
+  initialTimeScale?: number;
+  startPaused?: boolean;
+  allowTacticalPause?: boolean;
+  mode?: EngineMode;
+  initialCommandLog?: CommandLogEntry[];
+  initialSnapshots?: GameState[];
+  targetTick?: number;
+  targetTimeScale?: number;
+  campaignNodeId?: string;
+  skipDeployment?: boolean;
+  sessionId?: string;
+}
+
+export interface GameClientConfig extends Omit<CoreEngineConfig, "map" | "initialCommandLog"> {
+  mapGeneratorType: MapGeneratorType;
+  map?: MapDefinition; // Renamed from mapData for consistency
+  commandLog?: CommandLogEntry[];
+}
+
 // --- Protocol ---
 
 export type WorkerMessage =
   | {
       type: "INIT";
-      payload: {
-        seed: number;
-        map: MapDefinition;
-        fogOfWarEnabled: boolean;
-        debugOverlayEnabled: boolean;
-        debugSnapshots?: boolean;
-        debugSnapshotInterval?: number;
-        agentControlEnabled: boolean;
-        unitStyle?: UnitStyle;
-        themeId?: string;
-        squadConfig: SquadConfig;
-        missionType?: MissionType;
-        nodeType?: CampaignNodeType;
-        losOverlayEnabled?: boolean;
-        startingThreatLevel?: number;
-        baseEnemyCount?: number;
-        enemyGrowthPerMission?: number;
-        missionDepth?: number;
-        startingPoints?: number;
-        initialTimeScale?: number;
-        startPaused?: boolean;
-        allowTacticalPause?: boolean;
-        mode?: EngineMode;
-        commandLog?: CommandLogEntry[];
-        initialSnapshots?: GameState[];
-        targetTick?: number;
-        targetTimeScale?: number;
-        campaignNodeId?: string;
-        skipDeployment?: boolean;
-        sessionId?: string;
-      };
+      payload: CoreEngineConfig;
     }
   | { type: "COMMAND"; payload: Command }
   | { type: "QUERY_STATE" }

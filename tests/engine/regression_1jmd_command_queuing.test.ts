@@ -29,14 +29,15 @@ describe("Regression 1jmd: Command Queuing", () => {
   }
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true, // agentControlEnabled
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled
       false,
-      MissionType.Default,
-    );
+      missionType: MissionType.Default
+    });
   });
 
   it("should append commands to the queue when 'queue' flag is true", () => {

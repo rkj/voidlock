@@ -34,6 +34,7 @@ describe("InputManager", () => {
       getScreenElement: vi.fn(() => document.createElement("div")),
     };
     mockMenuController = {
+      getRenderableState: vi.fn().mockReturnValue({}),
       menuState: "ACTION_SELECT",
       goBack: vi.fn(),
     };
@@ -55,6 +56,10 @@ describe("InputManager", () => {
     inputManager = new InputManager({
       screenManager: mockScreenManager,
       menuController: mockMenuController,
+      inputDispatcher: {
+        pushContext: vi.fn(),
+        popContext: vi.fn(),
+      } as any,
       togglePause,
       handleMenuInput,
       abortMission,
@@ -84,7 +89,7 @@ describe("InputManager", () => {
   it("should toggle debug overlay on Backquote", () => {
     // Current InputManager uses e.key === "~" || e.key === "`"
     const event = new KeyboardEvent("keydown", { key: "`" });
-    document.dispatchEvent(event);
+    inputManager.handleKeyDown(event);
 
     expect(onToggleDebug).toHaveBeenCalledWith(true);
   });
@@ -94,14 +99,14 @@ describe("InputManager", () => {
     const event = new KeyboardEvent("keydown", {
       key: "l",
     });
-    document.dispatchEvent(event);
+    inputManager.handleKeyDown(event);
 
     expect(onToggleLos).toHaveBeenCalledWith(true);
   });
 
   it("should toggle pause on Space", () => {
     const event = new KeyboardEvent("keydown", { key: " " });
-    document.dispatchEvent(event);
+    inputManager.handleKeyDown(event);
 
     expect(togglePause).toHaveBeenCalled();
   });

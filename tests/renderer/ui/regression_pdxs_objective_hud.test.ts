@@ -69,18 +69,18 @@ describe("HUDManager Objective Regression PDXS", () => {
       getRenderableState: vi.fn(() => ({ title: "Actions", options: [] })),
     };
 
-    hud = new HUDManager(
-      mockMenuController,
-      { getCurrentStepId: () => null } as any,
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-    );
+    hud = new HUDManager({
+      menuController: mockMenuController,
+      tutorialManager: { getCurrentStepId: () => null } as any,
+      onUnitClick: vi.fn(),
+      onAbortMission: vi.fn(),
+      onMenuInput: vi.fn(),
+      onCopyWorldState: vi.fn(),
+      onForceWin: vi.fn(),
+      onForceLose: vi.fn(),
+      onStartMission: vi.fn(),
+      onDeployUnit: vi.fn()
+    });
   });
 
   it("should NOT show status text (Pending/Completed)", () => {

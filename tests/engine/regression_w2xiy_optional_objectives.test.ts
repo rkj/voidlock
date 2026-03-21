@@ -37,14 +37,14 @@ describe("Regression voidlock-w2xiy: Optional Objectives", () => {
     (engine as any).state;
 
   it("should NOT include map-defined Recover objectives as mandatory in DestroyHive missions", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.DestroyHive,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.DestroyHive
+    });
 
     const state = engine.getState();
     
@@ -58,14 +58,14 @@ describe("Regression voidlock-w2xiy: Optional Objectives", () => {
   });
 
   it("should win DestroyHive mission when Hive is killed and squad is gone, even if optional objectives are pending", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      squadConfig,
-      true,
-      false,
-      MissionType.DestroyHive,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.DestroyHive
+    });
 
     // Kill the hive
     const state = getInternalState(engine);

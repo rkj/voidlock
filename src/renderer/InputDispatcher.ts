@@ -6,25 +6,66 @@ export class InputDispatcher {
   private focusStack: HTMLElement[] = [];
   private nextOrder: number = 0;
 
-  private constructor() {
-    window.addEventListener("keydown", this.handleKeyDown.bind(this), true);
-    window.addEventListener("touchstart", this.handleTouchStart.bind(this), {
+  public constructor() {
+    InputDispatcher.instance = this;
+    if ((window as any).__INPUT_DISPATCHER_INSTANCE__) {
+      (window as any).__INPUT_DISPATCHER_INSTANCE__.destroy();
+    }
+    (window as any).__INPUT_DISPATCHER_INSTANCE__ = this;
+
+    this.handleKeyDownBound = this.handleKeyDown.bind(this);
+    this.handleMouseDownBound = this.handleMouseDown.bind(this);
+    this.handleMouseMoveBound = this.handleMouseMove.bind(this);
+    this.handleMouseUpBound = this.handleMouseUp.bind(this);
+    this.handleTouchStartBound = this.handleTouchStart.bind(this);
+    this.handleTouchMoveBound = this.handleTouchMove.bind(this);
+    this.handleTouchEndBound = this.handleTouchEnd.bind(this);
+    this.handleWheelBound = this.handleWheel.bind(this);
+
+    window.addEventListener("keydown", this.handleKeyDownBound, true);
+    window.addEventListener("touchstart", this.handleTouchStartBound, {
       passive: false,
     });
-    window.addEventListener("touchmove", this.handleTouchMove.bind(this), {
+    window.addEventListener("touchmove", this.handleTouchMoveBound, {
       passive: false,
     });
-    window.addEventListener("touchend", this.handleTouchEnd.bind(this), {
+    window.addEventListener("touchend", this.handleTouchEndBound, {
       passive: false,
     });
-    window.addEventListener("mousedown", this.handleMouseDown.bind(this), true);
-    window.addEventListener("mousemove", this.handleMouseMove.bind(this), true);
-    window.addEventListener("mouseup", this.handleMouseUp.bind(this), true);
-    window.addEventListener("wheel", this.handleWheel.bind(this), {
+    window.addEventListener("mousedown", this.handleMouseDownBound, true);
+    window.addEventListener("mousemove", this.handleMouseMoveBound, true);
+    window.addEventListener("mouseup", this.handleMouseUpBound, true);
+    window.addEventListener("wheel", this.handleWheelBound, {
       passive: false,
     });
   }
 
+  private handleKeyDownBound: (e: KeyboardEvent) => void;
+  private handleMouseDownBound: (e: MouseEvent) => void;
+  private handleMouseMoveBound: (e: MouseEvent) => void;
+  private handleMouseUpBound: (e: MouseEvent) => void;
+  private handleTouchStartBound: (e: TouchEvent) => void;
+  private handleTouchMoveBound: (e: TouchEvent) => void;
+  private handleTouchEndBound: (e: TouchEvent) => void;
+  private handleWheelBound: (e: WheelEvent) => void;
+
+  public destroy() {
+    console.log("[InputDispatcher] destroy");
+    window.removeEventListener("keydown", this.handleKeyDownBound, true);
+    window.removeEventListener("touchstart", this.handleTouchStartBound);
+    window.removeEventListener("touchmove", this.handleTouchMoveBound);
+    window.removeEventListener("touchend", this.handleTouchEndBound);
+    window.removeEventListener("mousedown", this.handleMouseDownBound, true);
+    window.removeEventListener("mousemove", this.handleMouseMoveBound, true);
+    window.removeEventListener("mouseup", this.handleMouseUpBound, true);
+    window.removeEventListener("wheel", this.handleWheelBound);
+    this.contextStack = [];
+    this.focusStack = [];
+  }
+
+  /**
+   * @deprecated Use constructor injection via AppServiceRegistry.
+   */
   public static getInstance(): InputDispatcher {
     if (!InputDispatcher.instance) {
       InputDispatcher.instance = new InputDispatcher();
@@ -33,6 +74,7 @@ export class InputDispatcher {
   }
 
   public pushContext(context: InputContext) {
+    console.log("[InputDispatcher] pushContext:", context.id, "stack before:", this.contextStack.map(c => c.id));
     context._order = this.nextOrder++;
 
     const existingIndex = this.contextStack.findIndex(
@@ -88,6 +130,7 @@ export class InputDispatcher {
   }
 
   private handleKeyDown(e: KeyboardEvent) {
+    console.log("[InputDispatcher] handleKeyDown:", e.key, "stack:", this.contextStack.map(c => c.id));
     const topFocusTrap = this.contextStack.find(
       (c) => c.trapsFocus && c.container,
     );

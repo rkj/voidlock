@@ -25,7 +25,13 @@ describe("Squad Configuration in CoreEngine", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const state = engine.getState();
 
     // Total units should be 3
@@ -45,7 +51,13 @@ describe("Squad Configuration in CoreEngine", () => {
 
   it("should handle empty squad config", () => {
     const squadConfig: SquadConfig = { soldiers: [], inventory: {} };
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const state = engine.getState();
     expect(state.units.length).toBe(0);
   });
@@ -55,7 +67,13 @@ describe("Squad Configuration in CoreEngine", () => {
       soldiers: Array(10).fill({ archetypeId: "assault" }),
       inventory: {},
     };
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const state = engine.getState();
     expect(state.units.length).toBe(10);
   });
@@ -65,7 +83,13 @@ describe("Squad Configuration in CoreEngine", () => {
       soldiers: [{ archetypeId: "invalid-id" }, { archetypeId: "assault" }],
       inventory: {},
     };
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     const state = engine.getState();
     expect(state.units.length).toBe(1); // Only the assault unit
   });

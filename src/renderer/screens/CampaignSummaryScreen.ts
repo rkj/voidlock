@@ -5,13 +5,15 @@ import { UIUtils } from "../utils/UIUtils";
 
 export class CampaignSummaryScreen {
   private container: HTMLElement;
+  private inputDispatcher: InputDispatcher;
   private onMainMenu: () => void;
   private state: CampaignState | null = null;
 
-  constructor(containerId: string, onMainMenu: () => void) {
+  constructor(containerId: string, inputDispatcher: InputDispatcher, onMainMenu: () => void) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
+    this.inputDispatcher = inputDispatcher;
     this.onMainMenu = onMainMenu;
   }
 
@@ -24,11 +26,11 @@ export class CampaignSummaryScreen {
 
   public hide() {
     this.container.style.display = "none";
-    InputDispatcher.getInstance().popContext("campaign-summary");
+    this.inputDispatcher.popContext("campaign-summary");
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "campaign-summary",
       priority: InputPriority.UI,
       trapsFocus: true,

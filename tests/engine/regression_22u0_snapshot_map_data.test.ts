@@ -27,7 +27,31 @@ describe("Snapshot Map Data Regression (voidlock-22u0)", () => {
       soldiers: [{ archetypeId: "assault" }],
       inventory: {},
     };
-    const engine = new CoreEngine(mockMap, 123, defaultSquad, false, false, undefined, false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Combat", undefined, undefined, true, true, 16);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: undefined,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: true,
+      debugSnapshots: true,
+      debugSnapshotInterval: 16
+    });
     
     // First getState should have cells
     const firstState = engine.getState(true);

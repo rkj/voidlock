@@ -32,21 +32,17 @@ describe("Global Error Logging (main.ts)", () => {
     });
 
     // Use dynamic import to trigger the execution of main.ts
-    // We use a relative path from the test file to the src file
-    await import("../../src/renderer/main");
+    const { bootstrap } = await import("../../src/renderer/main");
+    await bootstrap();
 
-    // Verify error logging
+    // Verify handlers are set
+    expect(typeof window.onerror).toBe("function");
+    expect(typeof window.onunhandledrejection).toBe("function");
+
+    // Verify error logging by calling it directly
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-    window.dispatchEvent(
-      new ErrorEvent("error", {
-        message: "Test Error",
-        filename: "test.js",
-        lineno: 1,
-        colno: 1,
-        error: new Error("Test Error"),
-      }),
-    );
+    
+    (window as any).onerror("Test Error", "test.js", 1, 1, new Error("Test Error"));
 
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining("Global Error (main.ts):"),
@@ -54,14 +50,9 @@ describe("Global Error Logging (main.ts)", () => {
     );
 
     // Verify unhandledrejection logging
-    const p = Promise.reject("Test Rejection");
-    p.catch(() => {}); // Prevent leak to Vitest
-    window.dispatchEvent(
-      new PromiseRejectionEvent("unhandledrejection", {
-        reason: "Test Rejection",
-        promise: p,
-      }),
-    );
+    (window as any).onunhandledrejection({
+        reason: "Test Rejection"
+    });
 
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining("Unhandled Promise Rejection (main.ts):"),

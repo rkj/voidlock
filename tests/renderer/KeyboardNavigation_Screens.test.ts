@@ -1,40 +1,33 @@
-// @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
-import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
-import { InputDispatcher } from "@src/renderer/InputDispatcher";
-import { SquadConfig } from "@src/shared/types";
+/**
+ * @vitest-environment jsdom
+ */
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MainMenuScreen } from "@src/renderer/screens/MainMenuScreen";
 import { MissionSetupScreen } from "@src/renderer/screens/MissionSetupScreen";
-
-// Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
+import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
+import { SquadConfig } from "@src/shared/types";
 
 describe("Screen Keyboard Navigation Integration", () => {
   let dispatcher: InputDispatcher;
 
   beforeEach(() => {
     document.body.innerHTML = `
-      <div id="screen-campaign"></div>
-      <div id="screen-equipment"></div>
       <div id="screen-main-menu"></div>
       <div id="screen-mission-setup"></div>
+      <div id="screen-campaign"></div>
+      <div id="screen-equipment"></div>
     `;
-    dispatcher = InputDispatcher.getInstance();
-    // @ts-ignore
-    dispatcher.contextStack = [];
+    dispatcher = new InputDispatcher();
   });
 
   it("MainMenuScreen should push and pop input context", () => {
-    const screen = new MainMenuScreen("screen-main-menu");
+    const screen = new MainMenuScreen("screen-main-menu", dispatcher);
 
-    // @ts-ignore
+    // @ts-ignore - access private for test
     expect(dispatcher.contextStack.length).toBe(0);
 
     screen.show();
@@ -49,8 +42,11 @@ describe("Screen Keyboard Navigation Integration", () => {
   });
 
   it("MissionSetupScreen should push and pop input context", () => {
-    const onBack = vi.fn();
-    const screen = new MissionSetupScreen("screen-mission-setup", onBack);
+    const screen = new MissionSetupScreen({
+      containerId: "screen-mission-setup",
+      inputDispatcher: dispatcher,
+      onBack: () => {},
+    });
 
     // @ts-ignore
     expect(dispatcher.contextStack.length).toBe(0);
@@ -67,20 +63,18 @@ describe("Screen Keyboard Navigation Integration", () => {
   });
 
   it("CampaignScreen should push and pop input context", () => {
-    CampaignManager.resetInstance();
     const manager = CampaignManager.getInstance(new MockStorageProvider());
-    manager.startNewCampaign(12345, "normal");
+    manager.startNewCampaign(12345, "Standard");
 
-    const onNodeSelect = vi.fn();
-    const mockModalService = {} as any;
-
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
-      onNodeSelect,
-      () => {},
-    );
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: { getAssetUrl: vi.fn(), getColor: vi.fn() } as any,
+      inputDispatcher: dispatcher,
+      modalService: {} as any,
+      onNodeSelect: () => {},
+      onMainMenu: () => {},
+    });
 
     // @ts-ignore
     expect(dispatcher.contextStack.length).toBe(0);
@@ -97,26 +91,23 @@ describe("Screen Keyboard Navigation Integration", () => {
   });
 
   it("EquipmentScreen should push and pop input context", () => {
-    CampaignManager.resetInstance();
     const manager = CampaignManager.getInstance(new MockStorageProvider());
-    const onBack = vi.fn();
-    const onSave = vi.fn();
-    const mockConfig: SquadConfig = {
+    manager.startNewCampaign(12345, "Standard");
+
+    const initialConfig: SquadConfig = {
       soldiers: [],
-      items: [],
       inventory: {},
-      missionsCompleted: 0,
-      totalScrap: 0,
+      allowTacticalPause: true,
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      manager,
-      {} as any, // modalService
-      mockConfig,
-      onSave,
-      onBack,
-    );
+    const screen = new EquipmentScreen({
+      containerId: "screen-equipment",
+      campaignManager: manager,
+      inputDispatcher: dispatcher,
+      modalService: {} as any,
+      currentSquad: initialConfig,
+      onBack: () => {},
+    });
 
     // @ts-ignore
     expect(dispatcher.contextStack.length).toBe(0);

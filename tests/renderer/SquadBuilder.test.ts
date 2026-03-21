@@ -37,16 +37,16 @@ describe("SquadBuilder Component", () => {
   });
 
   it("should render roster and deployment panels", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     expect(container.querySelector(".roster-panel")).not.toBeNull();
@@ -57,16 +57,16 @@ describe("SquadBuilder Component", () => {
 
   it("should show total soldiers count", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     const countDiv = document.getElementById("squad-total-count");
@@ -74,16 +74,16 @@ describe("SquadBuilder Component", () => {
   });
 
   it("should disable launch button if squad is empty", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     const launchBtn = document.getElementById(
@@ -94,16 +94,16 @@ describe("SquadBuilder Component", () => {
 
   it("should enable launch button if squad has members", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     const launchBtn = document.getElementById(
@@ -113,16 +113,16 @@ describe("SquadBuilder Component", () => {
   });
 
   it("should lock first slot for Escort VIP mission", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.EscortVIP,
-      false,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.EscortVIP,
+      isCampaign: false,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     expect(container.querySelectorAll(".deployment-slot").length).toBe(5);
@@ -133,16 +133,16 @@ describe("SquadBuilder Component", () => {
   });
 
   it("should not have visible slot labels but have aria-labels", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     const slots = container.querySelectorAll(".deployment-slot");
@@ -154,16 +154,16 @@ describe("SquadBuilder Component", () => {
 
   it("should allow adding to squad via dblclick on archetype card", () => {
     const onUpdate = vi.fn();
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false,
-      onUpdate,
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: onUpdate
+    });
     builder.render();
 
     const assaultCard = container.querySelector(
@@ -177,16 +177,16 @@ describe("SquadBuilder Component", () => {
   });
 
   it("should render stats in archetype cards", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     const assaultCard = container.querySelector(
@@ -199,16 +199,16 @@ describe("SquadBuilder Component", () => {
   it("should allow removing from squad via click on X", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
     const onUpdate = vi.fn();
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      context.campaignShell as any,
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false,
-      onUpdate,
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: context.campaignShell as any as any,
+      modalService: context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: onUpdate
+    });
     builder.render();
 
     const removeBtn = container.querySelector(".slot-remove") as HTMLElement;

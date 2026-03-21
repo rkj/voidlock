@@ -49,17 +49,28 @@ describe("MapEntityLayer Visual Styles", () => {
       fillText: vi.fn(),
     };
 
-    sharedState = new SharedRendererState();
+    const mockTheme = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    const mockAssetManager = {
+      iconImages: {
+        Crate: mockCrate,
+        Loot: mockLoot,
+        LootStar: mockLootStar,
+        Objective: mockObjective,
+        ObjectiveDisk: mockObjectiveDisk,
+      },
+      unitSprites: {},
+      enemySprites: {},
+    };
+
+    sharedState = new SharedRendererState(mockTheme as any, mockAssetManager as any);
     sharedState.cellSize = 32;
     layer = new MapEntityLayer(sharedState);
 
     // Setup AssetManager mocks
-    assetManager = AssetManager.getInstance();
-    assetManager.iconImages.Crate = mockCrate;
-    assetManager.iconImages.Loot = mockLoot;
-    assetManager.iconImages.LootStar = mockLootStar;
-    assetManager.iconImages.Objective = mockObjective;
-    assetManager.iconImages.ObjectiveDisk = mockObjectiveDisk;
+    assetManager = mockAssetManager as any;
   });
 
   afterEach(() => {

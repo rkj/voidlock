@@ -20,10 +20,20 @@ export type CampaignShellMode =
   | "global"
   | "none";
 
+export interface CampaignShellConfig {
+  containerId: string;
+  manager: CampaignManager;
+  metaManager: MetaManager;
+  inputDispatcher: InputDispatcher;
+  onTabChange: (tabId: CampaignTabId) => void;
+  onMenu: () => void;
+}
+
 export class CampaignShell {
   private container: HTMLElement;
   private manager: CampaignManager;
   private metaManager: MetaManager;
+  private inputDispatcher: InputDispatcher;
   private onTabChange: (tabId: CampaignTabId) => void;
   private onMenu: () => void;
   private activeTabId: CampaignTabId = "sector-map";
@@ -32,18 +42,14 @@ export class CampaignShell {
   private showTabs: boolean = true;
   private changeListener: () => void;
 
-  constructor(
-    containerId: string,
-    manager: CampaignManager,
-    metaManager: MetaManager,
-    onTabChange: (tabId: CampaignTabId) => void,
-    onMenu: () => void,
-  ) {
+  constructor(config: CampaignShellConfig) {
+    const { containerId, manager, metaManager, inputDispatcher, onTabChange, onMenu } = config;
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = manager;
     this.metaManager = metaManager;
+    this.inputDispatcher = inputDispatcher;
     this.onTabChange = onTabChange;
     this.onMenu = onMenu;
 
@@ -80,11 +86,11 @@ export class CampaignShell {
     this.mode = "none";
     this.activeMissionType = null;
     this.container.style.display = "none";
-    InputDispatcher.getInstance().popContext("campaign-shell");
+    this.inputDispatcher.popContext("campaign-shell");
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "campaign-shell",
       priority: InputPriority.UI - 1, // Slightly lower than active screen
       trapsFocus: false, // Shell shouldn't trap focus because content area needs it

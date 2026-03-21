@@ -1,5 +1,6 @@
 import { MapRenderer } from "./MapRenderer";
 import { MapDefinition } from "../shared/types";
+import { ThemeManager } from "../renderer/ThemeManager";
 
 const mapInput = document.getElementById("map-input") as HTMLTextAreaElement;
 const loadBtn = document.getElementById("load-btn") as HTMLButtonElement;
@@ -21,7 +22,8 @@ const canvasWrapper = document.getElementById(
   "canvas-wrapper",
 ) as HTMLDivElement;
 
-const renderer = new MapRenderer(canvas);
+const themeManager = new ThemeManager();
+const renderer = new MapRenderer(canvas, themeManager);
 let currentMap: MapDefinition | null = null;
 
 // Panning state

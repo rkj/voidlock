@@ -6,56 +6,62 @@ import { UnitStyle } from "@src/shared/types";
 import { UnitStyleSelector } from "@src/renderer/components/UnitStyleSelector";
 import { AssetManager } from "@src/renderer/visuals/AssetManager";
 
-vi.mock("@src/renderer/visuals/AssetManager", () => ({
-  AssetManager: {
-    getInstance: vi.fn(),
-  },
-}));
+vi.mock("@src/renderer/visuals/AssetManager", () => {
+  const mockInstance = {
+    loadSprites: vi.fn(),
+    getUnitSprite: vi.fn(),
+    getEnemySprite: vi.fn(),
+    getMiscSprite: vi.fn(),
+    getIcon: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    AssetManager: mockConstructor,
+  };
+});
 
-describe("UnitStyleSelector - Asset Loading & Missing Placeholders (voidlock-txq8)", () => {
-  let context: any;
+describe("UnitStyleSelector Asset Regression (voidlock-txq8)", () => {
   let container: HTMLElement;
   let mockAssets: any;
+  let mockTheme: any;
 
   beforeEach(() => {
-    document.body.innerHTML = "";
-    container = document.createElement("div");
-    container.id = "unit-style-preview";
-    document.body.appendChild(container);
-
-    mockAssets = {
-      getUnitSprite: vi.fn(),
-      getEnemySprite: vi.fn(),
-      getIcon: vi.fn(),
-      getMiscSprite: vi.fn(),
+    document.body.innerHTML = '<div id="style-preview"></div>';
+    container = document.getElementById("style-preview")!;
+    mockAssets = new AssetManager({} as any);
+    mockTheme = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
     };
-    (AssetManager.getInstance as any).mockReturnValue(mockAssets);
 
-    context = {
-      themeManager: {
-        getColor: vi.fn().mockReturnValue("#000"),
-      },
-    } as any;
-
-    // Mock HTMLCanvasElement.getContext
-    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
+    // Mock Canvas Context
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
       clearRect: vi.fn(),
       fillRect: vi.fn(),
       strokeRect: vi.fn(),
-      beginPath: vi.fn(),
-      arc: vi.fn(),
-      fill: vi.fn(),
-      stroke: vi.fn(),
       fillText: vi.fn(),
-      strokeText: vi.fn(),
-      drawImage: vi.fn(),
+      beginPath: vi.fn(),
       moveTo: vi.fn(),
       lineTo: vi.fn(),
+      stroke: vi.fn(),
+      drawImage: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
       closePath: vi.fn(),
-    });
+      strokeText: vi.fn(),
+      scale: vi.fn(),
+      translate: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      measureText: vi.fn().mockReturnValue({ width: 0 }),
+      createRadialGradient: vi.fn().mockReturnValue({
+        addColorStop: vi.fn(),
+      }),
+    } as any);
   });
 
-  it("should draw '...' when assets are loading", () => {
+  it("should draw 'Loading...' when assets are loading", () => {
     const loadingSprite = {
       complete: false,
       onload: null,
@@ -68,7 +74,8 @@ describe("UnitStyleSelector - Asset Loading & Missing Placeholders (voidlock-txq
 
     const selector = new UnitStyleSelector(
       container,
-      context,
+      mockTheme,
+      mockAssets,
       UnitStyle.Sprites,
       () => {},
     );
@@ -98,7 +105,8 @@ describe("UnitStyleSelector - Asset Loading & Missing Placeholders (voidlock-txq
 
     const selector = new UnitStyleSelector(
       container,
-      context,
+      mockTheme,
+      mockAssets,
       UnitStyle.Sprites,
       () => {},
     );
@@ -125,7 +133,8 @@ describe("UnitStyleSelector - Asset Loading & Missing Placeholders (voidlock-txq
 
     const selector = new UnitStyleSelector(
       container,
-      context,
+      mockTheme,
+      mockAssets,
       UnitStyle.Sprites,
       () => {},
     );

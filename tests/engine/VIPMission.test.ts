@@ -33,14 +33,14 @@ describe("VIP Mission Mechanics", () => {
     (engine as any).state;
 
   it("should fail immediately if a VIP dies", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      false,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     const vip = getInternalState(engine).units.find(
       (u: any) => u.archetypeId === "vip",
@@ -56,14 +56,14 @@ describe("VIP Mission Mechanics", () => {
   });
 
   it("should support multiple VIPs and fail if any one dies", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      false,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     // Manually add a second VIP for testing
     const vip2 = {
@@ -85,14 +85,14 @@ describe("VIP Mission Mechanics", () => {
   });
 
   it("should require all VIPs to be extracted to win", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      false,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     // Manually add a second VIP
     const vip2 = {
@@ -148,14 +148,14 @@ describe("VIP Mission Mechanics", () => {
       }
     }
 
-    const engine = new CoreEngine(
-      mapWithRooms,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      false,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: mapWithRooms,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     const vip = engine.getState().units.find((u) => u.archetypeId === "vip");
     expect(vip).toBeDefined();
@@ -177,28 +177,28 @@ describe("VIP Mission Mechanics", () => {
     `.trim();
     const mapWithWall2 = MapGenerator.fromAscii(asciiMap2);
 
-    const engine2 = new CoreEngine(
-      mapWithWall2,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true,
-      false,
-      MissionType.EscortVIP,
-      false,
-      0,
-      1.0,
-      false,
-      undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      "Combat",
-      undefined,
-      0,
-    );
+    const engine2 = new CoreEngine({
+      map: mapWithWall2,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: 0
+    });
 
     const vip = getInternalState(engine2).units.find(
       (u: Unit) => u.archetypeId === "vip",

@@ -1,15 +1,21 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { SquadConfig } from "@src/shared/types";
 
 describe("EquipmentScreen Squad Size Verification", () => {
+  let mockInputDispatcher: any;
   let container: HTMLElement;
   let mockManager: any;
   let mockModalService: any;
   let onBack: any;
 
   beforeEach(() => {
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
     document.body.innerHTML = '<div id="screen-equipment"></div>';
     container = document.getElementById("screen-equipment")!;
 
@@ -47,17 +53,18 @@ describe("EquipmentScreen Squad Size Verification", () => {
       inventory: {},
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onBack,
-      undefined,
-      undefined,
-      false,
-      true
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onBack,
+      onUpdate: undefined,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     const slots = container.querySelectorAll(".soldier-list-panel [data-focus-id^='soldier-slot-']");
@@ -70,17 +77,18 @@ describe("EquipmentScreen Squad Size Verification", () => {
       inventory: {},
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onBack,
-      undefined,
-      undefined,
-      false,
-      true
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onBack,
+      onUpdate: undefined,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     // Add 4 soldiers
@@ -118,17 +126,18 @@ describe("EquipmentScreen Squad Size Verification", () => {
       inventory: {},
     };
 
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onBack,
-      undefined,
-      undefined,
-      false,
-      true
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onBack,
+      onUpdate: undefined,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true
+    });
     screen.show();
 
     // All slots are full. Clicking another roster item should probably do nothing or replace the last one if we had logic for that, 

@@ -34,7 +34,21 @@ describe("Renderer Stale Graph Regression (voidlock-weyd)", () => {
         addColorStop: vi.fn(),
       }),
     } as any);
-    renderer = new Renderer(canvas);
+    const mockThemeManager = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    const mockAssetManager = {
+      iconImages: {},
+      unitSprites: {},
+      enemySprites: {},
+      getMiscSprite: vi.fn(),
+    };
+    renderer = new Renderer({
+      canvas: canvas,
+      themeManager: mockThemeManager as any,
+      assetManager: mockAssetManager as any
+    });
   });
 
   it("should recreate the graph when the seed changes even if map size and cell count are the same", () => {

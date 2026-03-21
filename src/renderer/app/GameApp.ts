@@ -5,10 +5,12 @@ import {
   CommandType,
   SquadSoldierConfig,
   UnitState,
+  SquadConfig,
 } from "@src/shared/types";
 import {
   calculateSpawnPoints,
   MissionReport,
+  CampaignNode,
 } from "@src/shared/campaign_types";
 import pkg from "../../../package.json";
 import { ConfigManager } from "../ConfigManager";
@@ -25,7 +27,6 @@ import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { SquadBuilder } from "../components/SquadBuilder";
 import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
-import { InputDispatcher } from "../InputDispatcher";
 import { AppServiceRegistry } from "./AppServiceRegistry";
 import { Renderer } from "../Renderer";
 import { Logger } from "@src/shared/Logger";
@@ -120,6 +121,8 @@ export class GameApp {
       panMapBy: (dx, dy) => this.registry.inputOrchestrator.panMapBy(dx, dy),
       zoomMap: (ratio, cx, cy) => this.registry.inputOrchestrator.zoomMap(ratio, cx, cy),
       getRenderer: () => this.renderer,
+      onForceWin: () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN }),
+      onForceLose: () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_LOSE }),
     });
 
     this.initializeScreens();
@@ -140,19 +143,19 @@ export class GameApp {
       document.body.appendChild(sb);
     }
 
-    this.squadBuilder = new SquadBuilder(
-      "squad-builder",
-      this.registry.campaignManager,
-      this.registry.campaignShell,
-      this.registry.modalService,
-      this.registry.missionSetupManager.currentSquad,
-      this.registry.missionSetupManager.currentMissionType,
-      !!this.registry.missionSetupManager.currentCampaignNode,
-      (squad) => {
+    this.squadBuilder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: this.registry.campaignManager,
+      campaignShell: this.registry.campaignShell,
+      modalService: this.registry.modalService,
+      initialSquad: this.registry.missionSetupManager.currentSquad,
+      missionType: this.registry.missionSetupManager.currentMissionType,
+      isCampaign: this.registry.missionSetupManager.isCampaign(),
+      onSquadUpdated: (squad) => {
         this.registry.missionSetupManager.currentSquad = squad;
         this.registry.missionSetupManager.saveCurrentConfig();
       },
-    );
+    });
 
     this.registry.finalizeNavigation(
       {
@@ -169,7 +172,7 @@ export class GameApp {
       this.squadBuilder,
       {
         showMainMenu: () => this.showMainMenu(),
-      }
+      },
     );
 
     // 4. Setup global UI and shortcuts
@@ -186,6 +189,7 @@ export class GameApp {
     this.setupInputBindings();
 
     const globalShortcuts = new GlobalShortcuts(
+      this.registry.inputDispatcher,
       () => this.registry.uiOrchestrator.togglePause(),
       () => this.registry.screenManager.goBack(),
     );
@@ -208,28 +212,37 @@ export class GameApp {
   }
 
   private initializeScreens() {
-    this.mainMenuScreen = new MainMenuScreen("screen-main-menu");
-    this.missionSetupScreen = new MissionSetupScreen(
-      "screen-mission-setup",
-      () => {
+    this.mainMenuScreen = new MainMenuScreen(
+      "screen-main-menu",
+      this.registry.inputDispatcher,
+    );
+    this.missionSetupScreen = new MissionSetupScreen({
+      containerId: "screen-mission-setup",
+      inputDispatcher: this.registry.inputDispatcher,
+      onBack: () => {
         this.registry.screenManager.goBack();
       },
-    );
+    });
 
-    this.campaignScreen = new CampaignScreen(
-      "screen-campaign",
-      this.registry.campaignManager,
-      this.registry.modalService,
-      (node) => this.registry.navigationOrchestrator.onCampaignNodeSelect(node),
-      () => this.showMainMenu(),
-      () => this.onCampaignStart(),
-      () => this.registry.navigationOrchestrator.onShowSummary(),
-    );
+    this.campaignScreen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: this.registry.campaignManager,
+      themeManager: this.registry.themeManager,
+      inputDispatcher: this.registry.inputDispatcher,
+      modalService: this.registry.modalService,
+      onNodeSelect: (node: CampaignNode) => this.registry.navigationOrchestrator.onCampaignNodeSelect(node),
+      onMainMenu: () => this.showMainMenu(),
+      onCampaignStart: () => this.onCampaignStart(),
+      onShowSummary: () => this.registry.navigationOrchestrator.onShowSummary(),
+    });
 
-    this.debriefScreen = new DebriefScreen(
-      "screen-debrief",
-      this.gameClient,
-      () => {
+    this.debriefScreen = new DebriefScreen({
+      containerId: "screen-debrief",
+      gameClient: this.gameClient,
+      themeManager: this.registry.themeManager,
+      assetManager: this.registry.assetManager,
+      inputDispatcher: this.registry.inputDispatcher,
+      onContinue: () => {
         Logger.debug("[GameApp] Debrief continue clicked");
         this.debriefScreen.hide();
 
@@ -261,24 +274,25 @@ export class GameApp {
           this.showMainMenu();
         }
       },
-      () => {
+      onReplay: () => {
         this.debriefScreen.hide();
         this.registry.missionRunner.launchMission();
       },
-      () => this.registry.uiOrchestrator.exportReplay(),
-    );
+      onExport: () => this.registry.uiOrchestrator.exportReplay(),
+    });
 
-    this.equipmentScreen = new EquipmentScreen(
-      "screen-equipment",
-      this.registry.campaignManager,
-      this.registry.modalService,
-      this.registry.missionSetupManager.currentSquad,
-      (config) => this.registry.navigationOrchestrator.onEquipmentBack(config),
-      () => this.registry.campaignShell.refresh(),
-      (config) => {
+    this.equipmentScreen = new EquipmentScreen({
+      containerId: "screen-equipment",
+      campaignManager: this.registry.campaignManager,
+      inputDispatcher: this.registry.inputDispatcher,
+      modalService: this.registry.modalService,
+      currentSquad: this.registry.missionSetupManager.currentSquad,
+      onBack: (config: SquadConfig) => this.registry.navigationOrchestrator.onEquipmentBack(config),
+      onUpdate: () => this.registry.campaignShell.refresh(),
+      onLaunch: (config: SquadConfig) => {
         if (this.registry.missionSetupManager.currentMissionType === MissionType.Prologue) {
           // Manually save for Prologue since we intercept the launch
-          config.soldiers.forEach((soldier) => {
+          config.soldiers.forEach((soldier: SquadSoldierConfig) => {
             if (soldier.id) {
               this.registry.campaignManager.assignEquipment(soldier.id, {
                 rightHand: soldier.rightHand,
@@ -305,21 +319,30 @@ export class GameApp {
           this.registry.navigationOrchestrator.onLaunchMission(config);
         }
       },
-      false, // isShop
-      false, // isCampaign
-    );
+      isShop: false,
+      isCampaign: false,
+    });
 
-    this.statisticsScreen = new StatisticsScreen("screen-statistics", this.registry.metaManager);
-    this.engineeringScreen = new EngineeringScreen("screen-engineering", this.registry.metaManager, () =>
-      this.registry.campaignShell.refresh(),
-    );
+    this.statisticsScreen = new StatisticsScreen({
+      containerId: "screen-statistics",
+      metaManager: this.registry.metaManager,
+      inputDispatcher: this.registry.inputDispatcher,
+    });
+    this.engineeringScreen = new EngineeringScreen({
+      containerId: "screen-engineering",
+      metaManager: this.registry.metaManager,
+      inputDispatcher: this.registry.inputDispatcher,
+      onUpdate: () => this.registry.campaignShell.refresh(),
+    });
 
-    this.settingsScreen = new SettingsScreen(
-      "screen-settings",
-      this.registry.themeManager,
-      this.registry.cloudSync,
-      this.registry.modalService,
-      () => {
+    this.settingsScreen = new SettingsScreen({
+      containerId: "screen-settings",
+      themeManager: this.registry.themeManager,
+      assetManager: this.registry.assetManager,
+      inputDispatcher: this.registry.inputDispatcher,
+      cloudSync: this.registry.cloudSync,
+      modalService: this.registry.modalService,
+      onBack: () => {
         this.registry.screenManager.goBack();
         const screen = this.registry.screenManager.getCurrentScreen();
         this.registry.navigationOrchestrator.handleExternalScreenChange(
@@ -327,10 +350,11 @@ export class GameApp {
           !!this.registry.campaignManager.getState(),
         );
       },
-    );
+    });
 
     this.campaignSummaryScreen = new CampaignSummaryScreen(
       "screen-campaign-summary",
+      this.registry.inputDispatcher,
       () => {
         this.campaignSummaryScreen.hide();
         this.gameClient.stop();
@@ -557,7 +581,11 @@ export class GameApp {
     this.gameClient.stop();
     this.inputManager.destroy();
     this.registry.screenManager.destroy();
-    InputDispatcher.getInstance().popContext("tactical");
+    this.registry.destroy();
+  }
+
+  public destroy() {
+    this.stop();
   }
 
   private showMainMenu() {

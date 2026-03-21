@@ -30,14 +30,15 @@ describe("Stop Command and AI Logic", () => {
   }
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true, // agentControlEnabled
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled
       false,
-      MissionType.Default,
-    );
+      missionType: MissionType.Default
+    });
   });
 
   it("should stop and disable AI when STOP command is issued", () => {

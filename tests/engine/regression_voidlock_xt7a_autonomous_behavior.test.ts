@@ -32,7 +32,13 @@ describe("Autonomous RUSH Behavior Regression", () => {
       soldiers: [{ archetypeId: "scout" }],
       inventory: {},
     };
-    engine = new CoreEngine(mockMap, 123, defaultSquad, true, true); // agentControlEnabled = true
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: true
+    }); // agentControlEnabled = true
     engine.clearUnits();
   });
 

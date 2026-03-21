@@ -17,16 +17,18 @@ describe("Regression fgao: Pause Threat", () => {
   };
 
   it("should not increase threat level when game is paused (scaledDt = 0)", () => {
-    const engine = new CoreEngine(
-      minimalMap,
-      123,
-      { soldiers: [], inventory: {} }, // empty squad // empty squad
+    const engine = new CoreEngine({
+      map: minimalMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: // empty squad // empty squad
       false,
-      false,
-      MissionType.Default,
-      false,
-      0, // starting threat
-    );
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: // starting threat
+    });
 
     const initialThreat = engine.getState().stats.threatLevel;
     expect(initialThreat).toBe(0);
@@ -41,16 +43,17 @@ describe("Regression fgao: Pause Threat", () => {
   });
 
   it("should increase threat level based on game time (scaledDt)", () => {
-    const engine = new CoreEngine(
-      minimalMap,
-      123,
-      { soldiers: [], inventory: {} }, // empty squad
+    const engine = new CoreEngine({
+      map: minimalMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: // empty squad
       false,
-      false,
-      MissionType.Default,
-      false,
-      0,
-    );
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0
+    });
 
     // 10s game time
     engine.update(10000);

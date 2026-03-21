@@ -34,28 +34,29 @@ describe("Regression 65pf: Extract Command", () => {
   };
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      true,
-      MissionType.Default,
-      false,
-      0,
-      1.0,
-      false,
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: true,
+      missionType: MissionType.Default,
+      losOverlayEnabled: false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: undefined,
+      initialCommandLog: [],
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: undefined,
+      campaignNodeId: // nodeType defaults to undefined
       undefined,
-      [],
-      true,
-      0,
-      3,
-      1,
-      0,
-      undefined, // nodeType defaults to undefined
-      undefined,
-      0,
-    );
+      startingPoints: 0
+    });
   });
 
   it("should move unit to extraction point when EXTRACT command is issued", () => {

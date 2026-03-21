@@ -27,13 +27,14 @@ describe("AI Discipline (Extraction)", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      corridorMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      true, // debugOverlayEnabled
-    );
+    engine = new CoreEngine({
+      map: corridorMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true,
+      missionType: // debugOverlayEnabled
+    });
     engine.clearUnits();
   });
 

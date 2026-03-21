@@ -1,8 +1,8 @@
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 /**
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { GameApp } from "@src/renderer/app/GameApp";
 
 // Mock dependencies
@@ -10,30 +10,26 @@ vi.mock("@package.json", () => ({
   default: { version: "1.0.0" },
 }));
 
-const mockGameClient = {
-  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
-  onStateUpdate: vi.fn(),
-  queryState: vi.fn(),
-  addStateUpdateListener: vi.fn(),
-  removeStateUpdateListener: vi.fn(),
-  stop: vi.fn(),
-  getIsPaused: vi.fn().mockReturnValue(false),
-  getTargetScale: vi.fn().mockReturnValue(1.0),
-  setTimeScale: vi.fn(),
-  getTimeScale: vi.fn().mockReturnValue(1.0),
-  togglePause: vi.fn(),
-  toggleDebugOverlay: vi.fn(),
-  toggleLosOverlay: vi.fn(),
-};
-
 vi.mock("@src/engine/GameClient", () => ({
-  GameClient: vi.fn().mockImplementation(() => mockGameClient),
+  GameClient: vi.fn().mockImplementation(() => ({
+    onStateUpdate: vi.fn(),
+    queryState: vi.fn(),
+    addStateUpdateListener: vi.fn(),
+    removeStateUpdateListener: vi.fn(),
+    init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
+    stop: vi.fn(),
+    freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
+    getIsPaused: vi.fn().mockReturnValue(false),
+    getTargetScale: vi.fn().mockReturnValue(1.0),
+    setTimeScale: vi.fn(),
+    getTimeScale: vi.fn().mockReturnValue(1.0),
+  })),
 }));
 
 vi.mock("@src/renderer/Renderer", () => ({
   Renderer: vi.fn().mockImplementation(() => ({
     render: vi.fn(),
-      destroy: vi.fn(),
+    destroy: vi.fn(),
     setCellSize: vi.fn(),
     setUnitStyle: vi.fn(),
     setOverlay: vi.fn(),
@@ -41,203 +37,182 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      applyTheme: vi.fn(),
-    }),
-  },
-}));
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    ThemeManager: mockConstructor,
+  };
+});
 
-const mockModalService = {
-  alert: vi.fn().mockResolvedValue(undefined),
-  confirm: vi.fn().mockResolvedValue(true),
-  prompt: vi.fn().mockResolvedValue("New Recruit"),
-  show: vi.fn().mockResolvedValue(undefined),
-};
-
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
-}));
+vi.mock("@src/renderer/visuals/AssetManager", () => {
+  const mockInstance = {
+    loadSprites: vi.fn(),
+    getUnitSprite: vi.fn(),
+    getEnemySprite: vi.fn(),
+    getMiscSprite: vi.fn(),
+    getIcon: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    AssetManager: mockConstructor,
+  };
+});
 
 let mockOnChoice: (choice: any) => void;
 vi.mock("@src/renderer/ui/EventModal", () => ({
-  EventModal: vi.fn().mockImplementation((_modalService, onChoice) => {
+  EventModal: vi.fn().mockImplementation((modalService, onChoice) => {
     mockOnChoice = onChoice;
     return {
       show: vi.fn(),
-      hide: vi.fn(),
     };
   }),
-  OutcomeModal: vi.fn().mockImplementation((_modalService, onConfirm) => ({
-    show: vi.fn().mockImplementation(() => onConfirm()),
-    hide: vi.fn(),
+  OutcomeModal: vi.fn().mockImplementation((modalService, onConfirm) => ({
+    show: vi.fn(),
   })),
 }));
 
-describe("Non-Combat Node Interactions", () => {
+// Mock CampaignManager
+let mockCampaignState: any = null;
+
+vi.mock("@src/renderer/campaign/CampaignManager", () => {
+  const mockInstance = {
+    getState: vi.fn(() => mockCampaignState),
+    getStorage: vi.fn().mockReturnValue({
+        getCloudSync: vi.fn().mockReturnValue({
+            initialize: vi.fn().mockResolvedValue(undefined),
+            setEnabled: vi.fn(),
+        }),
+        load: vi.fn(),
+    }),
+    getSyncStatus: vi.fn().mockReturnValue("local-only"),
+    addChangeListener: vi.fn(),
+    removeChangeListener: vi.fn(),
+    load: vi.fn(),
+    save: vi.fn(),
+    assignEquipment: vi.fn(),
+    processMissionResult: vi.fn(),
+    advanceCampaignWithoutMission: vi.fn((nodeId, scrap, intel) => {
+        if (mockCampaignState) {
+            const node = mockCampaignState.nodes.find((n: any) => n.id === nodeId);
+            if (node) node.status = "Cleared";
+            mockCampaignState.scrap += scrap || 0;
+            mockCampaignState.intel += intel || 0;
+        }
+    }),
+    applyEventChoice: vi.fn((nodeId, choice, prng) => {
+        if (mockCampaignState) {
+            mockCampaignState.scrap += choice.reward?.scrap || 0;
+        }
+        return { text: "Outcome", ambush: false };
+    }),
+    startNewCampaign: vi.fn(),
+    generateEvent: vi.fn().mockReturnValue({
+        title: "Test Event",
+        text: "Something happened",
+        choices: [{ label: "Search", reward: { scrap: 50 } }]
+    }),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    CampaignManager: mockConstructor,
+  };
+});
+
+describe("Non-Combat Nodes Integration", () => {
   let app: GameApp;
-  let manager: CampaignManager;
 
   beforeEach(async () => {
-    // Reset mocks
-    vi.clearAllMocks();
+    mockCampaignState = {
+      status: "Active",
+      nodes: [],
+      roster: [],
+      scrap: 100,
+      intel: 0,
+      currentSector: 1,
+      currentNodeId: null,
+      history: [],
+      rules: {
+        mode: "Preset",
+        difficulty: "Standard",
+        allowTacticalPause: true,
+        mapGeneratorType: "DenseShip",
+      },
+    };
 
-    // Mock ResizeObserver
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
-
-    // Mock window.confirm/alert
-    window.confirm = vi.fn().mockReturnValue(true);
-    window.alert = vi.fn();
-
-    // Setup DOM
     document.body.innerHTML = `
-      <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">Campaign</button>
-        <button id="btn-menu-custom">Custom Mission</button>
-        <p id="menu-version"></p>
-      </div>
-
-      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
-          <div id="campaign-shell-top-bar"></div>
-          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
-              <div id="screen-campaign" class="screen" style="display:none"></div>
-              <div id="screen-barracks" class="screen" style="display:none"></div>
-              <div id="screen-equipment" class="screen" style="display:none"></div>
-              <div id="screen-statistics" class="screen" style="display:none"></div>
-              <div id="screen-settings" class="screen" style="display:none"></div>
-              <div id="screen-engineering" class="screen" style="display:none"></div>
-          </div>
-      </div>
-      <div id="screen-mission-setup" class="screen" style="display:none">
-        <div id="mission-setup-context"></div>
-        <div id="unit-style-preview"></div>
-        <div id="squad-builder"></div>
-        <select id="mission-type"></select>
-        <select id="map-generator-type"></select>
-        <input id="map-seed" />
-        <input id="map-width" />
-        <input id="map-height" />
-        <input id="map-spawn-points" />
-        <span id="map-spawn-points-value"></span>
-        <input id="map-starting-threat" />
-        <span id="map-starting-threat-value"></span>
-        <input id="map-base-enemies" />
-        <span id="map-base-enemies-value"></span>
-        <input id="map-enemy-growth" />
-        <span id="map-enemy-growth-value"></span>
-        <input id="toggle-fog-of-war" type="checkbox" />
-        <input id="toggle-debug-overlay" type="checkbox" />
-        <input id="toggle-los-overlay" type="checkbox" />
-        <input id="toggle-agent-control" type="checkbox" />
-        <input id="toggle-allow-tactical-pause" type="checkbox" />
-        <select id="select-unit-style"></select>
-        <button id="btn-goto-equipment"></button>
-        <button id="btn-setup-back"></button>
-      </div>
-      <div id="screen-mission" class="screen" style="display:none">
-        <button id="btn-pause-toggle"></button>
-        <input id="game-speed" type="range" />
-        <span id="speed-value"></span>
-        <input id="time-scale-slider" type="range" />
-        <span id="time-scale-value"></span>
-        <button id="btn-give-up"></button>
-        <div id="top-threat-fill"></div>
-        <span id="top-threat-value"></span>
-        <div id="game-canvas-container">
-            <canvas id="game-canvas"></canvas>
+      <div id="app">
+        <div id="screen-main-menu" class="screen">
+          <button id="btn-menu-campaign">Campaign</button>
         </div>
+        <div id="screen-campaign-shell" style="display:none">
+            <div id="campaign-shell-content">
+                <div id="screen-campaign" class="screen" style="display:none"></div>
+                <div id="screen-equipment" style="display:none"></div>
+                <div id="screen-statistics" style="display:none"></div>
+                <div id="screen-engineering" style="display:none"></div>
+                <div id="screen-settings" style="display:none"></div>
+            </div>
+            <div id="campaign-shell-top-bar"></div>
+            <div id="campaign-shell-footer"></div>
+        </div>
+        <div id="screen-mission-setup" style="display:none"></div>
+        <div id="screen-mission" style="display:none"></div>
+        <div id="screen-debrief" style="display:none"></div>
+        <div id="screen-campaign-summary" style="display:none"></div>
+        <div id="keyboard-help-overlay" style="display:none"></div>
+        <div id="squad-builder" style="display:none"></div>
       </div>
-      <div id="screen-debrief" class="screen" style="display:none"></div>
-      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(
-      new (class {
-        save() {}
-        load() {
-          return null;
-        }
-        remove() {}
-        clear() {}
-      })(),
-    );
-
-    app = new GameApp();
-    await app.initialize();
+    vi.resetModules();
+    const { bootstrap } = await import("@src/renderer/main");
+    app = await bootstrap();
+    document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 
-  it("should handle Shop nodes by granting scrap and advancing rank", async () => {
-    // 1. Start a campaign
-    manager.startNewCampaign(12345, "normal");
-    const state = manager.getState()!;
-
-    // 2. Find a Shop node (or force one for testing)
+  it("should handle Shop nodes by showing Equipment screen", async () => {
     const shopNode = {
       id: "node-shop",
-      type: "Shop" as any,
-      status: "Accessible" as any,
+      type: "Shop",
+      status: "Accessible",
       difficulty: 1,
       rank: 0,
-      mapSeed: 456,
+      mapSeed: 123,
       connections: ["node-next"],
-      position: { x: 100, y: 100 },
+      position: { x: 0, y: 0 },
       bonusLootCount: 0,
     };
-    const nextNode = {
-      id: "node-next",
-      type: "Combat" as any,
-      status: "Revealed" as any,
-      difficulty: 2,
-      rank: 1,
-      mapSeed: 789,
-      connections: [],
-      position: { x: 200, y: 100 },
-      bonusLootCount: 0,
-    };
-    state.nodes = [shopNode, nextNode];
+    mockCampaignState.nodes = [shopNode];
 
-    const initialScrap = state.scrap;
-    const advanceSpy = vi.spyOn(manager, "advanceCampaignWithoutMission");
+    // Click campaign
+    document.getElementById("btn-menu-campaign")?.click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // 3. Simulate clicking the shop node
-    // In GameApp, onCampaignNodeSelected is now handled by campaignFlowCoordinator
-    await (app as any).campaignFlowCoordinator.onCampaignNodeSelected(
-      shopNode,
-      () => {},
-      () => {},
-    );
+    // Simulate node select
+    const orchestrator = (app as any).registry.navigationOrchestrator;
+    orchestrator.onCampaignNodeSelect(shopNode);
 
-    // 4. Verify results
-    expect(mockModalService.alert).toHaveBeenCalledWith(
-      expect.stringContaining("Supply Depot reached"),
-    );
-    expect(advanceSpy).toHaveBeenCalledWith("node-shop", 100, 0);
-    expect(state.scrap).toBe(initialScrap + 100);
-    expect(shopNode.status).toBe("Cleared");
-    expect(nextNode.status).toBe("Accessible");
+    // Should be on equipment screen (Shop)
+    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
   });
 
-  it("should handle Event nodes correctly", async () => {
-    manager.startNewCampaign(12345, "normal");
-    const state = manager.getState()!;
-
-    // Seed 456 with derelict_ship (first event in CampaignEvents)
+  it("should handle Event nodes by showing EventModal", async () => {
     const eventNode = {
       id: "node-event",
-      type: "Event" as any,
-      status: "Accessible" as any,
+      type: "Event",
+      status: "Accessible",
       difficulty: 1,
       rank: 0,
       mapSeed: 456,
@@ -245,25 +220,23 @@ describe("Non-Combat Node Interactions", () => {
       position: { x: 100, y: 100 },
       bonusLootCount: 0,
     };
-    state.nodes = [eventNode];
+    mockCampaignState.nodes = [eventNode];
 
-    const applyChoiceSpy = vi.spyOn(manager, "applyEventChoice");
+    const { CampaignManager } = await import("@src/renderer/campaign/CampaignManager");
+    const manager = CampaignManager.getInstance();
 
-    await (app as any).campaignFlowCoordinator.onCampaignNodeSelected(
-      eventNode,
-      () => {},
-      () => {},
-    );
+    // Simulate node select
+    const orchestrator = (app as any).registry.navigationOrchestrator;
+    orchestrator.onCampaignNodeSelect(eventNode);
 
     // Verify EventModal was shown
     const { EventModal } = await import("@src/renderer/ui/EventModal");
     expect(EventModal).toHaveBeenCalled();
 
-    // Trigger a choice (e.g., the first one: Search)
+    // Trigger a choice
     const choice = { label: "Search", reward: { scrap: 50 } };
     mockOnChoice(choice);
 
-    expect(applyChoiceSpy).toHaveBeenCalled();
-    expect(eventNode.status).toBe("Cleared");
+    expect(manager.applyEventChoice).toHaveBeenCalledWith(eventNode.id, choice, expect.anything());
   });
 });

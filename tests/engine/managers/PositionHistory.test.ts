@@ -26,13 +26,14 @@ describe("Unit Position History", () => {
   const getUnit = () => engine.getState().units[0];
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      true, // skipDeployment = true
-    );
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true,
+      skipDeployment: true
+    });
     engine.clearUnits();
   });
 

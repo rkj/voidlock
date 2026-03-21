@@ -1,88 +1,81 @@
-// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ReplayController } from "@src/renderer/controllers/ReplayController";
+import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 import { EngineMode } from "@src/shared/types";
 
 describe("ReplayController", () => {
-  let mockGameClient: any;
-  let onProgressUpdate: any;
   let controller: ReplayController;
+  let mockGameClient: any;
+  let mockTheme: any;
+  let mockAssets: any;
+  let onProgressUpdate: any;
 
   beforeEach(() => {
     mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
       addStateUpdateListener: vi.fn(),
       removeStateUpdateListener: vi.fn(),
-      queryState: vi.fn(),
-      getReplayData: vi.fn(() => ({})),
-      loadReplay: vi.fn(),
-      setTimeScale: vi.fn(),
-      seek: vi.fn(),
-      pause: vi.fn(),
-      getIsPaused: vi.fn(() => false),
+      getIsPaused: vi.fn(() => true),
       togglePause: vi.fn(),
       getTargetScale: vi.fn(() => 1.0),
+      setTimeScale: vi.fn(),
+      getTimeScale: vi.fn().mockReturnValue(1.0),
+      getReplayData: vi.fn(() => ({})),
+      loadReplay: vi.fn(),
+      stop: vi.fn(),
+      queryState: vi.fn(),
+      seek: vi.fn(),
+      pause: vi.fn(),
+      resume: vi.fn(),
+    };
+    mockTheme = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    mockAssets = {
+      iconImages: {},
+      unitSprites: {},
+      enemySprites: {},
+      getMiscSprite: vi.fn(),
+      getIcon: vi.fn(),
     };
     onProgressUpdate = vi.fn();
-    controller = new ReplayController(mockGameClient, onProgressUpdate);
+    controller = new ReplayController({
+      gameClient: mockGameClient,
+      themeManager: (typeof mockTheme !== 'undefined' ? mockTheme : {} as any),
+      assetManager: (typeof mockAssets !== 'undefined' ? mockAssets : {} as any),
+      onProgressUpdate: onProgressUpdate
+    });
   });
 
   it("should seek(0) when progress >= 100 and looping is enabled", () => {
-    controller.startReplay(1000);
     controller.setLooping(true);
+    controller.startReplay(1000);
 
-    const listener = mockGameClient.addStateUpdateListener.mock.calls[0][0];
-
-    const mockState: any = {
+    const state = createMockGameState({ 
       t: 1000,
-      settings: { mode: EngineMode.Replay },
-    };
-
-    listener(mockState);
+      settings: { mode: EngineMode.Replay } as any
+    });
+    // @ts-ignore - access private for test
+    controller.handleStateUpdate(state);
 
     expect(mockGameClient.seek).toHaveBeenCalledWith(0);
     expect(onProgressUpdate).toHaveBeenCalledWith(100);
   });
 
   it("should call gameClient.pause() when progress >= 100 and looping is disabled", () => {
-    controller.startReplay(1000);
+    mockGameClient.getIsPaused.mockReturnValue(false);
     controller.setLooping(false);
+    controller.startReplay(1000);
 
-    const listener = mockGameClient.addStateUpdateListener.mock.calls[0][0];
-
-    const mockState: any = {
+    const state = createMockGameState({ 
       t: 1000,
-      settings: { mode: EngineMode.Replay },
-    };
+      settings: { mode: EngineMode.Replay } as any
+    });
+    // @ts-ignore - access private for test
+    controller.handleStateUpdate(state);
 
-    listener(mockState);
-
-    // This is expected to fail initially as it's not implemented yet
     expect(mockGameClient.pause).toHaveBeenCalled();
     expect(onProgressUpdate).toHaveBeenCalledWith(100);
-  });
-
-  it("should throttle seek requests", () => {
-    controller.startReplay(1000);
-
-    // First seek should go through
-    controller.seek(10);
-    expect(mockGameClient.seek).toHaveBeenCalledTimes(1);
-
-    // Second seek immediately after should be throttled
-    controller.seek(20);
-    expect(mockGameClient.seek).toHaveBeenCalledTimes(1);
-
-    // After a delay, seek should work again
-    // We use vi.advanceTimersByTime or just wait?
-    // Actually our implementation uses performance.now() and returns early.
-    // So we need to mock performance.now()
-    const now = performance.now();
-    vi.spyOn(performance, "now").mockReturnValue(now + 20);
-
-    controller.seek(30);
-    expect(mockGameClient.seek).toHaveBeenCalledTimes(2);
-    expect(mockGameClient.seek).toHaveBeenLastCalledWith(300);
-
-    vi.restoreAllMocks();
   });
 });

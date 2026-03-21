@@ -33,16 +33,17 @@ describe("SquadBuilder VIP Slot Logic (voidlock-nrdb)", () => {
   });
 
   it("should allow 4 soldiers IN ADDITION to the VIP in Escort VIP missions", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.EscortVIP,
-      false,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.EscortVIP,
+      isCampaign: false,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     // Check that we have 5 slots (1 VIP + 4 soldiers)
@@ -67,16 +68,17 @@ describe("SquadBuilder VIP Slot Logic (voidlock-nrdb)", () => {
   });
 
   it("should not count manually added VIP towards the 4-soldier limit in Default missions", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     // Add 4 regular soldiers first

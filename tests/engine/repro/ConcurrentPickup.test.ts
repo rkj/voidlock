@@ -31,13 +31,13 @@ describe("Concurrent Pickup Regression", () => {
       ],
     });
 
-    const engine = new CoreEngine(
-      mockState.map,
-      123,
-      { soldiers: [], inventory: {} },
-      false,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockState.map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     // @ts-ignore
     engine.state = mockState;
 

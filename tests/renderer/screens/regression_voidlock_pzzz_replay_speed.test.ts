@@ -1,3 +1,4 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { DebriefScreen } from "@src/renderer/screens/DebriefScreen";
@@ -7,9 +8,26 @@ describe("Regression: Replay speed UI mismatch (voidlock-pzzz)", () => {
   let container: HTMLElement;
   let onContinue: any;
   let mockGameClient: any;
+  let mockThemeManager: any;
+  let mockAssetManager: any;
+  let mockInputDispatcher: any;
   let screen: DebriefScreen;
 
   beforeEach(() => {
+    mockThemeManager = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    mockAssetManager = {
+      iconImages: {},
+      unitSprites: {},
+      enemySprites: {},
+    };
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
+
     // Mock Canvas Context
     vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
       clearRect: vi.fn(),
@@ -32,6 +50,7 @@ describe("Regression: Replay speed UI mismatch (voidlock-pzzz)", () => {
     container = document.getElementById("screen-debrief")!;
     onContinue = vi.fn();
     mockGameClient = {
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
       addStateUpdateListener: vi.fn(),
       removeStateUpdateListener: vi.fn(),
       getIsPaused: vi.fn(() => true),
@@ -46,8 +65,16 @@ describe("Regression: Replay speed UI mismatch (voidlock-pzzz)", () => {
       loadReplay: vi.fn(),
       stop: vi.fn(),
       queryState: vi.fn(),
+      resume: vi.fn(),
     };
-    screen = new DebriefScreen("screen-debrief", mockGameClient, onContinue);
+    screen = new DebriefScreen({
+      containerId: "screen-debrief",
+      gameClient: mockGameClient,
+      themeManager: mockThemeManager as any,
+      assetManager: mockAssetManager as any,
+      inputDispatcher: mockInputDispatcher as any,
+      onContinue: onContinue
+    });
   });
 
   it("should cleanup renderer on destroy", () => {

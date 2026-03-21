@@ -13,6 +13,7 @@ import { MapUtils } from "@src/shared/utils/MapUtils";
 export interface InputManagerConfig {
   screenManager: ScreenManager;
   menuController: MenuController;
+  inputDispatcher: InputDispatcher;
   togglePause: () => void;
   handleMenuInput: (key: string, shiftHeld?: boolean) => void;
   abortMission: () => void;
@@ -65,7 +66,7 @@ export class InputManager implements InputContext {
   }
 
   public init() {
-    InputDispatcher.getInstance().pushContext(this);
+    this.config.inputDispatcher.pushContext(this);
     const canvas = document.getElementById("game-canvas");
     if (canvas) {
       canvas.addEventListener("dragover", this.boundDragOver);
@@ -75,7 +76,7 @@ export class InputManager implements InputContext {
   }
 
   public destroy() {
-    InputDispatcher.getInstance().popContext(this.id);
+    this.config.inputDispatcher.popContext(this.id);
     const canvas = document.getElementById("game-canvas");
     if (canvas) {
       canvas.removeEventListener("dragover", this.boundDragOver);

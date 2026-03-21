@@ -2,56 +2,76 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { GameApp } from "@src/renderer/app/GameApp";
-
-// Hoisted state
-const { mockState } = vi.hoisted(() => ({
-  mockState: { value: null as any }
-}));
 
 // Mock dependencies
 vi.mock("@package.json", () => ({
   default: { version: "1.0.0" },
 }));
 
-const mockGameClient = {
-  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
-  onStateUpdate: vi.fn(),
-  queryState: vi.fn(),
-  stop: vi.fn(),
-  addStateUpdateListener: vi.fn(),
-  removeStateUpdateListener: vi.fn(),
-  toggleDebugOverlay: vi.fn(),
-  toggleLosOverlay: vi.fn(),
-};
-
 vi.mock("@src/engine/GameClient", () => ({
-  GameClient: vi.fn().mockImplementation(() => mockGameClient),
+  GameClient: vi.fn().mockImplementation(() => ({
+    onStateUpdate: vi.fn(),
+    queryState: vi.fn(),
+    addStateUpdateListener: vi.fn(),
+    removeStateUpdateListener: vi.fn(),
+    init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
+    stop: vi.fn(),
+    freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
+    getIsPaused: vi.fn().mockReturnValue(false),
+    getTargetScale: vi.fn().mockReturnValue(1.0),
+    setTimeScale: vi.fn(),
+    getTimeScale: vi.fn().mockReturnValue(1.0),
+  })),
 }));
 
 vi.mock("@src/renderer/Renderer", () => ({
   Renderer: vi.fn().mockImplementation(() => ({
     render: vi.fn(),
-      destroy: vi.fn(),
+    destroy: vi.fn(),
     setCellSize: vi.fn(),
+    setUnitStyle: vi.fn(),
+    setOverlay: vi.fn(),
+    getCellCoordinates: vi.fn().mockReturnValue({ x: 0, y: 0 }),
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-    }),
-  },
-}));
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    ThemeManager: mockConstructor,
+  };
+});
+
+vi.mock("@src/renderer/visuals/AssetManager", () => {
+  const mockInstance = {
+    loadSprites: vi.fn(),
+    getUnitSprite: vi.fn(),
+    getEnemySprite: vi.fn(),
+    getMiscSprite: vi.fn(),
+    getIcon: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return {
+    AssetManager: mockConstructor,
+  };
+});
 
 const mockModalService = {
   alert: vi.fn().mockResolvedValue(undefined),
   confirm: vi.fn().mockResolvedValue(true),
+  prompt: vi.fn().mockResolvedValue("New Recruit"),
   show: vi.fn().mockResolvedValue(undefined),
 };
 
@@ -59,207 +79,157 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
   ModalService: vi.fn().mockImplementation(() => mockModalService),
 }));
 
-// Mock AssetManager
-vi.mock("@src/renderer/visuals/AssetManager", () => ({
-    AssetManager: {
-        getInstance: vi.fn().mockReturnValue({
-            loadSprites: vi.fn(),
-            getSprite: vi.fn(),
-        })
-    }
-}));
-
 // Mock CampaignManager
+let mockCampaignState: any = null;
+let changeListeners: Set<() => void> = new Set();
+
 vi.mock("@src/renderer/campaign/CampaignManager", () => {
+  const mockInstance = {
+    getState: vi.fn(() => mockCampaignState),
+    getStorage: vi.fn().mockReturnValue({
+        getCloudSync: vi.fn().mockReturnValue({
+            initialize: vi.fn().mockResolvedValue(undefined),
+            setEnabled: vi.fn(),
+        }),
+        load: vi.fn(),
+    }),
+    getSyncStatus: vi.fn().mockReturnValue("local-only"),
+    addChangeListener: vi.fn((l) => changeListeners.add(l)),
+    removeChangeListener: vi.fn((l) => changeListeners.delete(l)),
+    load: vi.fn(),
+    save: vi.fn(),
+    assignEquipment: vi.fn(),
+    processMissionResult: vi.fn(),
+    recruitSoldier: vi.fn((archetypeId) => {
+        if (mockCampaignState) {
+            mockCampaignState.scrap -= 100;
+            mockCampaignState.roster.push({
+                id: "new-s",
+                name: "Recruit",
+                archetypeId,
+                status: "Healthy",
+                level: 1,
+                hp: 100,
+                maxHp: 100,
+                xp: 0,
+                kills: 0,
+                missions: 0,
+                recoveryTime: 0,
+                soldierAim: 80,
+                equipment: { rightHand: "pistol", leftHand: undefined, body: undefined, feet: undefined }
+            });
+            changeListeners.forEach(l => l());
+        }
+        return "new-s";
+    }),
+    startNewCampaign: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
   return {
-    CampaignManager: {
-      getInstance: vi.fn().mockReturnValue({
-        getState: vi.fn(() => mockState.value),
-        getStorage: vi.fn().mockReturnValue({
-            getCloudSync: vi.fn().mockReturnValue({
-                initialize: vi.fn().mockResolvedValue(undefined),
-                setEnabled: vi.fn(),
-            }),
-            load: vi.fn(),
-        }),
-        getSyncStatus: vi.fn().mockReturnValue("local-only"),
-        load: vi.fn().mockResolvedValue(true),
-        save: vi.fn(), assignEquipment: vi.fn(),
-        startNewCampaign: vi.fn((seed, diff, pause, theme) => {
-          mockState.value = {
-            status: "Active",
-            nodes: [
-                { 
-                    id: "node1", 
-                    type: "Combat", 
-                    status: "Accessible", 
-                    mapSeed: 123, 
-                    connections: [], 
-                    position: {x:0, y:0},
-                    difficulty: 1,
-                    rank: 1 
-                }
-            ],
-            roster: [], // Empty roster to force recruitment
-            scrap: 1000,
-            intel: 0,
-            currentSector: 1,
-            currentNodeId: "node1",
-            history: [],
-            unlockedArchetypes: ["scout"],
-            unlockedItems: [],
-            rules: {
-                allowTacticalPause: true,
-                difficulty: "Clone",
-                mapGeneratorType: "DenseShip",
-            }
-          };
-        }),
-        recruitSoldier: vi.fn(function(this: any, archId: string) {
-             // Simulate spending scrap for recruit
-             if (mockState.value) {
-                 mockState.value.scrap -= 100;
-                 mockState.value.roster.push({
-                     id: "s" + Date.now(),
-                     name: "Rookie",
-                     archetypeId: "scout",
-                     status: "Healthy",
-                     hp: 100,
-                     maxHp: 100,
-                     equipment: {}
-                 });
-                 this.notifyListeners();
-             }
-             return "s" + Date.now();
-        }),
-        spendScrap: vi.fn(function(this: any, amount: number) {
-            if (mockState.value) {
-                mockState.value.scrap -= amount;
-                this.notifyListeners();
-            }
-        }),
-        listeners: new Set<() => void>(),
-        addChangeListener: vi.fn(function(this: any, l: () => void) {
-            this.listeners.add(l);
-        }), 
-        removeChangeListener: vi.fn(function(this: any, l: () => void) {
-            this.listeners.delete(l);
-        }),
-        notifyListeners: function(this: any) {
-            this.listeners.forEach((l: () => void) => l());
-        },
-        getAvailableNodes: vi.fn(() => mockState.value?.nodes || []),
-      }),
-    },
+    CampaignManager: mockConstructor,
   };
 });
-
 
 describe("Scrap Update Integration", () => {
   let app: GameApp;
 
   beforeEach(async () => {
-    mockState.value = null;
+    mockCampaignState = {
+      status: "Active",
+      nodes: [
+          { id: "n1", type: "Combat", status: "Accessible", rank: 0, difficulty: 1, mapSeed: 1, connections: [], position: {x:0, y:0}, bonusLootCount: 0 }
+      ],
+      roster: [],
+      scrap: 1000,
+      intel: 0,
+      currentSector: 1,
+      currentNodeId: null,
+      history: [],
+      unlockedArchetypes: ["scout", "heavy", "medic", "demolition"],
+      rules: {
+        mode: "Preset",
+        difficulty: "Standard",
+        allowTacticalPause: true,
+        mapGeneratorType: "DenseShip",
+      },
+    };
+    changeListeners.clear();
     vi.clearAllMocks();
 
+    // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
       unobserve: vi.fn(),
       disconnect: vi.fn(),
     }));
 
-    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
-      clearRect: vi.fn(),
-      beginPath: vi.fn(),
-      moveTo: vi.fn(),
-      lineTo: vi.fn(),
-      stroke: vi.fn(),
-      setLineDash: vi.fn(),
-    }) as any;
-
     document.body.innerHTML = `
-      <div id="game-container"></div>
-      <div id="screen-main-menu">
+      <div id="app">
+        <div id="screen-main-menu" class="screen">
           <button id="btn-menu-campaign">Campaign</button>
+        </div>
+        <div id="screen-campaign-shell" style="display:none">
+            <div id="campaign-shell-content">
+                <div id="screen-campaign" class="screen" style="display:none"></div>
+                <div id="screen-equipment" style="display:none"></div>
+                <div id="screen-statistics" style="display:none"></div>
+                <div id="screen-engineering" style="display:none"></div>
+                <div id="screen-settings" style="display:none"></div>
+            </div>
+            <div id="campaign-shell-top-bar"></div>
+            <div id="campaign-shell-footer"></div>
+        </div>
+        <div id="screen-mission-setup" style="display:none"></div>
+        <div id="screen-mission" style="display:none"></div>
+        <div id="screen-debrief" style="display:none"></div>
+        <div id="screen-campaign-summary" style="display:none"></div>
+        <div id="keyboard-help-overlay" style="display:none"></div>
+        <div id="squad-builder" style="display:none"></div>
       </div>
-      <div id="screen-campaign-shell" style="display:none"></div>
-      <div id="screen-equipment" style="display:none"></div>
-      <div id="screen-mission-setup" style="display:none"></div>
-      <div id="screen-campaign" style="display:none"></div>
-      <div id="screen-engineering" style="display:none"></div>
-      <div id="screen-statistics" style="display:none"></div>
-      <div id="screen-settings" style="display:none"></div>
-      <div id="screen-debrief" style="display:none"></div>
-      <div id="screen-campaign-summary" style="display:none"></div>
-      <div id="screen-mission" style="display:none">
-         <canvas id="game-canvas"></canvas>
-      </div>
-      <div id="squad-builder"></div>
     `;
 
-    // Initialize App
-    const { GameApp } = await import("@src/renderer/app/GameApp");
-    app = new GameApp();
-    await app.initialize();
+    vi.resetModules();
+    const { bootstrap } = await import("@src/renderer/main");
+    app = await bootstrap();
+    document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 
   it("should update displayed scrap when recruiting a soldier", async () => {
-    const manager = CampaignManager.getInstance();
-    
-    // 1. Manually set up campaign state
-    manager.startNewCampaign("seed", "Clone", true, "Default");
-    
-    // 2. Mock state is now set with 1000 scrap
-    expect(manager.getState()?.scrap).toBe(1000);
-    
-    // 3. Force GameApp to enter campaign mode
-    (app as any).registry.navigationOrchestrator.handleExternalScreenChange("campaign", true);
-    
-    // 4. Verify initial render of CampaignShell
-    const shell = document.getElementById("screen-campaign-shell");
-    const topBar = shell?.querySelector("#campaign-shell-top-bar");
-    expect(topBar?.innerHTML).toContain("1000");
+    // 1. Enter campaign
+    document.getElementById("btn-menu-campaign")?.click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // 5. Navigate to Equipment Screen via "Asset Management Hub" tab
-    const readyRoomTab = Array.from(document.querySelectorAll(".tab-button")).find(b => b.textContent === "Asset Management Hub") as HTMLElement;
-    expect(readyRoomTab).toBeTruthy();
-    readyRoomTab.click();
-    
-    const eqScreen = document.getElementById("screen-equipment");
-    expect(eqScreen?.style.display).not.toBe("none");
+    // 2. Verify initial scrap in top bar
+    const topBar = document.getElementById("campaign-shell-top-bar");
+    expect(topBar?.textContent).toContain("1000");
 
-    // 6. Find Recruit button/item. 
-    await new Promise(resolve => setTimeout(resolve, 0));
-    
-    const emptySlot = document.querySelector(".menu-item.clickable");
-    if (!emptySlot) throw new Error("No empty slot found");
-    (emptySlot as HTMLElement).click();
-    
-    // Now the center panel should show "Acquire New Asset" large button
-    const recruitLarge = document.querySelector("[data-focus-id='recruit-btn-large']");
-    if (!recruitLarge) throw new Error("No large recruit button found");
-    (recruitLarge as HTMLElement).click();
-    
-    // Now the right panel should show archetypes (e.g., recruit-scout)
-    await new Promise(resolve => setTimeout(resolve, 0));
+    // 3. Navigate to Equipment
+    const shell = (app as any).registry.campaignShell;
+    shell.onTabChange("ready-room");
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    const recruitItem = document.querySelector("[data-focus-id^='recruit-']:not(.recruit-btn-large)");
-    if (!recruitItem) {
-        console.log("DOM during failure:", document.body.innerHTML);
-        throw new Error("No recruit archetype found");
+    // 4. Click Recruit button
+    const allButtons = Array.from(document.querySelectorAll("button"));
+    const recruitBtn = allButtons.find(b => b.textContent?.includes("Acquire New Asset")) as HTMLElement;
+    if (!recruitBtn) {
+        console.log("Available buttons:", allButtons.map(b => b.textContent));
     }
-    console.log("Found recruit item:", recruitItem.getAttribute("data-focus-id"));
-    
-    // 7. Click to recruit
-    (recruitItem as HTMLElement).click();
-    
-    // 8. Verify scrap update in manager
-    expect(manager.recruitSoldier).toHaveBeenCalled();
-    expect(manager.getState()?.scrap).toBe(900); // 1000 - 100
-    
-    // 9. Verify UI update
-    // The shell top bar should now say 900
-    // THIS IS EXPECTED TO FAIL
-    expect(topBar?.innerHTML).toContain("900");
+    expect(recruitBtn).toBeTruthy();
+    recruitBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // 5. Select an archetype to recruit (in center panel)
+    const cards = Array.from(document.querySelectorAll(".soldier-card"));
+    if (cards.length === 0) {
+        console.log("No archetype cards found. All buttons:", Array.from(document.querySelectorAll("button")).map(b => b.textContent));
+    }
+    const scoutBtn = cards.find(b => b.textContent?.includes("Scout")) as HTMLElement;
+    expect(scoutBtn).toBeTruthy();
+    scoutBtn.click();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // 6. Verify scrap update in UI
+    expect(topBar?.textContent).toContain("900");
   });
 });

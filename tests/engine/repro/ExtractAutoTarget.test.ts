@@ -24,13 +24,14 @@ describe("ExtractHandler Auto-Targeting Repro", () => {
   }
 
   it("should automatically pathfind to extraction zone when EXTRACT is issued", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ id: "u1", archetypeId: "scout" }], inventory: {} },
-      false, // Manual control
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ id: "u1", archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: // Manual control
+      false
+    });
 
     const u1 = engine.getState().units[0];
     // Place unit at top left
@@ -64,13 +65,13 @@ describe("ExtractHandler Auto-Targeting Repro", () => {
   });
 
   it("should immediately start interaction if unit is already in extraction zone", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ id: "u1", archetypeId: "scout" }], inventory: {} },
-      false,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ id: "u1", archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const u1 = engine.getState().units[0];
     // Place unit AT extraction (9,9)
@@ -93,13 +94,13 @@ describe("ExtractHandler Auto-Targeting Repro", () => {
   });
 
   it("should overwrite existing path when EXTRACT is issued", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [{ id: "u1", archetypeId: "scout" }], inventory: {} },
-      false,
-      false,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [{ id: "u1", archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const u1 = engine.getState().units[0];
     (u1 as any).pos = { x: 0.5, y: 0.5 };

@@ -1,43 +1,42 @@
-/**
- * @vitest-environment jsdom
- */
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { Renderer } from "../../src/renderer/Renderer";
-import {
-  GameState,
-  UnitStyle,
-  UnitState,
-  MissionType,
-  EngineMode,
-} from "../../src/shared/types";
+// @vitest-environment jsdom
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Renderer } from "@src/renderer/Renderer";
+import { GameState, EnemyType, UnitStyle, CellType, MissionType } from "@src/shared/types";
+import { createMockUnit, createMockEnemy, createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 describe("Renderer - unitStyle", () => {
   let canvas: HTMLCanvasElement;
-  let ctx: any;
   let renderer: Renderer;
+  let mockContext: any;
 
   beforeEach(() => {
-    ctx = {
+    vi.clearAllMocks();
+    mockContext = {
       clearRect: vi.fn(),
-      drawImage: vi.fn(),
-      beginPath: vi.fn(),
-      arc: vi.fn(),
-      fill: vi.fn(),
-      stroke: vi.fn(),
-      fillText: vi.fn(),
-      strokeText: vi.fn(),
-      moveTo: vi.fn(),
-      lineTo: vi.fn(),
-      closePath: vi.fn(),
-      setLineDash: vi.fn(),
       fillRect: vi.fn(),
       strokeRect: vi.fn(),
-      createRadialGradient: vi.fn(() => ({
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      stroke: vi.fn(),
+      fill: vi.fn(),
+      arc: vi.fn(),
+      closePath: vi.fn(),
+      fillText: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      scale: vi.fn(),
+      translate: vi.fn(),
+      setLineDash: vi.fn(),
+      createRadialGradient: vi.fn().mockReturnValue({
         addColorStop: vi.fn(),
-      })),
+      }),
+      measureText: vi.fn(() => ({ width: 0 })),
     };
+
     canvas = {
-      getContext: () => ctx,
+      getContext: () => mockContext,
       width: 800,
       height: 600,
       getBoundingClientRect: () => ({
@@ -47,91 +46,62 @@ describe("Renderer - unitStyle", () => {
         height: 600,
       }),
     } as any;
-    renderer = new Renderer(canvas);
+
+    const mockThemeManager = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    };
+    const mockAssetManager = {
+      iconImages: {},
+      unitSprites: {},
+      enemySprites: {},
+      getUnitSprite: vi.fn(),
+      getEnemySprite: vi.fn(),
+      getMiscSprite: vi.fn(),
+      getIcon: vi.fn(),
+    };
+    renderer = new Renderer({
+      canvas: canvas,
+      themeManager: mockThemeManager as any,
+      assetManager: mockAssetManager as any
+    });
   });
 
-  const mockState: GameState = {
+  const mockState: GameState = createMockGameState({
     t: 0,
     seed: 123,
-    missionType: MissionType.Default,
-    map: { width: 10, height: 10, cells: [] },
+    map: {
+      width: 10,
+      height: 10,
+      cells: [{ x: 5, y: 5, type: CellType.Floor }],
+    },
     units: [
-      {
+      createMockUnit({
         id: "u1",
-        pos: { x: 5, y: 5 },
-        hp: 100,
-        maxHp: 100,
-        state: UnitState.Idle,
+        pos: { x: 5.5, y: 5.5 },
         archetypeId: "assault",
-        stats: {
-          damage: 10,
-          fireRate: 1000,
-          accuracy: 80,
-          soldierAim: 80,
-          attackRange: 5,
-          speed: 20,
-          equipmentAccuracyBonus: 0,
-        },
-        aiProfile: "RUSH" as any,
-        commandQueue: [],
-        kills: 0,
-        damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
-      },
+      }),
     ],
-    enemies: [],
     visibleCells: ["5,5"],
     discoveredCells: ["5,5"],
-    objectives: [],
-    stats: {
-      threatLevel: 0,
-      aliensKilled: 0,
-      elitesKilled: 0,
-      scrapGained: 0,
-      casualties: 0,
-    },
-    status: "Playing",
-    settings: {
-      mode: EngineMode.Simulation,
-      debugOverlayEnabled: false,
-      debugSnapshots: false,
-      losOverlayEnabled: false,
-      timeScale: 1.0,
-      isPaused: false,
-      isSlowMotion: false,
-      allowTacticalPause: true,
-    },
-    squadInventory: {},
-    attackEvents: [],
-    mines: [],
-    turrets: [],
-    loot: [],
-  };
-
-  it("should use strokeText and fillText for unit numbers in Sprites style (high contrast)", () => {
-    renderer.setUnitStyle(UnitStyle.Sprites);
-    // Force a sprite match or it will fallback to tactical icons (geometric)
-    // We can't easily mock image loading here, but renderUnits falls back if sprite is missing.
-    // However, if we want to test the high-contrast overlay, we need to bypass the fallback.
-
-    // Actually, I'll just check if strokeText is called.
-    // In my implementation, strokeText is only called in Sprites style when sprite is present.
-    // If sprite is missing, it falls back to geometric and uses only fillText.
-
-    // To properly test this, I'd need to mock the unitSprites map in Renderer.
-    // Since it's private, I'll use some trickery or just test the TacticalIcons path which is easier.
   });
 
   it("should draw circles for units in TacticalIcons style", () => {
     renderer.setUnitStyle(UnitStyle.TacticalIcons);
     renderer.render(mockState);
 
-    // Should call arc for the unit
-    expect(ctx.arc).toHaveBeenCalled();
-    // Should NOT call drawImage if TacticalIcons is selected (even if sprites are loaded)
-    expect(ctx.drawImage).not.toHaveBeenCalled();
-    // Should call fillText for the unit number
-    expect(ctx.fillText).toHaveBeenCalled();
-    // Should NOT call strokeText for the unit number in TacticalIcons style (per my implementation)
-    expect(ctx.strokeText).not.toHaveBeenCalled();
+    // Should call arc() to draw the circle
+    expect(mockContext.arc).toHaveBeenCalled();
+  });
+
+  it("should attempt to draw sprites for units in Sprites style", () => {
+    renderer.setUnitStyle(UnitStyle.Sprites);
+    renderer.render(mockState);
+
+    // MapLayer still draws floor/walls, but UnitLayer should try drawImage
+    // We expect UnitLayer to call getUnitSprite
+    const sharedState = (renderer as any).sharedState;
+    expect(sharedState.assets.getUnitSprite).toHaveBeenCalledWith("assault");
   });
 });

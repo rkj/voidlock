@@ -51,7 +51,13 @@ describe("AI Plan Commitment", () => {
   };
 
   beforeEach(() => {
-    engine = new CoreEngine(map, 123, squadConfig, true, false);
+    engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
   });
 
   it("should set activePlan when ObjectiveBehavior issues a command", () => {
@@ -86,7 +92,13 @@ describe("AI Plan Commitment", () => {
   it("should set activePlan when ExplorationBehavior issues a command", () => {
     // New engine with no objectives to force exploration
     const mapNoObj = { ...map, objectives: [] };
-    const engineExploration = new CoreEngine(mapNoObj, 123, squadConfig, true, false);
+    const engineExploration = new CoreEngine({
+      map: mapNoObj,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     
     const state = engineExploration.getState();
     const unit = state.units[0];

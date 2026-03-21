@@ -53,26 +53,36 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
   });
 
   it("should allow active pause (0.1x) when allowTacticalPause is true", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true, // fog
-      false, // debug
-      true, // agent
-      UnitStyle.TacticalIcons, // unitStyle
-      "default", // themeId
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: // fog
+      false,
+      fogOfWarEnabled: // debug
+      true,
+      unitStyle: // agent
+      UnitStyle.TacticalIcons,
+      themeId: // unitStyle
+      "default",
+      squadConfig: // themeId
       defaultSquad,
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false, // los
-      0, // threat
-      1.0, // scale
-      false, // paused
-      true, // allowTacticalPause = true
-    );
+      missionType: MissionType.Default,
+      allowTacticalPause: 16,
+      startPaused: 16,
+      startingThreatLevel: 3,
+      enemyGrowthPerMission: false,
+      missionDepth: // los
+      0,
+      nodeType: // threat
+      1.0,
+      campaignNodeId: // scale
+      false,
+      startingPoints: // paused
+      true,
+      commandLog: // allowTacticalPause = true
+    });
 
     client.pause();
     expect(client.getTimeScale()).toBe(0.1);
@@ -83,26 +93,27 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
   });
 
   it("should use absolute pause (0.0x) when allowTacticalPause is false", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      defaultSquad,
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0,
-      false,
-      false, // allowTacticalPause = false
-    );
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+      squadConfig: defaultSquad,
+      missionType: MissionType.Default,
+      allowTacticalPause: 16,
+      startPaused: 16,
+      startingThreatLevel: 3,
+      enemyGrowthPerMission: false,
+      missionDepth: 0,
+      nodeType: 1.0,
+      campaignNodeId: false,
+      startingPoints: false,
+      commandLog: // allowTacticalPause = false
+    });
 
     client.pause();
     expect(client.getTimeScale()).toBe(0.0);
@@ -113,26 +124,27 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
   });
 
   it("should clamp timeScale to 1.0 when allowTacticalPause is false and scale < 1.0 is set", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      defaultSquad,
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0,
-      false,
-      false, // allowTacticalPause = false
-    );
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+      squadConfig: defaultSquad,
+      missionType: MissionType.Default,
+      allowTacticalPause: 16,
+      startPaused: 16,
+      startingThreatLevel: 3,
+      enemyGrowthPerMission: false,
+      missionDepth: 0,
+      nodeType: 1.0,
+      campaignNodeId: false,
+      startingPoints: false,
+      commandLog: // allowTacticalPause = false
+    });
 
     client.setTimeScale(0.5);
     expect(client.getTimeScale()).toBe(1.0);
@@ -143,26 +155,27 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
   });
 
   it("should NOT clamp timeScale when allowTacticalPause is false and scale >= 1.0 is set", () => {
-    client.init(
-      12345,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      UnitStyle.TacticalIcons,
-      "default",
-      defaultSquad,
-      MissionType.Default,
-      16,
-      16,
-      3,
-      false,
-      0,
-      1.0,
-      false,
-      false, // allowTacticalPause = false
-    );
+    client.init({
+      seed: 12345,
+      mapGeneratorType: MapGeneratorType.Procedural,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+      squadConfig: defaultSquad,
+      missionType: MissionType.Default,
+      allowTacticalPause: 16,
+      startPaused: 16,
+      startingThreatLevel: 3,
+      enemyGrowthPerMission: false,
+      missionDepth: 0,
+      nodeType: 1.0,
+      campaignNodeId: false,
+      startingPoints: false,
+      commandLog: // allowTacticalPause = false
+    });
 
     client.setTimeScale(2.0);
     expect(client.getTimeScale()).toBe(2.0);

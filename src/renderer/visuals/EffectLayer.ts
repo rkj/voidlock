@@ -1,11 +1,12 @@
 import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { GameState, AttackEvent } from "@src/shared/types";
-import { ThemeManager } from "@src/renderer/ThemeManager";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
 
 export class EffectLayer implements RenderLayer {
-  private theme = ThemeManager.getInstance();
+  private get theme() {
+    return this.sharedState.theme;
+  }
   private activeEvents: AttackEvent[] = [];
   private TRACER_DURATION = 150;
 

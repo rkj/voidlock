@@ -32,19 +32,25 @@ describe('AI Back and Forth Repro', () => {
       inventory: {}
     };
 
-    engine = new CoreEngine(
-      map,
-      seed,
-      squadConfig,
-      true, // agentControlEnabled
-      true, // debugOverlayEnabled
+    engine = new CoreEngine({
+      map: map,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled
+      true,
+      missionType: // debugOverlayEnabled
       MissionType.Default,
-      false, // losOverlayEnabled
-      0, // startingThreatLevel
-      1.0, // initialTimeScale
-      false, // startPaused
+      losOverlayEnabled: false,
+      startingThreatLevel: // losOverlayEnabled
+      0,
+      initialTimeScale: // startingThreatLevel
+      1.0,
+      startPaused: // initialTimeScale
+      false,
+      mode: // startPaused
       EngineMode.Simulation
-    );
+    });
   });
 
   it('should extract when objectives are done even if map is not fully discovered', async () => {

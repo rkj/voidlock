@@ -39,7 +39,6 @@ export class CampaignManager {
   private listeners: Set<() => void> = new Set();
 
   /**
-   * Private constructor to enforce singleton pattern.
    * @param storage The storage provider to use for persistence.
    */
   private constructor(storage: StorageProvider) {
@@ -51,8 +50,7 @@ export class CampaignManager {
   }
 
   /**
-   * Returns the singleton instance of the CampaignManager.
-   * @param storage Optional storage provider (required for first call).
+   * @deprecated Use constructor injection via AppServiceRegistry.
    */
   public static getInstance(storage?: StorageProvider): CampaignManager {
     if (!CampaignManager.instance) {
@@ -61,7 +59,10 @@ export class CampaignManager {
           "CampaignManager: StorageProvider required for first initialization.",
         );
       }
+      console.log("CampaignManager: Initializing NEW instance with storage=" + storage.constructor.name);
       CampaignManager.instance = new CampaignManager(storage);
+    } else {
+      console.log("CampaignManager: Returning EXISTING instance with storage=" + (CampaignManager.instance as any).storage.constructor.name);
     }
     return CampaignManager.instance;
   }
@@ -78,6 +79,14 @@ export class CampaignManager {
    */
   public getStorage(): StorageProvider {
     return this.storage;
+  }
+
+  /**
+   * Resets the singleton instance (for testing).
+   */
+  public static resetSingleton(): void {
+    console.log("CampaignManager: Resetting singleton instance");
+    CampaignManager.instance = null;
   }
 
   /**
@@ -140,10 +149,11 @@ export class CampaignManager {
   public startNewCampaign(
     seed: number,
     difficulty: string,
-    overrides?: CampaignOverrides | boolean, // Support legacy boolean for allowTacticalPause
+    overrides?: CampaignOverrides | boolean,
     mapGeneratorType?: MapGeneratorType,
     mapGrowthRate?: number,
   ): void {
+    console.log("CampaignManager.startNewCampaign instance:", this);
     const rules = this.getRulesForDifficulty(difficulty);
 
     // Incorporate global meta-unlocks
@@ -600,6 +610,7 @@ export class CampaignManager {
    * Returns the current campaign state.
    */
   public getState(): CampaignState | null {
+    if (this.state === null) console.log("CampaignManager.getState() state is null on instance:", this);
     return this.state;
   }
 

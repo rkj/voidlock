@@ -39,15 +39,15 @@ describe("TutorialManager", () => {
       cellSize: 20,
     };
     selectedUnitId = null;
-    manager = new TutorialManager(
-      gameClient, 
-      campaignManager as any, 
-      menuController as any,
-      onMessage, 
-      () => selectedUnitId,
-      uiOrchestrator,
-      () => renderer as any
-    );
+    manager = new TutorialManager({
+      gameClient: gameClient,
+      campaignManager: campaignManager as any,
+      menuController: menuController as any,
+      onMessage: onMessage,
+      getSelectedUnitId: () => selectedUnitId,
+      uiOrchestrator: uiOrchestrator,
+      getRenderer: () => renderer as any
+    });
     
     // Clear localStorage to avoid state leakage between tests
     localStorage.clear();
@@ -126,15 +126,15 @@ describe("TutorialManager", () => {
       pendingAction: null,
     };
     
-    manager = new TutorialManager(
-      gameClient,
-      campaignManager as any,
-      menuController as any,
-      onMessage,
-      () => selectedUnitId,
-      uiOrchestrator,
-      () => mockRenderer as any
-    );
+    manager = new TutorialManager({
+      gameClient: gameClient,
+      campaignManager: campaignManager as any,
+      menuController: menuController as any,
+      onMessage: onMessage,
+      getSelectedUnitId: () => selectedUnitId,
+      uiOrchestrator: uiOrchestrator,
+      getRenderer: () => mockRenderer as any
+    });
 
     manager.highlightCell(5, 5);
     const highlightEl = document.querySelector(".tutorial-cell-highlight") as HTMLElement;

@@ -5,7 +5,7 @@ import { MissionSetupManager } from "./MissionSetupManager";
 import { NavigationOrchestrator } from "./NavigationOrchestrator";
 import { UIOrchestrator } from "./UIOrchestrator";
 import { GameClient } from "@src/engine/GameClient";
-import { CampaignManager } from "../campaign/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { HUDManager } from "../ui/HUDManager";
 import { MenuController } from "../MenuController";
 import { Logger } from "@src/shared/Logger";
@@ -131,6 +131,11 @@ export class MissionRunner {
   private onMissionComplete(report: MissionReport) {
     Logger.info("Mission Complete!", report);
 
+    // Clear tactical session state (ADR 0004)
+    localStorage.removeItem("voidlock_mission_config");
+    localStorage.removeItem("voidlock_mission_log");
+    localStorage.removeItem("voidlock_mission_tick");
+
     // Update campaign state via manager
     if (report.nodeId !== "custom") {
       this.deps.campaignManager.processMissionResult(report);
@@ -175,5 +180,9 @@ export class MissionRunner {
 
   public setMissionHUDVisible(visible: boolean) {
     this.uiOrchestrator.setMissionHUDVisible(visible);
+  }
+
+  public stop() {
+    this.deps.gameClient.stop();
   }
 }

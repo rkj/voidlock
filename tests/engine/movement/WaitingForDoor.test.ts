@@ -41,7 +41,13 @@ describe("Unit WaitingForDoor State", () => {
     };
 
     const squad: SquadConfig = { soldiers: [], inventory: {} };
-    engine = new CoreEngine(map, 123, squad, false, false);
+    engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: squad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
   });
 

@@ -44,15 +44,15 @@ describe("GameClient Regression zzjz (Pause/Speed Leak)", () => {
 
   it("should reset pause and time scale on init", () => {
     // 1. Set some non-default state
-    client.init(
-      1,
-      MapGeneratorType.Static,
-      mockMap,
-      true,
-      false,
-      true,
-      defaultSquad,
-    );
+    client.init({
+      seed: 1,
+      mapGeneratorType: MapGeneratorType.Static,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: defaultSquad
+    });
     client.setTimeScale(2.0);
     client.pause(); // Should set scale to 0.1 and isPaused to true
 
@@ -63,15 +63,15 @@ describe("GameClient Regression zzjz (Pause/Speed Leak)", () => {
     postMessageMock.mockClear();
 
     // 2. Re-initialize
-    client.init(
-      2,
-      MapGeneratorType.Static,
-      mockMap,
-      true,
-      false,
-      true,
-      defaultSquad,
-    );
+    client.init({
+      seed: 2,
+      mapGeneratorType: MapGeneratorType.Static,
+      map: mockMap,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: defaultSquad
+    });
 
     // 3. Verify defaults are restored
     expect(client.getIsPaused()).toBe(false);

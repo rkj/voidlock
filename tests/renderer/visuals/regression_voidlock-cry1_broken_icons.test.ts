@@ -34,15 +34,29 @@ describe("MapEntityLayer Regression (voidlock-cry1)", () => {
       fillText: vi.fn(),
     };
 
-    sharedState = new SharedRendererState();
+    const mockTheme = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    const mockAssetManager = {
+      iconImages: {
+        Exit: new Image(),
+        Crate: new Image(),
+        Spawn: new Image(),
+        LootStar: new Image(),
+        Objective: new Image(),
+        ObjectiveDisk: new Image(),
+      },
+      unitSprites: {},
+      enemySprites: {},
+    };
+
+    sharedState = new SharedRendererState(mockTheme as any, mockAssetManager as any);
     sharedState.cellSize = 32;
     layer = new MapEntityLayer(sharedState);
 
     // Ensure AssetManager has icons
-    const assetManager = AssetManager.getInstance();
-    assetManager.iconImages.Exit = new Image();
-    assetManager.iconImages.Crate = new Image();
-    assetManager.iconImages.Spawn = new Image();
+    const assetManager = mockAssetManager as any;
   });
 
   it("should use icons for extraction in TacticalIcons mode", () => {

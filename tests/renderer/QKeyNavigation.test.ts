@@ -1,4 +1,6 @@
-// @vitest-environment jsdom
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { InputManager } from "@src/renderer/InputManager";
 import { GlobalShortcuts } from "@src/renderer/GlobalShortcuts";
@@ -7,6 +9,7 @@ import { InputDispatcher } from "@src/renderer/InputDispatcher";
 describe("Q and ESC Key Navigation", () => {
   let inputManager: InputManager;
   let globalShortcuts: GlobalShortcuts;
+  let dispatcher: InputDispatcher;
   let mockScreenManager: any;
   let mockMenuController: any;
   let togglePause: any;
@@ -14,19 +17,28 @@ describe("Q and ESC Key Navigation", () => {
   let abortMission: any;
   let onUnitDeselect: any;
   let getSelectedUnitId: any;
-  let handleCanvasClick: any;
-  let onToggleDebug: any;
-  let onToggleLos: any;
-  let currentGameState: any;
 
   beforeEach(() => {
-    document.body.innerHTML = '<canvas id="game-canvas"></canvas>';
+    document.body.innerHTML = `
+        <div id="screen-mission" class="screen">
+            <canvas id="game-canvas"></canvas>
+        </div>
+        <div id="screen-settings" class="screen" style="display:none"></div>
+    `;
+    
+    // Ensure clean state
+    if ((window as any).__INPUT_DISPATCHER_INSTANCE__) {
+        (window as any).__INPUT_DISPATCHER_INSTANCE__.destroy();
+    }
+    dispatcher = new InputDispatcher();
+
     mockScreenManager = {
       getCurrentScreen: vi.fn(() => "mission"),
       goBack: vi.fn(),
-      getScreenElement: vi.fn(() => document.createElement("div")),
+      getScreenElement: vi.fn((id) => document.getElementById(`screen-${id}`)),
     };
     mockMenuController = {
+      getRenderableState: vi.fn().mockReturnValue({}),
       menuState: "ACTION_SELECT",
       goBack: vi.fn(),
       handleMenuInput: vi.fn(function(this: any, key: string) {
@@ -38,12 +50,9 @@ describe("Q and ESC Key Navigation", () => {
     abortMission = vi.fn();
     onUnitDeselect = vi.fn();
     getSelectedUnitId = vi.fn(() => null);
-    handleCanvasClick = vi.fn();
-    onToggleDebug = vi.fn();
-    onToggleLos = vi.fn();
-    currentGameState = vi.fn(() => ({}));
 
     inputManager = new InputManager({
+      inputDispatcher: dispatcher,
       screenManager: mockScreenManager as any,
       menuController: mockMenuController as any,
       togglePause,
@@ -53,7 +62,7 @@ describe("Q and ESC Key Navigation", () => {
       handleCanvasClick: vi.fn(),
       onToggleDebug: vi.fn(),
       onToggleLos: vi.fn(),
-      currentGameState: vi.fn(),
+      currentGameState: vi.fn(() => ({ status: "Active" })),
       isDebriefing: () => false,
       getSelectedUnitId,
       onDeployUnit: vi.fn(),
@@ -67,7 +76,7 @@ describe("Q and ESC Key Navigation", () => {
     });
     inputManager.init();
 
-    globalShortcuts = new GlobalShortcuts(togglePause, () =>
+    globalShortcuts = new GlobalShortcuts(dispatcher, togglePause, () =>
       mockScreenManager.goBack(),
     );
     globalShortcuts.init();
@@ -75,20 +84,21 @@ describe("Q and ESC Key Navigation", () => {
 
   afterEach(() => {
     inputManager.destroy();
-    InputDispatcher.getInstance().popContext("GlobalShortcuts");
+    globalShortcuts.destroy();
+    dispatcher.destroy();
   });
 
-  it("should call menuController.goBack() when 'q' is pressed in mission submenu", () => {
+  it("should call menuController.handleMenuInput('q') when 'q' is pressed in mission submenu", () => {
     mockMenuController.menuState = "ORDERS_SELECT";
-    const event = new KeyboardEvent("keydown", { key: "q" });
+    const event = new KeyboardEvent("keydown", { key: "q", bubbles: true });
     window.dispatchEvent(event);
-    expect(mockMenuController.goBack).toHaveBeenCalled();
+    expect(handleMenuInput).toHaveBeenCalledWith("q", false);
   });
 
   it("should call onUnitDeselect() when 'q' is pressed in mission ACTION_SELECT with unit selected", () => {
     mockMenuController.menuState = "ACTION_SELECT";
     getSelectedUnitId.mockReturnValue("u1");
-    const event = new KeyboardEvent("keydown", { key: "q" });
+    const event = new KeyboardEvent("keydown", { key: "q", bubbles: true });
     window.dispatchEvent(event);
     expect(onUnitDeselect).toHaveBeenCalled();
   });
@@ -96,34 +106,31 @@ describe("Q and ESC Key Navigation", () => {
   it("should NOT call abortMission() when 'q' is pressed in mission ACTION_SELECT with NO unit selected", () => {
     mockMenuController.menuState = "ACTION_SELECT";
     getSelectedUnitId.mockReturnValue(null);
-    window.confirm = vi.fn(() => true);
-    const event = new KeyboardEvent("keydown", { key: "q" });
+    const event = new KeyboardEvent("keydown", { key: "q", bubbles: true });
     window.dispatchEvent(event);
     expect(abortMission).not.toHaveBeenCalled();
+    // But it SHOULD fall back to global shortcuts which calls goBack
+    expect(mockScreenManager.goBack).toHaveBeenCalled();
   });
 
-  it("should call abortMission() when 'Escape' is pressed in mission ACTION_SELECT with NO unit selected", async () => {
+  it("should call abortMission() when 'Escape' is pressed in mission ACTION_SELECT with NO unit selected", () => {
     mockMenuController.menuState = "ACTION_SELECT";
     getSelectedUnitId.mockReturnValue(null);
-    const event = new KeyboardEvent("keydown", { key: "Escape" });
+    const event = new KeyboardEvent("keydown", { key: "Escape", bubbles: true });
     window.dispatchEvent(event);
-
-    // Wait for the promise in InputManager
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
     expect(abortMission).toHaveBeenCalled();
   });
 
   it("should call screenManager.goBack() when 'q' is pressed in non-mission screen", () => {
-    mockScreenManager.getCurrentScreen.mockReturnValue("mission-setup");
-    const event = new KeyboardEvent("keydown", { key: "q" });
+    mockScreenManager.getCurrentScreen.mockReturnValue("settings");
+    const event = new KeyboardEvent("keydown", { key: "q", bubbles: true });
     window.dispatchEvent(event);
     expect(mockScreenManager.goBack).toHaveBeenCalled();
   });
 
   it("should call screenManager.goBack() when 'Escape' is pressed in non-mission screen", () => {
-    mockScreenManager.getCurrentScreen.mockReturnValue("mission-setup");
-    const event = new KeyboardEvent("keydown", { key: "Escape" });
+    mockScreenManager.getCurrentScreen.mockReturnValue("settings");
+    const event = new KeyboardEvent("keydown", { key: "Escape", bubbles: true });
     window.dispatchEvent(event);
     expect(mockScreenManager.goBack).toHaveBeenCalled();
   });

@@ -1,11 +1,12 @@
 import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { GameState, CellType, BoundaryType, Door } from "@src/shared/types";
-import { ThemeManager } from "@src/renderer/ThemeManager";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class MapLayer implements RenderLayer {
-  private theme = ThemeManager.getInstance();
+  private get theme() {
+    return this.sharedState.theme;
+  }
 
   constructor(private sharedState: SharedRendererState) {}
 

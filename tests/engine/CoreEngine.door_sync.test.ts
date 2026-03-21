@@ -37,14 +37,14 @@ describe("CoreEngine Door Sync", () => {
   };
 
   it("should update Graph boundary type when door opens", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      false,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
     const grid = (engine as any).gameGrid;
     const graph = grid.getGraph();
     const boundary = graph.getBoundary(0, 0, 1, 0);
@@ -96,14 +96,14 @@ describe("CoreEngine Door Sync", () => {
     const mapWithOpenDoor = JSON.parse(JSON.stringify(mockMap));
     mapWithOpenDoor.doors[0].state = "Open";
 
-    const engine = new CoreEngine(
-      mapWithOpenDoor,
-      123,
-      { soldiers: [], inventory: {} },
-      false,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mapWithOpenDoor,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
     const grid = (engine as any).gameGrid;
     const graph = grid.getGraph();
     const boundary = graph.getBoundary(0, 0, 1, 0);

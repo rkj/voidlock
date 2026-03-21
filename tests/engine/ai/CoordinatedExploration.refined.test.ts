@@ -91,7 +91,13 @@ describe("Coordinated Exploration Refined", () => {
 
     const squad: SquadConfig = { soldiers: [], inventory: {} };
 
-    engine = new CoreEngine(map, 123, squad, true, false);
+    engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: squad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     engine.clearUnits();
   });

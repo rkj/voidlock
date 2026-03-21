@@ -36,14 +36,14 @@ describe("Regression MFMT1 - Extraction Loop", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      map,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-      MissionType.Default,
-    );
+    engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
     engine.clearUnits();
   });
 

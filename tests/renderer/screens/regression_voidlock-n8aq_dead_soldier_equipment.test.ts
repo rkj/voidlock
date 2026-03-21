@@ -1,9 +1,11 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { SquadConfig } from "@src/shared/types";
 
 describe("EquipmentScreen - Dead Soldier Validation", () => {
+  let mockInputDispatcher: any;
   let container: HTMLElement;
   let initialConfig: SquadConfig;
   let onSave: any;
@@ -12,6 +14,10 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
   let mockModalService: any;
 
   beforeEach(() => {
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
     document.body.innerHTML = '<div id="screen-equipment"></div>';
     container = document.getElementById("screen-equipment")!;
 
@@ -63,18 +69,18 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
   });
 
   it("should prevent equipping items on a dead soldier", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true // isCampaign
+    });
     screen.show();
 
     // 1. Select the dead soldier (already selected as index 0)
@@ -92,18 +98,18 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
   });
 
   it("should prevent removing items from a dead soldier", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true // isCampaign
+    });
     screen.show();
 
     // 1. Find the remove button for Body in the paper doll (optional slot)
@@ -127,18 +133,18 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
   });
 
   it("should display a DECEASED warning for dead soldiers", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
-      onSave,
-      onBack,
-      
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: onSave,
+      onUpdate: onBack,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true // isCampaign
+    });
     screen.show();
 
     expect(container.textContent).toContain(

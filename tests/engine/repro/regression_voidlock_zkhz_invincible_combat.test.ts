@@ -20,19 +20,24 @@ describe("Invincible Combat Repro (voidlock-zkhz)", () => {
     };
 
     // Initialize engine with map from state
-    const engine = new CoreEngine(
-      map,
-      currentState.seed,
-      squadConfig,
-      true, // agentControlEnabled
-      true, // debugOverlayEnabled
+    const engine = new CoreEngine({
+      map: map,
+      seed: currentState.seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled
+      true,
+      missionType: // debugOverlayEnabled
       currentState.missionType,
-      false, // losOverlayEnabled
+      losOverlayEnabled: false,
+      startingThreatLevel: // losOverlayEnabled
       currentState.stats.threatLevel,
-      0.1, // initialTimeScale
-      false, // startPaused
-      EngineMode.Simulation,
-    );
+      initialTimeScale: 0.1,
+      startPaused: // initialTimeScale
+      false,
+      mode: // startPaused
+      EngineMode.Simulation
+    });
 
     // Manually override engine state to match currentState from JSON
     const state = engine["state"];

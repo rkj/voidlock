@@ -15,7 +15,7 @@ export interface NewCampaignWizardOptions {
 export class NewCampaignWizard {
   private container: HTMLElement;
   private options: NewCampaignWizardOptions;
-  private selectedDifficulty = "normal";
+  private selectedDifficulty = "Standard";
   private isAdvancedShown = false;
   private selectedUnitStyle: UnitStyle = ConfigManager.loadGlobal().unitStyle;
 
@@ -111,12 +111,12 @@ export class NewCampaignWizard {
 
     const DIFFICULTIES = [
       {
-        id: "easy",
+        id: "Simulation",
         name: "Simulation",
         rules: ["Permadeath: Off", "Save: Manual", "Pause: Allowed"],
       },
       {
-        id: "normal",
+        id: "Clone",
         name: "Clone",
         rules: [
           "Permadeath: Partial (Cloneable)",
@@ -125,12 +125,12 @@ export class NewCampaignWizard {
         ],
       },
       {
-        id: "hard",
+        id: "Standard",
         name: "Standard",
         rules: ["Permadeath: On", "Save: Manual", "Pause: Allowed"],
       },
       {
-        id: "extreme",
+        id: "Ironman",
         name: "Ironman",
         rules: ["Permadeath: On", "Save: Auto-Delete", "Pause: Disabled"],
       },
@@ -179,7 +179,7 @@ export class NewCampaignWizard {
         card.classList.add("selected");
 
         // Ironman logic
-        if (this.selectedDifficulty === "extreme") {
+        if (this.selectedDifficulty === "Ironman") {
           pauseCheck.checked = false;
           pauseCheck.disabled = true;
           const tooltip = "Tactical Pause is disabled in Ironman mode.";
@@ -192,16 +192,16 @@ export class NewCampaignWizard {
           pauseLabel.title = "";
           pauseLabel.style.opacity = "1";
           if (
-            this.selectedDifficulty === "easy" ||
-            this.selectedDifficulty === "normal" ||
-            this.selectedDifficulty === "hard"
+            this.selectedDifficulty === "Simulation" ||
+            this.selectedDifficulty === "Clone" ||
+            this.selectedDifficulty === "Standard"
           ) {
             pauseCheck.checked = true;
           }
         }
       };
 
-      card.onclick = selectCard;
+      card.addEventListener("click", selectCard);
       card.onkeydown = (e) => {
         if (e.key === "Enter" || e.key === " ") {
           selectCard();

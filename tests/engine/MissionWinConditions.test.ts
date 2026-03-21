@@ -44,14 +44,14 @@ describe("Mission Win/Loss Conditions", () => {
           { id: "intel-0", kind: "Recover", targetCell: { x: 2, y: 2 } },
         ],
       };
-      const engine = new CoreEngine(
-        intelMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.RecoverIntel,
-      );
+      const engine = new CoreEngine({
+      map: intelMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.RecoverIntel
+    });
 
       // Manually complete ALL objectives
       getInternalState(engine).objectives.forEach(
@@ -70,14 +70,14 @@ describe("Mission Win/Loss Conditions", () => {
     });
 
     it("should win DestroyHive after Hive is killed and squad is dead or extracted", () => {
-      const engine = new CoreEngine(
-        mockMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.DestroyHive,
-      );
+      const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.DestroyHive
+    });
 
       // Find hive objective
       const hiveObj = getInternalState(engine).objectives.find(
@@ -106,14 +106,14 @@ describe("Mission Win/Loss Conditions", () => {
           { id: "intel-0", kind: "Recover", targetCell: { x: 2, y: 2 } },
         ],
       };
-      const engine = new CoreEngine(
-        intelMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.RecoverIntel,
-      );
+      const engine = new CoreEngine({
+      map: intelMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.RecoverIntel
+    });
 
       // Wipe squad
       getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
@@ -131,14 +131,14 @@ describe("Mission Win/Loss Conditions", () => {
           { id: "artifact-0", kind: "Recover", targetCell: { x: 2, y: 2 } },
         ],
       };
-      const engine = new CoreEngine(
-        artifactMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.ExtractArtifacts,
-      );
+      const engine = new CoreEngine({
+      map: artifactMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.ExtractArtifacts
+    });
 
       // 1. Pickup ALL artifacts
       getInternalState(engine).objectives.forEach(
@@ -169,14 +169,14 @@ describe("Mission Win/Loss Conditions", () => {
           { id: "artifact-0", kind: "Recover", targetCell: { x: 2, y: 2 } },
         ],
       };
-      const engine = new CoreEngine(
-        artifactMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.ExtractArtifacts,
-      );
+      const engine = new CoreEngine({
+      map: artifactMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.ExtractArtifacts
+    });
 
       // 1. All objectives completed (Unit 0 picks up artifact 0)
       getInternalState(engine).objectives.forEach(
@@ -202,14 +202,14 @@ describe("Mission Win/Loss Conditions", () => {
     });
 
     it("should win EscortVIP if VIP extracts, regardless of other casualties", () => {
-      const engine = new CoreEngine(
-        mockMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.EscortVIP,
-      );
+      const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
       // Soldier dies
       getInternalState(engine).units.find(
@@ -234,14 +234,14 @@ describe("Mission Win/Loss Conditions", () => {
     });
 
     it("should lose EscortVIP immediately if VIP dies", () => {
-      const engine = new CoreEngine(
-        mockMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.EscortVIP,
-      );
+      const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
       getInternalState(engine).units.find(
         (u: Unit) => u.archetypeId === "vip",
@@ -251,14 +251,14 @@ describe("Mission Win/Loss Conditions", () => {
     });
 
     it("should lose EscortVIP if all units die", () => {
-      const engine = new CoreEngine(
-        mockMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.EscortVIP,
-      );
+      const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
       // Kill everyone
       getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
@@ -268,14 +268,14 @@ describe("Mission Win/Loss Conditions", () => {
     });
 
     it("should win Default mission if all units extract (no objectives)", () => {
-      const engine = new CoreEngine(
-        mockMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.Default,
-      );
+      const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
       // No objectives in Default by default (unless map has them)
       expect(engine.getState().objectives.length).toBe(0);
@@ -288,14 +288,14 @@ describe("Mission Win/Loss Conditions", () => {
     });
 
     it("should lose Default mission if squad wiped without extraction", () => {
-      const engine = new CoreEngine(
-        mockMap,
-        1,
-        squadConfig,
-        true,
-        false,
-        MissionType.Default,
-      );
+      const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
       getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);

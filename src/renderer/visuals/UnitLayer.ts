@@ -7,14 +7,16 @@ import {
   Vector2,
   Unit,
 } from "@src/shared/types";
-import { ThemeManager } from "@src/renderer/ThemeManager";
-import { AssetManager } from "./AssetManager";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class UnitLayer implements RenderLayer {
-  private theme = ThemeManager.getInstance();
-  private assets = AssetManager.getInstance();
+  private get theme() {
+    return this.sharedState.theme;
+  }
+  private get assets() {
+    return this.sharedState.assets;
+  }
 
   constructor(private sharedState: SharedRendererState) {}
 
@@ -200,6 +202,20 @@ export class UnitLayer implements RenderLayer {
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(indicator, x, y);
+        }
+
+        // Target index rendering (ADR 0017)
+        if (enemy.isTargeted && enemy.targetIndex !== undefined) {
+          const targetSize = cellSize / 8;
+          ctx.fillStyle = this.theme.getColor("--color-primary");
+          ctx.font = `bold ${targetSize}px monospace`;
+          ctx.textAlign = "left";
+          ctx.textBaseline = "bottom";
+          ctx.fillText(
+            enemy.targetIndex.toString(),
+            x + size * 1.5,
+            y - size * 1.5,
+          );
         }
       }
 

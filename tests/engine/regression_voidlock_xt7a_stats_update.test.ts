@@ -30,7 +30,13 @@ describe("UnitManager Recalculate Stats Regression", () => {
       soldiers: [{ archetypeId: "scout" }],
       inventory: { light_recon: 1 },
     };
-    engine = new CoreEngine(mockMap, 123, defaultSquad, false, false);
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
     engine.addUnit({
       id: "u1",

@@ -27,13 +27,15 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(
-      mockMap,
-      123,
-      { soldiers: [], inventory: {} },
-      true, // agentControlEnabled = true
-      true, // skipDeployment = true
-    );
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControlEnabled = true
+      true,
+      missionType: // skipDeployment = true
+    });
     engine.clearUnits();
     engine.clearEnemies();
   });
@@ -47,7 +49,13 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
       spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
       extraction: { x: 9, y: 0 },
     };
-    engine = new CoreEngine(corridorMap, 123, { soldiers: [], inventory: {} }, true, true);
+    engine = new CoreEngine({
+      map: corridorMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true
+    });
     engine.clearUnits();
 
     // Unit at (2,0), Enemy at (1,0). Engagement: AVOID.
@@ -135,7 +143,13 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
       ],
       spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
     };
-    engine = new CoreEngine(lMap, 123, { soldiers: [], inventory: {} }, true, true);
+    engine = new CoreEngine({
+      map: lMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true
+    });
     engine.clearUnits();
 
     // Unit at (0,0), Target at (9,9)
@@ -268,7 +282,13 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
       ],
       spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
     };
-    engine = new CoreEngine(lMap, 123, { soldiers: [], inventory: {} }, true, true);
+    engine = new CoreEngine({
+      map: lMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true
+    });
     engine.clearUnits();
 
     engine.addUnit({
@@ -454,7 +474,13 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
       ],
       spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
     };
-    engine = new CoreEngine(deadEndMap, 123, { soldiers: [], inventory: {} }, true, true);
+    engine = new CoreEngine({
+      map: deadEndMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true
+    });
     engine.clearUnits();
 
     // Unit at (2,0), neighbor (1,0) is in history
@@ -528,7 +554,13 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
       ],
       spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
     };
-    engine = new CoreEngine(lMap, 123, { soldiers: [], inventory: {} }, true, true);
+    engine = new CoreEngine({
+      map: lMap,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: true
+    });
     engine.clearUnits();
 
     engine.addUnit({

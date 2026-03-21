@@ -53,16 +53,18 @@ describe("SquadBuilder Move Logic", () => {
   });
 
   it("should remove soldier from roster list when assigned to squad (Campaign)", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      true, // isCampaign
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: // isCampaign
+      () => {}
+    });
     builder.render();
 
     // Initially both in roster
@@ -93,16 +95,17 @@ describe("SquadBuilder Move Logic", () => {
       name: "Soldier 1",
       archetypeId: "assault",
     });
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      true,
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: true,
+      onSquadUpdated: () => {}
+    });
     builder.render();
 
     // Initially s2 in roster, s1 in squad
@@ -124,16 +127,18 @@ describe("SquadBuilder Move Logic", () => {
   });
 
   it("should remove archetype from roster list when assigned to squad (Custom)", () => {
-    const builder = new SquadBuilder(
-      "squad-builder",
-      context.campaignManager as any,
-      {} as any, // mock campaignShell
-      context.modalService as any,
-      squad,
-      MissionType.Default,
-      false, // isCampaign
-      () => {},
-    );
+    const builder = new SquadBuilder({
+      containerId: "squad-builder",
+      campaignManager: context.campaignManager as any as any,
+      campaignShell: {} as any as any,
+      modalService: // mock campaignShell
+      context.modalService as any as any,
+      initialSquad: squad,
+      missionType: MissionType.Default,
+      isCampaign: false,
+      onSquadUpdated: // isCampaign
+      () => {}
+    });
     builder.render();
 
     // Roster should have archetypes (Assault, Medic, Scout, Heavy, VIP - though VIP might be filtered)

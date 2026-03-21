@@ -1,3 +1,4 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
@@ -9,10 +10,22 @@ describe("CampaignScreen", () => {
   let onNodeSelect: any;
   let onBack: any;
   let mockModalService: any;
+  let mockThemeManager: any;
+  let mockInputDispatcher: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-campaign"></div>';
     container = document.getElementById("screen-campaign")!;
+
+    mockThemeManager = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    };
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
 
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
@@ -59,13 +72,15 @@ describe("CampaignScreen", () => {
   });
 
   it("should render 'New Campaign' wizard when state is null", () => {
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockThemeManager as any,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
       onNodeSelect,
-      onBack,
-    );
+      onMainMenu: onBack,
+    });
     screen.show();
 
     expect(container.textContent).toContain("New Expedition");
@@ -75,13 +90,15 @@ describe("CampaignScreen", () => {
 
   it("should render Sector Map when campaign is active", () => {
     manager.startNewCampaign(12345, "normal");
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockThemeManager as any,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
       onNodeSelect,
-      onBack,
-    );
+      onMainMenu: onBack,
+    });
     screen.show();
 
     // The 'Sector Map' header is now in the CampaignShell, but the screen itself renders nodes
@@ -94,13 +111,15 @@ describe("CampaignScreen", () => {
 
   it("should trigger onNodeSelect when an accessible node is clicked", () => {
     manager.startNewCampaign(12345, "normal");
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockThemeManager as any,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
       onNodeSelect,
-      onBack,
-    );
+      onMainMenu: onBack,
+    });
     screen.show();
 
     const accessibleNode = container.querySelector(
@@ -119,13 +138,15 @@ describe("CampaignScreen", () => {
     state.nodes[0].status = "Cleared";
     state.currentNodeId = state.nodes[0].id;
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockThemeManager as any,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
       onNodeSelect,
-      onBack,
-    );
+      onMainMenu: onBack,
+    });
     screen.show();
 
     const currentNode = container.querySelector(
@@ -138,13 +159,15 @@ describe("CampaignScreen", () => {
   });
 
   it("should render its own back button in wizard footer", () => {
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockThemeManager as any,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
       onNodeSelect,
-      onBack,
-    );
+      onMainMenu: onBack,
+    });
     screen.show();
 
     const backBtn = Array.from(container.querySelectorAll("button")).find(
@@ -158,13 +181,15 @@ describe("CampaignScreen", () => {
     const state = manager.getState()!;
     state.status = "Defeat";
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockThemeManager as any,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
       onNodeSelect,
-      onBack,
-    );
+      onMainMenu: onBack,
+    });
     screen.show();
 
     expect(container.textContent).toContain("CONTRACT TERMINATED");
@@ -176,13 +201,15 @@ describe("CampaignScreen", () => {
     const state = manager.getState()!;
     state.status = "Victory";
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
+    const screen = new CampaignScreen({
+      containerId: "screen-campaign",
+      campaignManager: manager,
+      themeManager: mockThemeManager as any,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
       onNodeSelect,
-      onBack,
-    );
+      onMainMenu: onBack,
+    });
     screen.show();
 
     expect(container.textContent).toContain("CONTRACT SUCCESS");

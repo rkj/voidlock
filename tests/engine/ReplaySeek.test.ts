@@ -26,22 +26,31 @@ describe("CoreEngine Replay Seek", () => {
   };
 
   it("should catch up to targetTick in Replay mode", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      12345,
-      { soldiers: [{ id: "s1", archetypeId: "scout" }], inventory: {} },
-      true, // agentControl
-      false, // debug
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 12345,
+      squadConfig: { soldiers: [{ id: "s1", archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControl
+      false,
+      missionType: // debug
       MissionType.Default,
-      false, // los
-      0, // threat
-      1.0, // timeScale
-      false, // paused
+      losOverlayEnabled: false,
+      startingThreatLevel: // los
+      0,
+      initialTimeScale: // threat
+      1.0,
+      startPaused: // timeScale
+      false,
+      mode: // paused
       EngineMode.Replay,
-      [], // commandLog
-      true, // allowPause
-      112, // targetTick (7 updates of 16ms)
-    );
+      initialCommandLog: [],
+      allowTacticalPause: // commandLog
+      true,
+      targetTick: // allowPause
+      112,
+      baseEnemyCount: // targetTick (7 updates of 16ms)
+    });
 
     // Initial state.t should be 112
     expect(engine.getState().t).toBe(112);
@@ -50,19 +59,25 @@ describe("CoreEngine Replay Seek", () => {
   it("should apply command log correctly during catch up", () => {
     // We'll create a simple command log that makes a unit move.
     // However, units move slowly, so we need a significant targetTick.
-    const engine = new CoreEngine(
-      mockMap,
-      12345,
-      { soldiers: [{ id: "s1", archetypeId: "scout" }], inventory: {} },
-      true, // agentControl
-      false, // debug
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 12345,
+      squadConfig: { soldiers: [{ id: "s1", archetypeId: "scout" }], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: // agentControl
+      false,
+      missionType: // debug
       MissionType.Default,
-      false, // los
-      0, // threat
-      1.0, // timeScale
-      false, // paused
+      losOverlayEnabled: false,
+      startingThreatLevel: // los
+      0,
+      initialTimeScale: // threat
+      1.0,
+      startPaused: // timeScale
+      false,
+      mode: // paused
       EngineMode.Replay,
-      [
+      initialCommandLog: [
         {
           tick: 0,
           command: {
@@ -71,10 +86,12 @@ describe("CoreEngine Replay Seek", () => {
             targetCell: { x: 1, y: 1 },
           } as any,
         },
-      ],
-      true, // allowPause
-      160, // targetTick (10 updates of 16ms)
-    );
+      allowTacticalPause: ],
+      targetTick: true,
+      baseEnemyCount: // allowPause
+      160,
+      enemyGrowthPerMission: // targetTick (10 updates of 16ms)
+    });
 
     const state = engine.getState();
     expect(state.t).toBe(160);

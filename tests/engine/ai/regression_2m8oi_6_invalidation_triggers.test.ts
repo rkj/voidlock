@@ -47,7 +47,13 @@ describe("AI Invalidation Triggers (ADR 0056)", () => {
         map.walls?.push({ p1: { x: 10, y: y }, p2: { x: 10, y: y + 1 } });
     }
 
-    engine = new CoreEngine(map, 123, squadConfig, true, false);
+    engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
   });
 
   it("should invalidate Exploration plan when a new enemy enters LOS", () => {
@@ -183,7 +189,13 @@ describe("AI Invalidation Triggers (ADR 0056)", () => {
             { x1: 4, y1: 10, x2: 5, y2: 10, type: BoundaryType.Door, doorId: "door1" }
         ]
     };
-    engine = new CoreEngine(mapWithDoor, 123, squadConfig, true, false);
+    engine = new CoreEngine({
+      map: mapWithDoor,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     // 2. Force an exploration plan
     let unit = engine.getState().units[0];
@@ -246,7 +258,13 @@ describe("AI Invalidation Triggers (ADR 0056)", () => {
             { id: "obj1", kind: "Recover" as const, targetCell: { x: 15, y: 15 } }
         ]
     };
-    engine = new CoreEngine(mapWithObj, 123, squadConfig, true, false);
+    engine = new CoreEngine({
+      map: mapWithObj,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
 
     // 2. Run until unit has an objective plan
     (engine as any).state.objectives[0].visible = true;

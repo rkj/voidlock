@@ -29,6 +29,7 @@ const mockContext = {
   })),
   // ... other methods
   setLineDash: vi.fn(),
+  closePath: vi.fn(),
   fillText: vi.fn(),
   drawImage: vi.fn(),
   arc: vi.fn(),
@@ -61,7 +62,24 @@ describe("Renderer LOS", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    renderer = new Renderer(mockCanvas);
+    const mockThemeManager = {
+      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
+      getColor: vi.fn().mockReturnValue("#ffffff"),
+    };
+    const mockAssetManager = {
+      iconImages: {},
+      unitSprites: {},
+      enemySprites: {},
+      getUnitSprite: vi.fn(),
+      getEnemySprite: vi.fn(),
+      getMiscSprite: vi.fn(),
+      getIcon: vi.fn(),
+    };
+    renderer = new Renderer({
+      canvas: mockCanvas,
+      themeManager: mockThemeManager as any,
+      assetManager: mockAssetManager as any
+    });
     renderer.setCellSize(32);
 
     const map: MapDefinition = {

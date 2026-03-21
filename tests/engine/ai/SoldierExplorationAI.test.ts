@@ -43,7 +43,13 @@ describe("Soldier Exploration AI", () => {
       ],
     };
 
-    engine = new CoreEngine(mockMap, 123, defaultSquad, true, false); // agentControlEnabled = true
+    engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: defaultSquad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    }); // agentControlEnabled = true
     engine.clearUnits(); // Clear default unit to add our own
     engine.addUnit({
       id: "u1",

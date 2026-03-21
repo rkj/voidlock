@@ -31,14 +31,14 @@ describe("Enemy Tracers Regression (voidlock-uk61)", () => {
   };
 
   it("should set lastAttackTime and lastAttackTarget when an enemy attacks", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      123,
-      squadConfig,
-      false,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
+    });
 
     // Clear initial units/enemies and add our own
     engine.clearUnits();

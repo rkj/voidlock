@@ -1,3 +1,4 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
@@ -9,6 +10,7 @@ describe("EquipmentScreen", () => {
   let onBack: any;
   let mockManager: any;
   let mockModalService: any;
+  let mockInputDispatcher: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-equipment"></div>';
@@ -52,21 +54,27 @@ describe("EquipmentScreen", () => {
       assignEquipment: vi.fn(),
     };
 
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
+
     onBack = vi.fn();
   });
 
   it("should render soldier list on show", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
+    const screen = new EquipmentScreen({
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+      onUpdate: null as any,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true,
+    });
     screen.show();
 
     const soldierNames = Array.from(
@@ -77,17 +85,18 @@ describe("EquipmentScreen", () => {
   });
 
   it("should allow selecting a soldier", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
+    const screen = new EquipmentScreen({
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+      onUpdate: null as any,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true,
+    });
     screen.show();
 
     let soldierItems = Array.from(
@@ -107,16 +116,18 @@ describe("EquipmentScreen", () => {
   });
 
   it("should pre-populate equipment from archetype defaults", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig, // assault has pulse_rifle and combat_knife in ArchetypeLibrary
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
+      onBack: // assault has pulse_rifle and combat_knife in ArchetypeLibrary
       onBack,
-      null as any,
-      false,
-      true
-    );
+      onUpdate: null as any,
+      onLaunch: false,
+      isShop: true
+    });
     screen.show();
 
     // Check soldier list display
@@ -148,17 +159,18 @@ describe("EquipmentScreen", () => {
   });
 
   it("should allow adding global items", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
+    const screen = new EquipmentScreen({
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+      onUpdate: null as any,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true,
+    });
     screen.show();
 
     // Find Frag Grenade row in armory panel (global supplies section)
@@ -188,17 +200,18 @@ describe("EquipmentScreen", () => {
   });
 
   it("should allow assigning weapons to soldiers", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
+    const screen = new EquipmentScreen({
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+      onUpdate: null as any,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true,
+    });
     screen.show();
 
     // Selected soldier is Assault (index 0)
@@ -226,17 +239,18 @@ describe("EquipmentScreen", () => {
   });
 
   it("should calculate stats correctly", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
+    const screen = new EquipmentScreen({
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+      onUpdate: null as any,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true,
+    });
     screen.show();
 
     // Default Assault HP is 100
@@ -259,17 +273,18 @@ describe("EquipmentScreen", () => {
   });
 
   it("should trigger onBack", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      initialConfig,
+    const screen = new EquipmentScreen({
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      inputDispatcher: mockInputDispatcher as any,
+      modalService: mockModalService as any,
+      currentSquad: initialConfig,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+      onUpdate: null as any,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true,
+    });
     screen.show();
 
     const backBtn = Array.from(container.querySelectorAll("button")).find(
@@ -285,17 +300,18 @@ describe("EquipmentScreen", () => {
       soldiers: [{ archetypeId: "assault", name: "Captain Kirk" }],
       inventory: {},
     };
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      configWithNames,
-      onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: configWithNames,
+      onBack: onBack,
+      onUpdate: null as any,
+      onLaunch: undefined,
+      isShop: false,
+      isCampaign: true // isCampaign
+    });
     screen.show();
 
     const soldierNames = Array.from(
@@ -309,17 +325,18 @@ describe("EquipmentScreen", () => {
   });
 
   it("should disable launch button if squad is empty in campaign mode", () => {
-    const screen = new EquipmentScreen(
-      "screen-equipment",
-      mockManager,
-      mockModalService as any,
-      { soldiers: [], inventory: {} },
-      onBack,
-      null as any,
-      vi.fn(), // onLaunch
-      false, // isShop
-      true // isCampaign
-    );
+    const screen = new EquipmentScreen({
+      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      containerId: "screen-equipment",
+      campaignManager: mockManager,
+      modalService: mockModalService as any,
+      currentSquad: { soldiers: [], inventory: {} },
+      onBack: onBack,
+      onUpdate: null as any,
+      onLaunch: vi.fn(),
+      isShop: false,
+      isCampaign: true // isCampaign
+    });
     screen.setHasNodeSelected(true);
     screen.show();
 

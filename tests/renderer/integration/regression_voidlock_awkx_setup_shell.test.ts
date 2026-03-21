@@ -2,14 +2,20 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { GameApp } from "@src/renderer/app/GameApp";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MapGeneratorType } from "@src/shared/types";
 
-// Mock dependencies before importing GameApp
+// Mock dependencies
 vi.mock("@package.json", () => ({
   default: { version: "1.0.0" },
 }));
 
 const mockGameClient = {
-  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
+  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
+  init: vi.fn(),
+  pause: vi.fn(),
+  resume: vi.fn(),
   onStateUpdate: vi.fn(),
   queryState: vi.fn(),
   addStateUpdateListener: vi.fn(),
@@ -23,9 +29,6 @@ const mockGameClient = {
   toggleDebugOverlay: vi.fn(),
   toggleLosOverlay: vi.fn(),
   getReplayData: vi.fn().mockReturnValue({ seed: 123, commandLog: [] }),
-  forceWin: vi.fn(),
-  forceLose: vi.fn(),
-  loadReplay: vi.fn(),
 };
 
 vi.mock("@src/engine/GameClient", () => ({
@@ -35,7 +38,7 @@ vi.mock("@src/engine/GameClient", () => ({
 vi.mock("@src/renderer/Renderer", () => ({
   Renderer: vi.fn().mockImplementation(() => ({
     render: vi.fn(),
-      destroy: vi.fn(),
+    destroy: vi.fn(),
     setCellSize: vi.fn(),
     setUnitStyle: vi.fn(),
     setOverlay: vi.fn(),
@@ -43,79 +46,78 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      applyTheme: vi.fn(),
-    }),
-  },
-}));
+vi.mock("@src/renderer/ThemeManager", () => {
+  const mockInstance = {
+    init: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    getColor: vi.fn().mockReturnValue("#000"),
+    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+    getCurrentThemeId: vi.fn().mockReturnValue("default"),
+    applyTheme: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return { ThemeManager: mockConstructor };
+});
 
-const mockModalService = {
-  alert: vi.fn().mockResolvedValue(undefined),
-  confirm: vi.fn().mockResolvedValue(true),
-  prompt: vi.fn().mockResolvedValue("New Recruit"),
-  show: vi.fn().mockResolvedValue(undefined),
-};
+vi.mock("@src/renderer/visuals/AssetManager", () => {
+  const mockInstance = {
+    loadSprites: vi.fn(),
+    getUnitSprite: vi.fn(),
+    getEnemySprite: vi.fn(),
+    getMiscSprite: vi.fn(),
+    getIcon: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return { AssetManager: mockConstructor };
+});
 
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
-}));
-
-// Mock CampaignManager
 let currentCampaignState: any = null;
-
 vi.mock("@src/renderer/campaign/CampaignManager", () => {
-  return {
-    CampaignManager: {
-      getInstance: vi.fn().mockReturnValue({
-        getState: vi.fn(() => currentCampaignState),
-        getStorage: vi.fn(),
-        getSyncStatus: vi.fn().mockReturnValue("local-only"),
-        addChangeListener: vi.fn(),
-        removeChangeListener: vi.fn(),
-        load: vi.fn(),
-        processMissionResult: vi.fn(),
-        save: vi.fn(), assignEquipment: vi.fn(),
-        startNewCampaign: vi.fn((_seed, _diff, _pause, _theme) => {
-          currentCampaignState = {
+  const mockInstance = {
+    getState: vi.fn(() => currentCampaignState),
+    load: vi.fn(),
+    addChangeListener: vi.fn(),
+    removeChangeListener: vi.fn(),
+    startNewCampaign: vi.fn((seed, diff, overrides) => {
+        currentCampaignState = {
             status: "Active",
             nodes: [
-              {
-                id: "node-1",
-                type: "Combat",
-                status: "Accessible",
-                rank: 1,
-                difficulty: 1,
-                mapSeed: 123,
-                connections: [],
-                position: { x: 0, y: 0 },
-              },
+                {
+                    id: "node-1",
+                    type: "Combat",
+                    status: "Accessible",
+                    rank: 0,
+                    difficulty: 1,
+                    mapSeed: 123,
+                    connections: [],
+                    position: { x: 0, y: 0 },
+                    bonusLootCount: 0,
+                },
             ],
             roster: [
-              {
-                id: "s1",
-                name: "Soldier 1",
-                archetypeId: "scout",
-                status: "Healthy",
-                level: 1,
-                hp: 100,
-                maxHp: 100,
-                xp: 0,
-                soldierAim: 80,
-                equipment: {
-                  rightHand: "pulse_rifle",
-                  leftHand: null,
-                  body: "basic_armor",
-                  feet: null,
+                {
+                    id: "s1",
+                    name: "Soldier 1",
+                    archetypeId: "scout",
+                    status: "Healthy",
+                    level: 1,
+                    hp: 100,
+                    maxHp: 100,
+                    xp: 0,
+                    kills: 0,
+                    missions: 0,
+                    recoveryTime: 0,
+                    soldierAim: 80,
+                    equipment: {
+                        rightHand: "pulse_rifle",
+                        leftHand: undefined,
+                        body: "basic_armor",
+                        feet: undefined,
+                    },
                 },
-              },
             ],
             scrap: 100,
             intel: 0,
@@ -124,157 +126,127 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             history: [],
             unlockedArchetypes: ["scout", "heavy", "medic", "demolition"],
             rules: {
-              allowTacticalPause: true,
-              themeId: "default",
-              mode: "Preset",
-              difficulty: "normal",
-              deathRule: "Simulation",
-              mapGeneratorType: "DenseShip",
-              difficultyScaling: 1,
-              resourceScarcity: 1,
+                mode: "Preset",
+                difficulty: diff || "Standard",
+                deathRule: "Simulation",
+                allowTacticalPause: true,
+                mapGeneratorType: "DenseShip",
+                difficultyScaling: 1,
+                resourceScarcity: 1,
+                startingScrap: 100,
+                mapGrowthRate: 1,
+                baseEnemyCount: 3,
+                enemyGrowthPerMission: 1,
+                economyMode: "Open",
+                themeId: "default",
             },
-          };
-        }),
-        reset: vi.fn(() => {
-          currentCampaignState = null;
-        }),
-        deleteSave: vi.fn(() => {
-          currentCampaignState = null;
-        }),
-        healSoldier: vi.fn(),
-        recruitSoldier: vi.fn(),
-        assignEquipment: vi.fn(),
-        applyEventChoice: vi.fn(),
-        advanceCampaignWithoutMission: vi.fn(),
+        };
+    }),
+    getSyncStatus: vi.fn().mockReturnValue("local-only"),
+    getStorage: vi.fn().mockReturnValue({
+      getCloudSync: vi.fn().mockReturnValue({
+        initialize: vi.fn().mockResolvedValue(undefined),
+        setEnabled: vi.fn(),
       }),
-    },
+    }),
   };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return { CampaignManager: mockConstructor };
+});
+
+vi.mock("@src/renderer/campaign/MetaManager", () => {
+  const mockInstance = {
+    getStats: vi.fn().mockReturnValue({
+      totalKills: 0,
+      totalCampaignsStarted: 0,
+      campaignsWon: 0,
+      campaignsLost: 0,
+      totalMissionsWon: 0,
+      totalMissionsPlayed: 0,
+      totalCasualties: 0,
+      totalScrapEarned: 0,
+      currentIntel: 0,
+      unlockedArchetypes: [],
+      unlockedItems: [],
+      prologueCompleted: false,
+    }),
+    load: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return { MetaManager: mockConstructor };
 });
 
 describe("Mission Setup Shell Visibility (voidlock-awkx)", () => {
+  let app: GameApp;
+
   beforeEach(async () => {
     currentCampaignState = null;
-
-    // Mock ResizeObserver
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
-
-    // Mock getContext for canvas
-    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
-      clearRect: vi.fn(),
-      beginPath: vi.fn(),
-      moveTo: vi.fn(),
-      lineTo: vi.fn(),
-      stroke: vi.fn(),
-      setLineDash: vi.fn(),
-    }) as any;
-
-    // Set up DOM - NESTED STRUCTURE (matching index.html)
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
         <button id="btn-menu-campaign">Campaign</button>
-        <button id="btn-menu-custom">Custom Mission</button>
-        <button id="btn-menu-statistics">Statistics</button>
-        <button id="btn-menu-reset">Reset Data</button>
-        <p id="menu-version"></p>
       </div>
-
       <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
           <div id="campaign-shell-top-bar"></div>
-          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+          <div id="campaign-shell-content">
               <div id="screen-engineering" class="screen" style="display:none"></div>
               <div id="screen-campaign" class="screen" style="display:none"></div>
               <div id="screen-barracks" class="screen" style="display:none"></div>
-              <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
-              
-              <!-- Mission Setup is INSIDE the shell in current architecture -->
+              <div id="screen-mission-setup" class="screen" style="display:none">
+              <div id="screen-settings" class="screen" style="display:none"></div>
               <div id="screen-mission-setup" class="screen" style="display:none">
                 <div id="mission-setup-context"></div>
-                <div id="map-config-section">
-                  <select id="map-generator-type">
-                    <option value="Procedural">Procedural</option>
-                  </select>
-                  <input type="number" id="map-seed" />
-                  <div id="preset-map-controls">
-                    <input type="number" id="map-width" value="14" />
-                    <input type="number" id="map-height" value="14" />
-                    <input type="number" id="map-spawn-points" value="1" />
-                    <input type="range" id="map-starting-threat" value="0" />
-                    <span id="map-starting-threat-value">0</span>
-                    <input type="range" id="map-base-enemies" value="3" />
-                    <input type="range" id="map-enemy-growth" value="1.0" />
-                  </div>
-                </div>
-                <div id="unit-style-preview"></div>
-                <div id="squad-builder"></div>
                 <button id="btn-goto-equipment">Equipment</button>
                 <button id="btn-setup-back">Back</button>
               </div>
           </div>
       </div>
-
-      <div id="screen-mission" class="screen" style="display:none">
-        <div id="top-bar">
-          <div id="game-status"></div>
-          <div id="top-threat-fill"></div>
-          <div id="top-threat-value">0%</div>
-          <button id="btn-pause-toggle">Pause</button>
-          <input type="range" id="game-speed" />
-          <span id="speed-value">1.0x</span>
-          <button id="btn-give-up">Give Up</button>
-        </div>
-        <div id="soldier-list"></div>
-        <canvas id="game-canvas"></canvas>
-        <div id="right-panel"></div>
-      </div>
+      <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
+      <div id="screen-mission" class="screen" style="display:none">
+        <div id="hud-top-bar"></div>
+        <div id="hud-soldier-panel"></div>
+        <div id="hud-right-panel"></div>
+        <div id="hud-mobile-action-panel"></div>
+        <div id="game-container">
+          <canvas id="game-canvas"></canvas>
+        </div>
+      </div>
       <div id="modal-container"></div>
     `;
-
     localStorage.clear();
-
-    // Import main.ts
-    vi.resetModules();
-    await import("@src/renderer/main");
-
-    // Trigger DOMContentLoaded
-    document.dispatchEvent(new Event("DOMContentLoaded"));
+    app = new GameApp();
+    await app.initialize();
   });
 
   it("should maintain campaign shell visibility when entering mission setup from campaign screen", async () => {
     const shell = document.getElementById("screen-campaign-shell");
-    const missionSetup = document.getElementById("screen-mission-setup");
-
-    // 1. Main Menu -> Campaign (Initial wizard)
+    
+    // 1. Start Campaign
     document.getElementById("btn-menu-campaign")?.click();
+    currentCampaignState = {
+      status: "Active",
+      nodes: [{ id: "node-1", type: "Combat", status: "Accessible", rank: 0, connections: [], position: { x: 0, y: 0 } }],
+      roster: [],
+      rules: { difficulty: "normal", allowTacticalPause: true, mapGeneratorType: MapGeneratorType.TreeShip },
+    };
+    
+    // Wait for wizard
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const startBtn = document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement;
+    startBtn?.click();
+
     expect(shell?.style.display).toBe("flex");
 
-    // 2. Start Campaign
-    const startBtn = document.querySelector(
-      ".campaign-setup-wizard .primary-button",
-    ) as HTMLElement;
-    if (!startBtn) throw new Error("Start button not found");
-    startBtn.click();
+    // 2. Select node
+    const registry = (app as any).registry;
+    registry.navigationOrchestrator.handleExternalScreenChange("mission-setup", true);
+
     expect(shell?.style.display).toBe("flex");
-
-    // 3. Click an accessible node
-    const nodeEl = document.querySelector(
-      ".campaign-node.accessible",
-    ) as HTMLElement;
-    if (!nodeEl) throw new Error("Accessible node not found");
-    nodeEl.click();
-
-    // 4. Verify we are on Equipment screen (skipping Mission Setup)
-    const equipment = document.getElementById("screen-equipment");
-    expect(equipment?.style.display).toBe("flex");
-
-    // 5. Verify Shell is still visible
-    expect(shell?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
   });
 });

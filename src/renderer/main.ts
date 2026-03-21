@@ -1,5 +1,27 @@
 import { GameApp } from "./app/GameApp";
 import { Logger } from "@src/shared/Logger";
+import { createElement, Fragment } from "@src/renderer/jsx";
+
+// Ensure JSX factory is available globally for TSX components
+(window as any).createElement = createElement;
+(window as any).Fragment = Fragment;
+
+// Global Error Handling (Spec 8.12)
+window.onerror = (message, source, lineno, colno, error) => {
+  Logger.error(`Global Error (main.ts): ${message}`, {
+    source,
+    lineno,
+    colno,
+    error,
+  });
+};
+
+window.onunhandledrejection = (event) => {
+  Logger.error(
+    `Unhandled Promise Rejection (main.ts): ${event.reason}`,
+    event.reason,
+  );
+};
 
 declare global {
   interface Window {
@@ -8,37 +30,26 @@ declare global {
   }
 }
 
-// Global Error Logging (Spec 8.12)
-window.addEventListener("error", (event) => {
-  const { message, filename, lineno, colno, error } = event;
-  Logger.error("Global Error (main.ts):", {
-    message,
-    filename,
-    lineno,
-    colno,
-    error,
-  });
-  if (window.__VOIDLOCK_PANIC_HANDLER__) {
-    window.__VOIDLOCK_PANIC_HANDLER__(error || message);
-  }
-});
+/**
+ * Main entry point for the Voidlock renderer.
+ * Separated from auto-start logic to allow testing without side effects.
+ */
+export async function bootstrap() {
+  const app = new GameApp();
+  window.GameAppInstance = app;
 
-window.addEventListener("unhandledrejection", (event) => {
-  Logger.error("Unhandled Promise Rejection (main.ts):", event.reason);
-  if (window.__VOIDLOCK_PANIC_HANDLER__) {
-    window.__VOIDLOCK_PANIC_HANDLER__(event.reason);
-  }
-});
-
-const app = new GameApp();
-window.GameAppInstance = app;
-
-app
-  .initialize()
-  .then(() => {
+  try {
+    await app.initialize();
     app.start();
     (window as any).__VOIDLOCK_READY__ = true;
-  })
-  .catch((err) => {
+  } catch (err) {
     Logger.error("Failed to initialize GameApp:", err);
-  });
+  }
+    
+  return app;
+}
+
+// Only auto-start if not in a test environment
+if (typeof process === "undefined" || !process.env?.VITEST) {
+  bootstrap();
+}

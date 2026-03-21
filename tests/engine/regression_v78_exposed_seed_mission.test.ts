@@ -27,14 +27,14 @@ describe("CoreEngine: Exposed Seed & Mission Type", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(
-      mockMap,
-      seed,
-      squadConfig,
-      false,
-      false,
-      missionType,
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: missionType
+    });
 
     const state = engine.getState();
     expect(state.seed).toBe(seed);
@@ -48,7 +48,13 @@ describe("CoreEngine: Exposed Seed & Mission Type", () => {
       inventory: {},
     };
 
-    const engine = new CoreEngine(mockMap, seed, squadConfig, false, false);
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: seed,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const state = engine.getState();
     expect(state.seed).toBe(seed);

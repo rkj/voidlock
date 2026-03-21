@@ -16,19 +16,19 @@ describe("Medkit Restriction (voidlock-3h2q)", () => {
   }
 
   it("Medkit should only heal self even if targetUnitId is specified", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 1,
+      squadConfig: {
         soldiers: [
           { archetypeId: "assault", id: "unit-1", hp: 50, maxHp: 100 },
           { archetypeId: "medic", id: "unit-2", hp: 10, maxHp: 100 },
         ],
         inventory: { medkit: 1 },
       },
-      false,
-      false,
-    );
+      agentControlEnabled: false,
+      debugOverlayEnabled: false
+    });
 
     const stateBefore = engine.getState();
     const unit1Before = stateBefore.units.find((u) => u.id === "unit-1")!;

@@ -12,33 +12,41 @@ type DragData =
   | { type: "campaign"; id: string; archetypeId: string }
   | { type: "custom"; archetypeId: string };
 
+export interface SquadBuilderConfig {
+  containerId: string;
+  campaignManager: CampaignManager;
+  campaignShell: CampaignShell;
+  modalService: ModalService;
+  initialSquad: SquadConfig;
+  missionType: MissionType;
+  isCampaign: boolean;
+  onSquadUpdated: (squad: SquadConfig) => void;
+}
+
 export class SquadBuilder {
   private container: HTMLElement;
+  private manager: CampaignManager;
+  private shell: CampaignShell;
+  private modal: ModalService;
   private squad: SquadConfig;
   private missionType: MissionType;
   private isCampaign: boolean;
   private onSquadUpdated: (squad: SquadConfig) => void;
   private selectedId: string | null = null;
 
-  constructor(
-    containerId: string,
-    private campaignManager: CampaignManager,
-    private campaignShell: CampaignShell,
-    private modalService: ModalService,
-    initialSquad: SquadConfig,
-    missionType: MissionType,
-    isCampaign: boolean,
-    onSquadUpdated: (squad: SquadConfig) => void,
-  ) {
-    const el = document.getElementById(containerId);
+  constructor(config: SquadBuilderConfig) {
+    const el = document.getElementById(config.containerId);
     if (!el) {
-      throw new Error(`SquadBuilder container not found: ${containerId}`);
+      throw new Error(`SquadBuilder container not found: ${config.containerId} (config: ${JSON.stringify(config)})`);
     }
     this.container = el;
-    this.squad = initialSquad;
-    this.missionType = missionType;
-    this.isCampaign = isCampaign;
-    this.onSquadUpdated = onSquadUpdated;
+    this.manager = config.campaignManager;
+    this.shell = config.campaignShell;
+    this.modal = config.modalService;
+    this.squad = config.initialSquad;
+    this.missionType = config.missionType;
+    this.isCampaign = config.isCampaign;
+    this.onSquadUpdated = config.onSquadUpdated;
   }
 
   public update(
@@ -65,12 +73,12 @@ export class SquadBuilder {
 
     if (data.archetypeId === "vip") {
       if (isEscortMission || hasVipInSquad) {
-        await this.modalService.alert("VIP already assigned.");
+        await this.modal.alert("VIP already assigned.");
         return;
       }
     } else {
       if (totalNonVip >= MAX_SQUAD_SIZE) {
-        await this.modalService.alert(
+        await this.modal.alert(
           `Maximum of ${MAX_SQUAD_SIZE} soldiers allowed.`,
         );
         return;
@@ -79,7 +87,7 @@ export class SquadBuilder {
 
     if (data.type === "campaign") {
       if (this.squad.soldiers.some((s) => s && s.id === data.id)) return;
-      const state = this.campaignManager.getState();
+      const state = this.manager.getState();
       const s = state?.roster.find((r) => r.id === data.id);
       if (s) {
         this.squad.soldiers.push({
@@ -114,12 +122,12 @@ export class SquadBuilder {
   };
 
   private handleRecruit = async () => {
-    const state = this.campaignManager.getState();
+    const state = this.manager.getState();
     if (!state) return;
     const MAX_SQUAD_SIZE = 4;
 
     try {
-      const newId = this.campaignManager.recruitSoldier(
+      const newId = this.manager.recruitSoldier(
         state.unlockedArchetypes[
           Math.floor(Math.random() * state.unlockedArchetypes.length)
         ],
@@ -130,7 +138,7 @@ export class SquadBuilder {
         (s) => s && s.archetypeId !== "vip",
       ).length;
       if (totalNonVip < MAX_SQUAD_SIZE) {
-        const newState = this.campaignManager.getState();
+        const newState = this.manager.getState();
         const s = newState?.roster.find((r) => r.id === newId);
         if (s) {
           this.squad.soldiers.push({
@@ -148,7 +156,7 @@ export class SquadBuilder {
         }
       }
 
-      if (this.campaignShell) this.campaignShell.refresh();
+      if (this.shell) this.shell.refresh();
       this.onSquadUpdated(this.squad);
       this.render();
 
@@ -159,14 +167,14 @@ export class SquadBuilder {
       if (firstSlot) firstSlot.focus();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      await this.modalService.alert(message);
+      await this.modal.alert(message);
     }
   };
 
   private handleRevive = async (soldierId: string) => {
     const MAX_SQUAD_SIZE = 4;
     try {
-      this.campaignManager.reviveSoldier(soldierId);
+      this.manager.reviveSoldier(soldierId);
 
       // Auto-deploy if slot available
       const totalNonVip = this.squad.soldiers.filter(
@@ -176,7 +184,7 @@ export class SquadBuilder {
         totalNonVip < MAX_SQUAD_SIZE &&
         !this.squad.soldiers.some((s) => s && s.id === soldierId)
       ) {
-        const newState = this.campaignManager.getState();
+        const newState = this.manager.getState();
         const s = newState?.roster.find((r) => r.id === soldierId);
         if (s) {
           this.squad.soldiers.push({
@@ -195,7 +203,7 @@ export class SquadBuilder {
       }
 
       this.onSquadUpdated(this.squad);
-      if (this.campaignShell) this.campaignShell.refresh();
+      if (this.shell) this.shell.refresh();
       this.render();
 
       // Move focus to the first deployment slot (Spec 9)
@@ -205,7 +213,7 @@ export class SquadBuilder {
       if (firstSlot) firstSlot.focus();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      await this.modalService.alert(message);
+      await this.modal.alert(message);
     }
   };
 
@@ -245,7 +253,7 @@ export class SquadBuilder {
     let recruitButton: any = null;
 
     if (this.isCampaign) {
-      const state = this.campaignManager.getState();
+      const state = this.manager.getState();
       if (state) {
         const statusWeights: Record<string, number> = {
           Healthy: 0,
@@ -480,7 +488,7 @@ export class SquadBuilder {
             onClick = () => {
               if (this.selectedId) {
                 if (this.isCampaign) {
-                  const state = this.campaignManager.getState();
+                  const state = this.manager.getState();
                   const s = state?.roster.find((r) => r.id === this.selectedId);
                   if (s) this.addToSquad({ type: "campaign", id: s.id, archetypeId: s.archetypeId });
                 } else {

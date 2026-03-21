@@ -3,16 +3,24 @@ import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
 
+export interface StatisticsScreenConfig {
+  containerId: string;
+  metaManager: MetaManager;
+  inputDispatcher: InputDispatcher;
+}
+
 export class StatisticsScreen {
   private container: HTMLElement;
+  private metaManager: MetaManager;
+  private inputDispatcher: InputDispatcher;
 
-  constructor(
-    containerId: string,
-    private metaManager: MetaManager,
-  ) {
+  constructor(config: StatisticsScreenConfig) {
+    const { containerId, metaManager, inputDispatcher } = config;
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
+    this.metaManager = metaManager;
+    this.inputDispatcher = inputDispatcher;
   }
 
   public show() {
@@ -23,11 +31,11 @@ export class StatisticsScreen {
 
   public hide() {
     this.container.style.display = "none";
-    InputDispatcher.getInstance().popContext("statistics");
+    this.inputDispatcher.popContext("statistics");
   }
 
   private pushInputContext() {
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "statistics",
       priority: InputPriority.UI,
       trapsFocus: true,

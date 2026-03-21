@@ -32,7 +32,13 @@ describe("Exploration Efficiency Regression (ICWK)", () => {
       },
     ];
 
-    const engine = new CoreEngine(map, seed, squad, true, false);
+    const engine = new CoreEngine({
+      map: map,
+      seed: seed,
+      squadConfig: squad,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false
+    });
     engine.clearUnits();
     engine.addUnit({
       id: "u1",

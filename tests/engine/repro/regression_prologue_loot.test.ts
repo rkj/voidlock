@@ -21,14 +21,14 @@ describe("Prologue Loot Spawning", () => {
   };
 
   it("should spawn a medkit instead of a scrap crate in the prologue", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      12345,
-      squadConfig,
-      false,
-      false,
-      MissionType.Prologue
-    );
+    const engine = new CoreEngine({
+      map: mockMap,
+      seed: 12345,
+      squadConfig: squadConfig,
+      agentControlEnabled: false,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Prologue
+    });
 
     const state = engine.getState();
     const medkitLoot = state.loot.find(l => l.itemId === "medkit");

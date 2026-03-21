@@ -22,14 +22,14 @@ describe("Escort VIP Mission", () => {
   };
 
   it("should spawn a VIP with 50% HP and no damage", () => {
-    const engine = new CoreEngine(
-      map,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
     const state = engine.getState();
     const vip = state.units.find((u) => u.id.startsWith("vip-"));
 
@@ -44,14 +44,14 @@ describe("Escort VIP Mission", () => {
       soldiers: [{ archetypeId: "assault" }],
       inventory: {},
     };
-    const engine = new CoreEngine(
-      map,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
     const vip = (engine as any).state.units.find((u: any) =>
       u.id.startsWith("vip-"),
     );
@@ -79,14 +79,14 @@ describe("Escort VIP Mission", () => {
   });
 
   it("should lose when VIP dies", () => {
-    const engine = new CoreEngine(
-      map,
-      123,
-      { soldiers: [], inventory: {} },
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: { soldiers: [], inventory: {} },
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
     const vip = (engine as any).state.units.find((u: any) =>
       u.id.startsWith("vip-"),
     );
@@ -104,14 +104,14 @@ describe("Escort VIP Mission", () => {
       soldiers: [{ archetypeId: "assault" }],
       inventory: {},
     };
-    const engine = new CoreEngine(
-      map,
-      123,
-      squadConfig,
-      true,
-      false,
-      MissionType.EscortVIP,
-    );
+    const engine = new CoreEngine({
+      map: map,
+      seed: 123,
+      squadConfig: squadConfig,
+      agentControlEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
+    });
 
     const assault = (engine as any).state.units.find((u: any) =>
       u.id.startsWith("assault-"),
