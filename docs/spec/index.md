@@ -106,3 +106,9 @@ Agents and developers should consult the specific files below for implementation
 
   - Sector Map Logic
   - Economy (Scrap) & Roster Management
+
+- **[Creative Identity](identity.md)**
+
+  - Core Fantasy & Tone
+  - Corporate Vocabulary & Naming Conventions
+  - Visual Identity & Audio Direction

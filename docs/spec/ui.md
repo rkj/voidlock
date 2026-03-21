@@ -595,3 +595,16 @@ The interface must adapt to small touch screens without losing functionality.
 - **Panel Scrolling**: Content that exceeds the available space (e.g., long lists in the Ready Room or Shop) MUST scroll internally within its container.
 
 - **Scroll Visibility**: Scrollbars should be styled unobtrusively but remain visible to indicate overflow.
+
+### 11.3 Internationalization (i18n)
+
+All user-facing strings MUST be referenced by message ID via the `t()` function (ADR 0060). No hardcoded display text in source files.
+
+- **Locales**: The game ships with three locales:
+  - `en-standard` — Standard gaming English ("Campaign", "Settings", "Kills")
+  - `en-corporate` — Themed corporate English per `identity.md` ("Active Contracts", "Terminal", "Biological Neutralizations")
+  - `pl` — Polish
+- **Default locale**: `en-corporate` (preserves the creative identity).
+- **Locale selection**: Available in the Settings screen. Persisted via `ConfigManager`.
+- **Locale change**: Triggers a full screen re-render. No partial hot-swap.
+- **Excluded from localization**: Debug logging, room structural labels (Corridor, Cargo Bay), terminal command verbs that are identity-neutral (Extract, Pickup, Hold per `identity.md` section 7).
