@@ -101,7 +101,7 @@ export class NavigationOrchestrator {
     // 3. Show target screen object
     const screenObj = this.getScreenObject(id);
     if (screenObj) {
-      // We use Function.apply here because screens have different show() signatures
+      // Screens have different show() signatures, so we use apply
       (screenObj.show as Function).apply(screenObj, showArgs);
     }
 

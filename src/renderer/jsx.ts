@@ -70,7 +70,5 @@ export function createElement(
   return element;
 }
 
-// @ts-ignore
 window.createElement = createElement;
-// @ts-ignore
 window.Fragment = Fragment;
