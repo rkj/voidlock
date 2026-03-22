@@ -10,6 +10,14 @@ import type { StatsManager } from "./StatsManager";
 import type { LootManager } from "./LootManager";
 import type { ItemEffectHandler } from "../interfaces/IDirector";
 
+export interface ProcessChannelingParams {
+  unit: Unit;
+  state: GameState;
+  realDt: number;
+  lootManager: LootManager;
+  director?: ItemEffectHandler;
+}
+
 /**
  * Handles unit state transitions, command queue processing, and channeling state.
  * Extracted from UnitManager to address SRP violation.
@@ -37,13 +45,13 @@ export class UnitStateManager {
       const nextQueue = unit.commandQueue.slice(1);
       let updatedUnit = { ...unit, commandQueue: nextQueue };
       if (nextCmd) {
-        updatedUnit = this.commandExecutor.executeCommand(
-          updatedUnit,
-          nextCmd,
+        updatedUnit = this.commandExecutor.executeCommand({
+          unit: updatedUnit,
+          cmd: nextCmd,
           state,
-          true,
+          isManual: true,
           director,
-        );
+        });
       }
       return updatedUnit;
     }
@@ -53,13 +61,13 @@ export class UnitStateManager {
   /**
    * Handles timed actions (channeling) for a unit.
    */
-  public processChanneling(
-    unit: Unit,
-    state: GameState,
-    realDt: number,
-    lootManager: LootManager,
-    director?: ItemEffectHandler,
-  ): Unit {
+  public processChanneling({
+    unit,
+    state,
+    realDt,
+    lootManager,
+    director,
+  }: ProcessChannelingParams): Unit {
     if (unit.state !== UnitState.Channeling || !unit.channeling) {
       return unit;
     }
@@ -108,110 +116,136 @@ export class UnitStateManager {
     lootManager: LootManager,
     director?: ItemEffectHandler,
   ): Unit {
-    const channeling = unit.channeling!;
+    if (!unit.channeling) {
+      return unit;
+    }
+    const { action } = unit.channeling;
+
+    if (action === "Extract") return this.completeExtract(unit, state);
+    if (action === "Collect") return this.completeCollect(unit, state);
+    if (action === "Pickup") return this.completePickup(unit, state, lootManager);
+    if (action === "UseItem") return this.completeUseItem(unit, state, director);
+
+    return {
+      ...unit,
+      state: UnitState.Idle,
+      channeling: undefined,
+    };
+  }
+
+  private completeExtract(unit: Unit, state: GameState): Unit {
+    if (unit.carriedObjectiveId) {
+      const objectiveId = unit.carriedObjectiveId;
+      state.objectives = state.objectives.map((o) =>
+        o.id === objectiveId ? { ...o, state: "Completed" as const } : o,
+      );
+    }
+    return {
+      ...unit,
+      state: UnitState.Extracted,
+      channeling: undefined,
+    };
+  }
+
+  private completeCollect(unit: Unit, state: GameState): Unit {
     let currentUnit = unit;
+    const targetId = unit.channeling?.targetId;
 
-    if (channeling.action === "Extract") {
-      if (currentUnit.carriedObjectiveId) {
-        const objectiveId = currentUnit.carriedObjectiveId;
-        state.objectives = state.objectives.map((o) =>
-          o.id === objectiveId ? { ...o, state: "Completed" as const } : o,
-        );
-      }
-      return {
-        ...currentUnit,
-        state: UnitState.Extracted,
-        channeling: undefined,
-      };
-    } if (channeling.action === "Collect") {
-      if (channeling.targetId) {
-        const targetId = channeling.targetId;
-        const obj = state.objectives.find((o) => o.id === targetId);
-        if (obj) {
-          if (obj.id.startsWith("artifact")) {
-            currentUnit = {
-              ...currentUnit,
-              carriedObjectiveId: obj.id,
-            };
-            currentUnit = this.statsManager.recalculateStats(currentUnit);
-          } else {
-            state.objectives = state.objectives.map((o) =>
-              o.id === targetId ? { ...o, state: "Completed" as const } : o,
-            );
-          }
-        }
-      }
-      return {
-        ...currentUnit,
-        state: UnitState.Idle,
-        channeling: undefined,
-      };
-    } if (channeling.action === "Pickup") {
-      if (channeling.targetId) {
-        const loot = state.loot?.find((l) => l.id === channeling.targetId);
-        const objective = state.objectives?.find((o) => o.id === channeling.targetId);
-
-        if (loot) {
-          if (loot.objectiveId) {
-            currentUnit = {
-              ...currentUnit,
-              carriedObjectiveId: loot.objectiveId,
-            };
-            currentUnit = this.statsManager.recalculateStats(currentUnit);
-          } else {
-            // Regular item
-            const itemId = loot.itemId;
-            if (itemId !== "scrap_crate") {
-              state.squadInventory[itemId] =
-                (state.squadInventory[itemId] || 0) + 1;
-            }
-            lootManager.awardScrap(state, itemId);
-          }
-          lootManager.removeLoot(state, loot.id);
-        } else if (objective) {
-          // Objective that is not spawned as loot (e.g. prologue-disk)
-          currentUnit = {
-            ...currentUnit,
-            carriedObjectiveId: objective.id,
-          };
+    if (targetId) {
+      const obj = state.objectives.find((o) => o.id === targetId);
+      if (obj) {
+        if (obj.id.startsWith("artifact")) {
+          currentUnit = { ...currentUnit, carriedObjectiveId: obj.id };
           currentUnit = this.statsManager.recalculateStats(currentUnit);
+        } else {
+          state.objectives = state.objectives.map((o) =>
+            o.id === targetId ? { ...o, state: "Completed" as const } : o,
+          );
         }
       }
-      return {
-        ...currentUnit,
-        state: UnitState.Idle,
-        channeling: undefined,
-      };
-    } if (channeling.action === "UseItem") {
-      if (
-        currentUnit.activeCommand?.type === CommandType.USE_ITEM
-      ) {
-        const cmd = currentUnit.activeCommand;
-        const count = state.squadInventory[cmd.itemId] || 0;
-        if (count > 0) {
-          state.squadInventory[cmd.itemId] = count - 1;
-          if (director) {
-            director.handleUseItem(state, cmd);
-            // Sync back hp in case of self-heal (director mutates state.units)
-            const mutated = state.units.find((u) => u.id === currentUnit.id);
-            if (mutated) {
-              currentUnit = { ...currentUnit, hp: mutated.hp };
-            }
-          }
-        }
-      }
-      return {
-        ...currentUnit,
-        state: UnitState.Idle,
-        channeling: undefined,
-        activeCommand: undefined,
-      };
     }
 
     return {
       ...currentUnit,
       state: UnitState.Idle,
       channeling: undefined,
+    };
+  }
+
+  private completePickup(unit: Unit, state: GameState, lootManager: LootManager): Unit {
+    let currentUnit = unit;
+    const targetId = unit.channeling?.targetId;
+
+    if (!targetId) {
+      return { ...currentUnit, state: UnitState.Idle, channeling: undefined };
+    }
+
+    const loot = state.loot?.find((l) => l.id === targetId);
+    const objective = state.objectives?.find((o) => o.id === targetId);
+
+    if (loot) {
+      currentUnit = this.applyLootPickup(currentUnit, state, loot, lootManager);
+    } else if (objective) {
+      currentUnit = { ...currentUnit, carriedObjectiveId: objective.id };
+      currentUnit = this.statsManager.recalculateStats(currentUnit);
+    }
+
+    return {
+      ...currentUnit,
+      state: UnitState.Idle,
+      channeling: undefined,
+    };
+  }
+
+  private applyLootPickup(
+    unit: Unit,
+    state: GameState,
+    loot: { id: string; itemId: string; objectiveId?: string },
+    lootManager: LootManager,
+  ): Unit {
+    let currentUnit = unit;
+    if (loot.objectiveId) {
+      currentUnit = { ...currentUnit, carriedObjectiveId: loot.objectiveId };
+      currentUnit = this.statsManager.recalculateStats(currentUnit);
+    } else {
+      const itemId = loot.itemId;
+      if (itemId !== "scrap_crate") {
+        state.squadInventory[itemId] = (state.squadInventory[itemId] || 0) + 1;
+      }
+      lootManager.awardScrap(state, itemId);
+    }
+    lootManager.removeLoot(state, loot.id);
+    return currentUnit;
+  }
+
+  private completeUseItem(
+    unit: Unit,
+    state: GameState,
+    director?: ItemEffectHandler,
+  ): Unit {
+    let currentUnit = unit;
+
+    if (currentUnit.activeCommand?.type === CommandType.USE_ITEM) {
+      const cmd = currentUnit.activeCommand;
+      const count = state.squadInventory[cmd.itemId] || 0;
+      if (count > 0) {
+        state.squadInventory[cmd.itemId] = count - 1;
+        if (director) {
+          director.handleUseItem(state, cmd);
+          // Sync back hp in case of self-heal (director mutates state.units)
+          const mutated = state.units.find((u) => u.id === currentUnit.id);
+          if (mutated) {
+            currentUnit = { ...currentUnit, hp: mutated.hp };
+          }
+        }
+      }
+    }
+
+    return {
+      ...currentUnit,
+      state: UnitState.Idle,
+      channeling: undefined,
+      activeCommand: undefined,
     };
   }
 }

@@ -1,33 +1,157 @@
-import type {
-  GameState,
-  Unit,
-  Door} from "../../../shared/types";
 import {
   UnitState,
   CommandType
 } from "../../../shared/types";
+import type { Unit, GameState, Door, Enemy } from "../../../shared/types";
 import type { BehaviorContext } from "../../interfaces/AIContext";
-import type { PRNG } from "../../../shared/PRNG";
-import type { Behavior, BehaviorResult } from "./Behavior";
+import type { Behavior, BehaviorEvalParams, BehaviorResult } from "./Behavior";
 import type { GameGrid } from "../../GameGrid";
-import { isCellVisible } from "../../../shared/VisibilityUtils";
 import type { ItemEffectHandler } from "../../interfaces/IDirector";
+import { isCellVisible } from "../../../shared/VisibilityUtils";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { calculateTravelTimeMs } from "./BehaviorUtils";
+
+interface ProfileHandlerParams {
+  currentUnit: Unit;
+  state: GameState;
+  doors: Map<string, Door>;
+  director: ItemEffectHandler | undefined;
+  primaryThreat: Enemy;
+  dist: number;
+  context: BehaviorContext;
+  gameGrid: GameGrid;
+}
+
+function moveTowardsTargetCell(
+  params: ProfileHandlerParams,
+  targetCell: { x: number; y: number },
+  label: string,
+): BehaviorResult {
+  const { context, state, director } = params;
+  let unit = params.currentUnit;
+
+  if (
+    unit.state !== UnitState.Moving ||
+    !unit.targetPos ||
+    !MathUtils.sameCellPosition(unit.targetPos, targetCell)
+  ) {
+    unit = context.executeCommand({
+      unit,
+      cmd: {
+        type: CommandType.MOVE_TO,
+        unitIds: [unit.id],
+        target: targetCell,
+        label,
+      },
+      state,
+      isManual: false,
+      director,
+    });
+
+    if (unit.state === UnitState.Moving) {
+      const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
+      const distToGoal = MathUtils.getDistance(unit.pos, goalPos);
+      const travelTimeMs = calculateTravelTimeMs(unit, distToGoal);
+      unit.activePlan = {
+        behavior: label,
+        goal: goalPos,
+        committedUntil: state.t + Math.max(500, travelTimeMs),
+        priority: 2,
+      };
+    }
+    return { unit, handled: true };
+  }
+
+  if (unit.activePlan) {
+    const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
+    const distToGoal = MathUtils.getDistance(unit.pos, goalPos);
+    const travelTimeMs = calculateTravelTimeMs(unit, distToGoal);
+    unit.activePlan = {
+      ...unit.activePlan,
+      committedUntil: state.t + Math.max(500, travelTimeMs),
+    };
+    return { unit, handled: true };
+  }
+
+  return { unit, handled: false };
+}
+
+function handleRushProfile(params: ProfileHandlerParams): BehaviorResult | null {
+  const { primaryThreat, dist } = params;
+  if (dist <= 1.5) return null;
+
+  const targetCell = {
+    x: Math.floor(primaryThreat.pos.x),
+    y: Math.floor(primaryThreat.pos.y),
+  };
+  return moveTowardsTargetCell(params, targetCell, "Rushing");
+}
+
+function handleRetreatProfile(params: ProfileHandlerParams): BehaviorResult | null {
+  const { currentUnit, primaryThreat, dist, doors, gameGrid } = params;
+  if (currentUnit.engagementPolicy === "AVOID") return null;
+  if (dist >= currentUnit.stats.attackRange * 0.8) return null;
+
+  const currentCell = {
+    x: Math.floor(currentUnit.pos.x),
+    y: Math.floor(currentUnit.pos.y),
+  };
+  const neighbors = [
+    { x: currentCell.x + 1, y: currentCell.y },
+    { x: currentCell.x - 1, y: currentCell.y },
+    { x: currentCell.x, y: currentCell.y + 1 },
+    { x: currentCell.x, y: currentCell.y - 1 },
+  ].filter(
+    (n) =>
+      gameGrid.isWalkable(n.x, n.y) &&
+      gameGrid.canMove({
+        fromX: currentCell.x,
+        fromY: currentCell.y,
+        toX: n.x,
+        toY: n.y,
+        doors,
+        allowClosedDoors: false,
+      }),
+  );
+
+  const bestRetreat = neighbors
+    .map((n) => ({
+      ...n,
+      dist: MathUtils.getDistance(
+        { x: n.x + 0.5, y: n.y + 0.5 },
+        primaryThreat.pos,
+      ),
+    }))
+    .sort((a, b) => b.dist - a.dist)[0];
+
+  if (!bestRetreat || bestRetreat.dist <= dist) return null;
+
+  const targetCell = { x: bestRetreat.x, y: bestRetreat.y };
+  return moveTowardsTargetCell(params, targetCell, "Retreating");
+}
+
+function handleDefaultEngageProfile(params: ProfileHandlerParams): BehaviorResult | null {
+  const { currentUnit, primaryThreat, dist } = params;
+  if (dist <= currentUnit.stats.attackRange) return null;
+
+  const targetCell = {
+    x: Math.floor(primaryThreat.pos.x),
+    y: Math.floor(primaryThreat.pos.y),
+  };
+  return moveTowardsTargetCell(params, targetCell, "Engaging");
+}
 
 export class CombatBehavior implements Behavior<BehaviorContext> {
   constructor(private gameGrid: GameGrid) {}
 
-  public evaluate(
-    unit: Unit,
-    state: GameState,
-    _dt: number,
-    doors: Map<string, Door>,
-    _prng: PRNG,
-    context: BehaviorContext,
-    director?: ItemEffectHandler,
-  ): BehaviorResult {
-    let currentUnit = { ...unit };
+  public evaluate({
+    unit,
+    state,
+    doors,
+    context,
+    director,
+  }: BehaviorEvalParams<BehaviorContext>): BehaviorResult {
+    const currentUnit = { ...unit };
     if (currentUnit.archetypeId === "vip")
       return { unit: currentUnit, handled: false };
     if (
@@ -41,7 +165,7 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
     if (!context.agentControlEnabled || currentUnit.aiEnabled === false)
       return { unit: currentUnit, handled: false };
 
-    if (currentUnit.activeCommand?.type === CommandType.EXTRACT || 
+    if (currentUnit.activeCommand?.type === CommandType.EXTRACT ||
         currentUnit.activeCommand?.label === "Extracting") {
       return { unit: currentUnit, handled: false };
     }
@@ -59,190 +183,40 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
       }))
       .sort((a, b) => 1 / (b.distance + 1) - 1 / (a.distance + 1));
 
-    if (threats.length > 0 && currentUnit.engagementPolicy !== "IGNORE") {
-      const primaryThreat = threats[0].enemy;
-      const dist = threats[0].distance;
+    if (threats.length === 0 || currentUnit.engagementPolicy === "IGNORE") {
+      return { unit: currentUnit, handled: false };
+    }
 
-      if (currentUnit.aiProfile === "STAND_GROUND") {
-        // Hold position
-        return { unit: currentUnit, handled: false };
-      } if (currentUnit.aiProfile === "RUSH") {
-        if (dist > 1.5) {
-          const targetCell = {
-            x: Math.floor(primaryThreat.pos.x),
-            y: Math.floor(primaryThreat.pos.y),
-          };
-          if (
-            currentUnit.state !== UnitState.Moving ||
-            !currentUnit.targetPos ||
-            !MathUtils.sameCellPosition(currentUnit.targetPos, targetCell)
-          ) {
-            currentUnit = context.executeCommand(
-              currentUnit,
-              {
-                type: CommandType.MOVE_TO,
-                unitIds: [currentUnit.id],
-                target: targetCell,
-                label: "Rushing",
-              },
-              state,
-              false,
-              director,
-            );
+    const primaryThreat = threats[0].enemy;
+    const dist = threats[0].distance;
 
-            if (currentUnit.state === UnitState.Moving) {
-              const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
-              const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
-              const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
-              currentUnit.activePlan = {
-                behavior: "Rushing",
-                goal: goalPos,
-                committedUntil: state.t + Math.max(500, travelTimeMs),
-                priority: 2,
-              };
-            }
-            return { unit: currentUnit, handled: true };
-          } if (currentUnit.activePlan) {
-            // Same target and already moving, refresh commitment
-            const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
-            const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
-            const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
-            currentUnit.activePlan = {
-              ...currentUnit.activePlan,
-              committedUntil: state.t + Math.max(500, travelTimeMs),
-            };
-            return { unit: currentUnit, handled: true };
-          }
-        }
-      } else if (currentUnit.aiProfile === "RETREAT" && currentUnit.engagementPolicy !== "AVOID") {
-        if (dist < currentUnit.stats.attackRange * 0.8) {
-          const currentCell = {
-            x: Math.floor(currentUnit.pos.x),
-            y: Math.floor(currentUnit.pos.y),
-          };
-          const neighbors = [
-            { x: currentCell.x + 1, y: currentCell.y },
-            { x: currentCell.x - 1, y: currentCell.y },
-            { x: currentCell.x, y: currentCell.y + 1 },
-            { x: currentCell.x, y: currentCell.y - 1 },
-          ].filter(
-            (n) =>
-              this.gameGrid.isWalkable(n.x, n.y) &&
-              this.gameGrid.canMove(
-                currentCell.x,
-                currentCell.y,
-                n.x,
-                n.y,
-                doors,
-                false,
-              ),
-          );
+    if (currentUnit.aiProfile === "STAND_GROUND") {
+      return { unit: currentUnit, handled: false };
+    }
 
-          const bestRetreat = neighbors
-            .map((n) => ({
-              ...n,
-              dist: MathUtils.getDistance(
-                { x: n.x + 0.5, y: n.y + 0.5 },
-                primaryThreat.pos,
-              ),
-            }))
-            .sort((a, b) => b.dist - a.dist)[0];
+    const handlerParams: ProfileHandlerParams = {
+      currentUnit,
+      state,
+      doors,
+      director,
+      primaryThreat,
+      dist,
+      context,
+      gameGrid: this.gameGrid,
+    };
 
-          if (bestRetreat && bestRetreat.dist > dist) {
-            const targetCell = { x: bestRetreat.x, y: bestRetreat.y };
-            if (
-              currentUnit.state !== UnitState.Moving ||
-              !currentUnit.targetPos ||
-              !MathUtils.sameCellPosition(currentUnit.targetPos, targetCell)
-            ) {
-              currentUnit = context.executeCommand(
-                currentUnit,
-                {
-                  type: CommandType.MOVE_TO,
-                  unitIds: [currentUnit.id],
-                  target: targetCell,
-                  label: "Retreating",
-                },
-                state,
-                false,
-                director,
-              );
+    let result: BehaviorResult | null = null;
 
-              if (currentUnit.state === UnitState.Moving) {
-                const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
-                const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
-                const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
-                currentUnit.activePlan = {
-                  behavior: "Retreating",
-                  goal: goalPos,
-                  committedUntil: state.t + Math.max(500, travelTimeMs),
-                  priority: 2,
-                };
-              }
-              return { unit: currentUnit, handled: true };
-            } if (currentUnit.activePlan) {
-              // Same target and already moving, refresh commitment
-              const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
-              const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
-              const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
-              currentUnit.activePlan = {
-                ...currentUnit.activePlan,
-                committedUntil: state.t + Math.max(500, travelTimeMs),
-              };
-              return { unit: currentUnit, handled: true };
-            }
-          }
-        }
-      } else {
-        // Default behavior
-        if (dist > currentUnit.stats.attackRange) {
-          const targetCell = {
-            x: Math.floor(primaryThreat.pos.x),
-            y: Math.floor(primaryThreat.pos.y),
-          };
-          if (
-            currentUnit.state !== UnitState.Moving ||
-            !currentUnit.targetPos ||
-            !MathUtils.sameCellPosition(currentUnit.targetPos, targetCell)
-          ) {
-            currentUnit = context.executeCommand(
-              currentUnit,
-              {
-                type: CommandType.MOVE_TO,
-                unitIds: [currentUnit.id],
-                target: targetCell,
-                label: "Engaging",
-              },
-              state,
-              false,
-              director,
-            );
+    if (currentUnit.aiProfile === "RUSH") {
+      result = handleRushProfile(handlerParams);
+    } else if (currentUnit.aiProfile === "RETREAT") {
+      result = handleRetreatProfile(handlerParams);
+    } else {
+      result = handleDefaultEngageProfile(handlerParams);
+    }
 
-            if (currentUnit.state === UnitState.Moving) {
-              const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
-              const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
-              const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
-              currentUnit.activePlan = {
-                behavior: "Engaging",
-                goal: goalPos,
-                committedUntil: state.t + Math.max(500, travelTimeMs),
-                priority: 2,
-              };
-            }
-            return { unit: currentUnit, handled: true };
-          } if (currentUnit.activePlan) {
-            // Same target and already moving, refresh commitment
-            const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
-            const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
-            const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
-            currentUnit.activePlan = {
-              ...currentUnit.activePlan,
-              committedUntil: state.t + Math.max(500, travelTimeMs),
-            };
-            return { unit: currentUnit, handled: true };
-          }
-        }
-      }
+    if (result) {
+      return result;
     }
 
     return { unit: currentUnit, handled: false };

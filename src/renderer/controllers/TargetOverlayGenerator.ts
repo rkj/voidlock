@@ -111,7 +111,7 @@ export class TargetOverlayGenerator {
 
         // Count connections (boundaries that are NOT walls)
         let connections = 0;
-        const boundaries = (gameState.map.boundaries || []).filter(
+        const boundaries = (gameState.map.boundaries ?? []).filter(
           (b: BoundaryDefinition) =>
             (b.x1 === cell.x && b.y1 === cell.y) ||
             (b.x2 === cell.x && b.y2 === cell.y),
@@ -154,7 +154,7 @@ export class TargetOverlayGenerator {
         if (cellIsRoom) return; // Strictly corridor only for intersections
 
         // Get boundaries for this cell
-        const cellBoundaries = (gameState.map.boundaries || []).filter(
+        const cellBoundaries = (gameState.map.boundaries ?? []).filter(
           (b: BoundaryDefinition) =>
             (b.x1 === cell.x && b.y1 === cell.y) ||
             (b.x2 === cell.x && b.y2 === cell.y),

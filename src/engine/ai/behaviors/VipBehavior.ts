@@ -1,11 +1,8 @@
-import type { GameState, Unit, Door } from "../../../shared/types";
 import { UnitState } from "../../../shared/types";
 import type { BehaviorContext } from "../../interfaces/AIContext";
-import type { PRNG } from "../../../shared/PRNG";
-import type { Behavior, BehaviorResult } from "./Behavior";
+import type { Behavior, BehaviorEvalParams, BehaviorResult } from "./Behavior";
 import type { LineOfSight } from "../../LineOfSight";
 import type { VipAI } from "../VipAI";
-import type { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 
 export class VipBehavior implements Behavior<BehaviorContext> {
@@ -14,15 +11,12 @@ export class VipBehavior implements Behavior<BehaviorContext> {
     private los: LineOfSight,
   ) {}
 
-  public evaluate(
-    unit: Unit,
-    state: GameState,
-    _dt: number,
-    _doors: Map<string, Door>,
-    _prng: PRNG,
-    context: BehaviorContext,
-    director?: ItemEffectHandler,
-  ): BehaviorResult {
+  public evaluate({
+    unit,
+    state,
+    context,
+    director,
+  }: BehaviorEvalParams<BehaviorContext>): BehaviorResult {
     let currentUnit = { ...unit };
     if (currentUnit.archetypeId !== "vip")
       return { unit: currentUnit, handled: false };
@@ -47,13 +41,13 @@ export class VipBehavior implements Behavior<BehaviorContext> {
     ) {
       const vipCommand = this.vipAi.think(currentUnit, state);
       if (vipCommand) {
-        currentUnit = context.executeCommand(
-          currentUnit,
-          vipCommand,
+        currentUnit = context.executeCommand({
+          unit: currentUnit,
+          cmd: vipCommand,
           state,
-          false,
+          isManual: false,
           director,
-        );
+        });
         return { unit: currentUnit, handled: true };
       }
     }

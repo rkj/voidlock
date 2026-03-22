@@ -1,6 +1,9 @@
-import type { CommandType, Unit, Command, GameState } from "@src/shared/types";
-import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { CommandType, Unit } from "@src/shared/types";
+import type { CommandExecParams } from "./IUnitCommandHandler";
 import type { IUnitCommandHandler } from "./IUnitCommandHandler";
+
+/** Params for registry.execute — registry is injected automatically */
+export type RegistryExecParams = Omit<CommandExecParams, "registry">;
 
 export class UnitCommandRegistry {
   private handlers: Map<CommandType, IUnitCommandHandler> = new Map();
@@ -9,17 +12,11 @@ export class UnitCommandRegistry {
     this.handlers.set(handler.type, handler);
   }
 
-  public execute(
-    unit: Unit,
-    cmd: Command,
-    state: GameState,
-    isManual: boolean,
-    director?: ItemEffectHandler,
-  ): Unit {
-    const handler = this.handlers.get(cmd.type);
+  public execute(params: RegistryExecParams): Unit {
+    const handler = this.handlers.get(params.cmd.type);
     if (handler) {
-      return handler.execute(unit, cmd, state, isManual, this, director);
+      return handler.execute({ ...params, registry: this });
     }
-    return unit;
+    return params.unit;
   }
 }

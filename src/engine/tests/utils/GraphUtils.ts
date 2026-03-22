@@ -7,35 +7,24 @@ export function mapToAdjacencyList(map: MapDefinition): Map<string, string[]> {
   const adj = new Map<string, string[]>();
   const graph = new Graph(map);
 
+  const DIRS: { dx: number; dy: number; d: "n" | "e" | "s" | "w" }[] = [
+    { dx: 0, dy: -1, d: "n" },
+    { dx: 0, dy: 1, d: "s" },
+    { dx: 1, dy: 0, d: "e" },
+    { dx: -1, dy: 0, d: "w" },
+  ];
   for (let y = 0; y < graph.height; y++) {
     for (let x = 0; x < graph.width; x++) {
       const cell = graph.cells[y][x];
-      if (cell.type === CellType.Floor) {
-        const cellKey = `${x},${y}`;
-        adj.set(cellKey, []);
-
-        const neighbors: {
-          dx: number;
-          dy: number;
-          d: "n" | "e" | "s" | "w";
-        }[] = [
-          { dx: 0, dy: -1, d: "n" },
-          { dx: 0, dy: 1, d: "s" },
-          { dx: 1, dy: 0, d: "e" },
-          { dx: -1, dy: 0, d: "w" },
-        ];
-
-        for (const { dx, dy, d } of neighbors) {
-          const nx = x + dx;
-          const ny = y + dy;
-          const b = cell.edges[d];
-          if (b && (b.type === BoundaryType.Open || b.doorId)) {
-            const nCell = graph.cells[ny]?.[nx];
-            if (nCell?.type === CellType.Floor) {
-              adj.get(cellKey)?.push(`${nx},${ny}`);
-            }
-          }
-        }
+      if (cell.type !== CellType.Floor) continue;
+      const cellKey = `${x},${y}`;
+      adj.set(cellKey, []);
+      for (const { dx, dy, d } of DIRS) {
+        const nx = x + dx;
+        const ny = y + dy;
+        const b = cell.edges[d];
+        if (!b || (!b.doorId && b.type !== BoundaryType.Open)) continue;
+        if (graph.cells[ny]?.[nx]?.type === CellType.Floor) adj.get(cellKey)?.push(`${nx},${ny}`);
       }
     }
   }
@@ -50,7 +39,7 @@ export function hasCycleDFS(adj: Map<string, string[]>): boolean {
   function dfs(node: string, parent: string | null): boolean {
     visited.add(node);
 
-    for (const neighbor of adj.get(node) || []) {
+    for (const neighbor of adj.get(node) ?? []) {
       if (neighbor === parent) continue; // Ignore edge to parent in undirected graph
 
       if (visited.has(neighbor)) {
@@ -88,8 +77,9 @@ export function checkConnectivity(map: MapDefinition): boolean {
   visited.add(start);
 
   while (queue.length > 0) {
-    const curr = queue.shift()!;
-    for (const neighbor of adj.get(curr) || []) {
+    const curr = queue.shift();
+    if (!curr) break;
+    for (const neighbor of adj.get(curr) ?? []) {
       if (!visited.has(neighbor)) {
         visited.add(neighbor);
         queue.push(neighbor);

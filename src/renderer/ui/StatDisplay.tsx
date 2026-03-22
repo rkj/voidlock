@@ -11,12 +11,12 @@ export interface StatDisplayProps {
 }
 
 export function StatDisplayComponent(props: StatDisplayProps) {
-  const style: any = {};
+  const style: Record<string, string> = {};
   if (props.fontSize) style.fontSize = props.fontSize;
-  if (props.color) style.setProperty("--stat-value-color", props.color);
+  if (props.color) style["--stat-value-color"] = props.color;
   if (props.gap) style.gap = props.gap;
 
-  const imgStyle: any = {};
+  const imgStyle: Record<string, string> = {};
   if (props.iconSize) {
     imgStyle.width = props.iconSize;
     imgStyle.height = props.iconSize;

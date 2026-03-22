@@ -106,21 +106,7 @@ export class ItemDistributionService {
 
       if (state.objectives) {
         for (const o of state.objectives) {
-          if (
-            o.state === "Pending" &&
-            (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill")
-          ) {
-            const pos = MapUtils.resolveObjectivePosition(o, state.enemies);
-            if (pos) {
-              this.itemGrid.insert(pos, {
-                id: o.id,
-                pos,
-                mustBeInLOS: o.kind === "Recover",
-                visible: o.visible,
-                type: "objective",
-              });
-            }
-          }
+          this.insertObjectiveIntoGrid(o, state.enemies);
         }
       }
       this.lastLootArray = state.loot;
@@ -168,5 +154,23 @@ export class ItemDistributionService {
     }
 
     return Array.from(allVisibleItemsMap.values());
+  }
+
+  private insertObjectiveIntoGrid(o: Objective, enemies: GameState["enemies"]): void {
+    const isTracked =
+      o.state === "Pending" &&
+      (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill");
+    if (!isTracked) return;
+
+    const pos = MapUtils.resolveObjectivePosition(o, enemies);
+    if (!pos) return;
+
+    this.itemGrid.insert(pos, {
+      id: o.id,
+      pos,
+      mustBeInLOS: o.kind === "Recover",
+      visible: o.visible,
+      type: "objective",
+    });
   }
 }

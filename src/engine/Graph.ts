@@ -17,12 +17,7 @@ export class Boundary {
     public readonly y1: number,
     public readonly x2: number,
     public readonly y2: number,
-    type: BoundaryType = BoundaryType.Open,
-    doorId?: string,
-  ) {
-    this.type = type;
-    this.doorId = doorId;
-  }
+  ) {}
 
   public getVisualSegment(): { p1: Vector2; p2: Vector2 } {
     if (this.x1 === this.x2) {
@@ -61,16 +56,24 @@ export class Graph {
 
   constructor(map: MapDefinition) {
     const { width, height } = map;
+    this.initializeCells(width, height);
+    this.hydrateCellMetadata(map);
+    this.hydrateBoundariesFromCells(width, height);
+    this.hydrateWalls(map);
+    this.hydrateDoors(map);
+    this.hydrateBoundaryArray(map);
+  }
 
-    // 1. Initialize cells
+  private initializeCells(width: number, height: number): void {
     for (let y = 0; y < height; y++) {
       this.cells[y] = [];
       for (let x = 0; x < width; x++) {
         this.cells[y][x] = new GraphCell(x, y, CellType.Void);
       }
     }
+  }
 
-    // 2. Hydrate cell metadata
+  private hydrateCellMetadata(map: MapDefinition): void {
     for (const cellDef of map.cells) {
       if (this.isValid(cellDef.x, cellDef.y)) {
         const cell = this.cells[cellDef.y][cellDef.x];
@@ -78,86 +81,74 @@ export class Graph {
         cell.roomId = cellDef.roomId;
       }
     }
+  }
 
-    // 3. Hydrate boundaries from cells (initialize all edges)
+  private hydrateBoundariesFromCells(width: number, height: number): void {
+    const neighbors: { dir: Direction; dx: number; dy: number }[] = [
+      { dir: "n", dx: 0, dy: -1 },
+      { dir: "e", dx: 1, dy: 0 },
+      { dir: "s", dx: 0, dy: 1 },
+      { dir: "w", dx: -1, dy: 0 },
+    ];
+
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        const neighbors: { dir: Direction; dx: number; dy: number }[] = [
-          { dir: "n", dx: 0, dy: -1 },
-          { dir: "e", dx: 1, dy: 0 },
-          { dir: "s", dx: 0, dy: 1 },
-          { dir: "w", dx: -1, dy: 0 },
-        ];
-
         for (const { dir, dx, dy } of neighbors) {
           const nx = x + dx;
           const ny = y + dy;
-
-          // Ensure boundary object exists for this edge
           const boundary = this.getOrCreateBoundary(x, y, nx, ny);
           this.cells[y][x].edges[dir] = boundary;
 
-          // If neighbor is outside map bounds or is a Void cell, it's a boundary to the void (default to wall)
-          if (!this.isValid(nx, ny) || (this.cells[y][x].type === CellType.Floor && (!this.isValid(nx, ny) || this.cells[ny][nx].type === CellType.Void))) {
+          const isFloor = this.cells[y][x].type === CellType.Floor;
+          const neighborIsVoid = !this.isValid(nx, ny) || this.cells[ny][nx].type === CellType.Void;
+          if (!this.isValid(nx, ny) || (isFloor && neighborIsVoid)) {
             boundary.type = BoundaryType.Wall;
           }
         }
       }
     }
+  }
 
-    // 4. Hydrate walls from MapDefinition
-    if (map.walls) {
-      for (const wall of map.walls) {
-        let x1: number, y1: number, x2: number, y2: number;
-        if (wall.p1.x === wall.p2.x) {
-          // Vertical wall segment from corner (x, y) to (x, y+1)
-          // Separates cell (x-1, y) and (x, y)
-          const x = wall.p1.x;
-          const minY = Math.min(wall.p1.y, wall.p2.y);
-          x1 = x - 1;
-          y1 = minY;
-          x2 = x;
-          y2 = minY;
-        } else {
-          // Horizontal wall segment from corner (x, y) to (x+1, y)
-          // Separates cell (x, y-1) and (x, y)
-          const y = wall.p1.y;
-          const minX = Math.min(wall.p1.x, wall.p2.x);
-          x1 = minX;
-          y1 = y - 1;
-          x2 = minX;
-          y2 = y;
-        }
-        const boundary = this.getOrCreateBoundary(x1, y1, x2, y2);
-        boundary.type = BoundaryType.Wall;
+  private hydrateWalls(map: MapDefinition): void {
+    if (!map.walls) return;
+    for (const wall of map.walls) {
+      const boundary = this.getOrCreateBoundary(...this.wallSegmentToCells(wall));
+      boundary.type = BoundaryType.Wall;
+    }
+  }
+
+  private wallSegmentToCells(wall: { p1: { x: number; y: number }; p2: { x: number; y: number } }): [number, number, number, number] {
+    if (wall.p1.x === wall.p2.x) {
+      // Vertical wall segment — separates cell (x-1, y) and (x, y)
+      const x = wall.p1.x;
+      const minY = Math.min(wall.p1.y, wall.p2.y);
+      return [x - 1, minY, x, minY];
+    }
+    // Horizontal wall segment — separates cell (x, y-1) and (x, y)
+    const y = wall.p1.y;
+    const minX = Math.min(wall.p1.x, wall.p2.x);
+    return [minX, y - 1, minX, y];
+  }
+
+  private hydrateDoors(map: MapDefinition): void {
+    if (!map.doors) return;
+    for (const door of map.doors) {
+      if (door.segment.length === 2) {
+        const c1 = door.segment[0];
+        const c2 = door.segment[1];
+        const boundary = this.getOrCreateBoundary(c1.x, c1.y, c2.x, c2.y);
+        boundary.doorId = door.id;
+        boundary.type = BoundaryType.Door;
       }
     }
+  }
 
-    // 5. Hydrate doors
-    if (map.doors) {
-      for (const door of map.doors) {
-        if (door.segment.length === 2) {
-          const c1 = door.segment[0];
-          const c2 = door.segment[1];
-          const boundary = this.getOrCreateBoundary(c1.x, c1.y, c2.x, c2.y);
-          boundary.doorId = door.id;
-          boundary.type = BoundaryType.Door; // Doors act as walls until opened/destroyed logic is applied in engine
-        }
-      }
-    }
-
-    // 6. Hydrate from boundaries array if present (authoritative)
-    if (map.boundaries) {
-      for (const bDef of map.boundaries) {
-        const boundary = this.getOrCreateBoundary(
-          bDef.x1,
-          bDef.y1,
-          bDef.x2,
-          bDef.y2,
-        );
-        boundary.type = bDef.type;
-        if (bDef.doorId) boundary.doorId = bDef.doorId;
-      }
+  private hydrateBoundaryArray(map: MapDefinition): void {
+    if (!map.boundaries) return;
+    for (const bDef of map.boundaries) {
+      const boundary = this.getOrCreateBoundary(bDef.x1, bDef.y1, bDef.x2, bDef.y2);
+      boundary.type = bDef.type;
+      if (bDef.doorId) boundary.doorId = bDef.doorId;
     }
   }
 

@@ -21,6 +21,17 @@ import {
 } from "../config/GameConstants";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
+export interface EnemyUpdateParams {
+  state: GameState;
+  dt: number;
+  gameGrid: GameGrid;
+  pathfinder: Pathfinder;
+  los: LineOfSight;
+  prng: PRNG;
+  combatManager: CombatManager;
+  doors: Map<string, Door>;
+}
+
 export class EnemyManager {
   private meleeAI: IEnemyAI;
   private rangedAI: IEnemyAI;
@@ -42,18 +53,22 @@ export class EnemyManager {
   /**
    * Main update loop for all enemies. Handles AI, movement, combat, and mine explosions.
    */
-  public update(
-    state: GameState,
-    dt: number,
-    gameGrid: GameGrid,
-    pathfinder: Pathfinder,
-    los: LineOfSight,
-    prng: PRNG,
-    combatManager: CombatManager,
-    doors: Map<string, Door>,
-  ) {
+  public update(params: EnemyUpdateParams) {
+    const { state } = params;
+
     // 1. Mine Explosions (Can affect health of units/enemies)
-    // ... rest of the mine logic ...
+    this.processMineExplosions(state);
+
+    // 2. Enemy AI & Movement
+    state.enemies = state.enemies.map((enemy) => {
+      if (enemy.hp <= 0) return enemy;
+      return this.updateEnemy(enemy, params);
+    });
+
+    this.processDeadEnemies(state);
+  }
+
+  private processMineExplosions(state: GameState): void {
     const triggeredMineIds = new Set<string>();
     state.mines.forEach((mine) => {
       const triggeringEnemy = state.enemies.find(
@@ -63,8 +78,6 @@ export class EnemyManager {
       if (triggeringEnemy) {
         triggeredMineIds.add(mine.id);
 
-        // Mutate in-place for this pass as it's a global effect,
-        // but we'll capture changes in the map() below.
         state.enemies.forEach((e) => {
           if (MathUtils.sameCellPosition(e.pos, mine.pos)) {
             e.hp -= mine.damage;
@@ -80,108 +93,125 @@ export class EnemyManager {
     });
 
     state.mines = state.mines.filter((m) => !triggeredMineIds.has(m.id));
+  }
 
-    // 2. Enemy AI & Movement
-    state.enemies = state.enemies.map((enemy) => {
-      if (enemy.hp <= 0) return enemy;
+  private updateEnemy(enemy: Enemy, params: EnemyUpdateParams): Enemy {
+    const { state, dt, gameGrid, pathfinder, los, prng, combatManager, doors } = params;
+    const currentEnemy = { ...enemy };
 
-      let currentEnemy = { ...enemy };
+    const arch =
+      EnemyArchetypeLibrary[currentEnemy.type] ||
+      EnemyArchetypeLibrary[EnemyType.SwarmMelee];
+    const ai = arch.ai === "Ranged" ? this.rangedAI : this.meleeAI;
 
-      const arch =
-        EnemyArchetypeLibrary[currentEnemy.type] ||
-        EnemyArchetypeLibrary[EnemyType.SwarmMelee];
-      const ai = arch.ai === "Ranged" ? this.rangedAI : this.meleeAI;
+    ai.think({ enemy: currentEnemy, state, grid: gameGrid, pathfinder, los, prng });
 
-      // AI think might still mutate, but we passed a clone
-      ai.think(currentEnemy, state, gameGrid, pathfinder, los, prng);
+    const unitsInRange = state.units.filter(
+      (unit) =>
+        unit.hp > 0 &&
+        unit.state !== "Extracted" &&
+        unit.state !== "Dead" &&
+        MathUtils.getDistance(currentEnemy.pos, unit.pos) <=
+          currentEnemy.attackRange + 0.5,
+    );
 
-      const unitsInRange = state.units.filter(
-        (unit) =>
-          unit.hp > 0 &&
-          unit.state !== "Extracted" &&
-          unit.state !== "Dead" &&
-          MathUtils.getDistance(currentEnemy.pos, unit.pos) <=
-            currentEnemy.attackRange + 0.5,
-      );
+    const unitsInSameCell = state.units.filter(
+      (unit) =>
+        unit.hp > 0 &&
+        unit.state !== "Extracted" &&
+        unit.state !== "Dead" &&
+        MathUtils.sameCellPosition(unit.pos, currentEnemy.pos),
+    );
+    const isLockedInMelee = unitsInSameCell.length > 0;
 
-      const unitsInSameCell = state.units.filter(
-        (unit) =>
-          unit.hp > 0 &&
-          unit.state !== "Extracted" &&
-          unit.state !== "Dead" &&
-          MathUtils.sameCellPosition(unit.pos, currentEnemy.pos),
-      );
-      const isLockedInMelee = unitsInSameCell.length > 0;
-
-      let isAttacking = false;
-      if (
-        unitsInRange.length > 0 &&
-        (!currentEnemy.path ||
-          currentEnemy.path.length === 0 ||
-          isLockedInMelee)
-      ) {
-        let targetUnit = unitsInRange[0];
-
-        if (isLockedInMelee && unitsInSameCell.length > 0) {
-          const lockingTarget = unitsInSameCell.find((u) =>
-            unitsInRange.includes(u),
-          );
-          if (lockingTarget) targetUnit = lockingTarget;
-        }
-
-        isAttacking = combatManager.handleAttack(
-          currentEnemy,
-          targetUnit,
-          {
-            damage: currentEnemy.damage,
-            fireRate: currentEnemy.fireRate,
-            accuracy: currentEnemy.accuracy,
-            attackRange: currentEnemy.attackRange,
-          },
-          state,
-          prng,
-        );
-      }
-
-      if (
-        !isAttacking &&
-        currentEnemy.targetPos &&
-        currentEnemy.path &&
-        currentEnemy.path.length > 0
-      ) {
-        if (isLockedInMelee) {
-          currentEnemy.targetPos = undefined;
-          currentEnemy.path = [];
-          currentEnemy.state = UnitState.Idle;
-        } else {
-          currentEnemy = this.movementManager.handleMovement(
-            currentEnemy,
-            currentEnemy.speed,
-            dt,
-            doors
-          );
-        }
-      } else if (!isAttacking && !currentEnemy.targetPos) {
-        currentEnemy.state = UnitState.Idle;
-      }
-
-      return currentEnemy;
+    const isAttacking = this.tryEnemyAttack({
+      enemy: currentEnemy,
+      unitsInRange,
+      unitsInSameCell,
+      isLockedInMelee,
+      combatManager,
+      state,
+      prng,
     });
 
-    const deadEnemies = state.enemies.filter((enemy) => enemy.hp <= 0);
-    if (deadEnemies.length > 0) {
-      // Stats mutation is okay for now, we clone stats in getState
-      deadEnemies.forEach((enemy) => {
-        state.stats.aliensKilled++;
-        if (enemy.difficulty === 2) {
-          state.stats.elitesKilled++;
-          state.stats.scrapGained += SCRAP_REWARDS.ELITE_KILL;
-        } else if (enemy.difficulty >= 3) {
-          state.stats.elitesKilled++;
-          state.stats.scrapGained += SCRAP_REWARDS.BOSS_KILL;
-        }
-      });
-      state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);
+    return this.handleEnemyMovement({ enemy: currentEnemy, isAttacking, isLockedInMelee, dt, doors });
+  }
+
+  private tryEnemyAttack(params: {
+    enemy: Enemy;
+    unitsInRange: GameState["units"];
+    unitsInSameCell: GameState["units"];
+    isLockedInMelee: boolean;
+    combatManager: CombatManager;
+    state: GameState;
+    prng: PRNG;
+  }): boolean {
+    const { enemy, unitsInRange, unitsInSameCell, isLockedInMelee, combatManager, state, prng } = params;
+    if (unitsInRange.length === 0) return false;
+    if (enemy.path && enemy.path.length > 0 && !isLockedInMelee) return false;
+
+    let targetUnit = unitsInRange[0];
+
+    if (isLockedInMelee && unitsInSameCell.length > 0) {
+      const lockingTarget = unitsInSameCell.find((u) => unitsInRange.includes(u));
+      if (lockingTarget) targetUnit = lockingTarget;
     }
+
+    return combatManager.handleAttack({
+      attacker: enemy,
+      target: targetUnit,
+      stats: {
+        damage: enemy.damage,
+        fireRate: enemy.fireRate,
+        accuracy: enemy.accuracy,
+        attackRange: enemy.attackRange,
+      },
+      state,
+      prng,
+    });
+  }
+
+  private handleEnemyMovement(params: {
+    enemy: Enemy;
+    isAttacking: boolean;
+    isLockedInMelee: boolean;
+    dt: number;
+    doors: Map<string, Door>;
+  }): Enemy {
+    const { enemy, isAttacking, isLockedInMelee, dt, doors } = params;
+    if (
+      !isAttacking &&
+      enemy.targetPos &&
+      enemy.path &&
+      enemy.path.length > 0
+    ) {
+      if (isLockedInMelee) {
+        return { ...enemy, targetPos: undefined, path: [], state: UnitState.Idle };
+      }
+      return this.movementManager.handleMovement(enemy, enemy.speed, dt, doors);
+    }
+
+    if (!isAttacking && !enemy.targetPos) {
+      return { ...enemy, state: UnitState.Idle };
+    }
+
+    return enemy;
+  }
+
+  private processDeadEnemies(state: GameState): void {
+    const deadEnemies = state.enemies.filter((enemy) => enemy.hp <= 0);
+    if (deadEnemies.length === 0) return;
+
+    deadEnemies.forEach((enemy) => {
+      state.stats.aliensKilled++;
+      if (enemy.difficulty === 2) {
+        state.stats.elitesKilled++;
+        state.stats.scrapGained += SCRAP_REWARDS.ELITE_KILL;
+      } else if (enemy.difficulty >= 3) {
+        state.stats.elitesKilled++;
+        state.stats.scrapGained += SCRAP_REWARDS.BOSS_KILL;
+      }
+    });
+    state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);
   }
 }

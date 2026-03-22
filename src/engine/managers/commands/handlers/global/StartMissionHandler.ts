@@ -30,12 +30,12 @@ export class StartMissionHandler implements IGlobalCommandHandler {
       };
       state.units = state.units.map((unit) => {
         if (explorationUnitIds.includes(unit.id)) {
-          return this.unitManager.executeCommand(
-            { ...unit, commandQueue: [] },
-            exploreCmd,
+          return this.unitManager.executeCommand({
+            unit: { ...unit, commandQueue: [] },
+            cmd: exploreCmd,
             state,
-            true,
-          );
+            isManual: true,
+          });
         }
         return unit;
       });

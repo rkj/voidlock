@@ -28,12 +28,7 @@ export class Pathfinder {
     end: Vector2,
     allowClosedDoors: boolean = false,
   ): Vector2[] | null {
-    if (
-      end.x < 0 ||
-      end.x >= this.graph.width ||
-      end.y < 0 ||
-      end.y >= this.graph.height
-    ) {
+    if (!this.isInBounds(end.x, end.y)) {
       return null;
     }
     if (this.graph.cells[end.y][end.x].type !== CellType.Floor) {
@@ -66,22 +61,9 @@ export class Pathfinder {
         const neighbor = { x: current.x + dir.dx, y: current.y + dir.dy };
         const neighborKey = `${neighbor.x},${neighbor.y}`;
 
-        if (
-          neighbor.x < 0 ||
-          neighbor.x >= this.graph.width ||
-          neighbor.y < 0 ||
-          neighbor.y >= this.graph.height
-        ) {
-          continue;
-        }
-
-        if (this.graph.cells[neighbor.y][neighbor.x].type !== CellType.Floor) {
-          continue;
-        }
-
-        if (visited.has(neighborKey)) {
-          continue;
-        }
+        if (!this.isInBounds(neighbor.x, neighbor.y)) continue;
+        if (this.graph.cells[neighbor.y][neighbor.x].type !== CellType.Floor) continue;
+        if (visited.has(neighborKey)) continue;
 
         const boundary = this.graph.getBoundary(
           current.x,
@@ -91,27 +73,32 @@ export class Pathfinder {
         );
         if (!boundary) continue;
 
-        let canTraverse = boundary.type === BoundaryType.Open;
-        if (boundary.doorId) {
-          const door = this.doors.get(boundary.doorId);
-          if (door) {
-            if (allowClosedDoors) {
-              canTraverse = door.state !== "Locked";
-            } else {
-              canTraverse = door.state === "Open" || door.state === "Destroyed";
-            }
-          }
-        }
+        if (!this.canTraverseBoundary(boundary, allowClosedDoors)) continue;
 
-        if (canTraverse) {
-          visited.add(neighborKey);
-          parent.set(neighborKey, current);
-          queue.push(neighbor);
-        }
+        visited.add(neighborKey);
+        parent.set(neighborKey, current);
+        queue.push(neighbor);
       }
     }
 
     return null; // No path found
+  }
+
+  private isInBounds(x: number, y: number): boolean {
+    return x >= 0 && x < this.graph.width && y >= 0 && y < this.graph.height;
+  }
+
+  private canTraverseBoundary(
+    boundary: { type: BoundaryType; doorId?: string },
+    allowClosedDoors: boolean,
+  ): boolean {
+    if (!boundary.doorId) {
+      return boundary.type === BoundaryType.Open;
+    }
+    const door = this.doors.get(boundary.doorId);
+    if (!door) return boundary.type === BoundaryType.Open;
+    if (allowClosedDoors) return door.state !== "Locked";
+    return door.state === "Open" || door.state === "Destroyed";
   }
 
   private reconstructPath(

@@ -15,7 +15,7 @@ if (typeof window !== "undefined") {
     const saveManager = new SaveManager();
     saveManager.getCloudSync().setEnabled(globalConfig.cloudSyncEnabled);
     EngineCampaignManager.getInstance(saveManager);
-  } catch (e) {
+  } catch (_e) {
     // Already initialized or failed
   }
 }

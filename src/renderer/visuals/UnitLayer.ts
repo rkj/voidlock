@@ -99,16 +99,14 @@ export class UnitLayer implements RenderLayer {
         ctx.fillText("Burdened", x, y - cellSize / 4);
       }
 
-      this.renderHealthBar(ctx, x, y, unit.hp, unit.maxHp);
+      this.renderHealthBar(ctx, { x, y, hp: unit.hp, maxHp: unit.maxHp });
 
       if (unit.state === UnitState.Channeling && unit.channeling) {
-        this.renderChannelingBar(
-          ctx,
-          x,
-          y,
-          unit.channeling.remaining,
-          unit.channeling.totalDuration,
-        );
+        this.renderChannelingBar(ctx, {
+          x, y,
+          remaining: unit.channeling.remaining,
+          total: unit.channeling.totalDuration,
+        });
       }
 
       if (unit.state === UnitState.Moving && unit.targetPos) {
@@ -191,7 +189,7 @@ export class UnitLayer implements RenderLayer {
           ctx.textBaseline = "middle";
           ctx.fillText(indicator, x, y);
         } else {
-          this.drawEnemyShape(ctx, x, y, size, enemy.type);
+          this.drawEnemyShape(ctx, { x, y, size, type: enemy.type });
           ctx.fillStyle = this.theme.getColor("--color-danger");
           ctx.fill();
           ctx.strokeStyle = this.theme.getColor("--color-black");
@@ -220,17 +218,15 @@ export class UnitLayer implements RenderLayer {
         }
       }
 
-      this.renderHealthBar(ctx, x, y, enemy.hp, enemy.maxHp);
+      this.renderHealthBar(ctx, { x, y, hp: enemy.hp, maxHp: enemy.maxHp });
     });
   }
 
   private drawEnemyShape(
     ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    size: number,
-    type: string,
-  ) {
+    params: { x: number; y: number; size: number; type: string },
+  ): void {
+    const { x, y, size, type } = params;
     if (type === "xeno-mite") {
       ctx.moveTo(x, y - size);
       ctx.lineTo(x + size, y + size);
@@ -264,11 +260,9 @@ export class UnitLayer implements RenderLayer {
 
   private renderHealthBar(
     ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    hp: number,
-    maxHp: number,
+    params: { x: number; y: number; hp: number; maxHp: number },
   ) {
+    const { x, y, hp, maxHp } = params;
     const cellSize = this.sharedState.cellSize;
     const barWidth = cellSize * 0.5;
     const barHeight = 6;
@@ -289,11 +283,9 @@ export class UnitLayer implements RenderLayer {
 
   private renderChannelingBar(
     ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    remaining: number,
-    total: number,
+    params: { x: number; y: number; remaining: number; total: number },
   ) {
+    const { x, y, remaining, total } = params;
     const cellSize = this.sharedState.cellSize;
     const barWidth = cellSize * 0.6;
     const barHeight = 6;
@@ -319,7 +311,7 @@ export class UnitLayer implements RenderLayer {
   ) {
     if (!unit.targetPos) return;
     const cellSize = this.sharedState.cellSize;
-    const jitter = unit.visualJitter || { x: 0, y: 0 };
+    const jitter = unit.visualJitter ?? { x: 0, y: 0 };
     const pathPoints: Vector2[] = [unit.targetPos];
 
     if (unit.path && unit.path.length > 1) {

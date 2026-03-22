@@ -8,6 +8,14 @@ import type { Vector2 } from "@src/shared/types/geometry";
 import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import type { Renderer } from "../Renderer";
 
+interface TutorialMenuController {
+  menuState: string;
+  pendingAction: unknown;
+  pendingItemId: unknown;
+  pendingTargetId: unknown;
+  pendingMode: unknown;
+}
+
 export interface AdvisorMessage {
   id: string;
   text: string;
@@ -38,7 +46,7 @@ export interface TutorialStep {
     selector?: string;
     cell?: Vector2;
   };
-  dynamicHighlight?: (state: GameState, menuState: string, selection: any) => { selector?: string; cell?: Vector2 } | null;
+  dynamicHighlight?: (state: GameState, menuState: string, selection: { pendingAction?: unknown; pendingItemId?: unknown; pendingTargetId?: unknown; pendingMode?: unknown }) => { selector?: string; cell?: Vector2 } | null;
   inputGate?: {
     allowedActions: string[];
   };
@@ -49,7 +57,7 @@ export interface TutorialStep {
 export class TutorialManager {
   private gameClient: GameClient;
   private campaignManager: CampaignManager;
-  private menuController: any; // We'll type this properly in constructor
+  private menuController: TutorialMenuController;
   private onMessage: (msg: AdvisorMessage, onDismiss?: () => void) => void;
   private getRenderer: () => Renderer | null;
   private isActive: boolean = false;
@@ -213,12 +221,13 @@ export class TutorialManager {
       inputGate: { allowedActions: ["EXTRACT", "SELECT_UNIT"] }
     }
   ];
-constructor(config: TutorialManagerConfig) {
-  this.gameClient = config.gameClient;
-  this.campaignManager = config.campaignManager;
-  this.menuController = config.menuController;
-  this.onMessage = config.onMessage;
-  this.getRenderer = config.getRenderer;
+
+  constructor(config: TutorialManagerConfig) {
+    this.gameClient = config.gameClient;
+    this.campaignManager = config.campaignManager;
+    this.menuController = config.menuController;
+    this.onMessage = config.onMessage;
+    this.getRenderer = config.getRenderer;
   }
   public highlightElement(selector: string) {
     if (this.highlightedElementSelector === selector && (this.highlightedElement || document.querySelector(".tutorial-highlight"))) {
@@ -383,7 +392,7 @@ constructor(config: TutorialManagerConfig) {
         const state = this.campaignManager.getState();
         const isM2 = state?.history?.length === 1 && !state?.rules?.skipPrologue;
         return !!isM2;
-    } catch (e) {
+    } catch (_e) {
         return false;
     }
   }
@@ -392,7 +401,7 @@ constructor(config: TutorialManagerConfig) {
     try {
         const state = this.campaignManager.getState();
         return !!(state && state.history?.length === 2);
-    } catch (e) {
+    } catch (_e) {
         return false;
     }
   }
@@ -573,7 +582,7 @@ constructor(config: TutorialManagerConfig) {
     return !!(
       window.innerWidth < 768 ||
       document.documentElement.classList.contains("mobile-touch") ||
-      (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)
+      window.matchMedia?.("(pointer: coarse)").matches
     );
   }
 
@@ -653,7 +662,7 @@ constructor(config: TutorialManagerConfig) {
   }
 
   public checkDoorOpened(state: GameState): boolean {
-      return (state.map.doors || []).some(d => d.state === "Open" || d.state === "Destroyed");
+      return (state.map.doors ?? []).some(d => d.state === "Open" || d.state === "Destroyed");
   }
 
   public checkEnemyTookDamage(state: GameState): boolean {
@@ -674,8 +683,9 @@ constructor(config: TutorialManagerConfig) {
 
   public checkReachedObjectiveRoom(state: GameState): boolean {
       const obj = state.objectives.find(o => o.id === "prologue-disk" || o.kind === "Recover");
-      if (!obj?.targetCell) return false;
-      return state.units.some(u => MathUtils.getDistance(u.pos, obj.targetCell!) < 1.5);
+      const targetCell = obj?.targetCell;
+      if (!targetCell) return false;
+      return state.units.some(u => MathUtils.getDistance(u.pos, targetCell) < 1.5);
   }
 
   public checkObjectiveCollected(state: GameState): boolean {

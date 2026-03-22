@@ -1,26 +1,14 @@
-import type {
-  Unit,
-  Command,
-  GameState} from "@src/shared/types";
+import type { Unit } from "@src/shared/types";
 import {
   CommandType,
   UnitState,
 } from "@src/shared/types";
-import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import type { IUnitCommandHandler } from "../IUnitCommandHandler";
-import type { UnitCommandRegistry } from "../UnitCommandRegistry";
+import type { IUnitCommandHandler, CommandExecParams } from "../IUnitCommandHandler";
 
 export class ExtractHandler implements IUnitCommandHandler {
   public type = CommandType.EXTRACT;
 
-  public execute(
-    unit: Unit,
-    cmd: Command,
-    state: GameState,
-    isManual: boolean,
-    registry: UnitCommandRegistry,
-    director?: ItemEffectHandler,
-  ): Unit {
+  public execute({ unit, cmd, state, isManual, registry, director }: CommandExecParams): Unit {
     let currentUnit = { ...unit };
 
     if (
@@ -28,9 +16,9 @@ export class ExtractHandler implements IUnitCommandHandler {
       currentUnit.state !== UnitState.Dead
     ) {
       if (state.map.extraction) {
-        currentUnit = registry.execute(
-          currentUnit,
-          {
+        currentUnit = registry.execute({
+          unit: currentUnit,
+          cmd: {
             type: CommandType.MOVE_TO,
             unitIds: [currentUnit.id],
             target: state.map.extraction,
@@ -39,7 +27,7 @@ export class ExtractHandler implements IUnitCommandHandler {
           state,
           isManual,
           director,
-        );
+        });
         currentUnit.activeCommand = cmd;
       }
     }

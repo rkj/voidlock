@@ -140,68 +140,85 @@ export class UIBinder {
 
     // Set a flag so listeners can distinguish between programmatic and user-initiated changes
     el.setAttribute("data-is-binding", "true");
-    
-    try {
-      switch (attr) {
-        case "text":
-          if (el.textContent !== String(value)) {
-            el.textContent = String(value);
-          }
-          break;
-        case "value":
-          if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) {
-            // Optimization: Do not overwrite the value if the element is currently being interacted with (focused)
-            if (el === document.activeElement) break;
 
-            if (el.value !== String(value)) {
-              el.value = String(value);
-              // Dispatch input event so listeners (like the speed control) can react if needed
-              el.dispatchEvent(new Event("input", { bubbles: true }));
-            }
-          }
-          break;
-        case "min":
-        case "max":
-        case "step":
-          if (el instanceof HTMLInputElement) {
-            if (el.getAttribute(attr) !== String(value)) {
-              el.setAttribute(attr, String(value));
-            }
-          }
-          break;
-        case "style-width":
-          el.style.width = typeof value === "number" ? `${value}%` : String(value);
-          break;
-        case "visibility":
-          el.style.visibility = value ? "visible" : "hidden";
-          break;
-        case "display":
-          el.style.display = value ? "" : "none";
-          break;
-        case "class":
-          if (typeof value === "string") {
-            if (binding.isAdditiveClass) {
-              const newClass = (`${binding.baseClassName  } ${  value}`).trim();
-              if (el.className !== newClass) {
-                el.className = newClass;
-              }
-            } else if (el.className !== value) {
-                el.className = value;
-              }
-          }
-          break;
-        default:
-          // Handle style.prop or direct attribute
-          if (attr.startsWith("style-")) {
-            const styleProp = attr.replace("style-", "");
-            const style = el.style as unknown as Record<string, string>;
-            style[styleProp] = String(value);
-          } else {
-            el.setAttribute(attr, String(value));
-          }
-      }
+    try {
+      this.applyBinding(el, attr, value, binding);
     } finally {
       el.removeAttribute("data-is-binding");
+    }
+  }
+
+  private applyBinding(el: HTMLElement, attr: string, value: unknown, binding: Binding) {
+    switch (attr) {
+      case "text":
+        this.applyText(el, value);
+        break;
+      case "value":
+        this.applyValue(el, value);
+        break;
+      case "min":
+      case "max":
+      case "step":
+        this.applyInputAttr(el, attr, value);
+        break;
+      case "style-width":
+        el.style.width = typeof value === "number" ? `${value}%` : String(value);
+        break;
+      case "visibility":
+        el.style.visibility = value ? "visible" : "hidden";
+        break;
+      case "display":
+        el.style.display = value ? "" : "none";
+        break;
+      case "class":
+        this.applyClass(el, value, binding);
+        break;
+      default:
+        this.applyDefault(el, attr, value);
+    }
+  }
+
+  private applyText(el: HTMLElement, value: unknown) {
+    if (el.textContent !== String(value)) {
+      el.textContent = String(value);
+    }
+  }
+
+  private applyValue(el: HTMLElement, value: unknown) {
+    if (!(el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement)) return;
+    if (el === document.activeElement) return;
+    if (el.value !== String(value)) {
+      el.value = String(value);
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  }
+
+  private applyInputAttr(el: HTMLElement, attr: string, value: unknown) {
+    if (!(el instanceof HTMLInputElement)) return;
+    if (el.getAttribute(attr) !== String(value)) {
+      el.setAttribute(attr, String(value));
+    }
+  }
+
+  private applyClass(el: HTMLElement, value: unknown, binding: Binding) {
+    if (typeof value !== "string") return;
+    if (binding.isAdditiveClass) {
+      const newClass = (`${binding.baseClassName  } ${  value}`).trim();
+      if (el.className !== newClass) {
+        el.className = newClass;
+      }
+    } else if (el.className !== value) {
+      el.className = value;
+    }
+  }
+
+  private applyDefault(el: HTMLElement, attr: string, value: unknown) {
+    if (attr.startsWith("style-")) {
+      const styleProp = attr.replace("style-", "");
+      const style = el.style as unknown as Record<string, string>;
+      style[styleProp] = String(value);
+    } else {
+      el.setAttribute(attr, String(value));
     }
   }
 }

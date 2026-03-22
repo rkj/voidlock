@@ -248,8 +248,8 @@ export class SquadBuilder {
           : "var(--color-text-muted)";
 
     // Roster logic
-    let rosterItems: any[] = [];
-    let recruitButton: any = null;
+    let rosterItems: (HTMLElement | DocumentFragment)[] = [];
+    let recruitButton: HTMLElement | DocumentFragment | null = null;
 
     if (this.isCampaign) {
       const state = this.manager.getState();
@@ -294,17 +294,17 @@ export class SquadBuilder {
               isDeployed: false,
               onClick: isHealthy ? () => {
                 this.selectedId = soldier.id;
-                this.addToSquad({
+                void this.addToSquad({
                   type: "campaign",
                   id: soldier.id,
                   archetypeId: soldier.archetypeId,
                 });
               } : undefined,
-              onDoubleClick: isHealthy ? () => this.addToSquad({
+              onDoubleClick: isHealthy ? () => { void this.addToSquad({
                 type: "campaign",
                 id: soldier.id,
                 archetypeId: soldier.archetypeId,
-              }) : undefined
+              }); } : undefined
             });
 
             if (soldier.id === this.selectedId) {
@@ -334,7 +334,7 @@ export class SquadBuilder {
                   disabled={!canAfford}
                   onClick={(e: Event) => {
                     e.stopPropagation();
-                    this.handleRevive(soldier.id);
+                    void this.handleRevive(soldier.id);
                   }}
                 >
                   Restore Lost Asset (250 Credits)
@@ -351,7 +351,7 @@ export class SquadBuilder {
               class="btn-recruit"
               data-focus-id="btn-recruit-squad-builder"
               disabled={state.scrap < 100}
-              onClick={this.handleRecruit}
+              onClick={() => { void this.handleRecruit(); }}
             >
               Acquire New Asset (100 Credits)
             </button>
@@ -385,9 +385,9 @@ export class SquadBuilder {
             context: "squad-builder",
             onClick: () => {
               this.selectedId = arch.id;
-              this.addToSquad({ type: "custom", archetypeId: arch.id });
+              void this.addToSquad({ type: "custom", archetypeId: arch.id });
             },
-            onDoubleClick: () => this.addToSquad({ type: "custom", archetypeId: arch.id })
+            onDoubleClick: () => { void this.addToSquad({ type: "custom", archetypeId: arch.id }); }
           });
 
           if (arch.id === this.selectedId) {
@@ -412,19 +412,19 @@ export class SquadBuilder {
       (s) => s?.archetypeId === "vip",
     );
     const numSlots = hasVip ? 5 : 4;
-    const slots: any[] = [];
+    const slots: (HTMLElement | DocumentFragment)[] = [];
 
     const nonVipSoldiers = this.squad.soldiers.filter(
       (s) => s && s.archetypeId !== "vip",
     );
 
     for (let i = 0; i < numSlots; i++) {
-      let slotContent: any = null;
+      let slotContent: HTMLElement | DocumentFragment | string | null = null;
       let slotClass = "deployment-slot";
       const slotLabel = `Deployment Slot ${hasVip ? (i === 0 ? "VIP" : i) : i + 1}`;
       let tabIndex = -1;
-      let onClick: any = null;
-      let onKeyDown: any = null;
+      let onClick: ((e?: MouseEvent) => void) | undefined = undefined;
+      let onKeyDown: ((e: KeyboardEvent) => void) | undefined = undefined;
 
       if (i === 0 && hasVip) {
         if (isEscortMission) {
@@ -489,15 +489,15 @@ export class SquadBuilder {
                 if (this.isCampaign) {
                   const state = this.manager.getState();
                   const s = state?.roster.find((r) => r.id === this.selectedId);
-                  if (s) this.addToSquad({ type: "campaign", id: s.id, archetypeId: s.archetypeId });
+                  if (s) void this.addToSquad({ type: "campaign", id: s.id, archetypeId: s.archetypeId });
                 } else {
-                  this.addToSquad({ type: "custom", archetypeId: this.selectedId });
+                  void this.addToSquad({ type: "custom", archetypeId: this.selectedId });
                 }
               }
             };
             onKeyDown = (e: KeyboardEvent) => {
               if (e.key === "Enter" || e.key === " ") {
-                onClick();
+                onClick?.();
                 e.preventDefault();
               }
             };
@@ -528,7 +528,7 @@ export class SquadBuilder {
           e.preventDefault();
           slotEl.classList.remove("drag-over");
           const dataStr = e.dataTransfer?.getData("text/plain");
-          if (dataStr) this.addToSquad(JSON.parse(dataStr));
+          if (dataStr) void this.addToSquad(JSON.parse(dataStr));
         });
       }
       

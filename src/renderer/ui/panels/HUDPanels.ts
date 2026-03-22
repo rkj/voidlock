@@ -63,7 +63,7 @@ export class DeploymentPanel {
         const s = this.callbacks.getCurrentState();
         if (!s) return;
         const soldiers = s.units.filter((u) => u.archetypeId !== "vip");
-        const allSpawns = s.map.squadSpawns || (s.map.squadSpawn ? [s.map.squadSpawn] : []);
+        const allSpawns = s.map.squadSpawns ?? (s.map.squadSpawn ? [s.map.squadSpawn] : []);
         if (allSpawns.length === 0) return;
         soldiers.forEach((u, idx) => {
            const spawn = allSpawns[idx % allSpawns.length];
@@ -177,7 +177,7 @@ export class DeploymentPanel {
   }
 
   private findNextEmptySpawn(state: GameState): { x: number; y: number } | null {
-    const spawns = state.map?.squadSpawns || (state.map?.squadSpawn ? [state.map.squadSpawn] : []);
+    const spawns = state.map?.squadSpawns ?? (state.map?.squadSpawn ? [state.map.squadSpawn] : []);
     for (const spawn of spawns) {
       if (!state.units.some(u => u.isDeployed !== false && MathUtils.sameCellPosition(u.pos, spawn))) return spawn;
     }
@@ -278,7 +278,7 @@ export class ObjectivesPanel {
 
   public getObjectivesData(state: GameState) {
     const showCoords = state.settings.debugOverlayEnabled;
-    const data: any[] = [];
+    const data: { id: string; icon: string; color: string; text: string; state: string }[] = [];
     state.objectives.forEach((obj, idx) => {
       const isCompleted = obj.state === "Completed";
       const isFailed = obj.state === "Failed";
@@ -343,7 +343,8 @@ export class EnemyIntelPanel {
     visibleEnemies.forEach((e) => { groups[e.type] = (groups[e.type] || 0) + 1; });
     const types = Object.keys(groups).sort();
       intelDiv.innerHTML = `<h3>Hostile Contact Intel</h3>${  types.map(type => {
-        const e = visibleEnemies.find(en => en.type === type)!;
+        const e = visibleEnemies.find(en => en.type === type);
+        if (!e) return "";
         const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
         return `
           <div class="intel-box" data-type="${type}">

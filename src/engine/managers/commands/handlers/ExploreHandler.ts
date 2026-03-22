@@ -1,26 +1,14 @@
-import type {
-  Unit,
-  Command,
-  GameState} from "@src/shared/types";
+import type { Unit } from "@src/shared/types";
 import {
   CommandType,
   UnitState,
 } from "@src/shared/types";
-import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import type { IUnitCommandHandler } from "../IUnitCommandHandler";
-import type { UnitCommandRegistry } from "../UnitCommandRegistry";
+import type { IUnitCommandHandler, CommandExecParams } from "../IUnitCommandHandler";
 
 export class ExploreHandler implements IUnitCommandHandler {
   public type = CommandType.EXPLORE;
 
-  public execute(
-    unit: Unit,
-    _cmd: Command,
-    _state: GameState,
-    _isManual: boolean,
-    _registry: UnitCommandRegistry,
-    _director?: ItemEffectHandler,
-  ): Unit {
+  public execute({ unit }: CommandExecParams): Unit {
     const currentUnit = { ...unit };
 
     if (

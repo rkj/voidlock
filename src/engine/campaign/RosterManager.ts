@@ -17,7 +17,7 @@ export class RosterManager {
   public generateInitialRoster(
     unlockedArchetypes?: string[],
   ): CampaignSoldier[] {
-    const archetypes = unlockedArchetypes || [...DEFAULT_ARCHETYPES];
+    const archetypes = unlockedArchetypes ?? [...DEFAULT_ARCHETYPES];
     const roster: CampaignSoldier[] = [];
 
     for (let i = 0; i < CAMPAIGN_DEFAULTS.INITIAL_ROSTER_SIZE; i++) {

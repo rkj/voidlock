@@ -192,12 +192,16 @@ export class UnitSpawner {
         cell.type === "Floor" &&
         cell.roomId?.startsWith("room-")
       ) {
-        if (!rooms.has(cell.roomId)) rooms.set(cell.roomId, []);
-        rooms.get(cell.roomId)!.push({ x: cell.x, y: cell.y });
+        let arr = rooms.get(cell.roomId);
+        if (!arr) {
+          arr = [];
+          rooms.set(cell.roomId, arr);
+        }
+        arr.push({ x: cell.x, y: cell.y });
       }
     });
 
-    if (rooms.size === 0) return [map.extraction || { x: 0, y: 0 }];
+    if (rooms.size === 0) return [map.extraction ?? { x: 0, y: 0 }];
 
     const squadQX = squadPos.x < map.width / 2 ? 0 : 1;
     const squadQY = squadPos.y < map.height / 2 ? 0 : 1;
@@ -242,17 +246,21 @@ export class UnitSpawner {
       );
       if (otherRooms.length > 0) {
         return otherRooms.slice(0, count).map((id) => {
-          const cells = rooms.get(id)!;
-          return cells[this.prng.nextInt(0, cells.length - 1)];
+          const cells = rooms.get(id) ?? [];
+          return cells.length > 0
+            ? cells[this.prng.nextInt(0, cells.length - 1)]
+            : { x: 0, y: 0 };
         });
       }
-      return [map.extraction || { x: 0, y: 0 }];
+      return [map.extraction ?? { x: 0, y: 0 }];
     }
 
     const selectedRooms = candidateRooms.slice(0, count);
     return selectedRooms.map((r) => {
-      const cells = rooms.get(r.roomId)!;
-      return cells[this.prng.nextInt(0, cells.length - 1)];
+      const cells = rooms.get(r.roomId) ?? [];
+      return cells.length > 0
+        ? cells[this.prng.nextInt(0, cells.length - 1)]
+        : { x: 0, y: 0 };
     });
   }
 }

@@ -35,10 +35,12 @@ export class RoomDiscoveryManager {
         if (cell.roomId) {
           this.cellToRoomId.set(`${cell.x},${cell.y}`, cell.roomId);
 
-          if (!roomCells.has(cell.roomId)) {
-            roomCells.set(cell.roomId, []);
+          let arr = roomCells.get(cell.roomId);
+          if (!arr) {
+            arr = [];
+            roomCells.set(cell.roomId, arr);
           }
-          roomCells.get(cell.roomId)!.push({ x: cell.x, y: cell.y });
+          arr.push({ x: cell.x, y: cell.y });
         }
       });
 

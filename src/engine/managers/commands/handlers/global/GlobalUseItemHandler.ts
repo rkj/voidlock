@@ -44,13 +44,13 @@ export class GlobalUseItemHandler implements IGlobalCommandHandler {
             return { ...unit, commandQueue: unit.commandQueue.concat(useItemCmd) };
           } 
             const unitWithEmptyQueue = { ...unit, commandQueue: [] };
-            return this.unitManager.executeCommand(
-              unitWithEmptyQueue,
-              useItemCmd,
+            return this.unitManager.executeCommand({
+              unit: unitWithEmptyQueue,
+              cmd: useItemCmd,
               state,
-              true,
-              this.director,
-            );
+              isManual: true,
+              director: this.director,
+            });
           
         }
         return unit;

@@ -130,7 +130,9 @@ export class ModalService {
   private processQueue() {
     if (this.activeModal || this.queue.length === 0) return;
 
-    const { options, resolve } = this.queue.shift()!;
+    const item = this.queue.shift();
+    if (!item) return;
+    const { options, resolve } = item;
     this.renderModal(options, resolve);
   }
 

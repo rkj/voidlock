@@ -13,7 +13,7 @@ import {
 const ITERATIONS = 100; // Final verification
 const DT = 50; // ms
 
-async function runSimulation() {
+function runSimulation() {
   let wins = 0;
   let losses = 0;
   let totalCasualties = 0;

@@ -183,7 +183,7 @@ export class InputBinder {
     el.addEventListener(type, (e) => {
       handler(e);
     });
-    const entries = this.handlers.get(el) || [];
+    const entries = this.handlers.get(el) ?? [];
     entries.push({ type, handler });
     this.handlers.set(el, entries);
   }

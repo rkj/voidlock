@@ -252,18 +252,20 @@ export class DebriefScreen {
     footer.appendChild(continueBtn);
 
     if (this.report.nodeId === "custom" && this.onReplay) {
+      const replayFn = this.onReplay;
       const replayBtn = document.createElement("button");
       replayBtn.textContent = "Analyze Tactical Feed";
       replayBtn.className = "debrief-button";
-      replayBtn.addEventListener("click", () => this.onReplay!());
+      replayBtn.addEventListener("click", () => replayFn());
       footer.appendChild(replayBtn);
     }
 
     if (this.onExport) {
+      const exportFn = this.onExport;
       const exportBtn = document.createElement("button");
       exportBtn.textContent = "Export Recording";
       exportBtn.className = "debrief-button secondary";
-      exportBtn.addEventListener("click", () => this.onExport!());
+      exportBtn.addEventListener("click", () => exportFn());
       footer.appendChild(exportBtn);
     }
 

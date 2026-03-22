@@ -1,7 +1,8 @@
 import { InputBinder } from "./InputBinder";
 import type {
   MapGeneratorType,
-  SquadSoldierConfig} from "@src/shared/types";
+  SquadSoldierConfig,
+  Unit} from "@src/shared/types";
 import {
   MissionType,
   CommandType,
@@ -78,7 +79,7 @@ export class GameApp {
       onShellTabChange: (tabId) => this.registry.navigationOrchestrator.onShellTabChange(tabId),
       onShellMainMenu: () => this.showMainMenu(),
       onUnitClick: (unit, shift) => this.registry.inputOrchestrator.onUnitClick(unit, shift),
-      onAbortMission: () => this.registry.missionRunner.abortMission(),
+      onAbortMission: () => { void this.registry.missionRunner.abortMission(); },
       onMenuInput: (key, shift) => this.registry.inputOrchestrator.handleMenuInput(key, shift),
       onTimeScaleChange: (scale) => {
         if (this.gameClient.getIsPaused() && scale > 0) {
@@ -87,7 +88,7 @@ export class GameApp {
         this.gameClient.setTimeScale(scale);
         this.registry.uiOrchestrator.syncSpeedUI();
       },
-      onCopyWorldState: () => this.registry.uiOrchestrator.copyWorldState(),
+      onCopyWorldState: () => { void this.registry.uiOrchestrator.copyWorldState(); },
       onDebugForceWin: () =>
         this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN }),
       onDebugForceLose: () =>
@@ -115,8 +116,14 @@ export class GameApp {
       getCurrentGameState: () => this.registry.missionRunner.getCurrentGameState(),
       isDebriefVisible: () => this.debriefScreen.isVisible(),
       getSelectedUnitId: () => this.registry.missionRunner.getSelectedUnitId(),
-      getCellCoordinates: (px, py) => this.renderer!.getCellCoordinates(px, py),
-      getWorldCoordinates: (px, py) => this.renderer!.getWorldCoordinates(px, py),
+      getCellCoordinates: (px, py) => {
+        if (!this.renderer) throw new Error("Renderer not initialized");
+        return this.renderer.getCellCoordinates(px, py);
+      },
+      getWorldCoordinates: (px, py) => {
+        if (!this.renderer) throw new Error("Renderer not initialized");
+        return this.renderer.getWorldCoordinates(px, py);
+      },
       cycleUnits: (reverse) => this.registry.inputOrchestrator.cycleUnits(reverse),
       panMap: (direction) => this.registry.inputOrchestrator.panMap(direction),
       panMapBy: (dx, dy) => this.registry.inputOrchestrator.panMapBy(dx, dy),
@@ -178,7 +185,7 @@ export class GameApp {
 
     // 4. Setup global UI and shortcuts
     this.registry.uiOrchestrator.setupAdditionalUIBindings({
-      onAbortMission: () => this.registry.missionRunner.abortMission(),
+      onAbortMission: () => { void this.registry.missionRunner.abortMission(); },
       onRetryMission: () => this.registry.missionRunner.launchMission(),
       onForceWin: () =>
         this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN }),
@@ -253,7 +260,7 @@ export class GameApp {
           state &&
           (state.status === "Victory" || state.status === "Defeat")
         ) {
-          this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, false, state);
+          this.registry.navigationOrchestrator.switchScreenWithArgs({ id: "campaign-summary", isCampaign: true, updateHash: true, force: false, showArgs: [state] });
           return;
         }
 
@@ -370,80 +377,34 @@ export class GameApp {
     this.inputBinder = new InputBinder();
     this.inputBinder.bindAll({
       onTogglePause: () => this.registry.uiOrchestrator.togglePause(),
-      onAbortMission: () => this.registry.missionRunner.abortMission(),
-      onCustomMission: () => {
-        this.registry.missionSetupManager.currentCampaignNode = null;
-        this.registry.missionSetupManager.loadAndApplyConfig(false);
-        this.registry.campaignShell.show("custom", "setup");
-        this.squadBuilder.update(
-          this.registry.missionSetupManager.currentSquad,
-          this.registry.missionSetupManager.currentMissionType,
-          false,
-        );
-        this.registry.navigationOrchestrator.switchScreen("mission-setup", false);
-      },
+      onAbortMission: () => { void this.registry.missionRunner.abortMission(); },
+      onCustomMission: () => this.onCustomMission(),
       onCampaignMenu: () => {
         this.registry.navigationOrchestrator.handleExternalScreenChange("campaign", true);
       },
-      onResetData: () => this.campaignFlowCoordinator.onResetData(),
+      onResetData: () => { void this.campaignFlowCoordinator.onResetData(); },
       onShowEquipment: () => {
-
         const isCampaign = !!this.registry.missionSetupManager.currentCampaignNode;
         this.registry.navigationOrchestrator.handleExternalScreenChange("equipment", isCampaign);
       },
-      onLoadStaticMap: (json) => this.registry.missionSetupManager.loadStaticMap(json),
-      onUploadStaticMap: (file) =>
-        this.registry.missionSetupManager.uploadStaticMap(file),
-      onConvertAscii: (ascii) => this.registry.missionSetupManager.convertAscii(ascii),
+      onLoadStaticMap: (json) => { void this.registry.missionSetupManager.loadStaticMap(json); },
+      onUploadStaticMap: (file) => { void this.registry.missionSetupManager.uploadStaticMap(file); },
+      onConvertAscii: (ascii) => { void this.registry.missionSetupManager.convertAscii(ascii); },
       onExportReplay: () => this.registry.uiOrchestrator.exportReplay(),
       onShowStatistics: () => {
         this.registry.navigationOrchestrator.switchScreen("statistics", false);
         this.registry.campaignShell.show("statistics", "stats");
       },
-      onEngineeringMenu: () => {
-        const state = this.registry.campaignManager.getState();
-        this.registry.navigationOrchestrator.switchScreen("engineering", !!state);
-        if (state) {
-          this.registry.campaignShell.show("campaign", "engineering");
-        } else {
-          this.registry.campaignShell.show("statistics", "engineering");
-        }
-      },
-      onSettingsMenu: () => {
-        const state = this.registry.campaignManager.getState();
-        this.registry.navigationOrchestrator.switchScreen("settings", !!state);
-        if (state) {
-          this.registry.campaignShell.show("campaign", "settings");
-        } else {
-          this.registry.campaignShell.show("global", "settings", false);
-        }
-      },
-      onSetupBack: () => {
-        this.registry.screenManager.goBack();
-      },
+      onEngineeringMenu: () => this.onEngineeringMenu(),
+      onSettingsMenu: () => this.onSettingsMenu(),
+      onSetupBack: () => { this.registry.screenManager.goBack(); },
       onLaunchMission: () => this.registry.missionRunner.launchMission(),
       onMapGeneratorChange: (type: MapGeneratorType) => {
         if (this.registry.missionSetupManager.currentMapGeneratorType === type) return;
         this.registry.missionSetupManager.currentMapGeneratorType = type;
         this.registry.missionSetupManager.saveCurrentConfig();
       },
-      onMissionTypeChange: (type: MissionType) => {
-        this.registry.missionSetupManager.currentMissionType = type;
-        if (
-          this.registry.missionSetupManager.currentMissionType === MissionType.EscortVIP
-        ) {
-          this.registry.missionSetupManager.currentSquad.soldiers =
-            this.registry.missionSetupManager.currentSquad.soldiers.filter(
-              (s) => s.archetypeId !== "vip",
-            );
-        }
-        this.registry.missionSetupManager.saveCurrentConfig();
-        this.squadBuilder.update(
-          this.registry.missionSetupManager.currentSquad,
-          this.registry.missionSetupManager.currentMissionType,
-          !!this.registry.missionSetupManager.currentCampaignNode,
-        );
-      },
+      onMissionTypeChange: (type: MissionType) => this.onMissionTypeChange(type),
       onThemeChange: (themeId: string) => {
         this.registry.missionSetupManager.currentThemeId = themeId;
         this.registry.missionSetupManager.saveCurrentConfig();
@@ -473,100 +434,154 @@ export class GameApp {
         this.registry.missionSetupManager.allowTacticalPause = enabled;
         this.registry.missionSetupManager.saveCurrentConfig();
       },
-      onMapSizeChange: (width: number, _height: number) => {
-        if (this.registry.missionSetupManager.currentCampaignNode) return;
-        this.registry.missionSetupManager.currentMapWidth = width;
-        this.registry.missionSetupManager.currentMapHeight = _height;
-        this.registry.missionSetupManager.currentSpawnPointCount =
-          calculateSpawnPoints(width);
-        const spInput = document.getElementById(
-          "map-spawn-points",
-        ) as HTMLInputElement;
-        const spValue = document.getElementById("map-spawn-points-value");
-        if (spInput) {
-          spInput.value =
-            this.registry.missionSetupManager.currentSpawnPointCount.toString();
-          if (spValue) spValue.textContent = spInput.value;
-        }
-        this.registry.missionSetupManager.saveCurrentConfig();
-      },
-      onLoadReplay: (file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const content = e.target?.result as string;
-          try {
-            const data = JSON.parse(content);
-            const replayData = data.replayData || data;
-            const currentState = data.currentState;
-
-            if (replayData?.commands) {
-              this.gameClient.loadReplay(replayData);
-
-              let report: MissionReport;
-              if (currentState) {
-                report = {
-                  nodeId: "custom",
-                  seed: currentState.seed,
-                  result: currentState.status === "Won" ? "Won" : "Lost",
-                  aliensKilled: currentState.stats.aliensKilled,
-                  scrapGained: currentState.stats.scrapGained,
-                  intelGained: 0,
-                  timeSpent: currentState.t,
-                  soldierResults: currentState.units.map((u: any) => ({
-                    soldierId: u.id,
-                    name: u.name,
-                    tacticalNumber: u.tacticalNumber,
-                    xpBefore: 0,
-                    xpGained: 0,
-                    kills: u.kills,
-                    promoted: false,
-                    status: u.state === UnitState.Dead ? "Dead" : "Healthy",
-                  })),
-                };
-              } else {
-                report = {
-                  nodeId: "custom",
-                  seed: replayData.seed || 0,
-                  result: "Won",
-                  aliensKilled: 0,
-                  scrapGained: 0,
-                  intelGained: 0,
-                  timeSpent: replayData.commands.length > 0 ? replayData.commands[replayData.commands.length - 1].t : 0,
-                  soldierResults: (replayData.squadConfig?.soldiers || []).map((s: SquadSoldierConfig, idx: number) => ({
-                    soldierId: s.id || `s-${idx}`,
-                    name: s.name || s.archetypeId || "Unknown",
-                    tacticalNumber: s.tacticalNumber || idx + 1,
-                    xpBefore: 0,
-                    xpGained: 0,
-                    kills: 0,
-                    promoted: false,
-                    status: "Healthy",
-                  })),
-                };
-              }
-
-              if (replayData.themeId) {
-                this.registry.themeManager.setTheme(replayData.themeId);
-              }
-
-              this.registry.navigationOrchestrator.switchScreen(
-                "debrief",
-                false,
-                true,
-                false,
-                report,
-                replayData.unitStyle || this.registry.missionSetupManager.unitStyle,
-              );
-            } else {
-              this.modalService.alert("Invalid replay file format.");
-            }
-          } catch (err) {
-            this.modalService.alert("Failed to parse replay file.");
-          }
-        };
-        reader.readAsText(file);
-      },
+      onMapSizeChange: (width: number, _height: number) => this.onMapSizeChange(width, _height),
+      onLoadReplay: (file) => this.onLoadReplay(file),
     });
+  }
+
+  private onCustomMission() {
+    this.registry.missionSetupManager.currentCampaignNode = null;
+    this.registry.missionSetupManager.loadAndApplyConfig(false);
+    this.registry.campaignShell.show("custom", "setup");
+    this.squadBuilder.update(
+      this.registry.missionSetupManager.currentSquad,
+      this.registry.missionSetupManager.currentMissionType,
+      false,
+    );
+    this.registry.navigationOrchestrator.switchScreen("mission-setup", false);
+  }
+
+  private onEngineeringMenu() {
+    const state = this.registry.campaignManager.getState();
+    this.registry.navigationOrchestrator.switchScreen("engineering", !!state);
+    if (state) {
+      this.registry.campaignShell.show("campaign", "engineering");
+    } else {
+      this.registry.campaignShell.show("statistics", "engineering");
+    }
+  }
+
+  private onSettingsMenu() {
+    const state = this.registry.campaignManager.getState();
+    this.registry.navigationOrchestrator.switchScreen("settings", !!state);
+    if (state) {
+      this.registry.campaignShell.show("campaign", "settings");
+    } else {
+      this.registry.campaignShell.show("global", "settings", false);
+    }
+  }
+
+  private onMissionTypeChange(type: MissionType) {
+    this.registry.missionSetupManager.currentMissionType = type;
+    if (this.registry.missionSetupManager.currentMissionType === MissionType.EscortVIP) {
+      this.registry.missionSetupManager.currentSquad.soldiers =
+        this.registry.missionSetupManager.currentSquad.soldiers.filter(
+          (s) => s.archetypeId !== "vip",
+        );
+    }
+    this.registry.missionSetupManager.saveCurrentConfig();
+    this.squadBuilder.update(
+      this.registry.missionSetupManager.currentSquad,
+      this.registry.missionSetupManager.currentMissionType,
+      !!this.registry.missionSetupManager.currentCampaignNode,
+    );
+  }
+
+  private onMapSizeChange(width: number, height: number) {
+    if (this.registry.missionSetupManager.currentCampaignNode) return;
+    this.registry.missionSetupManager.currentMapWidth = width;
+    this.registry.missionSetupManager.currentMapHeight = height;
+    this.registry.missionSetupManager.currentSpawnPointCount = calculateSpawnPoints(width);
+    const spInput = document.getElementById("map-spawn-points") as HTMLInputElement;
+    const spValue = document.getElementById("map-spawn-points-value");
+    if (spInput) {
+      spInput.value = this.registry.missionSetupManager.currentSpawnPointCount.toString();
+      if (spValue) spValue.textContent = spInput.value;
+    }
+    this.registry.missionSetupManager.saveCurrentConfig();
+  }
+
+  private onLoadReplay(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      try {
+        const data = JSON.parse(content);
+        const replayData = data.replayData || data;
+        const currentState = data.currentState;
+
+        if (!replayData?.commands) {
+          void this.modalService.alert("Invalid replay file format.");
+          return;
+        }
+
+        this.gameClient.loadReplay(replayData);
+        const report: MissionReport = currentState
+          ? this.buildReportFromState(currentState)
+          : this.buildReportFromReplay(replayData);
+
+        if (replayData.themeId) {
+          this.registry.themeManager.setTheme(replayData.themeId);
+        }
+
+        this.registry.navigationOrchestrator.switchScreenWithArgs({
+          id: "debrief",
+          isCampaign: false,
+          updateHash: true,
+          force: false,
+          showArgs: [report, replayData.unitStyle || this.registry.missionSetupManager.unitStyle],
+        });
+      } catch (_err) {
+        void this.modalService.alert("Failed to parse replay file.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private buildReportFromState(currentState: any): MissionReport {
+    return {
+      nodeId: "custom",
+      seed: currentState.seed,
+      result: currentState.status === "Won" ? "Won" : "Lost",
+      aliensKilled: currentState.stats.aliensKilled,
+      scrapGained: currentState.stats.scrapGained,
+      intelGained: 0,
+      timeSpent: currentState.t,
+      soldierResults: currentState.units.map((u: Unit) => ({
+        soldierId: u.id,
+        name: u.name,
+        tacticalNumber: u.tacticalNumber,
+        xpBefore: 0,
+        xpGained: 0,
+        kills: u.kills,
+        promoted: false,
+        status: u.state === UnitState.Dead ? "Dead" : "Healthy",
+      })),
+    };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private buildReportFromReplay(replayData: any): MissionReport {
+    return {
+      nodeId: "custom",
+      seed: replayData.seed || 0,
+      result: "Won",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: replayData.commands.length > 0 ? replayData.commands[replayData.commands.length - 1].t : 0,
+      soldierResults: (replayData.squadConfig?.soldiers || []).map((s: SquadSoldierConfig, idx: number) => ({
+        soldierId: s.id || `s-${idx}`,
+        name: s.name || s.archetypeId || "Unknown",
+        tacticalNumber: s.tacticalNumber || idx + 1,
+        xpBefore: 0,
+        xpGained: 0,
+        kills: 0,
+        promoted: false,
+        status: "Healthy",
+      })),
+    };
   }
 
   public start() {

@@ -29,7 +29,7 @@ export class DoorManager {
         if (nextTimer <= 0) {
           newDoor = {
             ...door,
-            state: door.targetState!,
+            state: door.targetState ?? door.state,
             openTimer: undefined,
             targetState: undefined,
           };

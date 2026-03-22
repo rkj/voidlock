@@ -105,6 +105,15 @@ export default tseslint.config(
     },
   },
 
+  // ── JSX factory files: `any` and `Function` are inherent to JSX ──
+  {
+    files: ["src/renderer/jsx.ts", "src/renderer/jsx-types.d.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-function-type": "off",
+    },
+  },
+
   // ── Test files: relax some rules ─────────────────────────────
   {
     files: ["tests/**/*.ts", "tests/**/*.tsx"],

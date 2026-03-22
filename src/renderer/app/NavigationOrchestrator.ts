@@ -54,6 +54,15 @@ export interface NavigationOrchestratorConfig {
   callbacks: NavigationOrchestratorCallbacks;
 }
 
+export interface SwitchScreenParams {
+  id: ScreenId;
+  isCampaign?: boolean;
+  updateHash?: boolean;
+  force?: boolean;
+  showArgs?: unknown[];
+}
+
+
 export class NavigationOrchestrator {
   private screenManager: ScreenManager;
   private campaignShell: CampaignShell;
@@ -88,7 +97,6 @@ export class NavigationOrchestrator {
     isCampaign: boolean = false,
     updateHash: boolean = true,
     force: boolean = false,
-    ...showArgs: unknown[]
   ) {
     // 1. Hide ALL screens to clear input contexts and DOM
     this.allScreens.forEach((s) => s.hide());
@@ -102,17 +110,20 @@ export class NavigationOrchestrator {
     // 3. Show target screen object
     const screenObj = this.getScreenObject(id);
     if (screenObj) {
-      // Screens have different show() signatures, so we use apply
-      (screenObj.show).apply(screenObj, showArgs);
+      screenObj.show();
     }
 
     // 4. Update ScreenManager (DOM display and Hash)
-    this.screenManager.show(id, updateHash, isCampaign, false, force);
+    this.screenManager.showEx({ id, updateHash, isCampaign, force });
 
     // 5. Trigger tutorial hooks
     this.tutorialManager.onScreenShow(id);
 
     // 6. Apply snappy tactical transition (Spec 8.1)
+    this.applyScreenTransition(id);
+  }
+
+  private applyScreenTransition(id: ScreenId) {
     const el = this.screenManager.getScreenElement(id);
     if (el) {
       // Remove both possible transition classes
@@ -122,6 +133,37 @@ export class NavigationOrchestrator {
       // Default to fade-in for a clean, snappy feel (< 200ms)
       el.classList.add("screen-fade-in");
     }
+  }
+
+  /**
+   * Switches to screen and then calls show() with extra args on the screen object.
+   */
+  public switchScreenWithArgs(params: SwitchScreenParams) {
+    const { id, isCampaign = false, updateHash = true, force = false, showArgs = [] } = params;
+
+    // 1. Hide ALL screens to clear input contexts and DOM
+    this.allScreens.forEach((s) => s.hide());
+
+    // 2. Hide CampaignShell for non-campaign screens (Main Menu, Mission, etc.)
+    if (id === "main-menu" || id === "mission") {
+      this.campaignShell.hide();
+    }
+
+    // 3. Show target screen object with args
+    const screenObj = this.getScreenObject(id);
+    if (screenObj) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (screenObj.show as (...args: any[]) => void)(...showArgs);
+    }
+
+    // 4. Update ScreenManager (DOM display and Hash)
+    this.screenManager.showEx({ id, updateHash, isCampaign, force });
+
+    // 5. Trigger tutorial hooks
+    this.tutorialManager.onScreenShow(id);
+
+    // 6. Apply snappy tactical transition (Spec 8.1)
+    this.applyScreenTransition(id);
   }
 
   private get allScreens(): { hide: () => void }[] {
@@ -138,7 +180,8 @@ export class NavigationOrchestrator {
     ].filter((s) => !!s);
   }
 
-  private getScreenObject(id: ScreenId): { show: Function; hide: Function } | null {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private getScreenObject(id: ScreenId): { show: (...args: any[]) => void; hide: () => void } | null {
     switch (id) {
       case "main-menu":
         return this.screens.mainMenu;
@@ -196,8 +239,8 @@ export class NavigationOrchestrator {
         this.switchScreen("campaign", true);
         break;
       case "ready-room": {
-        const hasCampaign = !!this.campaignManager.getState();
-        this.setupEquipmentScreen(hasCampaign);
+        const hasCampaignState = !!this.campaignManager.getState();
+        this.setupEquipmentScreen(hasCampaignState);
         break;
       }
       case "engineering":
@@ -225,132 +268,27 @@ export class NavigationOrchestrator {
   ) {
     Logger.info(`NavOrch: handleExternalScreenChange(${id}, isCampaign=${isCampaign})`);
     switch (id) {
-      case "campaign": {
-        this.applyCampaignTheme();
-        const state = this.campaignManager.getState();
-        Logger.info(`NavOrch: handleExternalScreenChange(campaign), history=${state?.history?.length}`);
-
-        if (state && state.history?.length === 1 && !state.rules.skipPrologue) {
-          const nextNode = state.nodes.find((n) => n.status === "Accessible");
-          Logger.info(`NavOrch: Mission 2 tutorial check, nextNode=${nextNode?.id}`);
-          if (nextNode) {
-            this.onCampaignNodeSelect(nextNode);
-            return;
-          }
-        }
-
-        if (state && state.history?.length === 2 && !state.rules.skipPrologue) {
-          this.tutorialManager.triggerEvent("sector_map_intro");
-        }
-
-        if (
-          state &&
-          (state.status === "Victory" || state.status === "Defeat")
-        ) {
-          this.switchScreen("campaign-summary", true, true, true, state);
-        } else {
-          this.switchScreen("campaign", true, true, true);
-          this.campaignShell.show(
-            "campaign",
-            "sector-map",
-            true,
-            this.missionSetupManager.currentMissionType,
-          );
-        }
+      case "campaign":
+        this.handleCampaignScreen();
         break;
-      }
-      case "campaign-summary": {
-        const state = this.campaignManager.getState();
-        if (state) {
-          this.switchScreen("campaign-summary", true, true, true, state);
-        } else {
-          this.callbacks.showMainMenu();
-        }
+      case "campaign-summary":
+        this.handleCampaignSummaryScreen();
         break;
-      }
-      case "mission-setup": {
-        const rehydrated = isCampaign
-          ? this.missionSetupManager.rehydrateCampaignNode()
-          : false;
-
-        if (rehydrated) {
-          // Redirect to equipment screen (Spec: Sector -> Equipment -> Launch)
-          this.setupEquipmentScreen(true);
-        } else {
-          this.missionSetupManager.loadAndApplyConfig(false);
-          this.campaignShell.show("custom", "setup");
-          this.squadBuilder.update(
-            this.missionSetupManager.currentSquad,
-            this.missionSetupManager.currentMissionType,
-            false,
-          );
-          this.switchScreen("mission-setup", false, true, true);
-        }
+      case "mission-setup":
+        this.handleMissionSetupScreen(isCampaign);
         break;
-      }
-      case "equipment": {
-        if (isCampaign && !this.missionSetupManager.currentCampaignNode) {
-          this.missionSetupManager.rehydrateCampaignNode();
-        }
-        const isCurrentlyCampaign =
-          isCampaign || !!this.missionSetupManager.currentCampaignNode;
-        this.setupEquipmentScreen(isCurrentlyCampaign);
+      case "equipment":
+        this.handleEquipmentScreen(isCampaign);
         break;
-      }
       case "statistics":
-        this.switchScreen("statistics", false, true, true);
-        if (
-          !isCampaign &&
-          this.missionSetupManager.currentCampaignNode === null &&
-          !this.campaignManager.getState()
-        ) {
-          this.campaignShell.show("custom", "stats");
-        } else {
-          this.campaignShell.show(
-            "statistics",
-            "stats",
-            true,
-            this.missionSetupManager.currentMissionType,
-          );
-        }
+        this.handleStatisticsScreen(isCampaign);
         break;
       case "engineering":
-        this.switchScreen(
-          "engineering",
-          isCampaign || !!this.campaignManager.getState(),
-          true,
-          true,
-        );
-        if (isCampaign || this.campaignManager.getState()) {
-          this.campaignShell.show(
-            "campaign",
-            "engineering",
-            true,
-            this.missionSetupManager.currentMissionType,
-          );
-        } else {
-          this.campaignShell.show("statistics", "engineering");
-        }
+        this.handleEngineeringScreen(isCampaign);
         break;
-      case "settings": {
-        const state = this.campaignManager.getState();
-        const isCustomFlow =
-          !isCampaign && this.missionSetupManager.currentCampaignNode === null;
-        this.switchScreen("settings", isCampaign || !!state || isCustomFlow, true, true);
-        if (state) {
-          this.campaignShell.show(
-            "campaign",
-            "settings",
-            true,
-            this.missionSetupManager.currentMissionType,
-          );
-        } else if (isCustomFlow) {
-          this.campaignShell.show("custom", "settings");
-        } else {
-          this.campaignShell.show("global", "settings", false);
-        }
+      case "settings":
+        this.handleSettingsScreen(isCampaign);
         break;
-      }
       case "main-menu":
         this.callbacks.showMainMenu();
         break;
@@ -358,6 +296,126 @@ export class NavigationOrchestrator {
         this.campaignShell.hide();
         this.callbacks.resumeMission();
         break;
+    }
+  }
+
+  private handleCampaignScreen() {
+    this.applyCampaignTheme();
+    const state = this.campaignManager.getState();
+    Logger.info(`NavOrch: handleExternalScreenChange(campaign), history=${state?.history?.length}`);
+
+    if (state && state.history?.length === 1 && !state.rules.skipPrologue) {
+      const nextNode = state.nodes.find((n) => n.status === "Accessible");
+      Logger.info(`NavOrch: Mission 2 tutorial check, nextNode=${nextNode?.id}`);
+      if (nextNode) {
+        this.onCampaignNodeSelect(nextNode);
+        return;
+      }
+    }
+
+    if (state && state.history?.length === 2 && !state.rules.skipPrologue) {
+      this.tutorialManager.triggerEvent("sector_map_intro");
+    }
+
+    if (state && (state.status === "Victory" || state.status === "Defeat")) {
+      this.switchScreenWithArgs({ id: "campaign-summary", isCampaign: true, updateHash: true, force: true, showArgs: [state] });
+    } else {
+      this.switchScreen("campaign", true, true, true);
+      this.campaignShell.show(
+        "campaign",
+        "sector-map",
+        true,
+        this.missionSetupManager.currentMissionType,
+      );
+    }
+  }
+
+  private handleCampaignSummaryScreen() {
+    const state = this.campaignManager.getState();
+    if (state) {
+      this.switchScreenWithArgs({ id: "campaign-summary", isCampaign: true, updateHash: true, force: true, showArgs: [state] });
+    } else {
+      this.callbacks.showMainMenu();
+    }
+  }
+
+  private handleMissionSetupScreen(isCampaign: boolean) {
+    const rehydrated = isCampaign
+      ? this.missionSetupManager.rehydrateCampaignNode()
+      : false;
+
+    if (rehydrated) {
+      this.setupEquipmentScreen(true);
+    } else {
+      this.missionSetupManager.loadAndApplyConfig(false);
+      this.campaignShell.show("custom", "setup");
+      this.squadBuilder.update(
+        this.missionSetupManager.currentSquad,
+        this.missionSetupManager.currentMissionType,
+        false,
+      );
+      this.switchScreen("mission-setup", false, true, true);
+    }
+  }
+
+  private handleEquipmentScreen(isCampaign: boolean) {
+    if (isCampaign && !this.missionSetupManager.currentCampaignNode) {
+      this.missionSetupManager.rehydrateCampaignNode();
+    }
+    const isCurrentlyCampaign =
+      isCampaign || !!this.missionSetupManager.currentCampaignNode;
+    this.setupEquipmentScreen(isCurrentlyCampaign);
+  }
+
+  private handleStatisticsScreen(isCampaign: boolean) {
+    this.switchScreen("statistics", false, true, true);
+    const isCustomFlow =
+      !isCampaign &&
+      this.missionSetupManager.currentCampaignNode === null &&
+      !this.campaignManager.getState();
+    if (isCustomFlow) {
+      this.campaignShell.show("custom", "stats");
+    } else {
+      this.campaignShell.show(
+        "statistics",
+        "stats",
+        true,
+        this.missionSetupManager.currentMissionType,
+      );
+    }
+  }
+
+  private handleEngineeringScreen(isCampaign: boolean) {
+    const hasCampaign = isCampaign || !!this.campaignManager.getState();
+    this.switchScreen("engineering", hasCampaign, true, true);
+    if (hasCampaign) {
+      this.campaignShell.show(
+        "campaign",
+        "engineering",
+        true,
+        this.missionSetupManager.currentMissionType,
+      );
+    } else {
+      this.campaignShell.show("statistics", "engineering");
+    }
+  }
+
+  private handleSettingsScreen(isCampaign: boolean) {
+    const state = this.campaignManager.getState();
+    const isCustomFlow =
+      !isCampaign && this.missionSetupManager.currentCampaignNode === null;
+    this.switchScreen("settings", isCampaign || !!state || isCustomFlow, true, true);
+    if (state) {
+      this.campaignShell.show(
+        "campaign",
+        "settings",
+        true,
+        this.missionSetupManager.currentMissionType,
+      );
+    } else if (isCustomFlow) {
+      this.campaignShell.show("custom", "settings");
+    } else {
+      this.campaignShell.show("global", "settings", false);
     }
   }
 
@@ -372,22 +430,10 @@ export class NavigationOrchestrator {
       node?.missionType === MissionType.Prologue ||
       this.missionSetupManager.currentMissionType === MissionType.Prologue
     );
-    this.screens.equipment.setPrologue(isPrologue);
-
-    // Mission 2 Lockdown: Store and Squad Selection are locked (unless tutorial is disabled)
     const isMission2Tutorial = isCampaign && state?.history?.length === 1 && !state?.rules.skipPrologue;
 
-    this.screens.equipment.setStoreLocked(isMission2Tutorial || isPrologue);
-    this.screens.equipment.setSquadSelectionLocked(isMission2Tutorial || isPrologue);
-
-    if (isMission2Tutorial) {
-      this.tutorialManager.triggerEvent("ready_room_intro");
-    }
-
-    // Mission 3: Squad Selection is unlocked
-    if (isCampaign && state?.history?.length === 2 && !state?.rules.skipPrologue) {
-      this.tutorialManager.triggerEvent("squad_selection_intro");
-    }
+    this.configureEquipmentScreenLocks(isPrologue, isMission2Tutorial);
+    this.triggerEquipmentTutorials(isCampaign, isMission2Tutorial, state);
 
     const isShop = node?.type === "Shop";
     this.screens.equipment.setShop(isShop);
@@ -405,6 +451,25 @@ export class NavigationOrchestrator {
       );
     } else {
       this.campaignShell.show("custom", "setup");
+    }
+  }
+
+  private configureEquipmentScreenLocks(isPrologue: boolean, isMission2Tutorial: boolean) {
+    this.screens.equipment.setPrologue(isPrologue);
+    this.screens.equipment.setStoreLocked(isMission2Tutorial || isPrologue);
+    this.screens.equipment.setSquadSelectionLocked(isMission2Tutorial || isPrologue);
+  }
+
+  private triggerEquipmentTutorials(
+    isCampaign: boolean,
+    isMission2Tutorial: boolean,
+    state: ReturnType<typeof this.campaignManager.getState>,
+  ) {
+    if (isMission2Tutorial) {
+      this.tutorialManager.triggerEvent("ready_room_intro");
+    }
+    if (isCampaign && state?.history?.length === 2 && !state?.rules.skipPrologue) {
+      this.tutorialManager.triggerEvent("squad_selection_intro");
     }
   }
 
@@ -442,9 +507,9 @@ export class NavigationOrchestrator {
             this.campaignShell.show("campaign", "sector-map");
           }
         });
-        outcomeModal.show(event.title, outcome.text);
+        void outcomeModal.show(event.title, outcome.text);
       });
-      modal.show(event);
+      void modal.show(event);
       return;
     }
 
@@ -499,7 +564,7 @@ export class NavigationOrchestrator {
 
   public onLaunchMission(config: SquadConfig) {
     if (config.soldiers.filter(s => !!s).length === 0) {
-      this.modalService.alert("Squad cannot be empty. Please select at least one soldier.");
+      void this.modalService.alert("Squad cannot be empty. Please select at least one soldier.");
       return;
     }
     this.persistEquipment(config);
@@ -509,7 +574,7 @@ export class NavigationOrchestrator {
   public onShowSummary() {
     const state = this.campaignManager.getState();
     if (state) {
-      this.switchScreen("campaign-summary", true, true, false, state);
+      this.switchScreenWithArgs({ id: "campaign-summary", isCampaign: true, updateHash: true, force: false, showArgs: [state] });
     }
   }
 }

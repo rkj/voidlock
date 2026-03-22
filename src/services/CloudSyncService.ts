@@ -72,7 +72,7 @@ export class CloudSyncService {
         resolve();
         return;
       }
-      onAuthStateChanged(auth, async (user) => {
+      onAuthStateChanged(auth, (user) => {
         if (user) {
           this.user = user;
           this.userId = user.uid;
@@ -81,21 +81,23 @@ export class CloudSyncService {
           this.notifyAuthStateChanged(user);
           resolve();
         } else {
-          try {
-            if (!auth) throw new Error("Firebase Auth not initialized");
-            const credential = await signInAnonymously(auth);
-            this.user = credential.user;
-            this.userId = credential.user.uid;
-            this.syncEnabled = true;
-            this.initialized = true;
-            this.notifyAuthStateChanged(this.user);
-            resolve();
-          } catch (error) {
-            Logger.error("Firebase anonymous sign-in failed:", error);
-            this.syncEnabled = false;
-            this.initialized = true;
-            resolve();
-          }
+          void (async () => {
+            try {
+              if (!auth) throw new Error("Firebase Auth not initialized");
+              const credential = await signInAnonymously(auth);
+              this.user = credential.user;
+              this.userId = credential.user.uid;
+              this.syncEnabled = true;
+              this.initialized = true;
+              this.notifyAuthStateChanged(this.user);
+              resolve();
+            } catch (error) {
+              Logger.error("Firebase anonymous sign-in failed:", error);
+              this.syncEnabled = false;
+              this.initialized = true;
+              resolve();
+            }
+          })();
         }
       });
     });
@@ -257,8 +259,8 @@ export class CloudSyncService {
     const querySnapshot = await getDocs(q);
 
     const summaries: CampaignSummary[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
+    querySnapshot.forEach((docSnapshot) => {
+      const data = docSnapshot.data();
       const updatedAt =
         data.updatedAt instanceof Timestamp
           ? data.updatedAt.toMillis()

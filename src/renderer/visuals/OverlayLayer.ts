@@ -36,7 +36,7 @@ export class OverlayLayer implements RenderLayer {
     const cellSize = this.sharedState.cellSize;
     const map = state.map;
 
-    const spawns = map.squadSpawns || (map.squadSpawn ? [map.squadSpawn] : []);
+    const spawns = map.squadSpawns ?? (map.squadSpawn ? [map.squadSpawn] : []);
 
     ctx.fillStyle = `${this.theme.getColor("--color-success")  }44`;
     spawns.forEach((s) => {
@@ -118,9 +118,10 @@ export class OverlayLayer implements RenderLayer {
         u.state !== UnitState.Extracted &&
         u.state !== UnitState.Dead
       ) {
+        if (!this.sharedState.graph) return;
         const polygon = VisibilityPolygon.compute(
           u.pos,
-          this.sharedState.graph!,
+          this.sharedState.graph,
         );
         if (polygon.length > 0) {
           const x = u.pos.x * cellSize;
@@ -154,9 +155,10 @@ export class OverlayLayer implements RenderLayer {
         if (!isCellVisible(state, cell.x, cell.y)) return;
 
         const radius = (state.map.width + state.map.height) * cellSize;
+        if (!this.sharedState.graph) return;
         const polygon = VisibilityPolygon.compute(
           e.pos,
-          this.sharedState.graph!,
+          this.sharedState.graph,
         );
         if (polygon.length > 0) {
           const x = e.pos.x * cellSize;

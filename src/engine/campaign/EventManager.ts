@@ -14,13 +14,19 @@ export class EventManager {
   /**
    * Applies the outcome of a narrative event choice.
    */
-  public applyEventChoice(
-    state: CampaignState,
-    nodeId: string,
-    choice: EventChoice,
-    prng: PRNG,
-    reconciler: MissionReconciler,
-  ): { text: string; ambush: boolean } {
+  public applyEventChoice({
+    state,
+    nodeId,
+    choice,
+    prng,
+    reconciler,
+  }: {
+    state: CampaignState;
+    nodeId: string;
+    choice: EventChoice;
+    prng: PRNG;
+    reconciler: MissionReconciler;
+  }): { text: string; ambush: boolean } {
     let outcomeText = "";
     let ambushOccurred = false;
 
@@ -42,31 +48,26 @@ export class EventManager {
     }
 
     // 2. Handle Risks
-    if (choice.risk) {
-      if (prng.next() < choice.risk.chance) {
-        if (choice.risk.damage) {
-          const healthyRoster = state.roster.filter(
-            (s) => s.status === "Healthy",
-          );
-          if (healthyRoster.length > 0) {
-            const victim =
-              healthyRoster[Math.floor(prng.next() * healthyRoster.length)];
-            const damageAmount = Math.floor(victim.maxHp * choice.risk.damage);
-            victim.hp -= damageAmount;
-            if (victim.hp <= 0) {
-              victim.hp = 0;
-              victim.status = "Wounded";
-              victim.recoveryTime = 2; // Extra recovery time for event injuries
-              outcomeText += `${victim.name} was seriously injured! `;
-            } else {
-              outcomeText += `${victim.name} took ${damageAmount} damage. `;
-            }
+    if (choice.risk && prng.next() < choice.risk.chance) {
+      if (choice.risk.damage) {
+        const healthyRoster = state.roster.filter((s) => s.status === "Healthy");
+        if (healthyRoster.length > 0) {
+          const victim = healthyRoster[Math.floor(prng.next() * healthyRoster.length)];
+          const damageAmount = Math.floor(victim.maxHp * choice.risk.damage);
+          victim.hp -= damageAmount;
+          if (victim.hp <= 0) {
+            victim.hp = 0;
+            victim.status = "Wounded";
+            victim.recoveryTime = 2; // Extra recovery time for event injuries
+            outcomeText += `${victim.name} was seriously injured! `;
+          } else {
+            outcomeText += `${victim.name} took ${damageAmount} damage. `;
           }
         }
-        if (choice.risk.ambush) {
-          ambushOccurred = true;
-          outcomeText += "It's an ambush! ";
-        }
+      }
+      if (choice.risk.ambush) {
+        ambushOccurred = true;
+        outcomeText += "It's an ambush! ";
       }
     }
 

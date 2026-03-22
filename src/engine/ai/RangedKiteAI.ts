@@ -1,77 +1,92 @@
 import type {
-  GameState,
   Enemy,
   Unit,
   Vector2,
-  Grid} from "../../shared/types";
+  Grid,
+  GameState} from "../../shared/types";
 import {
   UnitState
 } from "../../shared/types";
 import type { Pathfinder } from "../Pathfinder";
 import type { PRNG } from "../../shared/PRNG";
+import type { IEnemyAI, ThinkParams } from "./EnemyAI";
 import type { LineOfSight } from "../LineOfSight";
-import type { IEnemyAI } from "./EnemyAI";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { AI } from "../config/GameConstants";
 
 export class RangedKiteAI implements IEnemyAI {
-  think(
-    enemy: Enemy,
-    state: GameState,
-    grid: Grid,
-    pathfinder: Pathfinder,
-    los: LineOfSight,
-    prng: PRNG,
-  ): void {
-    if (enemy.hp <= 0) return;
+  private resolveStickyTarget(enemy: Enemy, state: GameState, los: LineOfSight): Unit | null {
+    if (!enemy.forcedTargetId || !enemy.targetLockUntil || state.t >= enemy.targetLockUntil) {
+      return null;
+    }
+    const sticky = state.units.find((u) => u.id === enemy.forcedTargetId);
+    if (!sticky || sticky.hp <= 0 || sticky.state === UnitState.Extracted || sticky.state === UnitState.Dead) {
+      return null;
+    }
+    if (MathUtils.getDistance(enemy.pos, sticky.pos) <= 15 && los.hasLineOfSight(enemy.pos, sticky.pos)) {
+      return sticky;
+    }
+    return null;
+  }
 
-    // 1. Stickiness: Check if current forcedTarget is still valid
+  private detectTarget(enemy: Enemy, state: GameState, los: LineOfSight): Unit | null {
+    const visibleSoldiers = state.units.filter((u) => {
+      const d = MathUtils.getDistance(enemy.pos, u.pos);
+      return (
+        u.hp > 0 &&
+        u.state !== UnitState.Extracted &&
+        u.state !== UnitState.Dead &&
+        d <= 12 &&
+        los.hasLineOfSight(enemy.pos, u.pos)
+      );
+    });
+
+    let minDistance = Infinity;
     let targetSoldier: Unit | null = null;
-    if (
-      enemy.forcedTargetId &&
-      enemy.targetLockUntil &&
-      state.t < enemy.targetLockUntil
-    ) {
-      const sticky = state.units.find((u) => u.id === enemy.forcedTargetId);
-      if (
-        sticky &&
-        sticky.hp > 0 &&
-        sticky.state !== UnitState.Extracted &&
-        sticky.state !== UnitState.Dead
-      ) {
-        if (
-          MathUtils.getDistance(enemy.pos, sticky.pos) <= 15 &&
-          los.hasLineOfSight(enemy.pos, sticky.pos)
-        ) {
-          targetSoldier = sticky;
-        }
+    for (const u of visibleSoldiers) {
+      const dist = MathUtils.getDistance(enemy.pos, u.pos);
+      if (dist < minDistance) {
+        minDistance = dist;
+        targetSoldier = u;
       }
     }
+    return targetSoldier;
+  }
 
-    // 2. Detection (if no sticky target)
-    if (!targetSoldier) {
-      const visibleSoldiers = state.units.filter((u) => {
-        const d = MathUtils.getDistance(enemy.pos, u.pos);
-        const losCheck = los.hasLineOfSight(enemy.pos, u.pos);
-        return (
-          u.hp > 0 &&
-          u.state !== UnitState.Extracted &&
-          u.state !== UnitState.Dead &&
-          d <= 12 &&
-          losCheck
-        );
-      });
+  private handleEngageTarget(enemy: Enemy, target: Unit, grid: Grid, pathfinder: Pathfinder): void {
+    const dist = MathUtils.getDistance(enemy.pos, target.pos);
+    const optimalRange = enemy.attackRange - 1;
+    const fleeThreshold = 3;
 
-      let minDistance = Infinity;
-
-      for (const u of visibleSoldiers) {
-        const dist = MathUtils.getDistance(enemy.pos, u.pos);
-        if (dist < minDistance) {
-          minDistance = dist;
-          targetSoldier = u;
+    if (dist < fleeThreshold) {
+      const fleeTarget = this.findFleeTarget(enemy, target.pos, grid, pathfinder);
+      if (fleeTarget) {
+        enemy.targetPos = fleeTarget;
+        const path = pathfinder.findPath(MathUtils.toCellCoord(enemy.pos), MathUtils.toCellCoord(fleeTarget));
+        if (path && path.length > 0) {
+          enemy.path = path;
+          enemy.targetPos = MathUtils.getCellCenter(path[0], enemy.visualJitter);
         }
       }
+    } else if (dist > optimalRange) {
+      const path = pathfinder.findPath(MathUtils.toCellCoord(enemy.pos), MathUtils.toCellCoord(target.pos));
+      if (path && path.length > 0) {
+        enemy.path = path;
+        enemy.targetPos = MathUtils.getCellCenter(path[0], enemy.visualJitter);
+      }
+    } else {
+      enemy.path = [];
+      enemy.targetPos = undefined;
+    }
+  }
 
+  think({ enemy, state, grid, pathfinder, los, prng }: ThinkParams): void {
+    if (enemy.hp <= 0) return;
+
+    let targetSoldier = this.resolveStickyTarget(enemy, state, los);
+
+    if (!targetSoldier) {
+      targetSoldier = this.detectTarget(enemy, state, los);
       if (targetSoldier) {
         enemy.forcedTargetId = targetSoldier.id;
         enemy.targetLockUntil = state.t + AI.TARGET_LOCK_DURATION;
@@ -82,53 +97,8 @@ export class RangedKiteAI implements IEnemyAI {
     }
 
     if (targetSoldier) {
-      const dist = MathUtils.getDistance(enemy.pos, targetSoldier.pos);
-      const optimalRange = enemy.attackRange - 1; // Try to stay at range-1
-      const fleeThreshold = 3;
-
-      // Behavior:
-      // 1. If too close (< fleeThreshold): Flee.
-      // 2. If optimal < dist < detection: Move closer.
-      // 3. If dist <= optimal: Stop and shoot (CoreEngine handles shooting if in range/visible).
-
-      // Flee or Chase?
-      if (dist < fleeThreshold) {
-        // Flee: Find a cell further away
-        const fleeTarget = this.findFleeTarget(
-          enemy,
-          targetSoldier.pos,
-          grid,
-          pathfinder,
-        );
-        if (fleeTarget) {
-          enemy.targetPos = fleeTarget;
-          const path = pathfinder.findPath(
-            MathUtils.toCellCoord(enemy.pos),
-            MathUtils.toCellCoord(fleeTarget),
-          );
-          if (path && path.length > 0) {
-            enemy.path = path;
-            enemy.targetPos = MathUtils.getCellCenter(path[0], enemy.visualJitter);
-          }
-        }
-      } else if (dist > optimalRange) {
-        // Chase
-        const targetPos = targetSoldier.pos;
-        const path = pathfinder.findPath(
-          MathUtils.toCellCoord(enemy.pos),
-          MathUtils.toCellCoord(targetPos),
-        );
-        if (path && path.length > 0) {
-          enemy.path = path;
-          enemy.targetPos = MathUtils.getCellCenter(path[0], enemy.visualJitter);
-        }
-      } else {
-        // In range. Hold position to fire.
-        enemy.path = [];
-        enemy.targetPos = undefined;
-      }
+      this.handleEngageTarget(enemy, targetSoldier, grid, pathfinder);
     } else {
-      // 3. Roam Mode (Same as Melee)
       this.roam(enemy, grid, pathfinder, prng);
     }
   }

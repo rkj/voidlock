@@ -22,97 +22,129 @@ export class MovementManager {
     const dx = entity.targetPos.x - entity.pos.x;
     const dy = entity.targetPos.y - entity.pos.y;
     const dist = MathUtils.getDistance(entity.pos, entity.targetPos);
-
-    const moveDist =
-      ((speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
+    const moveDist = ((speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
 
     const currentCell = MathUtils.toCellCoord(entity.pos);
     const nextCell = MathUtils.toCellCoord(entity.targetPos);
 
-    if (
-      (currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) &&
-      !this.gameGrid.canMove(
-        currentCell.x,
-        currentCell.y,
-        nextCell.x,
-        nextCell.y,
-        doors,
-        false,
-      )
-    ) {
-      if (entity.state === UnitState.WaitingForDoor) return entity;
-      
-      const updated = { ...entity, state: UnitState.WaitingForDoor };
-      // Plan Invalidation Trigger (ADR 0056)
-      if ("activePlan" in updated && (updated as any).activePlan) {
-        (updated as any).activePlan = {
-          ...(updated as any).activePlan,
-          committedUntil: 0,
-        };
-      }
-      return updated as T;
-    } if (dist <= moveDist + MOVEMENT.ARRIVAL_THRESHOLD) {
-      const nextPath = entity.path ? entity.path.slice(1) : [];
-      let updated: any;
-      if (nextPath.length === 0) {
-        updated = {
-          ...entity,
-          pos: { ...entity.targetPos },
-          path: undefined,
-          targetPos: undefined,
-          state: UnitState.Idle,
-        };
+    if (this.isBlockedByDoor(currentCell, nextCell, doors)) {
+      return this.applyDoorWait(entity);
+    }
 
-        // Handle activeCommand specifically for Units
-        if ("activeCommand" in entity) {
-          const unit = entity as any;
-          if (unit.activeCommand?.type === CommandType.MOVE_TO) {
-            updated.activeCommand = undefined;
-          }
-        }
-      } else {
-        updated = {
-          ...entity,
-          pos: { ...entity.targetPos },
-          path: nextPath,
-          targetPos: MathUtils.getCellCenter(nextPath[0], entity.visualJitter),
-        };
-      }
+    if (dist <= moveDist + MOVEMENT.ARRIVAL_THRESHOLD) {
+      return this.applyArrival(entity, currentCell);
+    }
 
-      // Record position history if cell changed
-      if ("positionHistory" in entity) {
-        const u = updated;
-        const cell = MathUtils.toCellCoord(u.pos);
-        const last = u.positionHistory[u.positionHistory.length - 1];
-        if (last?.x !== cell.x || last.y !== cell.y) {
-          u.positionHistory = [...u.positionHistory, cell].slice(-6);
-        }
-      }
+    return this.applyPartialMove(entity, { dx, dy, dist, moveDist }, currentCell);
+  }
 
-      return updated as T;
-    } 
-      const newPos = {
-        x: entity.pos.x + (dx / dist) * moveDist,
-        y: entity.pos.y + (dy / dist) * moveDist,
+  private isBlockedByDoor(
+    currentCell: { x: number; y: number },
+    nextCell: { x: number; y: number },
+    doors: Map<string, Door>,
+  ): boolean {
+    if (currentCell.x === nextCell.x && currentCell.y === nextCell.y) return false;
+    return !this.gameGrid.canMove({
+      fromX: currentCell.x,
+      fromY: currentCell.y,
+      toX: nextCell.x,
+      toY: nextCell.y,
+      doors,
+      allowClosedDoors: false,
+    });
+  }
+
+  private applyDoorWait<T extends IMovableEntity>(entity: T): T {
+    if (entity.state === UnitState.WaitingForDoor) return entity;
+
+    const updated = { ...entity, state: UnitState.WaitingForDoor };
+    // Plan Invalidation Trigger (ADR 0056)
+    if ("activePlan" in updated && (updated as T & { activePlan?: { committedUntil: number } }).activePlan) {
+      (updated as T & { activePlan?: { committedUntil: number } }).activePlan = {
+        ...(updated as T & { activePlan: { committedUntil: number } }).activePlan,
+        committedUntil: 0,
       };
+    }
+    return updated as T;
+  }
 
-      const movedCell = MathUtils.toCellCoord(newPos);
-      const updated: any = {
+  private applyArrival<T extends IMovableEntity>(
+    entity: T,
+    currentCell: { x: number; y: number },
+  ): T {
+    const nextPath = entity.path ? entity.path.slice(1) : [];
+
+    // targetPos is guaranteed non-null since handleMovement guards for it at entry
+    const arrivalPos = entity.targetPos ?? entity.pos;
+    let updated: T;
+    if (nextPath.length === 0) {
+      updated = {
         ...entity,
-        pos: newPos,
-        state: UnitState.Moving,
+        pos: { ...arrivalPos },
+        path: undefined,
+        targetPos: undefined,
+        state: UnitState.Idle,
       };
 
-      // Record position history if cell changed during partial move
-      if ("positionHistory" in entity && (movedCell.x !== currentCell.x || movedCell.y !== currentCell.y)) {
-        const u = updated;
-        const last = u.positionHistory[u.positionHistory.length - 1];
-        if (last?.x !== movedCell.x || last.y !== movedCell.y) {
-          u.positionHistory = [...u.positionHistory, movedCell].slice(-6);
+      if ("activeCommand" in entity) {
+        const unit = entity as T & { activeCommand?: { type: string } };
+        if (unit.activeCommand?.type === CommandType.MOVE_TO) {
+          (updated as T & { activeCommand?: { type: string } }).activeCommand = undefined;
         }
       }
+    } else {
+      updated = {
+        ...entity,
+        pos: { ...arrivalPos },
+        path: nextPath,
+        targetPos: MathUtils.getCellCenter(nextPath[0], entity.visualJitter),
+      };
+    }
 
-      return updated as T;
-    
+    return this.recordPositionHistory(updated, MathUtils.toCellCoord(updated.pos), currentCell);
+  }
+
+  private applyPartialMove<T extends IMovableEntity>(
+    entity: T,
+    delta: { dx: number; dy: number; dist: number; moveDist: number },
+    currentCell: { x: number; y: number },
+  ): T {
+    const { dx, dy, dist, moveDist } = delta;
+    const newPos = {
+      x: entity.pos.x + (dx / dist) * moveDist,
+      y: entity.pos.y + (dy / dist) * moveDist,
+    };
+
+    const movedCell = MathUtils.toCellCoord(newPos);
+    const updated: T = {
+      ...entity,
+      pos: newPos,
+      state: UnitState.Moving,
+    };
+
+    if (movedCell.x !== currentCell.x || movedCell.y !== currentCell.y) {
+      return this.recordPositionHistory(updated, movedCell, currentCell);
+    }
+
+    return updated;
+  }
+
+  private recordPositionHistory<T extends IMovableEntity>(
+    entity: T,
+    newCell: { x: number; y: number },
+    previousCell: { x: number; y: number },
+  ): T {
+    if (!("positionHistory" in entity)) return entity;
+
+    const u = entity as T & { positionHistory: { x: number; y: number }[] };
+    const last = u.positionHistory[u.positionHistory.length - 1];
+
+    if (last?.x === newCell.x && last.y === newCell.y) return entity;
+    if (newCell.x === previousCell.x && newCell.y === previousCell.y) return entity;
+
+    return {
+      ...entity,
+      positionHistory: [...u.positionHistory, newCell].slice(-6),
+    };
   }
 }

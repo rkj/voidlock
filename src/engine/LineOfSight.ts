@@ -4,6 +4,14 @@ import type { Graph, Boundary } from "./Graph";
 import { UNIT_RADIUS } from "./config/GameConstants";
 import { MathUtils } from "../shared/utils/MathUtils";
 
+export interface UpdateVisibleCellsParams {
+  origin: Vector2;
+  gridState: Uint8Array;
+  width: number;
+  height: number;
+  range?: number;
+}
+
 export class LineOfSight {
   constructor(
     private graph: Graph,
@@ -20,7 +28,7 @@ export class LineOfSight {
     const originCellY = Math.floor(origin.y);
 
     const actualRange =
-      range !== undefined ? range : this.graph.width + this.graph.height;
+      range ?? this.graph.width + this.graph.height;
 
     // Iterate through a bounding box around the origin, centered on cells
     const searchRange = Math.ceil(actualRange);
@@ -54,17 +62,17 @@ export class LineOfSight {
    * Updates the bitset gridState with visibility and discovery info from an origin.
    * bit 0: visible, bit 1: discovered.
    */
-  public updateVisibleCells(
-    origin: Vector2,
-    gridState: Uint8Array,
-    width: number,
-    height: number,
-    range?: number,
-  ): void {
+  public updateVisibleCells({
+    origin,
+    gridState,
+    width,
+    height,
+    range,
+  }: UpdateVisibleCellsParams): void {
     const originCellX = Math.floor(origin.x);
     const originCellY = Math.floor(origin.y);
 
-    const actualRange = range !== undefined ? range : width + height;
+    const actualRange = range ?? width + height;
 
     const searchRange = Math.ceil(actualRange);
     const minX = Math.max(0, originCellX - searchRange);

@@ -127,11 +127,11 @@ export class AppServiceRegistry {
       onMenu: config.onShellMainMenu,
     });
 
-    const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
-      return new MapFactory(config);
+    const mapGeneratorFactory = (mapConfig: MapGenerationConfig): MapFactory => {
+      return new MapFactory(mapConfig);
     };
-    this.gameClient = new GameClient((config) =>
-      mapGeneratorFactory(config),
+    this.gameClient = new GameClient((mapConfig) =>
+      mapGeneratorFactory(mapConfig),
     );
     this.menuController = new MenuController(this.gameClient);
     
@@ -256,7 +256,7 @@ export class AppServiceRegistry {
         showMainMenu: callbacks.showMainMenu,
         launchMission: () => this.missionRunner.launchMission(),
         resumeMission: () => this.missionRunner.resumeMission(),
-      }
+      },
     });
 
     this.missionRunner.setNavigationOrchestrator(this.navigationOrchestrator);

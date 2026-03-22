@@ -18,13 +18,13 @@ export class UnitCommandApplier implements IGlobalCommandHandler {
             return { ...unit, commandQueue: unit.commandQueue.concat(cmd) };
           } 
             const unitWithEmptyQueue = { ...unit, commandQueue: [] };
-            return this.unitManager.executeCommand(
-              unitWithEmptyQueue,
+            return this.unitManager.executeCommand({
+              unit: unitWithEmptyQueue,
               cmd,
               state,
-              true,
-              this.director,
-            );
+              isManual: true,
+              director: this.director,
+            });
           
         }
         return unit;

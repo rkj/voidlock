@@ -138,43 +138,40 @@ export class UnitStyleSelector {
     }
 
     // Top-Left (0,0): Friendly Soldier
-    this.drawEntity(ctx, 0, 0, cellSize, style, "soldier");
+    this.drawEntity(ctx, 0, 0, { cellSize, style, type: "soldier" });
 
     // Top-Right (1,0): Hostile Enemy
-    this.drawEntity(ctx, 1, 0, cellSize, style, "enemy");
+    this.drawEntity(ctx, 1, 0, { cellSize, style, type: "enemy" });
 
     // Bottom-Left (0,1): Mission Objective/Loot
-    this.drawEntity(ctx, 0, 1, cellSize, style, "objective");
+    this.drawEntity(ctx, 0, 1, { cellSize, style, type: "objective" });
 
     // Bottom-Right (1,1): Extraction/Exit
-    this.drawEntity(ctx, 1, 1, cellSize, style, "extraction");
+    this.drawEntity(ctx, 1, 1, { cellSize, style, type: "extraction" });
   }
 
   private drawEntity(
     ctx: CanvasRenderingContext2D,
     col: number,
     row: number,
-    cellSize: number,
-    style: UnitStyle,
-    type: "soldier" | "enemy" | "objective" | "extraction",
+    params: { cellSize: number; style: UnitStyle; type: "soldier" | "enemy" | "objective" | "extraction" },
   ) {
+    const { cellSize, style, type } = params;
     const x = col * cellSize + cellSize / 2;
     const y = row * cellSize + cellSize / 2;
 
     if (style === UnitStyle.TacticalIcons) {
-      this.drawTacticalEntity(ctx, x, y, cellSize, type);
+      this.drawTacticalEntity(ctx, { x, y, cellSize, type });
     } else {
-      this.drawSpriteEntity(ctx, x, y, cellSize, type);
+      this.drawSpriteEntity(ctx, { x, y, cellSize, type });
     }
   }
 
   private drawTacticalEntity(
     ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    cellSize: number,
-    type: string,
+    params: { x: number; y: number; cellSize: number; type: string },
   ) {
+    const { x, y, cellSize, type } = params;
     const iconSize = cellSize * 0.4;
 
     switch (type) {
@@ -234,11 +231,9 @@ export class UnitStyleSelector {
 
   private drawSpriteEntity(
     ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    cellSize: number,
-    type: string,
+    params: { x: number; y: number; cellSize: number; type: string },
   ) {
+    const { x, y, cellSize, type } = params;
     const assets = this.assetManager;
     let sprite: HTMLImageElement | null = null;
     const spriteSize = cellSize * 0.6;

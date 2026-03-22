@@ -2,7 +2,6 @@ import type {
   GameState,
   Unit,
   Vector2,
-  Command,
   Door} from "../../shared/types";
 import {
   UnitState,
@@ -18,6 +17,7 @@ import type { MovementManager } from "./MovementManager";
 import { CombatManager } from "./CombatManager";
 import { UnitAI } from "./UnitAI";
 import { CommandExecutor } from "./CommandExecutor";
+import type { ExecuteCommandParams } from "./CommandExecutor";
 import { FormationManager } from "./FormationManager";
 import { ItemDistributionService } from "./ItemDistributionService";
 import { UnitStateManager } from "./UnitStateManager";
@@ -28,7 +28,64 @@ import { MathUtils } from "../../shared/utils/MathUtils";
 import { MapUtils } from "../../shared/utils/MapUtils";
 import { MOVEMENT } from "../config/GameConstants";
 
+export interface UnitManagerConstructorParams {
+  gameGrid: GameGrid;
+  pathfinder: Pathfinder;
+  movementManager: MovementManager;
+  los: LineOfSight;
+  agentControlEnabled: boolean;
+}
+
+export interface UnitUpdateParams {
+  state: GameState;
+  dt: number;
+  doors: Map<string, Door>;
+  prng: PRNG;
+  lootManager: LootManager;
+  director?: ItemEffectHandler;
+  realDt?: number;
+}
+
+interface UpdateUnitMovementParams {
+  unit: Unit;
+  state: GameState;
+  dt: number;
+  doors: Map<string, Door>;
+  isAttacking: boolean;
+}
+
+interface HandleMovingUnitParams {
+  unit: Unit;
+  dt: number;
+  doors: Map<string, Door>;
+  isAttacking: boolean;
+  isLockedInMelee: boolean;
+}
+
+interface InvalidationContext {
+  hasNewEnemy: boolean;
+  allVisibleEnemiesGone: boolean;
+  areaRevealed: boolean;
+  objectiveChanged: Set<string>;
+}
+
+interface SingleUnitUpdateContext {
+  state: GameState;
+  dt: number;
+  realDt: number;
+  doors: Map<string, Door>;
+  prng: PRNG;
+  lootManager: LootManager;
+  director: ItemEffectHandler | undefined;
+  aiContext: AIContext;
+  escortData: Map<string, { targetCell: Vector2; matchedSpeed?: number; stopEscorting?: boolean }>;
+  invalidationCtx: InvalidationContext;
+}
+
 export class UnitManager {
+  private gameGrid: GameGrid;
+  private pathfinder: Pathfinder;
+  private agentControlEnabled: boolean;
   private totalFloorCells: number;
   private statsManager: StatsManager;
   private movementManager: MovementManager;
@@ -43,13 +100,11 @@ export class UnitManager {
   private lastObjectiveStates: Map<string, string> = new Map();
   private lastVisibleEnemyIds: Set<string> = new Set();
 
-  constructor(
-    private gameGrid: GameGrid,
-    private pathfinder: Pathfinder,
-    movementManager: MovementManager,
-    los: LineOfSight,
-    private agentControlEnabled: boolean,
-  ) {
+  constructor(params: UnitManagerConstructorParams) {
+    const { gameGrid, pathfinder, movementManager, los, agentControlEnabled } = params;
+    this.gameGrid = gameGrid;
+    this.pathfinder = pathfinder;
+    this.agentControlEnabled = agentControlEnabled;
     this.totalFloorCells = gameGrid
       .getGraph()
       .cells.flat()
@@ -113,15 +168,10 @@ export class UnitManager {
    * Main update loop for all units. Handles AI, movement, combat, and command execution.
    * Uses an immutable pattern to update the game state.
    */
-  public update(
-    state: GameState,
-    dt: number,
-    doors: Map<string, Door>,
-    prng: PRNG,
-    lootManager: LootManager,
-    director?: ItemEffectHandler,
-    realDt: number = dt,
-  ) {
+  public update(params: UnitUpdateParams) {
+    const { state, dt, doors, prng, lootManager, director } = params;
+    const realDt = params.realDt ?? dt;
+
     // 0. Update global tracking for invalidation triggers (ADR 0056)
     const discoveredCount = state.discoveredCells?.length || 0;
     const areaRevealed = this.lastDiscoveredCellsCount > 0 && discoveredCount > this.lastDiscoveredCellsCount;
@@ -181,145 +231,111 @@ export class UnitManager {
       explorationClaims,
       itemAssignments,
       itemGrid: this.itemDistributionService.getItemGrid(),
-      executeCommand: (u, cmd, s, isManual, dir) =>
-        this.commandExecutor.executeCommand(u, cmd, s, isManual, dir),
+      executeCommand: (execParams) =>
+        this.commandExecutor.executeCommand(execParams),
     };
 
     // 5. Update each unit
-    const updatedUnits = state.units.map((unit) => {
-      if (unit.state === UnitState.Extracted || unit.hp <= 0) return unit;
-
-      // Ensure stats are up to date
-      let currentUnit = this.statsManager.recalculateStats(unit);
-
-      // A. COMMAND QUEUE (Execute next pending command)
-      currentUnit = this.unitStateManager.processCommandQueue(
-        currentUnit,
-        state,
-        director,
-      );
-
-      // B. ESCORT DATA (Apply formation offsets and speed sync)
-      currentUnit = this.applyEscortLogic(currentUnit, escortData);
-
-      // C. CHANNELING (Handle timed actions)
-      currentUnit = this.unitStateManager.processChanneling(
-        currentUnit,
-        state,
-        realDt,
-        lootManager,
-        director,
-      );
-
-      // Early exit if unit extracted or still channeling
-      if (
-        currentUnit.state === UnitState.Extracted ||
-        currentUnit.state === UnitState.Channeling
-      ) {
-        return currentUnit;
-      }
-
-      // D. COMBAT (Unit's own attacks)
-      const combatResult = this.combatManager.update(currentUnit, state, prng);
-      currentUnit = combatResult.unit;
-      const isAttacking = combatResult.isAttacking;
-
-      // E. MOVEMENT (Execute current path)
-      const prevMovingState = currentUnit.state;
-      currentUnit = this.updateUnitMovement(
-        currentUnit,
-        state,
-        dt,
-        doors,
-        isAttacking,
-      );
-
-      // F. INVALIDATION TRIGGERS (ADR 0056)
-      if (currentUnit.activePlan) {
-        let shouldInvalidate = false;
-
-        // 1. New enemy enters LOS
-        if (hasNewEnemy) {
-          // Triggered for: Exploration (4) and Objective (3) plans
-          if (currentUnit.activePlan.priority >= 3) {
-            shouldInvalidate = true;
-          }
-        }
-
-        // 2. All visible enemies die/flee
-        if (allVisibleEnemiesGone) {
-          // Triggered for: Combat (2), Safety (0) (kiting)
-          if (
-            currentUnit.activePlan.priority === 0 ||
-            currentUnit.activePlan.priority === 2
-          ) {
-            shouldInvalidate = true;
-          }
-        }
-
-        // 3. Unit HP drops below 25%
-        if (currentUnit.hp < currentUnit.maxHp * 0.25) {
-          // Triggered for: Everything except Safety (priority > 0)
-          if (currentUnit.activePlan.priority > 0) {
-            shouldInvalidate = true;
-          }
-        }
-
-        // 4. New area revealed
-        if (areaRevealed) {
-          // Triggered for: Exploration (4)
-          if (currentUnit.activePlan.priority === 4) {
-            shouldInvalidate = true;
-          }
-        }
-
-        // 5. Objective state changes
-        if (objectiveChanged.size > 0) {
-          // Triggered for: Objective (3)
-          if (currentUnit.activePlan.priority === 3) {
-            shouldInvalidate = true;
-          }
-        }
-
-        // 6. Path blocked
-        if (
-          prevMovingState !== UnitState.WaitingForDoor &&
-          currentUnit.state === UnitState.WaitingForDoor
-        ) {
-          // Triggered for: Everything
-          shouldInvalidate = true;
-        }
-
-        // 7. Unit reaches plan goal (Natural completion)
-        if (
-          !currentUnit.targetPos &&
-          currentUnit.state !== UnitState.Moving &&
-          currentUnit.state !== UnitState.WaitingForDoor
-        ) {
-          shouldInvalidate = true;
-        }
-
-        if (shouldInvalidate) {
-          currentUnit = this.invalidatePlan(currentUnit);
-        }
-      }
-
-      // G. AI PROCESS (React to new position/state)
-      currentUnit = this.unitAi.process(
-        currentUnit,
-        state,
-        dt,
-        doors,
-        prng,
-        aiContext,
-        director,
-      );
-
-      return currentUnit;
-    });
+    const unitUpdateCtx: SingleUnitUpdateContext = {
+      state,
+      dt,
+      realDt,
+      doors,
+      prng,
+      lootManager,
+      director,
+      aiContext,
+      escortData,
+      invalidationCtx: { hasNewEnemy, allVisibleEnemiesGone, areaRevealed, objectiveChanged },
+    };
+    const updatedUnits = state.units.map((unit) => this.updateSingleUnit(unit, unitUpdateCtx));
 
     state.units = updatedUnits;
     this.lastVisibleEnemyIds = currentVisibleIds;
+  }
+
+  private updateSingleUnit(unit: Unit, ctx: SingleUnitUpdateContext): Unit {
+    const { state, dt, realDt, doors, prng, lootManager, director, aiContext, escortData, invalidationCtx } = ctx;
+
+    if (unit.state === UnitState.Extracted || unit.hp <= 0) return unit;
+
+    let currentUnit = this.statsManager.recalculateStats(unit);
+
+    // A. COMMAND QUEUE (Execute next pending command)
+    currentUnit = this.unitStateManager.processCommandQueue(currentUnit, state, director);
+
+    // B. ESCORT DATA (Apply formation offsets and speed sync)
+    currentUnit = this.applyEscortLogic(currentUnit, escortData);
+
+    // C. CHANNELING (Handle timed actions)
+    currentUnit = this.unitStateManager.processChanneling({ unit: currentUnit, state, realDt, lootManager, director });
+
+    // Early exit if unit extracted or still channeling
+    if (currentUnit.state === UnitState.Extracted || currentUnit.state === UnitState.Channeling) {
+      return currentUnit;
+    }
+
+    // D. COMBAT (Unit's own attacks)
+    const combatResult = this.combatManager.update(currentUnit, state, prng);
+    currentUnit = combatResult.unit;
+    const isAttacking = combatResult.isAttacking;
+
+    // E. MOVEMENT (Execute current path)
+    const prevMovingState = currentUnit.state;
+    currentUnit = this.updateUnitMovement({ unit: currentUnit, state, dt, doors, isAttacking });
+
+    // F. INVALIDATION TRIGGERS (ADR 0056)
+    if (currentUnit.activePlan) {
+      const shouldInvalidate = this.checkInvalidationTriggers(currentUnit, prevMovingState, invalidationCtx);
+      if (shouldInvalidate) {
+        currentUnit = this.invalidatePlan(currentUnit);
+      }
+    }
+
+    // G. AI PROCESS (React to new position/state)
+    currentUnit = this.unitAi.process({
+      unit: currentUnit,
+      state,
+      dt,
+      doors,
+      prng,
+      context: aiContext,
+      director,
+    });
+
+    return currentUnit;
+  }
+
+  private checkInvalidationTriggers(
+    unit: Unit,
+    prevMovingState: string,
+    ctx: InvalidationContext,
+  ): boolean {
+    if (!unit.activePlan) return false;
+    const priority = unit.activePlan.priority;
+
+    // 1. New enemy enters LOS -> Triggered for: Exploration (4) and Objective (3) plans
+    if (ctx.hasNewEnemy && priority >= 3) return true;
+
+    // 2. All visible enemies die/flee -> Triggered for: Combat (2), Safety (0)
+    if (ctx.allVisibleEnemiesGone && (priority === 0 || priority === 2)) return true;
+
+    // 3. Unit HP drops below 25% -> Triggered for: Everything except Safety (priority > 0)
+    if (unit.hp < unit.maxHp * 0.25 && priority > 0) return true;
+
+    // 4. New area revealed -> Triggered for: Exploration (4)
+    if (ctx.areaRevealed && priority === 4) return true;
+
+    // 5. Objective state changes -> Triggered for: Objective (3)
+    if (ctx.objectiveChanged.size > 0 && priority === 3) return true;
+
+    // 6. Path blocked -> Triggered for: Everything
+    if (prevMovingState !== UnitState.WaitingForDoor && unit.state === UnitState.WaitingForDoor) return true;
+
+    // 7. Unit reaches plan goal (Natural completion)
+    if (!unit.targetPos && unit.state !== UnitState.Moving && unit.state !== UnitState.WaitingForDoor) return true;
+
+    return false;
   }
 
   /**
@@ -376,8 +392,12 @@ export class UnitManager {
         u.activeCommand?.type === CommandType.ESCORT_UNIT
       ) {
         const targetId = u.activeCommand.targetId;
-        if (!escortGroups.has(targetId)) escortGroups.set(targetId, []);
-        escortGroups.get(targetId)!.push(u);
+        let group = escortGroups.get(targetId);
+        if (!group) {
+          group = [];
+          escortGroups.set(targetId, group);
+        }
+        group.push(u);
       }
     }
 
@@ -487,92 +507,88 @@ export class UnitManager {
   /**
    * Updates unit position and state based on its current movement path.
    */
-  private updateUnitMovement(
-    unit: Unit,
-    state: GameState,
-    dt: number,
-    doors: Map<string, Door>,
-    isAttacking: boolean,
-  ): Unit {
+  private updateUnitMovement(params: UpdateUnitMovementParams): Unit {
+    const { unit, state, dt, doors, isAttacking } = params;
     const isMoving = !!unit.targetPos;
-    const enemiesInSameCell = state.enemies.filter(
-      (enemy) =>
-        enemy.hp > 0 && MathUtils.sameCellPosition(enemy.pos, unit.pos),
-    );
-    const isLockedInMelee = enemiesInSameCell.length > 0;
+    const isLockedInMelee = this.isUnitLockedInMelee(unit, state);
 
-    if (isMoving && unit.targetPos) {
-      if (isLockedInMelee) {
-        return { ...unit, state: UnitState.Attacking };
-      }
-
-      if (!isAttacking) {
-        return this.movementManager.handleMovement(unit, unit.stats.speed, dt, doors);
-      }
-
-      // If we are RUSHing, RETREATing, EXTRACTing, or in IGNORE mode, we SHOULD be allowed to move while attacking
-      if (
-        unit.aiProfile === "RUSH" ||
-        unit.aiProfile === "RETREAT" ||
-        unit.engagementPolicy === "IGNORE" ||
-        unit.engagementPolicy === "AVOID" ||
-        unit.activeCommand?.type === CommandType.ESCORT_UNIT ||
-        unit.activeCommand?.type === CommandType.EXTRACT ||
-        unit.activeCommand?.label === "Extracting"
-      ) {
-        let movedUnit = this.movementManager.handleMovement(unit, unit.stats.speed, dt, doors);
-        if (movedUnit.state === UnitState.Moving) {
-          movedUnit = { ...movedUnit, state: UnitState.Attacking };
-        }
-        return movedUnit;
-      }
-      return unit;
+    if (isMoving) {
+      return this.handleMovingUnit({ unit, dt, doors, isAttacking, isLockedInMelee });
     }
 
-    if (!isAttacking && !isMoving) {
-      let updatedUnit = { ...unit, state: UnitState.Idle };
-      // Clear non-persistent active commands if Idle
-      const activeCmdType = updatedUnit.activeCommand?.type;
-      const persistentTypes = [
-        CommandType.PICKUP,
-        CommandType.ESCORT_UNIT,
-        CommandType.EXPLORE,
-        CommandType.OVERWATCH_POINT,
-        CommandType.USE_ITEM,
-        CommandType.EXTRACT,
-      ];
-
-      if (activeCmdType && !persistentTypes.includes(activeCmdType)) {
-        updatedUnit = { ...updatedUnit, activeCommand: undefined };
-      }
-      return updatedUnit;
+    if (!isAttacking) {
+      return this.handleIdleUnit(unit);
     }
 
     return unit;
   }
 
+  private isUnitLockedInMelee(unit: Unit, state: GameState): boolean {
+    return state.enemies.some(
+      (enemy) => enemy.hp > 0 && MathUtils.sameCellPosition(enemy.pos, unit.pos),
+    );
+  }
+
+  private handleMovingUnit({
+    unit,
+    dt,
+    doors,
+    isAttacking,
+    isLockedInMelee,
+  }: HandleMovingUnitParams): Unit {
+    if (isLockedInMelee) {
+      return { ...unit, state: UnitState.Attacking };
+    }
+
+    if (!isAttacking) {
+      return this.movementManager.handleMovement(unit, unit.stats.speed, dt, doors);
+    }
+
+    // If we are RUSHing, RETREATing, EXTRACTing, or in IGNORE mode, we SHOULD be allowed to move while attacking
+    const canMoveWhileAttacking =
+      unit.aiProfile === "RUSH" ||
+      unit.aiProfile === "RETREAT" ||
+      unit.engagementPolicy === "IGNORE" ||
+      unit.engagementPolicy === "AVOID" ||
+      unit.activeCommand?.type === CommandType.ESCORT_UNIT ||
+      unit.activeCommand?.type === CommandType.EXTRACT ||
+      unit.activeCommand?.label === "Extracting";
+
+    if (canMoveWhileAttacking) {
+      let movedUnit = this.movementManager.handleMovement(unit, unit.stats.speed, dt, doors);
+      if (movedUnit.state === UnitState.Moving) {
+        movedUnit = { ...movedUnit, state: UnitState.Attacking };
+      }
+      return movedUnit;
+    }
+
+    return unit;
+  }
+
+  private handleIdleUnit(unit: Unit): Unit {
+    let updatedUnit = { ...unit, state: UnitState.Idle };
+    // Clear non-persistent active commands if Idle
+    const activeCmdType = updatedUnit.activeCommand?.type;
+    const persistentTypes = [
+      CommandType.PICKUP,
+      CommandType.ESCORT_UNIT,
+      CommandType.EXPLORE,
+      CommandType.OVERWATCH_POINT,
+      CommandType.USE_ITEM,
+      CommandType.EXTRACT,
+    ];
+
+    if (activeCmdType && !persistentTypes.includes(activeCmdType)) {
+      updatedUnit = { ...updatedUnit, activeCommand: undefined };
+    }
+    return updatedUnit;
+  }
+
   /**
    * Executes a specific command for a unit, updating its state or path.
-   * @param unit The unit receiving the command
-   * @param cmd The command to execute
-   * @param state The current game state
-   * @param isManual Whether the command was issued by a player (disables AI)
-   * @param director Optional director for global ability effects
    * @returns a new unit reference with the command applied
    */
-  public executeCommand(
-    unit: Unit,
-    cmd: Command,
-    state: GameState,
-    isManual: boolean = true,
-    director?: ItemEffectHandler,
-  ): Unit {
-    return this.commandExecutor.executeCommand(
-      unit,
-      cmd,
-      state,
-      isManual,
-      director,
-    );
+  public executeCommand(params: ExecuteCommandParams): Unit {
+    return this.commandExecutor.executeCommand(params);
   }
 }

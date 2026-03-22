@@ -19,13 +19,13 @@ export interface BehaviorContext {
   agentControlEnabled: boolean;
   totalFloorCells: number;
   claimedObjectives: Map<string, string>; // objectiveId -> unitId
-  executeCommand: (
-    unit: Unit,
-    cmd: Command,
-    state: GameState,
-    isManual: boolean,
-    director?: ItemEffectHandler,
-  ) => Unit;
+  executeCommand: (params: {
+    unit: Unit;
+    cmd: Command;
+    state: GameState;
+    isManual: boolean;
+    director?: ItemEffectHandler;
+  }) => Unit;
 }
 
 export interface ObjectiveContext {

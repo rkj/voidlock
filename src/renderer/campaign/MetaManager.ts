@@ -11,7 +11,7 @@ export { EngineMetaManager as MetaManager };
 if (typeof window !== "undefined") {
   try {
     EngineMetaManager.getInstance(new LocalStorageProvider());
-  } catch (e) {
+  } catch (_e) {
     // Already initialized or failed
   }
 }

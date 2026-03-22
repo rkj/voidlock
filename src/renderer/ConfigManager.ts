@@ -65,7 +65,7 @@ export class ConfigManager {
 
   public static loadGlobal(): GlobalConfig {
     const isProd =
-      (typeof import.meta !== "undefined" && import.meta.env?.PROD) ||
+      import.meta?.env?.PROD ||
       (typeof process !== "undefined" &&
         process.env?.NODE_ENV === "production");
     const defaultGlobal: GlobalConfig = {
@@ -89,7 +89,7 @@ export class ConfigManager {
         return result.data as GlobalConfig;
       }
       return defaultGlobal;
-    } catch (e) {
+    } catch (_e) {
       return defaultGlobal;
     }
   }
@@ -115,7 +115,7 @@ export class ConfigManager {
 
     // Migration from old keys
     const oldConfig =
-      this.load("voidlock_legacy_custom_config") ||
+      this.load("voidlock_legacy_custom_config") ??
       this.load("voidlock_legacy_config");
     if (oldConfig) {
       this.saveCustom(oldConfig);

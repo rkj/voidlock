@@ -190,37 +190,24 @@ export class SpaceshipGenerator {
     const maxSquadSpawns = 2;
 
     // Pick first squad node
-    const squadNode1 = this.pickNodeInQuad(nodes, cols, rows, 0, 0);
+    const squadNode1 = this.pickNodeInQuad({ nodes, cols, rows, qx: 0, qy: 0 });
     squadNodes.push(squadNode1);
 
     // Pick additional squad nodes in the SAME quadrant
     for (let i = 1; i < maxSquadSpawns; i++) {
-      const node = this.pickNodeInQuad(nodes, cols, rows, 0, 0, squadNodes);
+      const node = this.pickNodeInQuad({ nodes, cols, rows, qx: 0, qy: 0, avoid: squadNodes });
       if (node && !squadNodes.some((n) => n.id === node.id)) {
         squadNodes.push(node);
       }
     }
 
-    const extractionNode = this.pickNodeInQuad(
-      nodes,
-      cols,
-      rows,
-      1,
-      1,
-      squadNodes,
-    );
-    const objectiveNode = this.pickNodeInQuad(nodes, cols, rows, 0, 1, [
-      ...squadNodes,
-      extractionNode,
-    ]);
+    const extractionNode = this.pickNodeInQuad({ nodes, cols, rows, qx: 1, qy: 1, avoid: squadNodes });
+    const objectiveNode = this.pickNodeInQuad({ nodes, cols, rows, qx: 0, qy: 1, avoid: [...squadNodes, extractionNode] });
 
     const enemySpawnNodes: Node[] = [];
     const avoidForEnemy = [...squadNodes, extractionNode, objectiveNode];
     for (let i = 0; i < spawnPointCount; i++) {
-      const n = this.pickNodeInQuad(nodes, cols, rows, 1, 0, [
-        ...avoidForEnemy,
-        ...enemySpawnNodes,
-      ]);
+      const n = this.pickNodeInQuad({ nodes, cols, rows, qx: 1, qy: 0, avoid: [...avoidForEnemy, ...enemySpawnNodes] });
       enemySpawnNodes.push(n);
     }
 
@@ -402,14 +389,21 @@ export class SpaceshipGenerator {
     }
   }
 
-  private pickNodeInQuad(
-    nodes: Node[],
-    cols: number,
-    rows: number,
-    qx: 0 | 1,
-    qy: 0 | 1,
-    avoid: Node[] = [],
-  ): Node {
+  private pickNodeInQuad({
+    nodes,
+    cols,
+    rows,
+    qx,
+    qy,
+    avoid = [],
+  }: {
+    nodes: Node[];
+    cols: number;
+    rows: number;
+    qx: 0 | 1;
+    qy: 0 | 1;
+    avoid?: Node[];
+  }): Node {
     const minX = qx === 0 ? 0 : Math.floor(cols / 2);
     const maxX = qx === 0 ? Math.floor(cols / 2) - 1 : cols - 1;
     const minY = qy === 0 ? 0 : Math.floor(rows / 2);

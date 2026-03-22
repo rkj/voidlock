@@ -65,7 +65,7 @@ export class KeyboardHelpOverlay implements InputContext {
     // Group by category
     const grouped = new Map<string, ShortcutInfo[]>();
     shortcuts.forEach((s) => {
-      const list = grouped.get(s.category) || [];
+      const list = grouped.get(s.category) ?? [];
       list.push(s);
       grouped.set(s.category, list);
     });

@@ -489,13 +489,13 @@ export class InputManager implements InputContext {
   private handleDragOver(e: DragEvent) {
     if (this.config.currentGameState()?.status !== "Deployment") return;
     e.preventDefault();
-    e.dataTransfer!.dropEffect = "move";
+    if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
   }
 
   private handleDrop(e: DragEvent) {
     if (this.config.currentGameState()?.status !== "Deployment") return;
     e.preventDefault();
-    const data = e.dataTransfer!.getData("application/voidlock-unit");
+    const data = e.dataTransfer?.getData("application/voidlock-unit");
     if (data) {
       const unit = JSON.parse(data);
       const cell = this.config.getCellCoordinates(e.clientX, e.clientY);

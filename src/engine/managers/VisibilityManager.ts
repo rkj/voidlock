@@ -17,12 +17,13 @@ export class VisibilityManager {
     if (state.gridState?.length !== size) {
       state.gridState = new Uint8Array(size);
     }
+    const gridState = state.gridState;
 
     // Sync back from discoveredCells if it was manually mutated (for tests)
     // We check length to see if something was added manually
     let bitsetDiscoveredCount = 0;
     for (let i = 0; i < size; i++) {
-      if (state.gridState[i] & 2) bitsetDiscoveredCount++;
+      if (gridState[i] & 2) bitsetDiscoveredCount++;
     }
 
     if (
@@ -34,14 +35,14 @@ export class VisibilityManager {
         const x = parseInt(parts[0]);
         const y = parseInt(parts[1]);
         if (x >= 0 && x < width && y >= 0 && y < height) {
-          state.gridState![y * width + x] |= 2; // bit 1: discovered
+          gridState[y * width + x] |= 2; // bit 1: discovered
         }
       });
     }
 
     // Reset current visibility (bit 0)
     for (let i = 0; i < size; i++) {
-      state.gridState[i] &= ~1;
+      gridState[i] &= ~1;
     }
 
     state.units.forEach((unit) => {
@@ -51,13 +52,12 @@ export class VisibilityManager {
         unit.state !== UnitState.Dead &&
         unit.isDeployed !== false
       ) {
-        this.los.updateVisibleCells(
-          unit.pos,
-          state.gridState!,
+        this.los.updateVisibleCells({
+          origin: unit.pos,
+          gridState,
           width,
           height,
-          undefined,
-        );
+        });
       }
     });
 

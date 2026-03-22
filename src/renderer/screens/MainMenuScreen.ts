@@ -23,7 +23,7 @@ export class MainMenuScreen {
     if (hasSplash) {
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       // Disable splash in E2E or if reduced motion is preferred
-      const isE2E = (window as any).isE2E || navigator.userAgent.includes("Puppeteer") || navigator.userAgent.includes("HeadlessChrome");
+      const isE2E = (window as unknown as Record<string, boolean>).isE2E || navigator.userAgent.includes("Puppeteer") || navigator.userAgent.includes("HeadlessChrome");
       
       if (!this.hasPlayedTitleSplash && !prefersReducedMotion && !isE2E) {
         this.hasPlayedTitleSplash = true;

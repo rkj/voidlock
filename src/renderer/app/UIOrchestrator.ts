@@ -108,7 +108,7 @@ export class UIOrchestrator {
   public exportReplay() {
     const replay = this.deps.gameClient.getReplayData();
     if (!replay) {
-      this.deps.modalService.alert("No replay data available.");
+      void this.deps.modalService.alert("No replay data available.");
       return;
     }
 

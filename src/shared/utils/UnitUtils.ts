@@ -1,5 +1,6 @@
 import type {
-  SquadSoldierConfig} from "../types";
+  SquadSoldierConfig,
+  EquipmentState} from "../types";
 import {
   ArchetypeLibrary,
   ItemLibrary,
@@ -98,7 +99,7 @@ export class UnitUtils {
 
   private static getEquipment(
     soldier: CampaignSoldier | SquadSoldierConfig
-  ): any {
+  ): EquipmentState {
     if ("equipment" in soldier) {
       return (soldier).equipment;
     }

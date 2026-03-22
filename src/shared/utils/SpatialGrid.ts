@@ -47,7 +47,7 @@ export class SpatialGrid<T> {
    * Queries the grid for items at a specific cell coordinate.
    */
   public queryAt(x: number, y: number): T[] {
-    return this.cells.get(`${x},${y}`) || [];
+    return this.cells.get(`${x},${y}`) ?? [];
   }
 
   /**

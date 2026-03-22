@@ -93,19 +93,21 @@ export type Objective = ObjectiveDefinition & {
   xpRewarded?: boolean;
 };
 
+export interface CanMoveParams {
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+  doors?: Map<string, Door>;
+  allowClosedDoors?: boolean;
+}
+
 export interface Grid {
   width: number;
   height: number;
   isWalkable(x: number, y: number): boolean;
   // Check if movement between adjacent cells is allowed (no wall)
-  canMove(
-    fromX: number,
-    fromY: number,
-    toX: number,
-    toY: number,
-    doors?: Map<string, Door>,
-    allowClosedDoors?: boolean,
-  ): boolean;
+  canMove(params: CanMoveParams): boolean;
 }
 
 export interface IMapValidationResult {

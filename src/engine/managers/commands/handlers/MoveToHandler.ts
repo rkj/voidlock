@@ -1,31 +1,20 @@
 import type {
   Unit,
-  Command,
-  GameState,
   MoveCommand} from "@src/shared/types";
 import {
   CommandType,
   UnitState
 } from "@src/shared/types";
-import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import type { IUnitCommandHandler } from "../IUnitCommandHandler";
+import type { IUnitCommandHandler, CommandExecParams } from "../IUnitCommandHandler";
 import type { Pathfinder } from "@src/engine/Pathfinder";
 import { MathUtils } from "@src/shared/utils/MathUtils";
-import type { UnitCommandRegistry } from "../UnitCommandRegistry";
 
 export class MoveToHandler implements IUnitCommandHandler {
   public type = CommandType.MOVE_TO;
 
   constructor(private pathfinder: Pathfinder) {}
 
-  public execute(
-    unit: Unit,
-    cmd: Command,
-    _state: GameState,
-    isManual: boolean,
-    _registry: UnitCommandRegistry,
-    _director?: ItemEffectHandler,
-  ): Unit {
+  public execute({ unit, cmd, isManual }: CommandExecParams): Unit {
     const moveCmd = cmd as MoveCommand;
     const currentUnit = { ...unit };
 

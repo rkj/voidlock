@@ -12,6 +12,17 @@ export interface NewCampaignWizardOptions {
   onBack: () => void;
 }
 
+interface WizardFormElements {
+  pauseCheck: HTMLInputElement;
+  skipPrologueCheck: HTMLInputElement;
+  seedInput: HTMLInputElement;
+  genSelect: HTMLSelectElement;
+  scalingSlider: HTMLInputElement;
+  scarcitySlider: HTMLInputElement;
+  deathSelect: HTMLSelectElement;
+  startBtn: HTMLButtonElement;
+}
+
 export class NewCampaignWizard {
   private container: HTMLElement;
   private options: NewCampaignWizardOptions;
@@ -28,17 +39,14 @@ export class NewCampaignWizard {
     this.container.innerHTML = "";
     this.container.className = "screen campaign-screen flex-col campaign-setup-wizard h-full relative atmospheric-bg bg-voidlock";
 
-    // Grain effect
     const grain = document.createElement("div");
     grain.className = "grain";
     this.container.appendChild(grain);
 
-    // Scanline effect
     const scanline = document.createElement("div");
     scanline.className = "scanline";
     this.container.appendChild(scanline);
 
-    // Content Wrapper (to ensure it's above grain/scanline)
     const contentWrapper = document.createElement("div");
     contentWrapper.className = "flex-col align-center w-full h-full relative";
     contentWrapper.style.zIndex = "10";
@@ -52,7 +60,6 @@ export class NewCampaignWizard {
     content.style.maxWidth = "800px";
     content.style.margin = "0 auto";
     content.style.padding = "40px 20px";
-    // ... (rest of the content setup)
 
     const h1 = document.createElement("h1");
     h1.textContent = "New Expedition";
@@ -60,6 +67,15 @@ export class NewCampaignWizard {
     h1.style.color = "var(--color-primary)";
     content.appendChild(h1);
 
+    const { form, ...formElements } = this.buildForm();
+
+    content.appendChild(form);
+    scrollContainer.appendChild(content);
+    contentWrapper.appendChild(scrollContainer);
+    contentWrapper.appendChild(this.buildFooter(formElements));
+  }
+
+  private buildForm() {
     const form = document.createElement("div");
     form.className = "flex-col gap-20 w-full p-20";
     form.style.background = "var(--color-surface-elevated)";
@@ -67,7 +83,81 @@ export class NewCampaignWizard {
     form.style.maxWidth = "800px";
     form.style.boxSizing = "border-box";
 
-    // Global Status (Spec 8.1) - Settings button removed (redundant with Shell)
+    form.appendChild(this.buildGlobalStatusGroup());
+
+    const diffLabel = document.createElement("label");
+    diffLabel.textContent = "Select Difficulty";
+    diffLabel.style.fontSize = "0.8em";
+    diffLabel.style.color = "var(--color-text-dim)";
+    diffLabel.style.marginBottom = "-10px";
+    form.appendChild(diffLabel);
+
+    const pauseGroup = document.createElement("div");
+    pauseGroup.className = "flex-row align-center gap-10";
+    const pauseCheck = document.createElement("input");
+    pauseCheck.type = "checkbox";
+    pauseCheck.id = "campaign-tactical-pause";
+    pauseCheck.checked = true;
+    const pauseLabel = document.createElement("label");
+    pauseLabel.htmlFor = "campaign-tactical-pause";
+    pauseLabel.textContent = "Allow Tactical Pause (0.05x)";
+    pauseLabel.style.fontSize = "0.9em";
+    pauseGroup.appendChild(pauseCheck);
+    pauseGroup.appendChild(pauseLabel);
+
+    const cardsContainer = document.createElement("div");
+    cardsContainer.className = "difficulty-cards-container flex-row gap-10 w-full";
+    this.buildDifficultyCards(cardsContainer, pauseCheck, pauseLabel);
+    form.appendChild(cardsContainer);
+    form.appendChild(pauseGroup);
+
+    const durationGroup = document.createElement("div");
+    durationGroup.className = "flex-col gap-5";
+    const durationLabel = document.createElement("label");
+    durationLabel.textContent = "Campaign Duration";
+    durationLabel.style.fontSize = "0.8em";
+    durationLabel.style.color = "var(--color-text-dim)";
+    const durationSelect = document.createElement("select");
+    durationSelect.id = "campaign-duration";
+    durationSelect.innerHTML = `
+      <option value="0.5" selected>Long (13 Ranks - Standard)</option>
+      <option value="1.0">Short (7 Ranks - Fast Session)</option>
+    `;
+    durationGroup.appendChild(durationLabel);
+    durationGroup.appendChild(durationSelect);
+    form.appendChild(durationGroup);
+
+    const skipPrologueGroup = document.createElement("div");
+    skipPrologueGroup.className = "flex-row align-center gap-10";
+    const skipPrologueCheck = document.createElement("input");
+    skipPrologueCheck.type = "checkbox";
+    skipPrologueCheck.id = "campaign-skip-prologue";
+    const metaStats = MetaManager.getInstance().getStats();
+    skipPrologueCheck.checked = metaStats.prologueCompleted;
+    const skipPrologueLabel = document.createElement("label");
+    skipPrologueLabel.htmlFor = "campaign-skip-prologue";
+    skipPrologueLabel.textContent = "Skip Tutorial Prologue";
+    skipPrologueLabel.style.fontSize = "0.9em";
+    skipPrologueGroup.appendChild(skipPrologueCheck);
+    skipPrologueGroup.appendChild(skipPrologueLabel);
+    form.appendChild(skipPrologueGroup);
+
+    if (this.selectedDifficulty === "extreme") {
+      pauseCheck.checked = false;
+      pauseCheck.disabled = true;
+      pauseLabel.style.opacity = "0.5";
+    }
+
+    const { advancedWrapper, seedInput, genSelect, scalingSlider, scarcitySlider, deathSelect } = this.buildAdvancedOptions();
+    form.appendChild(advancedWrapper);
+
+    const startBtn = document.createElement("button");
+    startBtn.textContent = "Initialize Expedition";
+
+    return { form, pauseCheck, skipPrologueCheck, seedInput, genSelect, scalingSlider, scarcitySlider, deathSelect, startBtn } as { form: HTMLElement } & WizardFormElements;
+  }
+
+  private buildGlobalStatusGroup(): HTMLElement {
     const globalStatusGroup = document.createElement("div");
     globalStatusGroup.className = "flex-col gap-5";
     const globalStatusLabel = document.createElement("label");
@@ -84,9 +174,7 @@ export class NewCampaignWizard {
     globalStatusContainer.style.border = "1px solid var(--color-border)";
 
     const themeLabelStr = ConfigManager.loadGlobal().themeId || "default";
-    const themeName =
-      themeLabelStr.charAt(0).toUpperCase() + themeLabelStr.slice(1);
-
+    const themeName = themeLabelStr.charAt(0).toUpperCase() + themeLabelStr.slice(1);
     const statusText = document.createElement("div");
     statusText.className = "global-status-text";
     statusText.style.fontSize = "0.9em";
@@ -96,19 +184,10 @@ export class NewCampaignWizard {
     globalStatusContainer.appendChild(statusText);
     globalStatusGroup.appendChild(globalStatusLabel);
     globalStatusGroup.appendChild(globalStatusContainer);
-    form.appendChild(globalStatusGroup);
+    return globalStatusGroup;
+  }
 
-    // Difficulty Cards
-    const diffLabel = document.createElement("label");
-    diffLabel.textContent = "Select Difficulty";
-    diffLabel.style.fontSize = "0.8em";
-    diffLabel.style.color = "var(--color-text-dim)";
-    diffLabel.style.marginBottom = "-10px";
-    form.appendChild(diffLabel);
-
-    const cardsContainer = document.createElement("div");
-    cardsContainer.className = "difficulty-cards-container flex-row gap-10 w-full";
-
+  private buildDifficultyCards(container: HTMLElement, pauseCheck: HTMLInputElement, pauseLabel: HTMLLabelElement) {
     const DIFFICULTIES = [
       {
         id: "Simulation",
@@ -137,25 +216,10 @@ export class NewCampaignWizard {
     ];
 
     const cards: HTMLElement[] = [];
-
-    // Tactical Pause (needed early for card click logic)
-    const pauseGroup = document.createElement("div");
-    pauseGroup.className = "flex-row align-center gap-10";
-    const pauseCheck = document.createElement("input");
-    pauseCheck.type = "checkbox";
-    pauseCheck.id = "campaign-tactical-pause";
-    pauseCheck.checked = true;
-    const pauseLabel = document.createElement("label");
-    pauseLabel.htmlFor = "campaign-tactical-pause";
-    pauseLabel.textContent = "Allow Tactical Pause (0.05x)";
-    pauseLabel.style.fontSize = "0.9em";
-    pauseGroup.appendChild(pauseCheck);
-    pauseGroup.appendChild(pauseLabel);
-
     DIFFICULTIES.forEach((diff) => {
       const card = document.createElement("div");
       card.className = `difficulty-card flex-col gap-10 p-15 flex-1 ${diff.id === this.selectedDifficulty ? "selected" : ""}`;
-      card.tabIndex = 0; // Make focusable
+      card.tabIndex = 0;
 
       const title = document.createElement("h3");
       title.textContent = diff.name;
@@ -173,9 +237,7 @@ export class NewCampaignWizard {
 
       const selectCard = () => {
         this.selectedDifficulty = diff.id;
-        cards.forEach((c) => {
-          c.classList.remove("selected");
-        });
+        cards.forEach((c) => c.classList.remove("selected"));
         card.classList.add("selected");
 
         // Ironman logic
@@ -191,73 +253,20 @@ export class NewCampaignWizard {
           pauseCheck.title = "";
           pauseLabel.title = "";
           pauseLabel.style.opacity = "1";
-          if (
-            this.selectedDifficulty === "Simulation" ||
-            this.selectedDifficulty === "Clone" ||
-            this.selectedDifficulty === "Standard"
-          ) {
-            pauseCheck.checked = true;
-          }
+          pauseCheck.checked = true;
         }
       };
 
       card.addEventListener("click", selectCard);
       card.onkeydown = (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          selectCard();
-          e.preventDefault();
-          e.stopPropagation();
-        }
+        if (e.key === "Enter" || e.key === " ") { selectCard(); e.preventDefault(); e.stopPropagation(); }
       };
-
       cards.push(card);
-      cardsContainer.appendChild(card);
+      container.appendChild(card);
     });
+  }
 
-    form.appendChild(cardsContainer);
-    form.appendChild(pauseGroup);
-
-    // Campaign Duration
-    const durationGroup = document.createElement("div");
-    durationGroup.className = "flex-col gap-5";
-    const durationLabel = document.createElement("label");
-    durationLabel.textContent = "Campaign Duration";
-    durationLabel.style.fontSize = "0.8em";
-    durationLabel.style.color = "var(--color-text-dim)";
-    const durationSelect = document.createElement("select");
-    durationSelect.id = "campaign-duration";
-    durationSelect.innerHTML = `
-      <option value="0.5" selected>Long (13 Ranks - Standard)</option>
-      <option value="1.0">Short (7 Ranks - Fast Session)</option>
-    `;
-    durationGroup.appendChild(durationLabel);
-    durationGroup.appendChild(durationSelect);
-    form.appendChild(durationGroup);
-
-    // Skip Prologue
-    const skipPrologueGroup = document.createElement("div");
-    skipPrologueGroup.className = "flex-row align-center gap-10";
-    const skipPrologueCheck = document.createElement("input");
-    skipPrologueCheck.type = "checkbox";
-    skipPrologueCheck.id = "campaign-skip-prologue";
-    const metaStats = MetaManager.getInstance().getStats();
-    skipPrologueCheck.checked = metaStats.prologueCompleted;
-    const skipPrologueLabel = document.createElement("label");
-    skipPrologueLabel.htmlFor = "campaign-skip-prologue";
-    skipPrologueLabel.textContent = "Skip Tutorial Prologue";
-    skipPrologueLabel.style.fontSize = "0.9em";
-    skipPrologueGroup.appendChild(skipPrologueCheck);
-    skipPrologueGroup.appendChild(skipPrologueLabel);
-    form.appendChild(skipPrologueGroup);
-
-    // Initial Ironman check (if selectedDifficulty was Ironman from previous render)
-    if (this.selectedDifficulty === "extreme") {
-      pauseCheck.checked = false;
-      pauseCheck.disabled = true;
-      pauseLabel.style.opacity = "0.5";
-    }
-
-    // Advanced Options (Collapsible)
+  private buildAdvancedOptions() {
     const advancedWrapper = document.createElement("div");
     advancedWrapper.className = "flex-col gap-10";
     advancedWrapper.style.marginTop = "10px";
@@ -265,10 +274,8 @@ export class NewCampaignWizard {
     advancedWrapper.style.borderTop = "1px solid var(--color-border)";
 
     const advancedToggle = document.createElement("button");
-    advancedToggle.textContent = this.isAdvancedShown
-      ? "Hide Advanced Settings ▲"
-      : "Show Advanced Settings ▼";
-    advancedToggle.className = "text-button"; // Added class for easier styling if needed
+    advancedToggle.textContent = this.isAdvancedShown ? "Hide Advanced Settings ▲" : "Show Advanced Settings ▼";
+    advancedToggle.className = "text-button";
     advancedToggle.style.background = "none";
     advancedToggle.style.border = "none";
     advancedToggle.style.color = "var(--color-text-dim)";
@@ -285,23 +292,22 @@ export class NewCampaignWizard {
 
     const toggleAdvanced = () => {
       this.isAdvancedShown = !this.isAdvancedShown;
-      const isHidden = !this.isAdvancedShown;
-      advancedContent.style.display = isHidden ? "none" : "flex";
-      advancedToggle.textContent = isHidden
-        ? "Show Advanced Settings ▼"
-        : "Hide Advanced Settings ▲";
+      advancedContent.style.display = this.isAdvancedShown ? "flex" : "none";
+      advancedToggle.textContent = this.isAdvancedShown ? "Hide Advanced Settings ▲" : "Show Advanced Settings ▼";
     };
-
     advancedToggle.onclick = toggleAdvanced;
     advancedToggle.onkeydown = (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        toggleAdvanced();
-        e.preventDefault();
-        e.stopPropagation();
-      }
+      if (e.key === "Enter" || e.key === " ") { toggleAdvanced(); e.preventDefault(); e.stopPropagation(); }
     };
 
-    // Custom Seed
+    const { seedInput, genSelect, scalingSlider, scarcitySlider, deathSelect } = this.buildAdvancedInputs(advancedContent);
+
+    advancedWrapper.appendChild(advancedToggle);
+    advancedWrapper.appendChild(advancedContent);
+    return { advancedWrapper, seedInput, genSelect, scalingSlider, scarcitySlider, deathSelect };
+  }
+
+  private buildAdvancedInputs(container: HTMLElement) {
     const seedGroup = document.createElement("div");
     seedGroup.className = "flex-col gap-5";
     const seedLabel = document.createElement("label");
@@ -313,9 +319,8 @@ export class NewCampaignWizard {
     seedInput.placeholder = "Enter seed...";
     seedGroup.appendChild(seedLabel);
     seedGroup.appendChild(seedInput);
-    advancedContent.appendChild(seedGroup);
+    container.appendChild(seedGroup);
 
-    // Forced Map Generator
     const genGroup = document.createElement("div");
     genGroup.className = "flex-col gap-5";
     const genLabel = document.createElement("label");
@@ -331,9 +336,8 @@ export class NewCampaignWizard {
     `;
     genGroup.appendChild(genLabel);
     genGroup.appendChild(genSelect);
-    advancedContent.appendChild(genGroup);
+    container.appendChild(genGroup);
 
-    // Scaling Slider
     const scalingGroup = document.createElement("div");
     scalingGroup.className = "flex-col gap-5";
     const scalingLabel = document.createElement("label");
@@ -351,9 +355,8 @@ export class NewCampaignWizard {
     };
     scalingGroup.appendChild(scalingLabel);
     scalingGroup.appendChild(scalingSlider);
-    advancedContent.appendChild(scalingGroup);
+    container.appendChild(scalingGroup);
 
-    // Scarcity Slider
     const scarcityGroup = document.createElement("div");
     scarcityGroup.className = "flex-col gap-5";
     const scarcityLabel = document.createElement("label");
@@ -371,9 +374,8 @@ export class NewCampaignWizard {
     };
     scarcityGroup.appendChild(scarcityLabel);
     scarcityGroup.appendChild(scarcitySlider);
-    advancedContent.appendChild(scarcityGroup);
+    container.appendChild(scarcityGroup);
 
-    // Death Rule
     const deathGroup = document.createElement("div");
     deathGroup.className = "flex-col gap-5";
     const deathLabel = document.createElement("label");
@@ -389,9 +391,8 @@ export class NewCampaignWizard {
     `;
     deathGroup.appendChild(deathLabel);
     deathGroup.appendChild(deathSelect);
-    advancedContent.appendChild(deathGroup);
+    container.appendChild(deathGroup);
 
-    // Economy Mode
     const economyGroup = document.createElement("div");
     economyGroup.className = "flex-col gap-5";
     const economyLabel = document.createElement("label");
@@ -406,29 +407,22 @@ export class NewCampaignWizard {
     `;
     economyGroup.appendChild(economyLabel);
     economyGroup.appendChild(economySelect);
-    advancedContent.appendChild(economyGroup);
+    container.appendChild(economyGroup);
 
-    advancedWrapper.appendChild(advancedToggle);
-    advancedWrapper.appendChild(advancedContent);
-    form.appendChild(advancedWrapper);
+    return { seedInput, genSelect, scalingSlider, scarcitySlider, deathSelect };
+  }
 
-    content.appendChild(form);
-
-    const startBtn = document.createElement("button");
-    startBtn.textContent = "Initialize Expedition";
+  private buildFooter(elements: WizardFormElements): HTMLElement {
+    const { startBtn, pauseCheck, skipPrologueCheck, seedInput, genSelect, scalingSlider, scarcitySlider, deathSelect } = elements;
     startBtn.onclick = () => {
       ConfigManager.clearCampaign();
-      const currentGlobal = ConfigManager.loadGlobal();
-      ConfigManager.saveGlobal({
-        ...currentGlobal,
-      });
+      ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal() });
 
       const overrides: CampaignOverrides = {
         allowTacticalPause: pauseCheck.checked,
         skipPrologue: skipPrologueCheck.checked,
         mapGrowthRate: parseFloat(
-          (document.getElementById("campaign-duration") as HTMLSelectElement)
-            .value,
+          (document.getElementById("campaign-duration") as HTMLSelectElement).value,
         ),
         economyMode: (
           document.getElementById("campaign-economy-mode") as HTMLSelectElement
@@ -436,29 +430,14 @@ export class NewCampaignWizard {
       };
 
       if (seedInput.value) overrides.customSeed = parseInt(seedInput.value);
-      if (genSelect.value)
-        overrides.mapGeneratorType = genSelect.value as MapGeneratorType;
-      if (scalingSlider.value !== "100")
-        overrides.scaling = parseInt(scalingSlider.value) / 100;
-      if (scarcitySlider.value !== "100")
-        overrides.scarcity = 100 / parseInt(scarcitySlider.value);
-      if (deathSelect.value)
-        overrides.deathRule = deathSelect.value as
-          | "Simulation"
-          | "Clone"
-          | "Iron";
+      if (genSelect.value) overrides.mapGeneratorType = genSelect.value as MapGeneratorType;
+      if (scalingSlider.value !== "100") overrides.scaling = parseInt(scalingSlider.value) / 100;
+      if (scarcitySlider.value !== "100") overrides.scarcity = 100 / parseInt(scarcitySlider.value);
+      if (deathSelect.value) overrides.deathRule = deathSelect.value as "Simulation" | "Clone" | "Iron";
 
-      this.options.onStartCampaign(
-        Date.now(),
-        this.selectedDifficulty,
-        overrides,
-      );
+      this.options.onStartCampaign(Date.now(), this.selectedDifficulty, overrides);
     };
 
-    scrollContainer.appendChild(content);
-    contentWrapper.appendChild(scrollContainer);
-
-    // Sticky Footer (Spec 8.1 / 8.6)
     const footer = document.createElement("div");
     footer.className = "flex-row justify-between align-center p-20 w-full";
     footer.style.background = "var(--color-bg)";
@@ -487,6 +466,6 @@ export class NewCampaignWizard {
     startBtn.style.justifyContent = "center";
     footer.appendChild(startBtn);
 
-    contentWrapper.appendChild(footer);
+    return footer;
   }
 }

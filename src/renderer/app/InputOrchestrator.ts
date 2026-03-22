@@ -114,7 +114,7 @@ export class InputOrchestrator {
     // Calculate dynamic minimum zoom to prevent the map from becoming smaller than the screen
     const state = this.missionRunner.getCurrentGameState();
     let minCellSize = 32;
-    if (state && state.map) {
+    if (state?.map) {
       const fitWidth = container.clientWidth / state.map.width;
       const fitHeight = container.clientHeight / state.map.height;
       minCellSize = Math.max(32, Math.min(fitWidth, fitHeight));

@@ -15,6 +15,20 @@ import { isCellVisible } from "../../shared/VisibilityUtils";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { COMBAT } from "../config/GameConstants";
 
+export interface HandleAttackParams {
+  attacker: Attacker;
+  target: Unit | Enemy;
+  stats: {
+    damage: number;
+    fireRate: number;
+    accuracy: number;
+    attackRange: number;
+  };
+  state: GameState;
+  prng: PRNG;
+  onKilled?: () => void;
+}
+
 export class CombatManager {
   constructor(
     private los: LineOfSight,
@@ -39,14 +53,7 @@ export class CombatManager {
     let currentUnit = this.updateActiveWeapon(unit, state);
 
     // 2. Identification: All visible enemies in range
-    const visibleEnemiesInRange = state.enemies.filter((enemy) => {
-      if (enemy.hp <= 0) return false;
-      const distance = MathUtils.getDistance(currentUnit.pos, enemy.pos);
-      if (distance > currentUnit.stats.attackRange + COMBAT.RANGED_RANGE_BUFFER)
-        return false;
-      const cell = MathUtils.toCellCoord(enemy.pos);
-      return isCellVisible(state, cell.x, cell.y);
-    });
+    const visibleEnemiesInRange = this.getVisibleEnemiesInRange(currentUnit, state);
 
     const enemiesInSameCell = state.enemies.filter(
       (enemy) => enemy.hp > 0 && MathUtils.sameCellPosition(enemy.pos, currentUnit.pos),
@@ -55,58 +62,22 @@ export class CombatManager {
 
     // 3. Stickiness: Check if current forcedTarget is still valid
     let targetEnemy: Enemy | undefined;
-    if (currentUnit.forcedTargetId) {
-      const sticky = visibleEnemiesInRange.find(
-        (e) => e.id === currentUnit.forcedTargetId,
-      );
-      // Valid if: alive, in range, and HAS LINE OF FIRE
-      if (sticky && this.los.hasLineOfFire(currentUnit.pos, sticky.pos)) {
-        targetEnemy = sticky;
-      } else {
-        currentUnit = { ...currentUnit, forcedTargetId: undefined };
-      }
-    }
+    const stickyResult = this.resolveStickyTarget(currentUnit, visibleEnemiesInRange);
+    currentUnit = stickyResult.unit;
+    targetEnemy = stickyResult.target;
 
     // 4. New Target Acquisition (if no sticky target)
     if (!targetEnemy && visibleEnemiesInRange.length > 0) {
-      let bestScore = -1;
-      let bestTarget: Enemy | undefined;
-
-      for (const enemy of visibleEnemiesInRange) {
-        if (this.los.hasLineOfFire(currentUnit.pos, enemy.pos)) {
-          const distance = MathUtils.getDistance(currentUnit.pos, enemy.pos);
-          // Score = (MaxHP - CurrentHP) + (100 / Distance)
-          const score =
-            enemy.maxHp -
-            enemy.hp +
-            COMBAT.STICKY_TARGET_SCORE_NORM /
-              Math.max(COMBAT.MIN_DISTANCE, distance);
-
-          if (score > bestScore) {
-            bestScore = score;
-            bestTarget = enemy;
-          } else if (score === bestScore && bestTarget) {
-            // Tie-breaker: Closest
-            const bestDist = MathUtils.getDistance(
-              currentUnit.pos,
-              bestTarget.pos,
-            );
-            if (distance < bestDist) {
-              bestTarget = enemy;
-            }
-          }
-        }
-      }
-
-      if (bestTarget) {
-        targetEnemy = bestTarget;
-        currentUnit = { ...currentUnit, forcedTargetId: bestTarget.id };
+      const acquired = this.acquireTarget(currentUnit, visibleEnemiesInRange);
+      if (acquired) {
+        targetEnemy = acquired;
+        currentUnit = { ...currentUnit, forcedTargetId: acquired.id };
       }
     }
 
     const policy = currentUnit.engagementPolicy || "ENGAGE";
 
-    const isExtracting = currentUnit.activeCommand?.type === CommandType.EXTRACT || 
+    const isExtracting = currentUnit.activeCommand?.type === CommandType.EXTRACT ||
                         currentUnit.activeCommand?.label === "Extracting";
 
     if (
@@ -116,48 +87,99 @@ export class CombatManager {
       (policy === "ENGAGE" || isLockedInMelee || policy === "AVOID" || policy === "IGNORE")
     ) {
       if (this.los.hasLineOfFire(currentUnit.pos, targetEnemy.pos)) {
-        // We still let handleAttack mutate for now, but we update the attacker's state
-        const attacked = this.handleAttack(
-          currentUnit,
-          targetEnemy,
-          {
-            damage: currentUnit.stats.damage,
-            fireRate: currentUnit.stats.fireRate,
-            accuracy: currentUnit.stats.accuracy,
-            attackRange: currentUnit.stats.attackRange,
-          },
-          state,
-          prng,
-          () => {
-            // This callback mutates currentUnit, which is tricky.
-            // But since handleAttack is called with currentUnit, we can update it after.
-          },
-        );
-
-        if (attacked) {
-          // Re-clone to reflect changes from handleAttack (like lastAttackTime)
-          // Since handleAttack is called with currentUnit, we have to be careful.
-          // To be truly immutable, handleAttack should return new objects.
-          if (targetEnemy.hp <= 0) {
-            currentUnit = {
-              ...currentUnit,
-              kills: currentUnit.kills + 1,
-              forcedTargetId: undefined,
-              state: UnitState.Attacking,
-            };
-          } else {
-            currentUnit = { ...currentUnit, state: UnitState.Attacking };
-          }
-          return { unit: currentUnit, isAttacking: true };
-        } 
-          // Engaged but on cooldown - still counts as attacking to prevent stutter-step
-          currentUnit = { ...currentUnit, state: UnitState.Attacking };
-          return { unit: currentUnit, isAttacking: true };
-        
+        return this.executeAttack(currentUnit, targetEnemy, state, prng);
       }
     }
 
     return { unit: currentUnit, isAttacking: false };
+  }
+
+  private getVisibleEnemiesInRange(unit: Unit, state: GameState): Enemy[] {
+    return state.enemies.filter((enemy) => {
+      if (enemy.hp <= 0) return false;
+      const distance = MathUtils.getDistance(unit.pos, enemy.pos);
+      if (distance > unit.stats.attackRange + COMBAT.RANGED_RANGE_BUFFER)
+        return false;
+      const cell = MathUtils.toCellCoord(enemy.pos);
+      return isCellVisible(state, cell.x, cell.y);
+    });
+  }
+
+  private resolveStickyTarget(
+    unit: Unit,
+    visibleEnemiesInRange: Enemy[],
+  ): { unit: Unit; target: Enemy | undefined } {
+    if (!unit.forcedTargetId) return { unit, target: undefined };
+
+    const sticky = visibleEnemiesInRange.find((e) => e.id === unit.forcedTargetId);
+    if (sticky && this.los.hasLineOfFire(unit.pos, sticky.pos)) {
+      return { unit, target: sticky };
+    }
+    return { unit: { ...unit, forcedTargetId: undefined }, target: undefined };
+  }
+
+  private acquireTarget(unit: Unit, visibleEnemiesInRange: Enemy[]): Enemy | undefined {
+    let bestScore = -1;
+    let bestTarget: Enemy | undefined;
+
+    for (const enemy of visibleEnemiesInRange) {
+      if (!this.los.hasLineOfFire(unit.pos, enemy.pos)) continue;
+
+      const distance = MathUtils.getDistance(unit.pos, enemy.pos);
+      const score =
+        enemy.maxHp -
+        enemy.hp +
+        COMBAT.STICKY_TARGET_SCORE_NORM / Math.max(COMBAT.MIN_DISTANCE, distance);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestTarget = enemy;
+      } else if (score === bestScore && bestTarget) {
+        const bestDist = MathUtils.getDistance(unit.pos, bestTarget.pos);
+        if (distance < bestDist) {
+          bestTarget = enemy;
+        }
+      }
+    }
+
+    return bestTarget;
+  }
+
+  private executeAttack(
+    unit: Unit,
+    targetEnemy: Enemy,
+    state: GameState,
+    prng: PRNG,
+  ): { unit: Unit; isAttacking: boolean } {
+    const attacked = this.handleAttack({
+      attacker: unit,
+      target: targetEnemy,
+      stats: {
+        damage: unit.stats.damage,
+        fireRate: unit.stats.fireRate,
+        accuracy: unit.stats.accuracy,
+        attackRange: unit.stats.attackRange,
+      },
+      state,
+      prng,
+    });
+
+    if (attacked) {
+      if (targetEnemy.hp <= 0) {
+        return {
+          unit: {
+            ...unit,
+            kills: unit.kills + 1,
+            forcedTargetId: undefined,
+            state: UnitState.Attacking,
+          },
+          isAttacking: true,
+        };
+      }
+      return { unit: { ...unit, state: UnitState.Attacking }, isAttacking: true };
+    }
+    // Engaged but on cooldown - still counts as attacking to prevent stutter-step
+    return { unit: { ...unit, state: UnitState.Attacking }, isAttacking: true };
   }
 
   /**
@@ -165,19 +187,8 @@ export class CombatManager {
    * Updates health, lastAttack fields and emits AttackEvents.
    * @returns True if the attack was executed (cooldown and LOS check passed).
    */
-  public handleAttack(
-    attacker: Attacker,
-    target: Unit | Enemy,
-    stats: {
-      damage: number;
-      fireRate: number;
-      accuracy: number;
-      attackRange: number;
-    },
-    state: GameState,
-    prng: PRNG,
-    onKilled?: () => void,
-  ): boolean {
+  public handleAttack(params: HandleAttackParams): boolean {
+    const { attacker, target, stats, state, prng, onKilled } = params;
     if ((attacker.hp !== undefined && attacker.hp <= 0) || target.hp <= 0) {
       return false;
     }
@@ -187,55 +198,61 @@ export class CombatManager {
       state.t - attacker.lastAttackTime >= stats.fireRate
     ) {
       if (this.los.hasLineOfFire(attacker.pos, target.pos)) {
-        const distance = MathUtils.getDistance(attacker.pos, target.pos);
-        const S = stats.accuracy;
-        const R = stats.attackRange;
-        let hitChance =
-          (S / COMBAT.HIT_CHANCE_NORM) *
-          (R / Math.max(COMBAT.MIN_DISTANCE, distance));
-        hitChance = Math.max(
-          COMBAT.MIN_HIT_CHANCE,
-          Math.min(COMBAT.MAX_HIT_CHANCE, hitChance),
-        );
-
-        if (prng.next() <= hitChance) {
-          target.hp -= stats.damage;
-          if (target.hp <= 0 && onKilled) {
-            onKilled();
-          }
-        }
-
-        // Maintain steady cadence by adding fireRate to lastAttackTime
-        // If it's the first shot, we set it such that next shot is due in fireRate ms
-        if (attacker.lastAttackTime === undefined) {
-          attacker.lastAttackTime = state.t;
-        } else {
-          attacker.lastAttackTime += stats.fireRate;
-          // Safeguard: if we are too far behind (e.g. after a long pause or lag),
-          // reset to current t to avoid "machine gun" catch-up.
-          if (state.t - attacker.lastAttackTime > stats.fireRate * 2) {
-            attacker.lastAttackTime = state.t;
-          }
-        }
-        attacker.lastAttackTarget = { ...target.pos };
-
-        // Emit Attack Event for feedback systems
-        if (!state.attackEvents) state.attackEvents = [];
-        state.attackEvents = [
-          ...state.attackEvents,
-          {
-            attackerId: attacker.id,
-            attackerPos: { ...attacker.pos },
-            targetId: target.id,
-            targetPos: { ...target.pos },
-            time: state.t,
-          },
-        ];
-
+        this.performShot({ attacker, target, stats, state, prng, onKilled });
         return true;
       }
     }
     return false;
+  }
+
+  private performShot(params: HandleAttackParams): void {
+    const { attacker, target, stats, state, prng, onKilled } = params;
+    const distance = MathUtils.getDistance(attacker.pos, target.pos);
+    const S = stats.accuracy;
+    const R = stats.attackRange;
+    let hitChance =
+      (S / COMBAT.HIT_CHANCE_NORM) *
+      (R / Math.max(COMBAT.MIN_DISTANCE, distance));
+    hitChance = Math.max(
+      COMBAT.MIN_HIT_CHANCE,
+      Math.min(COMBAT.MAX_HIT_CHANCE, hitChance),
+    );
+
+    if (prng.next() <= hitChance) {
+      target.hp -= stats.damage;
+      if (target.hp <= 0 && onKilled) {
+        onKilled();
+      }
+    }
+
+    this.updateAttackTiming(attacker, stats.fireRate, state.t);
+    attacker.lastAttackTarget = { ...target.pos };
+
+    // Emit Attack Event for feedback systems
+    state.attackEvents ??= [];
+    state.attackEvents = [
+      ...state.attackEvents,
+      {
+        attackerId: attacker.id,
+        attackerPos: { ...attacker.pos },
+        targetId: target.id,
+        targetPos: { ...target.pos },
+        time: state.t,
+      },
+    ];
+  }
+
+  private updateAttackTiming(attacker: Attacker, fireRate: number, t: number): void {
+    if (attacker.lastAttackTime === undefined) {
+      attacker.lastAttackTime = t;
+    } else {
+      attacker.lastAttackTime += fireRate;
+      // Safeguard: if we are too far behind (e.g. after a long pause or lag),
+      // reset to current t to avoid "machine gun" catch-up.
+      if (t - attacker.lastAttackTime > fireRate * 2) {
+        attacker.lastAttackTime = t;
+      }
+    }
   }
 
   /**

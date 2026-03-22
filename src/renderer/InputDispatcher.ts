@@ -135,8 +135,8 @@ export class InputDispatcher {
       (c) => c.trapsFocus && c.container,
     );
 
-    if (topFocusTrap && e.key === "Tab") {
-      this.handleTabCycle(e, topFocusTrap.container!);
+    if (topFocusTrap?.container && e.key === "Tab") {
+      this.handleTabCycle(e, topFocusTrap.container);
       if (e.defaultPrevented) return;
     }
 

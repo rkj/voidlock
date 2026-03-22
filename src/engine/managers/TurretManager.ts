@@ -40,10 +40,10 @@ export class TurretManager {
       }
 
       if (targetEnemy) {
-        combatManager.handleAttack(
-          turret,
-          targetEnemy,
-          {
+        combatManager.handleAttack({
+          attacker: turret,
+          target: targetEnemy,
+          stats: {
             damage: turret.damage,
             fireRate: turret.fireRate,
             accuracy: turret.accuracy,
@@ -51,7 +51,7 @@ export class TurretManager {
           },
           state,
           prng,
-        );
+        });
       }
     });
   }

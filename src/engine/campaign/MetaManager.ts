@@ -116,19 +116,20 @@ export class MetaManager {
 
   /**
    * Updates combat and economy statistics from a mission.
-   * @param kills Number of enemies killed in the mission.
-   * @param casualties Number of soldiers killed in the mission.
-   * @param won Whether the mission was won.
-   * @param scrapGained Amount of scrap earned in the mission.
-   * @param intelGained Amount of intel earned in the mission.
    */
-  public recordMissionResult(
-    kills: number,
-    casualties: number,
-    won: boolean,
-    scrapGained: number,
-    intelGained: number = 0,
-  ): void {
+  public recordMissionResult({
+    kills,
+    casualties,
+    won,
+    scrapGained,
+    intelGained = 0,
+  }: {
+    kills: number;
+    casualties: number;
+    won: boolean;
+    scrapGained: number;
+    intelGained?: number;
+  }): void {
     this.stats.totalKills += kills;
     this.stats.totalCasualties += casualties;
     this.stats.totalMissionsPlayed++;

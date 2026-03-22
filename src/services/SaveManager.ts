@@ -23,8 +23,8 @@ export class SaveManager implements StorageProvider {
   private lastSyncFailed: boolean = false;
 
   constructor(localStorage?: StorageProvider, cloudSync?: CloudSyncService) {
-    this.localStorage = localStorage || new LocalStorageProvider();
-    this.cloudSync = cloudSync || new CloudSyncService();
+    this.localStorage = localStorage ?? new LocalStorageProvider();
+    this.cloudSync = cloudSync ?? new CloudSyncService();
   }
 
   /**
@@ -144,7 +144,7 @@ export class SaveManager implements StorageProvider {
 
     if (this.syncInProgress) return;
 
-    this.processQueue();
+    void this.processQueue();
   }
 
   /**
@@ -182,8 +182,8 @@ export class SaveManager implements StorageProvider {
     local: CampaignState,
     cloud: CampaignState,
   ): CampaignState {
-    const localVer = local.saveVersion || 0;
-    const cloudVer = cloud.saveVersion || 0;
+    const localVer = local.saveVersion ?? 0;
+    const cloudVer = cloud.saveVersion ?? 0;
 
     if (cloudVer > localVer) {
       Logger.info(
@@ -200,8 +200,8 @@ export class SaveManager implements StorageProvider {
     }
 
     // Versions are equal, check timestamps
-    const localTime = local.lastModifiedAt || 0;
-    const cloudTime = cloud.lastModifiedAt || 0;
+    const localTime = local.lastModifiedAt ?? 0;
+    const cloudTime = cloud.lastModifiedAt ?? 0;
 
     if (cloudTime > localTime) {
       Logger.info(

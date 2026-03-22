@@ -175,15 +175,17 @@ export class CampaignScreen {
     abandonBtn.style.right = "20px";
     abandonBtn.style.fontSize = "0.7em";
     abandonBtn.style.opacity = "0.5";
-    abandonBtn.addEventListener("click", async () => {
-      if (
-        await this.modalService.confirm(
-          "Are you sure you want to abandon this campaign? All progress will be lost.",
-        )
-      ) {
-        this.manager.deleteSave();
-        this.render();
-      }
+    abandonBtn.addEventListener("click", () => {
+      void (async () => {
+        if (
+          await this.modalService.confirm(
+            "Are you sure you want to abandon this campaign? All progress will be lost.",
+          )
+        ) {
+          this.manager.deleteSave();
+          this.render();
+        }
+      })();
     });
     this.container.appendChild(abandonBtn);
   }
@@ -191,7 +193,7 @@ export class CampaignScreen {
   private renderNoCampaign() {
     this.wizard = new NewCampaignWizard(this.container, {
       onStartCampaign: (seed, difficulty, overrides) => {
-        this.manager.startNewCampaign(seed, difficulty, overrides);
+        this.manager.startNewCampaign({ seed, difficulty, overrides });
         if (this.onCampaignStart) this.onCampaignStart();
         this.render();
       },
@@ -234,77 +236,7 @@ export class CampaignScreen {
     }, 0);
 
     nodes.forEach((node) => {
-      const isCurrent = state.currentNodeId === node.id;
-      const nodeEl = document.createElement("div");
-      // ... same logic but append to mapContent ...
-      nodeEl.className = `campaign-node ${node.status.toLowerCase()}`;
-      if (isCurrent) nodeEl.classList.add("current");
-      
-      nodeEl.style.left = `${node.position.x}px`;
-      nodeEl.style.top = `${node.position.y}px`;
-      nodeEl.dataset.id = node.id;
-      nodeEl.setAttribute("data-focus-id", `campaign-node-${node.id}`);
-      nodeEl.title = `${node.type} Operation (Diff ${node.difficulty})`;
-      nodeEl.tabIndex = (node.status === "Accessible" || isCurrent) ? 0 : -1;
-
-      // Icon based on type
-      const icon = document.createElement("div");
-      icon.className = "node-icon";
-      icon.appendChild(this.createNodeIcon(node.type));
-      nodeEl.appendChild(icon);
-
-      // Current Indicator
-      if (isCurrent) {
-        const indicator = document.createElement("div");
-        indicator.style.position = "absolute";
-        indicator.style.top = "-22px";
-        indicator.style.left = "50%";
-        indicator.style.transform = "translateX(-50%)";
-        indicator.style.width = "20px";
-        indicator.style.height = "20px";
-        indicator.style.color = "var(--color-accent)";
-        indicator.appendChild(this.createSVG("M12 21l-12-18h24z", 20, 20, "currentColor", "none"));
-        indicator.style.filter = "drop-shadow(0 0 8px var(--color-accent))";
-        indicator.style.zIndex = "10";
-        nodeEl.appendChild(indicator);
-      }
-
-      // Bonus Loot Pips
-      if ((state.rules.difficulty === "Simulation" || state.rules.difficulty === "Clone") && node.bonusLootCount > 0) {
-        const pipsContainer = document.createElement("div");
-        pipsContainer.className = "pips-container flex-row justify-center";
-        pipsContainer.title = `Bonus Loot: ${node.bonusLootCount} crate${node.bonusLootCount > 1 ? "s" : ""}`;
-        pipsContainer.style.position = "absolute";
-        pipsContainer.style.bottom = "-12px";
-        pipsContainer.style.width = "100%";
-        pipsContainer.style.gap = "2px";
-        pipsContainer.style.pointerEvents = "none";
-        pipsContainer.style.zIndex = "11";
-
-        for (let i = 0; i < node.bonusLootCount; i++) {
-          const pip = document.createElement("span");
-          pip.className = "loot-pip";
-          pip.style.display = "flex";
-          pip.style.width = "12px";
-          pip.style.height = "12px";
-          pip.appendChild(this.createLootIcon());
-          pip.style.filter = "drop-shadow(0 0 3px rgba(255, 152, 0, 0.5))";
-          pipsContainer.appendChild(pip);
-        }
-        nodeEl.appendChild(pipsContainer);
-      }
-
-      if (node.status === "Accessible") {
-        nodeEl.addEventListener("click", () => this.onNodeSelect(node));
-        nodeEl.onkeydown = (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            this.onNodeSelect(node);
-            e.preventDefault();
-          }
-        };
-      }
-
-      mapContent.appendChild(nodeEl);
+      mapContent.appendChild(this.createNodeElement(node, state));
     });
 
     // Auto-focus current node to ensure keyboard navigation starts from a known state (Spec 8.3)
@@ -322,7 +254,84 @@ export class CampaignScreen {
     }
   }
 
-  private createSVG(pathData: string, width: number, height: number, stroke: string = "currentColor", fill: string = "none"): SVGElement {
+  private createNodeElement(node: CampaignNode, state: CampaignState): HTMLElement {
+    const isCurrent = state.currentNodeId === node.id;
+    const nodeEl = document.createElement("div");
+    nodeEl.className = `campaign-node ${node.status.toLowerCase()}`;
+    if (isCurrent) nodeEl.classList.add("current");
+    nodeEl.style.left = `${node.position.x}px`;
+    nodeEl.style.top = `${node.position.y}px`;
+    nodeEl.dataset.id = node.id;
+    nodeEl.setAttribute("data-focus-id", `campaign-node-${node.id}`);
+    nodeEl.title = `${node.type} Operation (Diff ${node.difficulty})`;
+    nodeEl.tabIndex = (node.status === "Accessible" || isCurrent) ? 0 : -1;
+
+    const icon = document.createElement("div");
+    icon.className = "node-icon";
+    icon.appendChild(this.createNodeIcon(node.type));
+    nodeEl.appendChild(icon);
+
+    if (isCurrent) {
+      const indicator = document.createElement("div");
+      indicator.style.position = "absolute";
+      indicator.style.top = "-22px";
+      indicator.style.left = "50%";
+      indicator.style.transform = "translateX(-50%)";
+      indicator.style.width = "20px";
+      indicator.style.height = "20px";
+      indicator.style.color = "var(--color-accent)";
+      indicator.appendChild(this.createSVG({ pathData: "M12 21l-12-18h24z", width: 20, height: 20 }));
+      indicator.style.filter = "drop-shadow(0 0 8px var(--color-accent))";
+      indicator.style.zIndex = "10";
+      nodeEl.appendChild(indicator);
+    }
+
+    const showLoot = (state.rules.difficulty === "Simulation" || state.rules.difficulty === "Clone") && node.bonusLootCount > 0;
+    if (showLoot) {
+      nodeEl.appendChild(this.createLootPips(node.bonusLootCount));
+    }
+
+    if (node.status === "Accessible") {
+      nodeEl.addEventListener("click", () => this.onNodeSelect(node));
+      nodeEl.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          this.onNodeSelect(node);
+          e.preventDefault();
+        }
+      };
+    }
+
+    return nodeEl;
+  }
+
+  private createLootPips(count: number): HTMLElement {
+    const pipsContainer = document.createElement("div");
+    pipsContainer.className = "pips-container flex-row justify-center";
+    pipsContainer.title = `Bonus Loot: ${count} crate${count > 1 ? "s" : ""}`;
+    pipsContainer.style.position = "absolute";
+    pipsContainer.style.bottom = "-12px";
+    pipsContainer.style.width = "100%";
+    pipsContainer.style.gap = "2px";
+    pipsContainer.style.pointerEvents = "none";
+    pipsContainer.style.zIndex = "11";
+    for (let i = 0; i < count; i++) {
+      const pip = document.createElement("span");
+      pip.className = "loot-pip";
+      pip.style.display = "flex";
+      pip.style.width = "12px";
+      pip.style.height = "12px";
+      pip.appendChild(this.createLootIcon());
+      pip.style.filter = "drop-shadow(0 0 3px rgba(255, 152, 0, 0.5))";
+      pipsContainer.appendChild(pip);
+    }
+    return pipsContainer;
+  }
+
+  private createSVG(params: {
+    pathData: string; width: number; height: number;
+    stroke?: string; fill?: string;
+  }): SVGElement {
+    const { pathData, width, height, stroke = "currentColor", fill = "none" } = params;
     const svgNamespace = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNamespace, "svg");
     svg.setAttribute("viewBox", "0 0 24 24");
@@ -331,8 +340,7 @@ export class CampaignScreen {
     svg.setAttribute("fill", fill);
     svg.setAttribute("stroke", stroke);
     svg.setAttribute("stroke-width", "2");
-    
-    // Explicitly set style dimensions to avoid 0x0 issues in some environments
+
     svg.style.width = `${width}px`;
     svg.style.height = `${height}px`;
     svg.style.display = "block";
@@ -340,7 +348,7 @@ export class CampaignScreen {
     const path = document.createElementNS(svgNamespace, "path");
     path.setAttribute("d", pathData);
     svg.appendChild(path);
-    
+
     return svg;
   }
 
@@ -362,7 +370,7 @@ export class CampaignScreen {
       case "Event":
         path = "M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01";
         // Special case for Event: circle + path
-        const svg = this.createSVG(path, 24, 24);
+        const svg = this.createSVG({ pathData: path, width: 24, height: 24 });
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", "12");
         circle.setAttribute("cy", "12");
@@ -374,7 +382,7 @@ export class CampaignScreen {
     }
 
     if (path) {
-      return this.createSVG(path, 24, 24);
+      return this.createSVG({ pathData: path, width: 24, height: 24 });
     }
     
     return document.createTextNode("?");

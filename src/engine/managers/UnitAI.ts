@@ -21,6 +21,16 @@ import type { ItemEffectHandler } from "../interfaces/IDirector";
 import type { AIContext } from "../interfaces/AIContext";
 import { Logger } from "../../shared/Logger";
 
+export interface UnitAIProcessParams {
+  unit: Unit;
+  state: GameState;
+  dt: number;
+  doors: Map<string, Door>;
+  prng: PRNG;
+  context: AIContext;
+  director?: ItemEffectHandler;
+}
+
 export class UnitAI {
   private behaviors: Behavior<AIContext>[] = [];
   private vipBehavior: VipBehavior;
@@ -39,86 +49,56 @@ export class UnitAI {
     ] as Behavior<AIContext>[];
   }
 
-  public process(
-    unit: Unit,
-    state: GameState,
-    dt: number,
-    doors: Map<string, Door>,
-    prng: PRNG,
-    context: AIContext,
-    director?: ItemEffectHandler,
-  ): Unit {
+  public process(params: UnitAIProcessParams): Unit {
+    const { unit, state, dt, doors, prng, context, director } = params;
+
     if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
       return unit;
 
     let currentUnit = { ...unit };
 
     // 1. VIP Specific AI
-    const vipResult = this.vipBehavior.evaluate(
-      currentUnit,
+    const vipResult = this.vipBehavior.evaluate({
+      unit: currentUnit,
       state,
       dt,
       doors,
       prng,
       context,
       director,
-    );
+    });
     currentUnit = vipResult.unit;
     if (vipResult.handled && !currentUnit.aiEnabled) return currentUnit;
 
     if (currentUnit.state === UnitState.Channeling) return currentUnit;
 
     // 2. Exploration target cleanup (Pre-processing)
-    if (currentUnit.explorationTarget) {
-      if (
-        isCellDiscovered(
-          state,
-          Math.floor(currentUnit.explorationTarget.x),
-          Math.floor(currentUnit.explorationTarget.y),
-        )
-      ) {
-        currentUnit = {
-          ...currentUnit,
-          explorationTarget: undefined,
-        };
-        if (currentUnit.state === UnitState.Moving || currentUnit.state === UnitState.WaitingForDoor) {
-          currentUnit = {
-            ...currentUnit,
-            path: undefined,
-            targetPos: undefined,
-            state: UnitState.Idle,
-            activeCommand: undefined,
-          };
-        }
-      }
-    }
+    currentUnit = this.cleanupExplorationTarget(currentUnit, state);
 
     // 3. Sequential behavior evaluation
     for (let i = 0; i < this.behaviors.length; i++) {
       const behavior = this.behaviors[i];
-      const behaviorName = (behavior as any).constructor.name;
+      const behaviorName = (behavior as unknown as { constructor: { name: string } }).constructor.name;
       const priority = i; // Priorities are 0 to 4 based on index
 
       // Plan Commitment Guard (ADR 0056)
       if (
         currentUnit.activePlan &&
-        state.t < currentUnit.activePlan.committedUntil
+        state.t < currentUnit.activePlan.committedUntil &&
+        priority >= currentUnit.activePlan.priority
       ) {
-        // Only evaluate behaviors with HIGHER priority (lower number) than activePlan.priority
-        if (priority >= currentUnit.activePlan.priority) {
-          continue;
-        }
+        continue;
       }
 
-      const result = behavior.evaluate(
-        currentUnit,
+      const result = behavior.evaluate({
+        unit: currentUnit,
         state,
         dt,
         doors,
         prng,
         context,
         director,
-      );
+      });
       if (result.handled) {
         Logger.debug(
           `UnitAI: unit ${currentUnit.id} handled by ${behaviorName}`,
@@ -129,5 +109,31 @@ export class UnitAI {
     }
 
     return currentUnit;
+  }
+
+  private cleanupExplorationTarget(unit: Unit, state: GameState): Unit {
+    if (!unit.explorationTarget) return unit;
+
+    if (
+      !isCellDiscovered(
+        state,
+        Math.floor(unit.explorationTarget.x),
+        Math.floor(unit.explorationTarget.y),
+      )
+    ) {
+      return unit;
+    }
+
+    let updated = { ...unit, explorationTarget: undefined };
+    if (updated.state === UnitState.Moving || updated.state === UnitState.WaitingForDoor) {
+      updated = {
+        ...updated,
+        path: undefined,
+        targetPos: undefined,
+        state: UnitState.Idle,
+        activeCommand: undefined,
+      };
+    }
+    return updated;
   }
 }

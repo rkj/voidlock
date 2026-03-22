@@ -33,7 +33,7 @@ export class MapEntityLayer implements RenderLayer {
 
     const cellSize = this.sharedState.cellSize;
     const spawns =
-      state.map.squadSpawns ||
+      state.map.squadSpawns ??
       (state.map.squadSpawn ? [state.map.squadSpawn] : []);
 
     spawns.forEach((sp) => {

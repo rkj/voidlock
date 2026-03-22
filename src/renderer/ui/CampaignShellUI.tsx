@@ -1,11 +1,12 @@
 import { createElement, Fragment } from "@src/renderer/jsx";
 import type { CampaignTabId, CampaignShellMode } from "./CampaignShell";
+import type { CampaignState, MetaStats } from "@src/shared/campaign_types";
 
 interface TopBarProps {
   mode: CampaignShellMode;
   activeTabId: CampaignTabId;
   showTabs: boolean;
-  state: any; // CampaignState | null
+  state: CampaignState | null;
   activeMissionType: string | null;
   onTabChange: (tabId: CampaignTabId) => void;
   onMenu: () => void;
@@ -70,7 +71,7 @@ export function CampaignShellTopBar({
         )}
 
         <div class="shell-tabs flex-row gap-5" style={{ overflowX: "auto", flexShrink: "0", minWidth: "0", maxWidth: "100%", scrollbarWidth: "none" }}>
-          {showTabs && renderTabs(mode, state, activeTabId, activeMissionType, onTabChange)}
+          {showTabs && renderTabs({ mode, state, activeTabId, activeMissionType, onTabChange })}
         </div>
 
         {mode !== "none" && (
@@ -88,7 +89,7 @@ export function CampaignShellTopBar({
 }
 
 interface FooterProps {
-  metaStats: any;
+  metaStats: MetaStats;
   syncStatus: "synced" | "syncing" | "local-only";
 }
 
@@ -131,42 +132,71 @@ export function CampaignShellFooter({ metaStats, syncStatus }: FooterProps) {
   );
 }
 
-function renderTabs(
+interface RenderTabsParams {
+  mode: CampaignShellMode;
+  state: CampaignState | null;
+  activeTabId: CampaignTabId;
+  activeMissionType: string | null;
+  onTabChange: (tabId: CampaignTabId) => void;
+}
+
+function buildTabList(
   mode: CampaignShellMode,
-  state: any,
-  activeTabId: CampaignTabId,
+  state: CampaignState | null,
   activeMissionType: string | null,
-  onTabChange: (tabId: CampaignTabId) => void
-) {
-  const tabs: { id: CampaignTabId; label: string }[] = [];
-
+): { id: CampaignTabId; label: string }[] {
   if (mode === "campaign" && state) {
-    const currentNode = state.currentNodeId
-      ? state.nodes.find((n: any) => n.id === state.currentNodeId)
-      : null;
-    const isShop = currentNode?.type === "Shop";
-    const isPrologue =
-      activeMissionType === "Prologue" ||
-      currentNode?.missionType === "Prologue";
-    const isMission2 = state.history?.length === 1;
-
-    if (isPrologue || isMission2) {
-      tabs.push({ id: "ready-room", label: "Asset Management Hub" });
-    } else {
-      tabs.push({ id: "sector-map", label: "Operational Map" });
-      tabs.push({ id: "ready-room", label: isShop ? "Procurement Hub" : "Asset Management Hub" });
-      tabs.push({ id: "engineering", label: "System Engineering" });
-      tabs.push({ id: "stats", label: "Asset Logs" });
-      tabs.push({ id: "settings", label: "Terminal" });
-    }
-  } else if (mode === "statistics") {
-    tabs.push({ id: "stats", label: "Asset Logs" });
-    tabs.push({ id: "engineering", label: "System Engineering" });
-  } else if (mode === "custom") {
-    tabs.push({ id: "setup", label: "Protocol" });
-    tabs.push({ id: "stats", label: "Asset Logs" });
-    tabs.push({ id: "settings", label: "Terminal" });
+    return buildCampaignTabs(state, activeMissionType);
   }
+  if (mode === "statistics") {
+    return [
+      { id: "stats", label: "Asset Logs" },
+      { id: "engineering", label: "System Engineering" },
+    ];
+  }
+  if (mode === "custom") {
+    return [
+      { id: "setup", label: "Protocol" },
+      { id: "stats", label: "Asset Logs" },
+      { id: "settings", label: "Terminal" },
+    ];
+  }
+  return [];
+}
+
+function buildCampaignTabs(
+  state: CampaignState,
+  activeMissionType: string | null,
+): { id: CampaignTabId; label: string }[] {
+  const currentNode = state.currentNodeId
+    ? state.nodes.find((n) => n.id === state.currentNodeId)
+    : null;
+  const isShop = currentNode?.type === "Shop";
+  const isPrologue =
+    activeMissionType === "Prologue" ||
+    currentNode?.missionType === "Prologue";
+  const isMission2 = state.history?.length === 1;
+
+  if (isPrologue || isMission2) {
+    return [{ id: "ready-room", label: "Asset Management Hub" }];
+  }
+  return [
+    { id: "sector-map", label: "Operational Map" },
+    { id: "ready-room", label: isShop ? "Procurement Hub" : "Asset Management Hub" },
+    { id: "engineering", label: "System Engineering" },
+    { id: "stats", label: "Asset Logs" },
+    { id: "settings", label: "Terminal" },
+  ];
+}
+
+function renderTabs({
+  mode,
+  state,
+  activeTabId,
+  activeMissionType,
+  onTabChange,
+}: RenderTabsParams) {
+  const tabs = buildTabList(mode, state, activeMissionType);
 
   return tabs.map(tab => (
     <button

@@ -41,9 +41,11 @@ export class CommandBuilder {
 
     switch (action) {
       case CommandType.MOVE_TO:
-        return { ...base, type: action, target: targetLocation! };
+        if (!targetLocation) return null;
+        return { ...base, type: action, target: targetLocation };
       case CommandType.OVERWATCH_POINT:
-        return { ...base, type: action, target: targetLocation! };
+        if (!targetLocation) return null;
+        return { ...base, type: action, target: targetLocation };
 
       case CommandType.EXPLORE:
       case CommandType.STOP:
@@ -52,21 +54,25 @@ export class CommandBuilder {
         return { ...base, type: action };
 
       case CommandType.SET_ENGAGEMENT:
-        return { ...base, type: action, mode: mode! };
+        if (!mode) return null;
+        return { ...base, type: action, mode };
 
       case CommandType.PICKUP:
-        return { ...base, type: action, lootId: targetId! };
+        if (!targetId) return null;
+        return { ...base, type: action, lootId: targetId };
 
       case CommandType.ESCORT_UNIT:
-        return { ...base, type: action, targetId: targetId! };
+        if (!targetId) return null;
+        return { ...base, type: action, targetId };
 
       case CommandType.USE_ITEM:
+        if (!itemId) return null;
         return {
           ...base,
           type: action,
-          itemId: itemId!,
-          target: targetLocation || undefined,
-          targetUnitId: targetId || undefined,
+          itemId,
+          target: targetLocation ?? undefined,
+          targetUnitId: targetId ?? undefined,
         };
 
       default:

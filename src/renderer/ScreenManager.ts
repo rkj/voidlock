@@ -15,7 +15,7 @@ export type ScreenId =
   | "settings";
 
 export interface IScreen {
-  show(...args: any[]): void;
+  show(...args: unknown[]): void;
   hide(): void;
 }
 
@@ -72,8 +72,18 @@ export class ScreenManager {
     updateHash: boolean = true,
     isCampaign: boolean = false,
     skipHistory: boolean = false,
-    force: boolean = false,
   ) {
+    this.showEx({ id, updateHash, isCampaign, skipHistory, force: false });
+  }
+
+  public showEx(params: {
+    id: ScreenId;
+    updateHash?: boolean;
+    isCampaign?: boolean;
+    skipHistory?: boolean;
+    force?: boolean;
+  }) {
+    const { id, updateHash = true, isCampaign = false, skipHistory = false, force = false } = params;
     if (this.currentScreen === id) {
       if (updateHash) {
         this.updateHash(id);
@@ -130,8 +140,8 @@ export class ScreenManager {
 
   public goBack() {
     if (this.history.length > 0) {
-      const prev = this.history.pop()!;
-      this.show(prev.id, true, prev.isCampaign, true);
+      const prev = this.history.pop();
+      if (prev) this.show(prev.id, true, prev.isCampaign, true);
     } else if (this.currentScreen !== "main-menu") {
       this.show("main-menu", true, false, true);
     }
@@ -181,7 +191,7 @@ export class ScreenManager {
   }
 
   public getScreenElement(id: string): HTMLElement | null {
-    return this.screens.get(id) || null;
+    return this.screens.get(id) ?? null;
   }
 
   public getCurrentScreen(): ScreenId {

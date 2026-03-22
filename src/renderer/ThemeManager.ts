@@ -52,7 +52,7 @@ export class ThemeManager {
   public getColor(varName: string): string {
     // Basic caching to avoid repeated DOM lookups per frame
     if (this.colorCache.has(varName)) {
-      return this.colorCache.get(varName)!;
+      return this.colorCache.get(varName) ?? "";
     }
 
     if (typeof getComputedStyle === "undefined") {

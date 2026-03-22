@@ -29,6 +29,7 @@ export interface CampaignShellConfig {
   onMenu: () => void;
 }
 
+
 export class CampaignShell {
   private container: HTMLElement;
   private manager: CampaignManager;
@@ -107,7 +108,7 @@ export class CampaignShell {
       const topBar = this.container.querySelector(
         "#campaign-shell-top-bar",
       ) as HTMLElement;
-      if (topBar && topBar.contains(document.activeElement)) {
+      if (topBar?.contains(document.activeElement)) {
         return UIUtils.handleArrowNavigation(e, topBar, {
           orientation: "horizontal",
         });
@@ -162,7 +163,7 @@ export class CampaignShell {
     const existingFooter = this.container.querySelector("#campaign-shell-footer") as HTMLElement;
     
     if (this.mode === "campaign" && this.activeTabId === "sector-map") {
-      const footerUI = CampaignShellFooter({ metaStats, syncStatus: syncStatus as any }) as HTMLElement;
+      const footerUI = CampaignShellFooter({ metaStats, syncStatus: syncStatus as "synced" | "syncing" | "local-only" }) as HTMLElement;
       if (existingFooter) {
         existingFooter.style.display = "flex";
         existingFooter.innerHTML = "";

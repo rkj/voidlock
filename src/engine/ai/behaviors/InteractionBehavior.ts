@@ -1,190 +1,184 @@
-import type {
-  GameState,
-  Unit,
-  Door} from "../../../shared/types";
 import {
   UnitState,
   CommandType,
   MissionType
 } from "../../../shared/types";
+import type { Unit, GameState } from "../../../shared/types";
 import type { BehaviorContext } from "../../interfaces/AIContext";
-import type { PRNG } from "../../../shared/PRNG";
 import { MathUtils } from "../../../shared/utils/MathUtils";
-import type { Behavior, BehaviorResult } from "./Behavior";
+import type { Behavior, BehaviorEvalParams, BehaviorResult } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
-import type { ItemEffectHandler } from "../../interfaces/IDirector";
 import { Logger } from "../../../shared/Logger";
+
+function calcChannelDuration(unit: Unit, baseTime: number): number {
+  return baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
+}
+
+function startChanneling(
+  unit: Unit,
+  action: "Pickup" | "Collect" | "Extract",
+  duration: number,
+  targetId?: string,
+): Unit {
+  return {
+    ...unit,
+    state: UnitState.Channeling,
+    channeling: {
+      action,
+      remaining: duration,
+      totalDuration: duration,
+      targetId,
+    },
+    path: undefined,
+    targetPos: undefined,
+    activeCommand: undefined,
+  };
+}
+
+function handleLootInteraction(unit: Unit, state: GameState): BehaviorResult | null {
+  if (!state.loot) return null;
+
+  const loot = state.loot.find(
+    (l) =>
+      Math.abs(unit.pos.x - l.pos.x) < ITEMS.INTERACTION_RADIUS &&
+      Math.abs(unit.pos.y - l.pos.y) < ITEMS.INTERACTION_RADIUS,
+  );
+
+  if (
+    !loot ||
+    unit.activeCommand?.type !== CommandType.PICKUP ||
+    (unit.activeCommand).lootId !== loot.id
+  ) {
+    return null;
+  }
+
+  const duration = calcChannelDuration(unit, ITEMS.BASE_PICKUP_TIME);
+  const updated = startChanneling(unit, "Pickup", duration, loot.id);
+  return { unit: updated, handled: true };
+}
+
+function isUnitAtObjectiveTarget(unit: Unit, obj: { targetCell?: { x: number; y: number } }): boolean {
+  return !!(
+    obj.targetCell &&
+    Math.abs(unit.pos.x - (obj.targetCell.x + 0.5)) < ITEMS.INTERACTION_RADIUS &&
+    Math.abs(unit.pos.y - (obj.targetCell.y + 0.5)) < ITEMS.INTERACTION_RADIUS
+  );
+}
+
+function isObjectiveClaimable(
+  unit: Unit,
+  objId: string,
+  hasExplicitPickup: boolean,
+  context: BehaviorContext,
+): boolean {
+  const isClaimedByMe = hasExplicitPickup || context.claimedObjectives?.get(objId) === unit.id;
+  return !context.claimedObjectives || !context.claimedObjectives.has(objId) || isClaimedByMe;
+}
+
+function handleObjectiveInteraction(
+  unit: Unit,
+  state: GameState,
+  context: BehaviorContext,
+): BehaviorResult | null {
+  if (unit.archetypeId === "vip" || unit.carriedObjectiveId || !state.objectives) return null;
+
+  for (const obj of state.objectives) {
+    if (obj.state !== "Pending") continue;
+
+    const hasExplicitPickup =
+      unit.activeCommand?.type === CommandType.PICKUP &&
+      (unit.activeCommand).lootId === obj.id;
+
+    if (state.missionType === MissionType.Prologue && !hasExplicitPickup) continue;
+
+    const isAtTarget = isUnitAtObjectiveTarget(unit, obj);
+    const isUnclaimedOrMine = isObjectiveClaimable(unit, obj.id, hasExplicitPickup, context);
+
+    if (!isAtTarget || !isUnclaimedOrMine) continue;
+
+    Logger.info(`InteractionBehavior: Unit ${unit.id} at target for objective ${obj.id}. Starting Pickup/Collect.`);
+
+    const needsCarrying = obj.id.includes("artifact") || obj.id.includes("prologue-disk");
+    const baseTime = needsCarrying ? ITEMS.BASE_PICKUP_TIME : ITEMS.BASE_COLLECT_TIME;
+    const duration = calcChannelDuration(unit, baseTime);
+    const updated = startChanneling(unit, needsCarrying ? "Pickup" : "Collect", duration, obj.id);
+
+    if (context.claimedObjectives) {
+      context.claimedObjectives.set(obj.id, updated.id);
+    }
+    return { unit: updated, handled: true };
+  }
+
+  return null;
+}
+
+function handleExtractionInteraction(
+  unit: Unit,
+  state: GameState,
+  context: BehaviorContext,
+): BehaviorResult | null {
+  if (!state.map.extraction) return null;
+
+  const ext = state.map.extraction;
+  const allObjectivesReady = state.objectives
+    .filter((o) => o.kind !== "Escort")
+    .every((o) => {
+      if (o.state === "Completed") return true;
+      if (o.kind === "Recover") return state.units.some((u) => u.carriedObjectiveId === o.id);
+      return false;
+    });
+
+  const isAtExtraction = MathUtils.sameCellPosition(unit.pos, ext);
+  const isVipAtExtraction = unit.archetypeId === "vip" && isAtExtraction;
+  const isExplicitExtract =
+    unit.activeCommand?.type === CommandType.EXTRACT ||
+    unit.activeCommand?.label === "Extracting";
+  const isLowHP = unit.hp < unit.maxHp * 0.25;
+  const isMapFullyDiscovered = state.discoveredCells.length >= context.totalFloorCells;
+
+  const shouldExtract =
+    isAtExtraction &&
+    ((allObjectivesReady && (isMapFullyDiscovered || !unit.aiEnabled)) ||
+     isVipAtExtraction || isExplicitExtract || isLowHP);
+
+  if (!shouldExtract) return null;
+
+  const duration = calcChannelDuration(unit, ITEMS.BASE_EXTRACT_TIME);
+  const updated = startChanneling(unit, "Extract", duration);
+  return { unit: updated, handled: true };
+}
 
 export class InteractionBehavior implements Behavior<BehaviorContext> {
   constructor() {}
 
-  public evaluate(
-    unit: Unit,
-    state: GameState,
-    _dt: number,
-    _doors: Map<string, Door>,
-    _prng: PRNG,
-    context: BehaviorContext,
-    _director?: ItemEffectHandler,
-  ): BehaviorResult {
+  public evaluate({
+    unit,
+    state,
+    context,
+    director,
+  }: BehaviorEvalParams<BehaviorContext>): BehaviorResult {
     let currentUnit = { ...unit };
     if (currentUnit.state !== UnitState.Idle && currentUnit.state !== UnitState.Attacking) {
       return { unit: currentUnit, handled: false };
     }
 
-    // 1. Loot Interaction
-    if (state.loot) {
-      const loot = state.loot.find(
-        (l) =>
-          Math.abs(currentUnit.pos.x - l.pos.x) < ITEMS.INTERACTION_RADIUS &&
-          Math.abs(currentUnit.pos.y - l.pos.y) < ITEMS.INTERACTION_RADIUS,
-      );
+    const lootResult = handleLootInteraction(currentUnit, state);
+    if (lootResult) return lootResult;
 
-      if (
-        loot &&
-        currentUnit.activeCommand?.type === CommandType.PICKUP &&
-        (currentUnit.activeCommand).lootId === loot.id
-      ) {
-        const baseTime = ITEMS.BASE_PICKUP_TIME;
-        const duration =
-          baseTime * (SPEED_NORMALIZATION_CONST / currentUnit.stats.speed);
-        currentUnit = {
-          ...currentUnit,
-          state: UnitState.Channeling,
-          channeling: {
-            action: "Pickup",
-            remaining: duration,
-            totalDuration: duration,
-            targetId: loot.id,
-          },
-          path: undefined,
-          targetPos: undefined,
-          activeCommand: undefined,
-        };
-        return { unit: currentUnit, handled: true };
-      }
-    }
+    const objResult = handleObjectiveInteraction(currentUnit, state, context);
+    if (objResult) return objResult;
 
-    // 2. Objective Interaction
-    if (
-      currentUnit.archetypeId !== "vip" &&
-      !currentUnit.carriedObjectiveId &&
-      state.objectives
-    ) {
-      for (const obj of state.objectives) {
-        if (obj.state === "Pending") {
-          const isAtTarget =
-            obj.targetCell &&
-            Math.abs(currentUnit.pos.x - (obj.targetCell.x + 0.5)) < ITEMS.INTERACTION_RADIUS &&
-            Math.abs(currentUnit.pos.y - (obj.targetCell.y + 0.5)) < ITEMS.INTERACTION_RADIUS;
+    const extResult = handleExtractionInteraction(currentUnit, state, context);
+    if (extResult) return extResult;
 
-          const hasExplicitPickup =
-            currentUnit.activeCommand?.type === CommandType.PICKUP &&
-            (currentUnit.activeCommand).lootId === obj.id;
-
-          const isClaimedByMe =
-            hasExplicitPickup ||
-            (context.claimedObjectives?.get(obj.id) === currentUnit.id);
-
-          // In Prologue, require an explicit PICKUP command — don't auto-collect
-          // so the tutorial can teach the player to use the Pickup action manually.
-          if (state.missionType === MissionType.Prologue && !hasExplicitPickup) {
-            continue;
-          }
-
-          if (
-            isAtTarget &&
-            (!context.claimedObjectives || !context.claimedObjectives.has(obj.id) || isClaimedByMe)
-          ) {
-            Logger.info(`InteractionBehavior: Unit ${currentUnit.id} at target for objective ${obj.id}. Starting Pickup/Collect.`);
-            
-            // Only Artifacts and the Prologue Disk need to be carried to extraction.
-            // Regular 'Recover' objectives (Intel) are completed immediately.
-            const needsCarrying = obj.id.includes("artifact") || obj.id.includes("prologue-disk");
-            
-            const baseTime = needsCarrying ? ITEMS.BASE_PICKUP_TIME : ITEMS.BASE_COLLECT_TIME;
-            const duration =
-              baseTime * (SPEED_NORMALIZATION_CONST / currentUnit.stats.speed);
-            currentUnit = {
-              ...currentUnit,
-              state: UnitState.Channeling,
-              channeling: {
-                action: needsCarrying ? "Pickup" : "Collect",
-                remaining: duration,
-                totalDuration: duration,
-                targetId: obj.id,
-              },
-              path: undefined,
-              targetPos: undefined,
-              activeCommand: undefined,
-            };
-            if (context.claimedObjectives) {
-                context.claimedObjectives.set(obj.id, currentUnit.id);
-            }
-            return { unit: currentUnit, handled: true };
-          }
-        }
-      }
-    }
-
-    // 3. Extraction Interaction
-    if (state.map.extraction) {
-      const ext = state.map.extraction;
-      const allObjectivesReady = state.objectives
-        .filter((o) => o.kind !== "Escort")
-        .every((o) => {
-          if (o.state === "Completed") return true;
-          if (o.kind === "Recover") {
-            return state.units.some((u) => u.carriedObjectiveId === o.id);
-          }
-          return false;
-        });
-
-      const isAtExtraction = MathUtils.sameCellPosition(currentUnit.pos, ext);
-
-      const isVipAtExtraction =
-        currentUnit.archetypeId === "vip" && isAtExtraction;
-
-      const isExplicitExtract =
-        currentUnit.activeCommand?.type === CommandType.EXTRACT ||
-        currentUnit.activeCommand?.label === "Extracting";
-
-      const isLowHP = currentUnit.hp < currentUnit.maxHp * 0.25;
-      const isMapFullyDiscovered = state.discoveredCells.length >= context.totalFloorCells;
-
-      if (
-        isAtExtraction &&
-        ((allObjectivesReady && (isMapFullyDiscovered || !currentUnit.aiEnabled)) || 
-         isVipAtExtraction || isExplicitExtract || isLowHP)
-      ) {
-        const baseTime = ITEMS.BASE_EXTRACT_TIME;
-        const duration =
-          baseTime * (SPEED_NORMALIZATION_CONST / currentUnit.stats.speed);
-        currentUnit = {
-          ...currentUnit,
-          state: UnitState.Channeling,
-          channeling: {
-            action: "Extract",
-            remaining: duration,
-            totalDuration: duration,
-          },
-          path: undefined,
-          targetPos: undefined,
-          activeCommand: undefined,
-        };
-        return { unit: currentUnit, handled: true };
-      }
-    }
-
-    // 4. Use Item Interaction
     if (currentUnit.activeCommand?.type === CommandType.USE_ITEM) {
-      currentUnit = context.executeCommand(
-        currentUnit,
-        currentUnit.activeCommand,
+      currentUnit = context.executeCommand({
+        unit: currentUnit,
+        cmd: currentUnit.activeCommand,
         state,
-        true,
-        _director,
-      );
+        isManual: true,
+        director,
+      });
       return { unit: currentUnit, handled: true };
     }
 

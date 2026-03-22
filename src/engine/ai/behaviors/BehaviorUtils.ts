@@ -43,14 +43,22 @@ export function isMapFullyDiscovered(
   return discoveredFloors >= totalFloorCells;
 }
 
-export function findClosestUndiscoveredCell(
-  unit: Unit,
-  state: GameState,
-  _gridState: Uint8Array | undefined,
-  doors: Map<string, Door>,
-  gameGrid: GameGrid,
-  explorationClaims?: Map<string, Vector2>,
-): Vector2 | null {
+export interface FindClosestUndiscoveredCellParams {
+  unit: Unit;
+  state: GameState;
+  _gridState?: Uint8Array;
+  doors: Map<string, Door>;
+  gameGrid: GameGrid;
+  explorationClaims?: Map<string, Vector2>;
+}
+
+export function findClosestUndiscoveredCell({
+  unit,
+  state,
+  doors,
+  gameGrid,
+  explorationClaims,
+}: FindClosestUndiscoveredCellParams): Vector2 | null {
   const startCell = MathUtils.toCellCoord(unit.pos);
   const positionHistory = unit.positionHistory || [];
 
@@ -64,7 +72,7 @@ export function findClosestUndiscoveredCell(
   } else {
     state.units
       .filter((u) => u.id !== unit.id && u.explorationTarget)
-      .forEach((u) => claimedTargets.push(u.explorationTarget!));
+      .forEach((u) => { if (u.explorationTarget) claimedTargets.push(u.explorationTarget); });
   }
 
   const otherUnitPositions = state.units
@@ -120,27 +128,20 @@ export function findClosestUndiscoveredCell(
     ];
 
     for (const n of neighbors) {
-      if (
-        n.x >= 0 &&
-        n.x < state.map.width &&
-        n.y >= 0 &&
-        n.y < state.map.height
-      ) {
-        const nKey = `${n.x},${n.y}`;
-        if (!visited.has(nKey) && gameGrid.isWalkable(n.x, n.y)) {
-          const canMove = gameGrid.canMove(
-            curr.x,
-            curr.y,
-            n.x,
-            n.y,
-            doors,
-            true,
-          );
-          if (canMove) {
-            visited.add(nKey);
-            queue.push({ x: n.x, y: n.y });
-          }
-        }
+      if (n.x < 0 || n.x >= state.map.width || n.y < 0 || n.y >= state.map.height) continue;
+      const nKey = `${n.x},${n.y}`;
+      if (visited.has(nKey) || !gameGrid.isWalkable(n.x, n.y)) continue;
+      const canMove = gameGrid.canMove({
+        fromX: curr.x,
+        fromY: curr.y,
+        toX: n.x,
+        toY: n.y,
+        doors,
+        allowClosedDoors: true,
+      });
+      if (canMove) {
+        visited.add(nKey);
+        queue.push({ x: n.x, y: n.y });
       }
     }
   }

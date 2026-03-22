@@ -41,7 +41,7 @@ export async function bootstrap() {
   try {
     await app.initialize();
     app.start();
-    (window as any).__VOIDLOCK_READY__ = true;
+    (window as unknown as Record<string, boolean>).__VOIDLOCK_READY__ = true;
   } catch (err) {
     Logger.error("Failed to initialize GameApp:", err);
   }

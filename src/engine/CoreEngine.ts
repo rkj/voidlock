@@ -42,7 +42,7 @@ export class CoreEngine {
   private pathfinder: Pathfinder;
   private los: LineOfSight;
   private state: GameState;
-  private director: IDirector;
+  private director!: IDirector;
 
   private missionManager: MissionManager;
   private doorManager: DoorManager;
@@ -67,75 +67,105 @@ export class CoreEngine {
     return this.doorManager.getDoors();
   }
 
-  constructor(config: CoreEngineConfig) {
-    const {
-      map,
-      seed,
-      squadConfig,
-      agentControlEnabled = true,
-      debugOverlayEnabled = false,
-      missionType = MissionType.Default,
-      losOverlayEnabled = false,
-      startingThreatLevel = 0,
-      initialTimeScale = 1.0,
-      startPaused = false,
-      mode = EngineMode.Simulation,
-      initialCommandLog = [],
-      allowTacticalPause = true,
-      targetTick = 0,
-      baseEnemyCount = 3,
-      enemyGrowthPerMission = 1,
-      missionDepth = 0,
-      nodeType,
-      campaignNodeId,
-      startingPoints,
-      skipDeployment = true,
-      debugSnapshots = false,
-      debugSnapshotInterval = 0,
-      initialSnapshots = [],
-      targetTimeScale = 1.0,
-      sessionId,
-    } = config;
-    this.prng = new PRNG(seed);
-    this.gameGrid = new GameGrid(map);
-    this.doorManager = new DoorManager(map.doors || [], this.gameGrid);
-    this.pathfinder = new Pathfinder(
-      this.gameGrid.getGraph(),
-      this.doorManager.getDoors(),
-    );
-    this.los = new LineOfSight(
-      this.gameGrid.getGraph(),
-      this.doorManager.getDoors(),
-    );
+  constructor(cfg: CoreEngineConfig) {
+    const p = CoreEngine.applyDefaults(cfg);
+
+    this.prng = new PRNG(p.seed);
+    this.gameGrid = new GameGrid(p.map);
+    this.doorManager = new DoorManager(p.map.doors ?? [], this.gameGrid);
+    this.pathfinder = new Pathfinder(this.gameGrid.getGraph(), this.doorManager.getDoors());
+    this.los = new LineOfSight(this.gameGrid.getGraph(), this.doorManager.getDoors());
 
     this.movementManager = new MovementManager(this.gameGrid);
     this.enemyManager = new EnemyManager(this.movementManager);
-    this.unitManager = new UnitManager(
-      this.gameGrid,
-      this.pathfinder,
-      this.movementManager,
-      this.los,
-      agentControlEnabled,
-    );
+    this.unitManager = new UnitManager({ gameGrid: this.gameGrid, pathfinder: this.pathfinder, movementManager: this.movementManager, los: this.los, agentControlEnabled: p.agentControlEnabled });
     this.turretManager = new TurretManager(this.los);
     this.lootManager = new LootManager();
-    this.missionManager = new MissionManager(missionType, this.prng);
+    this.missionManager = new MissionManager(p.missionType, this.prng);
     this.visibilityManager = new VisibilityManager(this.los);
     this.unitSpawner = new UnitSpawner(this.prng);
 
-    this.commandLog = initialCommandLog;
+    this.commandLog = p.initialCommandLog;
     this.replayIndex = 0;
 
-    this.state = {
+    this.state = this.buildInitialState(p);
+    this.updateEffectiveTimeScale();
+
+    const itemEffectService = new ItemEffectService();
+    this.setupDirector({ ...p, itemEffectService });
+    this.commandHandler = new CommandHandler(this.unitManager, itemEffectService);
+
+    this.missionManager.setupMission({ state: this.state, map: p.map, enemyManager: this.enemyManager, squadConfig: p.squadConfig, nodeType: p.nodeType, lootManager: this.lootManager });
+    this.setupSpawnsAndVisibility({ map: p.map, squadConfig: p.squadConfig, missionType: p.missionType, skipDeployment: p.skipDeployment });
+
+    if (p.skipDeployment && p.mode !== EngineMode.Replay && this.commandLog.length === 0) {
+      this.autoAssignExploration();
+    }
+
+    this.runCatchup({ mode: p.mode, targetTick: p.targetTick, initialSnapshots: p.initialSnapshots });
+  }
+
+  private static applyDefaults(cfg: CoreEngineConfig) {
+    return {
+      map: cfg.map,
+      seed: cfg.seed,
+      squadConfig: cfg.squadConfig,
+      agentControlEnabled: cfg.agentControlEnabled ?? true,
+      debugOverlayEnabled: cfg.debugOverlayEnabled ?? false,
+      missionType: cfg.missionType ?? MissionType.Default,
+      losOverlayEnabled: cfg.losOverlayEnabled ?? false,
+      startingThreatLevel: cfg.startingThreatLevel ?? 0,
+      initialTimeScale: cfg.initialTimeScale ?? 1.0,
+      startPaused: cfg.startPaused ?? false,
+      mode: cfg.mode ?? EngineMode.Simulation,
+      initialCommandLog: cfg.initialCommandLog ?? [],
+      allowTacticalPause: cfg.allowTacticalPause ?? true,
+      targetTick: cfg.targetTick ?? 0,
+      baseEnemyCount: cfg.baseEnemyCount ?? 3,
+      enemyGrowthPerMission: cfg.enemyGrowthPerMission ?? 1,
+      missionDepth: cfg.missionDepth ?? 0,
+      nodeType: cfg.nodeType,
+      campaignNodeId: cfg.campaignNodeId,
+      startingPoints: cfg.startingPoints,
+      skipDeployment: cfg.skipDeployment ?? true,
+      debugSnapshots: cfg.debugSnapshots ?? false,
+      debugSnapshotInterval: cfg.debugSnapshotInterval ?? 0,
+      initialSnapshots: cfg.initialSnapshots ?? [],
+      targetTimeScale: cfg.targetTimeScale ?? 1.0,
+      sessionId: cfg.sessionId,
+    };
+  }
+
+  private buildInitialState(p: {
+    map: MapDefinition;
+    seed: number;
+    missionType: MissionType;
+    nodeType?: string;
+    campaignNodeId?: string;
+    startingThreatLevel: number;
+    skipDeployment: boolean;
+    mode: EngineMode;
+    debugOverlayEnabled: boolean;
+    debugSnapshots: boolean;
+    debugSnapshotInterval: number;
+    losOverlayEnabled: boolean;
+    initialTimeScale: number;
+    targetTimeScale: number;
+    startPaused: boolean;
+    allowTacticalPause: boolean;
+    sessionId?: string;
+    squadConfig: SquadConfig;
+  }): GameState {
+    return {
       t: 0,
-      seed,
-      missionType,
-      nodeType,
-      campaignNodeId,
+      seed: p.seed,
+      missionType: p.missionType,
+      nodeType: p.nodeType as GameState["nodeType"],
+      campaignNodeId: p.campaignNodeId,
       map: {
-        ...map,
+        ...p.map,
         boundaries:
-          map.boundaries ||
+          p.map.boundaries ??
           this.gameGrid
             .getGraph()
             .getAllBoundaries()
@@ -155,96 +185,99 @@ export class CoreEngine {
       turrets: [],
       visibleCells: [],
       discoveredCells: [],
-      gridState: new Uint8Array(map.width * map.height),
+      gridState: new Uint8Array(p.map.width * p.map.height),
       objectives: [],
       stats: {
-        threatLevel: startingThreatLevel,
+        threatLevel: p.startingThreatLevel,
         aliensKilled: 0,
         elitesKilled: 0,
         scrapGained: 0,
         casualties: 0,
       },
-      status: skipDeployment ? "Playing" : "Deployment",
+      status: p.skipDeployment ? "Playing" : "Deployment",
       settings: {
-        mode,
-        debugOverlayEnabled,
-        debugSnapshots,
-        debugSnapshotInterval,
-        losOverlayEnabled,
-        timeScale: initialTimeScale,
-        targetTimeScale,
-        isPaused: startPaused,
-        isSlowMotion: initialTimeScale < 1.0,
-        allowTacticalPause,
-        sessionId,
+        mode: p.mode,
+        debugOverlayEnabled: p.debugOverlayEnabled,
+        debugSnapshots: p.debugSnapshots,
+        debugSnapshotInterval: p.debugSnapshotInterval,
+        losOverlayEnabled: p.losOverlayEnabled,
+        timeScale: p.initialTimeScale,
+        targetTimeScale: p.targetTimeScale,
+        isPaused: p.startPaused,
+        isSlowMotion: p.initialTimeScale < 1.0,
+        allowTacticalPause: p.allowTacticalPause,
+        sessionId: p.sessionId,
       },
-      squadInventory: squadConfig.inventory || {},
+      squadInventory: p.squadConfig.inventory || {},
     };
+  }
 
-    // Initialize time scales (ADR 0048)
-    this.updateEffectiveTimeScale();
-
-    // Initialize Director
-    const spawnPoints = map.spawnPoints || [];
+  private setupDirector(p: {
+    map: MapDefinition;
+    missionType: MissionType;
+    startingThreatLevel: number;
+    startingPoints?: number;
+    missionDepth: number;
+    baseEnemyCount: number;
+    enemyGrowthPerMission: number;
+    itemEffectService: ItemEffectService;
+  }): void {
+    const spawnPoints = p.map.spawnPoints ?? [];
     const effectiveStartingPoints =
-      startingPoints ??
-      (missionDepth > 0
-        ? baseEnemyCount + missionDepth * enemyGrowthPerMission
+      p.startingPoints ??
+      (p.missionDepth > 0
+        ? p.baseEnemyCount + p.missionDepth * p.enemyGrowthPerMission
         : 0);
 
-    const itemEffectService = new ItemEffectService();
-
-    this.director = new Director(
+    this.director = new Director({
       spawnPoints,
-      this.prng,
-      (enemy) => this.enemyManager.addEnemy(this.state, enemy),
-      itemEffectService,
-      startingThreatLevel,
-      map,
-      effectiveStartingPoints,
-      missionType,
-    );
+      prng: this.prng,
+      onSpawn: (enemy) => this.enemyManager.addEnemy(this.state, enemy),
+      itemEffectService: p.itemEffectService,
+      startingThreatLevel: p.startingThreatLevel,
+      map: p.map,
+      startingPoints: effectiveStartingPoints,
+      missionType: p.missionType,
+    });
     this.director.preSpawn();
+  }
 
-    this.commandHandler = new CommandHandler(this.unitManager, itemEffectService);
-
-    // Mission Setup
-    this.missionManager.setupMission(
-      this.state,
-      map,
-      this.enemyManager,
-      squadConfig,
-      nodeType,
-      this.lootManager,
-    );
-
+  private setupSpawnsAndVisibility(p: {
+    map: MapDefinition;
+    squadConfig: SquadConfig;
+    missionType: MissionType;
+    skipDeployment: boolean;
+  }): void {
     // Mission-specific Spawns
-    if (missionType === MissionType.EscortVIP) {
-      const vips = this.unitSpawner.spawnVIPs(map);
-      vips.forEach((vip) => {
-        this.addUnit(vip);
-
-        // Reveal VIP position
-        const cell = MathUtils.toCellCoord(vip.pos);
-        const vipCellKey = MathUtils.cellKey(vip.pos);
-        if (!this.state.discoveredCells.includes(vipCellKey)) {
-          this.state.discoveredCells.push(vipCellKey);
-          if (this.state.gridState) {
-            this.state.gridState[cell.y * map.width + cell.x] |= 2;
-          }
-        }
-      });
+    if (p.missionType === MissionType.EscortVIP) {
+      this.spawnVIPsWithReveal(p.map);
     }
 
     // Spawn units based on squadConfig
-    const squadUnits = this.unitSpawner.spawnSquad(
-      map,
-      squadConfig,
-      skipDeployment,
-    );
+    const squadUnits = this.unitSpawner.spawnSquad(p.map, p.squadConfig, p.skipDeployment);
     squadUnits.forEach((unit) => this.addUnit(unit));
 
     // Reveal spawn area and update initial visibility
+    this.revealSpawnArea(p.map);
+    this.visibilityManager.updateVisibility(this.state);
+  }
+
+  private spawnVIPsWithReveal(map: MapDefinition): void {
+    const vips = this.unitSpawner.spawnVIPs(map);
+    vips.forEach((vip) => {
+      this.addUnit(vip);
+      const cell = MathUtils.toCellCoord(vip.pos);
+      const vipCellKey = MathUtils.cellKey(vip.pos);
+      if (!this.state.discoveredCells.includes(vipCellKey)) {
+        this.state.discoveredCells.push(vipCellKey);
+        if (this.state.gridState) {
+          this.state.gridState[cell.y * map.width + cell.x] |= 2;
+        }
+      }
+    });
+  }
+
+  private revealSpawnArea(map: MapDefinition): void {
     const spawnRoomIds = new Set<string>();
     MapUtils.getSquadSpawns(map).forEach((sp) => {
       const cell = map.cells.find(
@@ -278,63 +311,55 @@ export class CoreEngine {
         }
       });
     }
+  }
 
-    this.visibilityManager.updateVisibility(this.state);
+  private autoAssignExploration(): void {
+    const explorationUnitIds = this.state.units
+      .filter((u) => u.archetypeId !== "vip" && u.aiEnabled !== false)
+      .map((u) => u.id);
 
-    if (
-      skipDeployment &&
-      mode !== EngineMode.Replay &&
-      this.commandLog.length === 0
-    ) {
-      // Auto-assign exploration if enabled (default behavior when skipping deployment)
-      const explorationUnitIds = this.state.units
-        .filter((u) => u.archetypeId !== "vip" && u.aiEnabled !== false)
-        .map((u) => u.id);
-
-      if (explorationUnitIds.length > 0) {
-        this.applyCommand({
-          type: CommandType.EXPLORE,
-          unitIds: explorationUnitIds,
-        });
-      }
+    if (explorationUnitIds.length > 0) {
+      this.applyCommand({
+        type: CommandType.EXPLORE,
+        unitIds: explorationUnitIds,
+      });
     }
+  }
 
-    // Catch-up Phase: If in Simulation or Replay mode but have a target tick, fast-forward.
-    // In Simulation mode, we also ensure we catch up to at least the last command tick for session recovery.
-    let finalCatchupTick = targetTick;
-    if (mode === EngineMode.Simulation) {
+  private runCatchup(p: {
+    mode: EngineMode;
+    targetTick: number;
+    initialSnapshots: GameState[];
+  }): void {
+    let finalCatchupTick = p.targetTick;
+    if (p.mode === EngineMode.Simulation) {
       const lastCommandTick =
         this.commandLog.length > 0
           ? this.commandLog[this.commandLog.length - 1].tick
           : 0;
-      finalCatchupTick = Math.max(lastCommandTick, targetTick);
+      finalCatchupTick = Math.max(lastCommandTick, p.targetTick);
     }
 
-    if (finalCatchupTick > 0) {
-      // Optimization: Jump to nearest snapshot if available
-      if (initialSnapshots && initialSnapshots.length > 0) {
-        const bestSnapshot = initialSnapshots
-          .filter((s) => s.t <= finalCatchupTick)
-          .reduce(
-            (prev, curr) => (curr.t > prev.t ? curr : prev),
-            initialSnapshots[0],
-          );
+    if (finalCatchupTick <= 0) return;
 
-        if (
-          bestSnapshot &&
-          bestSnapshot.t > 0 &&
-          bestSnapshot.t <= finalCatchupTick
-        ) {
-          this.hydrateFromSnapshot(bestSnapshot);
-        }
-      }
+    if (p.initialSnapshots && p.initialSnapshots.length > 0) {
+      const bestSnapshot = p.initialSnapshots
+        .filter((s) => s.t <= finalCatchupTick)
+        .reduce(
+          (prev, curr) => (curr.t > prev.t ? curr : prev),
+          p.initialSnapshots[0],
+        );
 
-      this.isCatchingUp = true;
-      while (this.state.t + 16 <= finalCatchupTick) {
-        this.simulationStep(16);
+      if (bestSnapshot && bestSnapshot.t > 0 && bestSnapshot.t <= finalCatchupTick) {
+        this.hydrateFromSnapshot(bestSnapshot);
       }
-      this.isCatchingUp = false;
     }
+
+    this.isCatchingUp = true;
+    while (this.state.t + 16 <= finalCatchupTick) {
+      this.simulationStep(16);
+    }
+    this.isCatchingUp = false;
   }
 
   private hydrateFromSnapshot(snapshot: GameState) {
@@ -425,54 +450,15 @@ export class CoreEngine {
     includeSnapshots: boolean = false,
   ): GameState {
     const state = this.state;
+    const shouldPrune = pruneForObservation && !state.settings.debugOverlayEnabled;
 
-    const debugMode = state.settings.debugOverlayEnabled;
-    const shouldPrune = pruneForObservation && !debugMode;
-
-    // Prune entities based on visibility if shouldPrune is true
-    const enemies = !shouldPrune
-      ? [...state.enemies]
-      : state.enemies.filter((e) => {
-          const cell = MathUtils.toCellCoord(e.pos);
-          const idx = cell.y * state.map.width + cell.x;
-          return state.gridState && (state.gridState[idx] & 1) !== 0;
-        });
-
-    const turrets = !shouldPrune
-      ? [...state.turrets]
-      : state.turrets.filter((t) => {
-          const cell = MathUtils.toCellCoord(t.pos);
-          const idx = cell.y * state.map.width + cell.x;
-          return state.gridState && (state.gridState[idx] & 1) !== 0;
-        });
-
-    const mines = !shouldPrune
-      ? [...state.mines]
-      : state.mines.filter((m) => {
-          const cell = MathUtils.toCellCoord(m.pos);
-          const idx = cell.y * state.map.width + cell.x;
-          return state.gridState && (state.gridState[idx] & 1) !== 0;
-        });
-
-    const loot = !shouldPrune
-      ? [...state.loot]
-      : state.loot.filter((l) => {
-          const cell = MathUtils.toCellCoord(l.pos);
-          const idx = cell.y * state.map.width + cell.x;
-          // Loot is visible if cell is discovered (bit 1) or currently visible (bit 0)
-          return state.gridState && (state.gridState[idx] & 3) !== 0;
-        });
-
-    // Manual shallow copy of the state structure.
-    // We avoid deep cloning elements here because postMessage()
-    // in the worker performs a structured clone anyway.
     const copy: GameState = {
       ...state,
       units: [...state.units],
-      enemies,
-      loot,
-      mines,
-      turrets,
+      enemies: this.pruneByVisibility(state.enemies, state, shouldPrune, 1),
+      loot: this.pruneByVisibility(state.loot, state, shouldPrune, 3),
+      mines: this.pruneByVisibility(state.mines, state, shouldPrune, 1),
+      turrets: this.pruneByVisibility(state.turrets, state, shouldPrune, 1),
       attackEvents: state.attackEvents ? [...state.attackEvents] : [],
       objectives: [...state.objectives],
       visibleCells: [...state.visibleCells],
@@ -483,24 +469,7 @@ export class CoreEngine {
       stats: { ...state.stats },
       settings: { ...state.settings },
       squadInventory: { ...state.squadInventory },
-      map: {
-        ...state.map,
-        // Omit large static data after first send
-        cells: this.sentMap ? [] : state.map.cells,
-        walls: this.sentMap ? [] : state.map.walls,
-        boundaries: this.sentMap ? [] : state.map.boundaries,
-        // Always include critical mission entities (ADR 0032)
-        spawnPoints: state.map.spawnPoints || [],
-        extraction: state.map.extraction,
-        squadSpawns:
-          state.map.squadSpawns ||
-          (state.map.squadSpawn ? [state.map.squadSpawn] : []),
-        objectives: state.map.objectives || [],
-        // Doors are dynamic, always send them
-        doors: Array.from(this.doorManager.getDoors().values()).map((d) => ({
-          ...d,
-        })),
-      },
+      map: this.buildMapPayload(state),
     };
 
     if (!this.sentMap && pruneForObservation) {
@@ -514,6 +483,41 @@ export class CoreEngine {
     }
 
     return copy;
+  }
+
+  private pruneByVisibility<T extends { pos: { x: number; y: number } }>(
+    items: T[],
+    state: GameState,
+    shouldPrune: boolean,
+    bitMask: number,
+  ): T[] {
+    if (!shouldPrune) return [...items];
+    return items.filter((item) => {
+      const cell = MathUtils.toCellCoord(item.pos);
+      const idx = cell.y * state.map.width + cell.x;
+      return state.gridState && (state.gridState[idx] & bitMask) !== 0;
+    });
+  }
+
+  private buildMapPayload(state: GameState): GameState["map"] {
+    return {
+      ...state.map,
+      // Omit large static data after first send
+      cells: this.sentMap ? [] : state.map.cells,
+      walls: this.sentMap ? [] : state.map.walls,
+      boundaries: this.sentMap ? [] : state.map.boundaries,
+      // Always include critical mission entities (ADR 0032)
+      spawnPoints: state.map.spawnPoints ?? [],
+      extraction: state.map.extraction,
+      squadSpawns:
+        state.map.squadSpawns ??
+        (state.map.squadSpawn ? [state.map.squadSpawn] : []),
+      objectives: state.map.objectives ?? [],
+      // Doors are dynamic, always send them
+      doors: Array.from(this.doorManager.getDoors().values()).map((d) => ({
+        ...d,
+      })),
+    };
   }
 
   public applyCommand(cmd: Command) {
@@ -625,26 +629,26 @@ export class CoreEngine {
     this.missionManager.updateObjectives(this.state);
 
     // 5. Units (Now uses dt for all timers)
-    this.unitManager.update(
-      this.state,
+    this.unitManager.update({
+      state: this.state,
       dt,
-      this.doorManager.getDoors(),
-      this.prng,
-      this.lootManager,
-      this.director,
-    );
+      doors: this.doorManager.getDoors(),
+      prng: this.prng,
+      lootManager: this.lootManager,
+      director: this.director,
+    });
 
     // 6. Enemies
-    this.enemyManager.update(
-      this.state,
+    this.enemyManager.update({
+      state: this.state,
       dt,
-      this.gameGrid,
-      this.pathfinder,
-      this.los,
-      this.prng,
-      this.unitManager.getCombatManager(),
-      this.doorManager.getDoors(),
-    );
+      gameGrid: this.gameGrid,
+      pathfinder: this.pathfinder,
+      los: this.los,
+      prng: this.prng,
+      combatManager: this.unitManager.getCombatManager(),
+      doors: this.doorManager.getDoors(),
+    });
 
     // 7. Turrets
     this.turretManager.update(

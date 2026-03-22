@@ -1,6 +1,6 @@
 import { createElement, Fragment } from "@src/renderer/jsx";
 import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import type { CampaignSoldier } from "@src/shared/campaign_types";
+import type { CampaignSoldier, CampaignState } from "@src/shared/campaign_types";
 import type {
   Item,
   Weapon,
@@ -74,7 +74,7 @@ export class SoldierInspector {
     if (!this.soldier || !("id" in this.soldier) || !this.soldier.id || !this.isCampaign)
       return false;
     const state = this.manager.getState();
-    const rosterSoldier = state?.roster.find((s) => s.id === this.soldier!.id);
+    const rosterSoldier = state?.roster.find((s) => s.id === this.soldier?.id);
     return rosterSoldier?.status === "Dead";
   }
 
@@ -88,38 +88,7 @@ export class SoldierInspector {
 
   public renderDetails(): HTMLElement | DocumentFragment {
     if (!this.soldier) {
-      const state = this.isCampaign ? this.manager.getState() : null;
-      return (
-        <div class="inspector-empty-wrapper flex-col gap-20 align-center h-full">
-          <div class="inspector-placeholder flex-col align-center justify-center">
-            <div class="placeholder-icon">👤</div>
-            <div>Select a Slot to Manage Squad</div>
-          </div>
-          {state && !this.isLocked && (
-            <div class="inspector-recruit-options flex-col gap-10 w-full">
-              {state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE && (
-                <button
-                  class="menu-button w-full recruit-btn-large"
-                  data-focus-id="recruit-btn-large"
-                  onClick={() => this.handleRecruit()}
-                >
-                  <div class="btn-label">Acquire New Asset</div>
-                  <div class="btn-sub">Cost: 100 Credits</div>
-                </button>
-              )}
-              <button
-                class={`menu-button w-full revive-btn-large ${state.scrap < 250 ? "disabled" : ""}`}
-                data-focus-id="revive-btn-large"
-                disabled={state.scrap < 250}
-                onClick={() => this.handleRevive()}
-              >
-                <div class="btn-label">Restore Lost Asset</div>
-                <div class="btn-sub">Cost: 250 Credits</div>
-              </button>
-            </div>
-          )}
-        </div>
-      ) as HTMLElement;
+      return this.renderEmptyDetails();
     }
 
     const sStats = this.calculateSoldierStats(this.soldier);
@@ -128,8 +97,8 @@ export class SoldierInspector {
     const lw = this.getWeaponStats(equip.leftHand, sStats.speed);
 
     const state = this.isCampaign ? this.manager.getState() : null;
-    const rosterSoldier = this.isCampaign && "id" in this.soldier && this.soldier.id 
-      ? state?.roster.find((s) => s.id === (this.soldier as any).id) 
+    const rosterSoldier = this.isCampaign && "id" in this.soldier && this.soldier.id
+      ? state?.roster.find((s) => s.id === (this.soldier as CampaignSoldier).id)
       : null;
 
     return (
@@ -145,65 +114,7 @@ export class SoldierInspector {
           </div>
         )}
 
-        {rosterSoldier && (
-          <Fragment>
-            <div class="flex-row justify-between align-center w-full p-10 card" style={{ background: "var(--color-surface-elevated)" }}>
-              <div class="flex-row align-center gap-10">
-                <div class="flex-col">
-                  <h3 style={{ margin: "0", fontSize: "1.2em", color: "var(--color-accent)" }}>{rosterSoldier.name}</h3>
-                  <div style={{ fontSize: "0.8em", color: "var(--color-text-muted)" }}>
-                    Rank {rosterSoldier.level} {ArchetypeLibrary[rosterSoldier.archetypeId]?.name || ""}
-                  </div>
-                </div>
-                <button
-                  class="icon-button"
-                  title="Rename Asset"
-                  style={{ padding: "4px 8px", fontSize: "1em", margin: "0" }}
-                  onClick={async () => {
-                    const newName = await this.modalService.prompt(
-                      "Enter new designation for this asset:",
-                      rosterSoldier.name,
-                      "Rename Asset",
-                    );
-                    if (newName && newName.trim() !== "" && newName !== rosterSoldier.name) {
-                      this.manager.renameSoldier(rosterSoldier.id, newName.trim());
-                      this.onUpdate();
-                    }
-                  }}
-                >
-                  ✎
-                </button>
-              </div>
-              <div
-                class="status-badge"
-                style={{
-                  fontSize: "0.7em",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                  background: rosterSoldier.status === "Healthy" ? "var(--color-primary)" : (rosterSoldier.status === "Dead" ? "var(--color-danger)" : "var(--color-hive)")
-                }}
-              >
-                {this.getStatusDisplay(rosterSoldier.status)}
-              </div>
-            </div>
-
-            {rosterSoldier.status === "Wounded" && (
-              <div class="flex-row gap-10 w-full">
-                <button
-                  class="menu-button w-full"
-                  disabled={!state || state.scrap < 50}
-                  onClick={() => {
-                    this.manager.healSoldier(rosterSoldier.id);
-                    this.onUpdate();
-                  }}
-                >
-                  <div class="btn-label">Restore Asset Integrity</div>
-                  <div class="btn-sub">Cost: 50 Credits</div>
-                </button>
-              </div>
-            )}
-          </Fragment>
-        )}
+        {rosterSoldier && this.renderRosterSoldierInfo(rosterSoldier, state)}
 
         <div class="w-full stat-box soldier-attributes-panel">
           <h3 class="stat-label inspector-panel-title">Asset Integrity Profile</h3>
@@ -232,11 +143,114 @@ export class SoldierInspector {
     ) as HTMLElement;
   }
 
+  private renderEmptyDetails(): HTMLElement {
+    const state = this.isCampaign ? this.manager.getState() : null;
+    return (
+      <div class="inspector-empty-wrapper flex-col gap-20 align-center h-full">
+        <div class="inspector-placeholder flex-col align-center justify-center">
+          <div class="placeholder-icon">👤</div>
+          <div>Select a Slot to Manage Squad</div>
+        </div>
+        {state && !this.isLocked && (
+          <div class="inspector-recruit-options flex-col gap-10 w-full">
+            {state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE && (
+              <button
+                class="menu-button w-full recruit-btn-large"
+                data-focus-id="recruit-btn-large"
+                onClick={() => this.handleRecruit()}
+              >
+                <div class="btn-label">Acquire New Asset</div>
+                <div class="btn-sub">Cost: 100 Credits</div>
+              </button>
+            )}
+            <button
+              class={`menu-button w-full revive-btn-large ${state.scrap < 250 ? "disabled" : ""}`}
+              data-focus-id="revive-btn-large"
+              disabled={state.scrap < 250}
+              onClick={() => this.handleRevive()}
+            >
+              <div class="btn-label">Restore Lost Asset</div>
+              <div class="btn-sub">Cost: 250 Credits</div>
+            </button>
+          </div>
+        )}
+      </div>
+    ) as HTMLElement;
+  }
+
+  private renderRosterSoldierInfo(
+    rosterSoldier: CampaignSoldier,
+    state: ReturnType<typeof this.manager.getState>,
+  ): HTMLElement | DocumentFragment {
+    return (
+      <Fragment>
+        <div class="flex-row justify-between align-center w-full p-10 card" style={{ background: "var(--color-surface-elevated)" }}>
+          <div class="flex-row align-center gap-10">
+            <div class="flex-col">
+              <h3 style={{ margin: "0", fontSize: "1.2em", color: "var(--color-accent)" }}>{rosterSoldier.name}</h3>
+              <div style={{ fontSize: "0.8em", color: "var(--color-text-muted)" }}>
+                Rank {rosterSoldier.level} {ArchetypeLibrary[rosterSoldier.archetypeId]?.name || ""}
+              </div>
+            </div>
+            <button
+              class="icon-button"
+              title="Rename Asset"
+              style={{ padding: "4px 8px", fontSize: "1em", margin: "0" }}
+              onClick={() => {
+                void (async () => {
+                  const newName = await this.modalService.prompt(
+                    "Enter new designation for this asset:",
+                    rosterSoldier.name,
+                    "Rename Asset",
+                  );
+                  if (newName && newName.trim() !== "" && newName !== rosterSoldier.name) {
+                    this.manager.renameSoldier(rosterSoldier.id, newName.trim());
+                    this.onUpdate();
+                  }
+                })();
+              }}
+            >
+              ✎
+            </button>
+          </div>
+          <div
+            class="status-badge"
+            style={{
+              fontSize: "0.7em",
+              padding: "2px 6px",
+              borderRadius: "4px",
+              background: rosterSoldier.status === "Healthy" ? "var(--color-primary)" : (rosterSoldier.status === "Dead" ? "var(--color-danger)" : "var(--color-hive)")
+            }}
+          >
+            {this.getStatusDisplay(rosterSoldier.status)}
+          </div>
+        </div>
+
+        {rosterSoldier.status === "Wounded" && (
+          <div class="flex-row gap-10 w-full">
+            <button
+              class="menu-button w-full"
+              disabled={!state || state.scrap < 50}
+              onClick={() => {
+                this.manager.healSoldier(rosterSoldier.id);
+                this.onUpdate();
+              }}
+            >
+              <div class="btn-label">Restore Asset Integrity</div>
+              <div class="btn-sub">Cost: 50 Credits</div>
+            </button>
+          </div>
+        )}
+      </Fragment>
+    ) as HTMLElement | DocumentFragment;
+  }
+
   public renderArmory(): HTMLElement | DocumentFragment {
     if (!this.soldier) return <Fragment />;
+    const soldier = this.soldier;
 
     const state = this.isCampaign ? this.manager.getState() : null;
-    const unlockedItems = state?.unlockedItems || [];
+    const unlockedItems = state?.unlockedItems ?? [];
     const basicItems = [
       "pistol", "pulse_rifle", "shotgun", "combat_knife", "power_sword", 
       "thunder_hammer", "medkit", "frag_grenade", "combat_boots", "light_recon"
@@ -283,8 +297,8 @@ export class SoldierInspector {
                 isShop={this.isShop}
                 isLocked={this.isLocked}
                 isDead={this.isDead()}
-                isCurrentlyEquipped={this.getEquipment(this.soldier!).rightHand === item.id || this.getEquipment(this.soldier!).leftHand === item.id || this.getEquipment(this.soldier!).body === item.id || this.getEquipment(this.soldier!).feet === item.id}
-                isOwned={this.isEquippedInRoster(this.soldier!.id, cat.slot, item.id)}
+                isCurrentlyEquipped={this.getEquipment(soldier).rightHand === item.id || this.getEquipment(soldier).leftHand === item.id || this.getEquipment(soldier).body === item.id || this.getEquipment(soldier).feet === item.id}
+                isOwned={this.isEquippedInRoster(soldier.id, cat.slot, item.id)}
                 onSelect={() => cat.onSelect(item)}
               />
             ))}
@@ -430,6 +444,41 @@ export class SoldierInspector {
     return status;
   }
 
+  private tryPurchaseItem(newItemId: string): boolean {
+    const state = this.isCampaign ? this.manager.getState() : null;
+    const economyMode = state?.rules?.economyMode || "Open";
+    if (economyMode === "Limited" && !this.isShop) return false;
+
+    const item = WeaponLibrary[newItemId] || ItemLibrary[newItemId];
+    if (!item) return true;
+
+    let cost = item.cost;
+    if (this.isShop && economyMode === "Open") cost = Math.floor(cost * 0.5);
+    if (state && state.scrap < cost) return false;
+    if (state) this.manager.spendScrap(cost);
+    return true;
+  }
+
+  private assignSlot(slot: keyof EquipmentState, newItemId: string) {
+    if (!this.soldier) return;
+    if ("equipment" in this.soldier) {
+      this.soldier.equipment[slot] = newItemId || undefined;
+      this.manager.assignEquipment(this.soldier.id, this.soldier.equipment);
+      return;
+    }
+    const config = this.soldier;
+    config[slot] = newItemId || undefined;
+    if (this.soldier.id && this.isCampaign) {
+      const state = this.manager.getState();
+      const rosterSoldier = state?.roster.find((s) => s.id === this.soldier?.id);
+      if (rosterSoldier) {
+        const newEquip = { ...rosterSoldier.equipment };
+        newEquip[slot] = newItemId || undefined;
+        this.manager.assignEquipment(this.soldier.id, newEquip);
+      }
+    }
+  }
+
   private handleSlotChange(slot: keyof EquipmentState, newItemId: string) {
     if (!this.soldier) return;
     if (this.isDead()) return;
@@ -438,50 +487,11 @@ export class SoldierInspector {
     if (equip[slot] === newItemId) return;
 
     const isOwned = this.isEquippedInRoster(this.soldier.id, slot, newItemId);
-
     if (newItemId !== "" && !isOwned) {
-      const state = this.isCampaign ? this.manager.getState() : null;
-      const economyMode = state?.rules?.economyMode || "Open";
-
-      if (economyMode === "Limited" && !this.isShop) {
-        return;
-      }
-
-      const item = WeaponLibrary[newItemId] || ItemLibrary[newItemId];
-      if (item) {
-        let cost = item.cost;
-        if (this.isShop && economyMode === "Open") {
-          cost = Math.floor(cost * 0.5);
-        }
-
-        if (state && state.scrap < cost) {
-          return;
-        }
-        if (state) {
-          this.manager.spendScrap(cost);
-        }
-      }
+      if (!this.tryPurchaseItem(newItemId)) return;
     }
 
-    if ("equipment" in this.soldier) {
-      this.soldier.equipment[slot] = newItemId || undefined;
-      this.manager.assignEquipment(this.soldier.id, this.soldier.equipment);
-    } else {
-      const config = this.soldier;
-      config[slot] = newItemId || undefined;
-      if (this.soldier.id && this.isCampaign) {
-        const state = this.manager.getState();
-        const rosterSoldier = state?.roster.find(
-          (s) => s.id === this.soldier!.id,
-        );
-        if (rosterSoldier) {
-          const newEquip = { ...rosterSoldier.equipment };
-          newEquip[slot] = newItemId || undefined;
-          this.manager.assignEquipment(this.soldier.id, newEquip);
-        }
-      }
-    }
-
+    this.assignSlot(slot, newItemId);
     this.onUpdate();
   }
 }
@@ -501,58 +511,83 @@ function WeaponBlock({ stats, label }: { stats: WeaponStats | null; label: strin
   );
 }
 
-function ArmoryItem({
-  item, state, isShop, isLocked, isDead, isCurrentlyEquipped, isOwned, onSelect
-}: {
+function buildWeaponStats(item: Weapon): { html: HTMLElement | DocumentFragment; text: string } {
+  const fireRateVal = item.fireRate || 0;
+  const fireRateStr = fireRateVal > 0 ? (1000 / fireRateVal).toFixed(1) : "0";
+  const acc = item.accuracy || 0;
+  return {
+    html: (
+      <Fragment>
+        <StatDisplayComponent icon={Icons.Damage} value={item.damage || 0} title="Damage" />
+        <StatDisplayComponent icon={Icons.Rate} value={fireRateStr} title="Terminal Feed Delay (Shots/sec)" />
+        <StatDisplayComponent icon={Icons.Range} value={item.range || 0} title="Range" />
+      </Fragment>
+    ) as unknown as DocumentFragment,
+    text: `Damage: ${item.damage}\nRange: ${item.range}\nTerminal Feed Delay: ${fireRateStr}/s\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`,
+  };
+}
+
+function buildItemStats(item: Item): { html: HTMLElement | DocumentFragment; text: string } {
+  const bonuses: (HTMLElement | DocumentFragment)[] = [];
+  const textBonuses: string[] = [];
+  if (item.hpBonus) {
+    bonuses.push(<StatDisplayComponent icon={Icons.Health} value={item.hpBonus} title="HP" /> as HTMLElement);
+    textBonuses.push(`HP: ${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
+  }
+  if (item.speedBonus) {
+    bonuses.push(<StatDisplayComponent icon={Icons.Speed} value={item.speedBonus} title="Operational Speed" /> as HTMLElement);
+    textBonuses.push(`Operational Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus}`);
+  }
+  if (item.accuracyBonus) {
+    bonuses.push(<StatDisplayComponent icon={Icons.Accuracy} value={item.accuracyBonus} title="Accuracy" /> as HTMLElement);
+    textBonuses.push(`Accuracy: ${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`);
+  }
+  return {
+    html: (<Fragment>{...bonuses}</Fragment>) as unknown as DocumentFragment,
+    text: textBonuses.join("\n"),
+  };
+}
+
+interface ArmoryItemProps {
   item: Weapon | Item;
-  state: any;
+  state: CampaignState | null;
   isShop: boolean;
   isLocked: boolean;
   isDead: boolean;
   isCurrentlyEquipped: boolean;
   isOwned: boolean;
   onSelect: () => void;
-}) {
+}
+
+function calcArmoryItemCost(item: Weapon | Item, isShop: boolean, economyMode: string): number {
+  if (isShop && economyMode === "Open") return Math.floor(item.cost * 0.5);
+  return item.cost;
+}
+
+function isArmoryItemDisabled(params: {
+  isDead: boolean;
+  isLocked: boolean;
+  isCurrentlyEquipped: boolean;
+  isOwned: boolean;
+  canAfford: boolean;
+}): boolean {
+  const { isDead, isLocked, isCurrentlyEquipped, isOwned, canAfford } = params;
+  return isDead || isLocked || (!isCurrentlyEquipped && !isOwned && !canAfford);
+}
+
+function ArmoryItem({
+  item, state, isShop, isLocked, isDead, isCurrentlyEquipped, isOwned, onSelect
+}: ArmoryItemProps) {
   const economyMode = state?.rules?.economyMode || "Open";
-  if (economyMode === "Limited" && !isShop && !isOwned && !isCurrentlyEquipped) {
-    return null;
-  }
+  if (economyMode === "Limited" && !isShop && !isOwned && !isCurrentlyEquipped) return null;
 
-  let cost = item.cost;
-  if (isShop && economyMode === "Open") {
-    cost = Math.floor(cost * 0.5);
-  }
-
+  const cost = calcArmoryItemCost(item, isShop, economyMode);
   const canAfford = !state || state.scrap >= cost;
-  const isDisabled = isDead || isLocked || (!isCurrentlyEquipped && !isOwned && !canAfford);
+  const isDisabled = isArmoryItemDisabled({ isDead, isLocked, isCurrentlyEquipped, isOwned, canAfford });
 
-  let statsHtml: any = null;
-  let fullStats = "";
-  if ("damage" in item) {
-    const fireRateVal = item.fireRate || 0;
-    const fireRateStr = fireRateVal > 0 ? (1000 / fireRateVal).toFixed(1) : "0";
-    statsHtml = (
-      <Fragment>
-        <StatDisplayComponent icon={Icons.Damage} value={item.damage || 0} title="Damage" />
-        <StatDisplayComponent icon={Icons.Rate} value={fireRateStr} title="Terminal Feed Delay (Shots/sec)" />
-        <StatDisplayComponent icon={Icons.Range} value={item.range || 0} title="Range" />
-      </Fragment>
-    );
-    const acc = item.accuracy || 0;
-    fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nTerminal Feed Delay: ${fireRateStr}/s\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`;
-  } else {
-    const bonuses = [];
-    if (item.hpBonus) bonuses.push(<StatDisplayComponent icon={Icons.Health} value={item.hpBonus} title="HP" />);
-    if (item.speedBonus) bonuses.push(<StatDisplayComponent icon={Icons.Speed} value={item.speedBonus} title="Operational Speed" />);
-    if (item.accuracyBonus) bonuses.push(<StatDisplayComponent icon={Icons.Accuracy} value={item.accuracyBonus} title="Accuracy" />);
-    statsHtml = bonuses;
-
-    const fullBonuses = [];
-    if (item.hpBonus) fullBonuses.push(`HP: ${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
-    if (item.speedBonus) fullBonuses.push(`Operational Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus}`);
-    if (item.accuracyBonus) fullBonuses.push(`Accuracy: ${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`);
-    fullStats = fullBonuses.join("\n");
-  }
+  const { html: statsHtml, text: fullStats } = "damage" in item
+    ? buildWeaponStats(item as Weapon)
+    : buildItemStats(item);
 
   const priceText = isOwned || isCurrentlyEquipped ? "Owned" : `${cost} Credits`;
   const priceClass = isOwned || isCurrentlyEquipped ? "price-owned" : "price-cost";

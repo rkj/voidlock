@@ -147,13 +147,19 @@ export class CampaignManager {
   /**
    * Starts a new campaign with the given seed and difficulty.
    */
-  public startNewCampaign(
-    seed: number,
-    difficulty: string,
-    overrides?: CampaignOverrides | boolean,
-    mapGeneratorType?: MapGeneratorType,
-    mapGrowthRate?: number,
-  ): void {
+  public startNewCampaign({
+    seed,
+    difficulty,
+    overrides,
+    mapGeneratorType,
+    mapGrowthRate,
+  }: {
+    seed: number;
+    difficulty: string;
+    overrides?: CampaignOverrides | boolean;
+    mapGeneratorType?: MapGeneratorType;
+    mapGrowthRate?: number;
+  }): void {
     console.log("CampaignManager.startNewCampaign instance:", this);
     const rules = this.getRulesForDifficulty(difficulty);
 
@@ -393,6 +399,76 @@ export class CampaignManager {
     });
   }
 
+  private repairBasicFields(state: CampaignState, data: Record<string, unknown>): void {
+    state.version ??= (data.version as string) || CAMPAIGN_DEFAULTS.VERSION;
+    state.seed ??= (data.seed as number) || 0;
+    state.lastModifiedAt ??= (data.lastModifiedAt as number) || 0;
+    if (!["Active", "Victory", "Defeat"].includes(state.status)) state.status = "Active";
+    state.scrap ??= (data.scrap as number) || 0;
+    state.intel ??= (data.intel as number) || 0;
+    state.currentSector ??= (data.currentSector as number) || 1;
+    if (state.currentNodeId === undefined) state.currentNodeId = (data.currentNodeId as string) || null;
+    if (!Array.isArray(state.history)) state.history = [];
+    if (!Array.isArray(state.unlockedArchetypes)) state.unlockedArchetypes = [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES];
+    if (!Array.isArray(state.unlockedItems)) state.unlockedItems = [];
+  }
+
+  private repairRules(state: CampaignState, data: Record<string, unknown>): void {
+    const rules = { ...((data.rules as Record<string, unknown>) || {}) } as unknown as GameRules;
+    if (!rules.mode) rules.mode = "Custom";
+    if (!rules.difficulty) rules.difficulty = "Clone";
+    if (!rules.deathRule) rules.deathRule = "Clone";
+    rules.allowTacticalPause ??= true;
+    if (!rules.mapGeneratorType) rules.mapGeneratorType = MapGeneratorType.DenseShip;
+    rules.difficultyScaling ??= 1.0;
+    rules.resourceScarcity ??= 1.0;
+    rules.startingScrap ??= 500;
+    rules.mapGrowthRate ??= 0.5;
+    rules.baseEnemyCount ??= 3;
+    rules.enemyGrowthPerMission ??= 1.0;
+    if (!rules.economyMode) rules.economyMode = "Open";
+    state.rules = rules;
+  }
+
+  private repairRoster(state: CampaignState, data: Record<string, unknown>): void {
+    state.roster = ((data.roster as unknown[]) || []).map((s) => {
+      const soldier = { ...(s as Record<string, unknown>) } as unknown as CampaignSoldier;
+      soldier.hp ??= 100;
+      soldier.maxHp ??= 100;
+      soldier.soldierAim ??= 60;
+      soldier.xp ??= 0;
+      soldier.level ??= 1;
+      soldier.kills ??= 0;
+      soldier.missions ??= 0;
+      if (!["Healthy", "Wounded", "Dead"].includes(soldier.status)) soldier.status = "Healthy";
+      if (!soldier.equipment) soldier.equipment = {};
+      soldier.recoveryTime ??= 0;
+      return soldier;
+    });
+  }
+
+  private repairNodes(state: CampaignState, data: Record<string, unknown>): void {
+    const allIds = new Set(
+      ((data.nodes as unknown[]) || []).map((n) => (n as Record<string, unknown>).id as string),
+    );
+    state.nodes = ((data.nodes as unknown[]) || []).map((n) => {
+      const node = { ...(n as Record<string, unknown>) } as unknown as CampaignNode;
+      if (!["Combat", "Elite", "Shop", "Event", "Boss"].includes(node.type)) node.type = "Combat";
+      if (!["Hidden", "Revealed", "Accessible", "Cleared", "Skipped"].includes(node.status)) node.status = "Hidden";
+      node.difficulty ??= 1;
+      node.rank ??= 0;
+      node.mapSeed ??= 0;
+      node.bonusLootCount ??= 0;
+      if (!node.position) node.position = { x: 0, y: 0 };
+      if (!Array.isArray(node.connections)) {
+        node.connections = [];
+      } else {
+        node.connections = node.connections.filter((id: string) => allIds.has(id));
+      }
+      return node;
+    });
+  }
+
   private validateAndRepair(
     data: Record<string, unknown>,
   ): CampaignState | null {
@@ -404,111 +480,18 @@ export class CampaignManager {
     try {
       const state = { ...data } as unknown as CampaignState;
 
-      // 1. Repair basic fields
-      if (state.version === undefined)
-        state.version = (data.version as string) || CAMPAIGN_DEFAULTS.VERSION;
-      if (state.seed === undefined) state.seed = (data.seed as number) || 0;
-      if (state.lastModifiedAt === undefined)
-        state.lastModifiedAt = (data.lastModifiedAt as number) || 0;
-      if (!["Active", "Victory", "Defeat"].includes(state.status))
-        state.status = "Active";
-      if (state.scrap === undefined) state.scrap = (data.scrap as number) || 0;
-      if (state.intel === undefined) state.intel = (data.intel as number) || 0;
-      if (state.currentSector === undefined)
-        state.currentSector = (data.currentSector as number) || 1;
-      if (state.currentNodeId === undefined)
-        state.currentNodeId = (data.currentNodeId as string) || null;
-      if (!Array.isArray(state.history)) state.history = [];
-      if (!Array.isArray(state.unlockedArchetypes))
-        state.unlockedArchetypes = [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES];
-      if (!Array.isArray(state.unlockedItems)) state.unlockedItems = [];
-
-      // 2. Repair rules
-      const rules = {
-        ...((data.rules as Record<string, unknown>) || {}),
-      } as unknown as GameRules;
-      if (!rules.mode) rules.mode = "Custom";
-      if (!rules.difficulty) rules.difficulty = "Clone";
-      if (!rules.deathRule) rules.deathRule = "Clone";
-      if (rules.allowTacticalPause === undefined)
-        rules.allowTacticalPause = true;
-      if (!rules.mapGeneratorType)
-        rules.mapGeneratorType = MapGeneratorType.DenseShip;
-      if (rules.difficultyScaling === undefined) rules.difficultyScaling = 1.0;
-      if (rules.resourceScarcity === undefined) rules.resourceScarcity = 1.0;
-      if (rules.startingScrap === undefined) rules.startingScrap = 500;
-      if (rules.mapGrowthRate === undefined) rules.mapGrowthRate = 0.5;
-      if (rules.baseEnemyCount === undefined) rules.baseEnemyCount = 3;
-      if (rules.enemyGrowthPerMission === undefined)
-        rules.enemyGrowthPerMission = 1.0;
-      if (!rules.economyMode) rules.economyMode = "Open";
-      state.rules = rules;
-
-      // 3. Repair roster
-      state.roster = ((data.roster as unknown[]) || []).map((s) => {
-        const soldier = {
-          ...(s as Record<string, unknown>),
-        } as unknown as CampaignSoldier;
-        if (soldier.hp === undefined) soldier.hp = 100;
-        if (soldier.maxHp === undefined) soldier.maxHp = 100;
-        if (soldier.soldierAim === undefined) soldier.soldierAim = 60;
-        if (soldier.xp === undefined) soldier.xp = 0;
-        if (soldier.level === undefined) soldier.level = 1;
-        if (soldier.kills === undefined) soldier.kills = 0;
-        if (soldier.missions === undefined) soldier.missions = 0;
-        if (!["Healthy", "Wounded", "Dead"].includes(soldier.status))
-          soldier.status = "Healthy";
-        if (!soldier.equipment) soldier.equipment = {};
-        if (soldier.recoveryTime === undefined) soldier.recoveryTime = 0;
-        return soldier;
-      });
-
-      // 4. Repair nodes
-      const allIds = new Set(
-        ((data.nodes as unknown[]) || []).map(
-          (n) => (n as Record<string, unknown>).id as string,
-        ),
-      );
-      state.nodes = ((data.nodes as unknown[]) || []).map((n) => {
-        const node = {
-          ...(n as Record<string, unknown>),
-        } as unknown as CampaignNode;
-        if (!["Combat", "Elite", "Shop", "Event", "Boss"].includes(node.type)) {
-          node.type = "Combat";
-        }
-        if (
-          !["Hidden", "Revealed", "Accessible", "Cleared", "Skipped"].includes(
-            node.status,
-          )
-        ) {
-          node.status = "Hidden";
-        }
-        if (node.difficulty === undefined) node.difficulty = 1;
-        if (node.rank === undefined) node.rank = 0;
-        if (node.mapSeed === undefined) node.mapSeed = 0;
-        if (node.bonusLootCount === undefined) node.bonusLootCount = 0;
-        if (!node.position) node.position = { x: 0, y: 0 };
-        if (!Array.isArray(node.connections)) {
-          node.connections = [];
-        } else {
-          node.connections = node.connections.filter((id: string) =>
-            allIds.has(id),
-          );
-        }
-        return node;
-      });
+      this.repairBasicFields(state, data);
+      this.repairRules(state, data);
+      this.repairRoster(state, data);
+      this.repairNodes(state, data);
 
       // Final validation of repaired state
       const finalResult = CampaignStateSchema.safeParse(state);
       if (finalResult.success) {
         return finalResult.data as CampaignState;
-      } 
-        Logger.warn(
-          "CampaignManager: Repair failed:",
-          finalResult.error.format(),
-        );
-        return null;
-      
+      }
+      Logger.warn("CampaignManager: Repair failed:", finalResult.error.format());
+      return null;
     } catch (e) {
       Logger.warn("CampaignManager: Error during repair:", e);
       return null;
@@ -551,13 +534,13 @@ export class CampaignManager {
     const casualties = report.soldierResults.filter(
       (r) => r.status === "Dead",
     ).length;
-    MetaManager.getInstance(this.storage).recordMissionResult(
-      report.aliensKilled,
+    MetaManager.getInstance(this.storage).recordMissionResult({
+      kills: report.aliensKilled,
       casualties,
-      report.result === "Won",
-      report.scrapGained,
-      report.intelGained,
-    );
+      won: report.result === "Won",
+      scrapGained: report.scrapGained,
+      intelGained: report.intelGained,
+    });
 
     // 5. Check for campaign end
     const wasActive = previousStatus === "Active";
@@ -595,13 +578,13 @@ export class CampaignManager {
     );
 
     // Sync with MetaManager (0 kills, 0 casualties, mission "won")
-    MetaManager.getInstance(this.storage).recordMissionResult(
-      0,
-      0,
-      true,
+    MetaManager.getInstance(this.storage).recordMissionResult({
+      kills: 0,
+      casualties: 0,
+      won: true,
       scrapGained,
       intelGained,
-    );
+    });
 
     this.save();
   }
@@ -715,13 +698,13 @@ export class CampaignManager {
   ): { text: string; ambush: boolean } {
     if (!this.state) throw new Error("No active campaign.");
 
-    const result = this.eventManager.applyEventChoice(
-      this.state,
+    const result = this.eventManager.applyEventChoice({
+      state: this.state,
       nodeId,
       choice,
       prng,
-      this.missionReconciler,
-    );
+      reconciler: this.missionReconciler,
+    });
 
     this.save();
     return result;

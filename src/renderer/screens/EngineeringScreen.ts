@@ -86,7 +86,7 @@ export class EngineeringScreen {
         throw new Error(`Container #${config.containerId} not found`);
       }
     }
-    this.container = el!;
+    this.container = el;
     this.metaManager = config.metaManager;
     this.inputDispatcher = config.inputDispatcher;
     this.onUpdate = config.onUpdate;
@@ -217,10 +217,7 @@ export class EngineeringScreen {
         this.createUnlockCard(
           ArchetypeLibrary[arch.id]?.name || arch.id,
           arch.description,
-          arch.cost,
-          isUnlocked,
-          intel >= arch.cost,
-          () => this.handleUnlockArchetype(arch.id, arch.cost),
+          { cost: arch.cost, isUnlocked, canAfford: intel >= arch.cost, onUnlock: () => this.handleUnlockArchetype(arch.id, arch.cost) },
         ),
       );
     });
@@ -246,10 +243,7 @@ export class EngineeringScreen {
         this.createUnlockCard(
           name,
           item.description,
-          item.cost,
-          isUnlocked,
-          intel >= item.cost,
-          () => this.handleUnlockItem(item.id, item.cost),
+          { cost: item.cost, isUnlocked, canAfford: intel >= item.cost, onUnlock: () => this.handleUnlockItem(item.id, item.cost) },
         ),
       );
     });
@@ -259,11 +253,9 @@ export class EngineeringScreen {
   private createUnlockCard(
     name: string,
     desc: string,
-    cost: number,
-    isUnlocked: boolean,
-    canAfford: boolean,
-    onUnlock: () => void,
+    params: { cost: number; isUnlocked: boolean; canAfford: boolean; onUnlock: () => void },
   ): HTMLElement {
+    const { cost, isUnlocked, canAfford, onUnlock } = params;
     const card = document.createElement("div");
     card.className = `unlock-card card p-15 flex-row justify-between align-center ${isUnlocked ? "unlocked" : ""}`;
     card.style.background = isUnlocked

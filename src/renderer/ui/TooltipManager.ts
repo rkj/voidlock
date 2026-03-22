@@ -28,9 +28,7 @@ export class TooltipManager {
   }
 
   public static getInstance(): TooltipManager {
-    if (!TooltipManager.instance) {
-      TooltipManager.instance = new TooltipManager();
-    }
+    TooltipManager.instance ??= new TooltipManager();
     return TooltipManager.instance;
   }
 

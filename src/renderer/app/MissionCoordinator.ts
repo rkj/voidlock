@@ -33,6 +33,15 @@ export interface MissionCoordinatorConfig {
   onRendererCreated: (renderer: Renderer) => void;
 }
 
+export interface AbortMissionParams {
+  currentGameState: GameState | null;
+  currentCampaignNode: CampaignNode | null;
+  currentSeed: number;
+  currentSquad: SquadConfig;
+  onAbortResolved: (report: MissionReport) => void;
+}
+
+
 export class MissionCoordinator {
   private debriefShown = false;
   private renderer: Renderer | null = null;
@@ -159,7 +168,7 @@ export class MissionCoordinator {
             assetManager: this.assetManager,
           });
           let initialCellSize = 128;
-          if (container && state && state.map) {
+          if (container && state?.map) {
             const fitWidth = container.clientWidth / state.map.width;
             const fitHeight = container.clientHeight / state.map.height;
             initialCellSize = Math.max(32, Math.min(fitWidth, fitHeight));
@@ -187,7 +196,7 @@ export class MissionCoordinator {
         this.debriefShown = true;
         const report = this.generateMissionReport(
           state,
-          config.campaignNode || null,
+          config.campaignNode ?? null,
           state.seed,
         );
         onMissionEnd(report);
@@ -215,11 +224,11 @@ export class MissionCoordinator {
 
       let campaignNode: CampaignNode | null = null;
       if (config.campaignNodeId) {
-        this.campaignManager.load();
+        void this.campaignManager.load();
         const campaignState = this.campaignManager.getState();
         if (campaignState) {
           campaignNode =
-            campaignState.nodes.find((n) => n.id === config.campaignNodeId) ||
+            campaignState.nodes.find((n) => n.id === config.campaignNodeId) ??
             null;
         }
       }
@@ -234,7 +243,7 @@ export class MissionCoordinator {
 
       this.setupGameClientCallbacks(
         {
-          campaignNode: campaignNode || undefined,
+          campaignNode: campaignNode ?? undefined,
         },
         setupCallbacks,
         updateUI,
@@ -258,13 +267,13 @@ export class MissionCoordinator {
         startingThreatLevel: config.startingThreatLevel,
         initialTimeScale,
         startPaused: false,
-        allowTacticalPause: allowTacticalPause,
+        allowTacticalPause,
         mode: EngineMode.Simulation,
-        commandLog: commandLog,
+        commandLog,
         campaignNodeId: config.campaignNodeId,
-        targetTick: targetTick,
-        baseEnemyCount: baseEnemyCount,
-        enemyGrowthPerMission: enemyGrowthPerMission,
+        targetTick,
+        baseEnemyCount,
+        enemyGrowthPerMission,
         missionDepth,
         nodeType: config.nodeType,
         startingPoints: undefined,
@@ -281,13 +290,14 @@ export class MissionCoordinator {
     }
   }
 
-  public abortMission(
-    currentGameState: GameState | null,
-    currentCampaignNode: CampaignNode | null,
-    currentSeed: number,
-    currentSquad: SquadConfig,
-    onAbortResolved: (report: MissionReport) => void,
-  ) {
+  public abortMission(params: AbortMissionParams) {
+    const {
+      currentGameState,
+      currentCampaignNode,
+      currentSeed,
+      currentSquad,
+      onAbortResolved,
+    } = params;
     const report = this.generateAbortReport(
       currentGameState,
       currentCampaignNode,
@@ -397,7 +407,7 @@ export class MissionCoordinator {
       intelGained: 0,
       timeSpent: 0,
       soldierResults: squadConfig.soldiers.map((s) => ({
-        soldierId: s.id!,
+        soldierId: s.id ?? `unknown-${s.archetypeId}`,
         name: s.name,
         tacticalNumber: s.tacticalNumber,
         xpBefore: 0,

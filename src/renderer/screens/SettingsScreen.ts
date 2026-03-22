@@ -1,4 +1,5 @@
 import { ConfigManager } from "../ConfigManager";
+import type { GlobalConfig } from "../ConfigManager";
 import { UnitStyleSelector } from "../components/UnitStyleSelector";
 import { Logger, LogLevel } from "@src/shared/Logger";
 import { InputDispatcher } from "../InputDispatcher";
@@ -116,19 +117,16 @@ export class SettingsScreen {
 
     this.container.innerHTML = "";
     this.container.className = "screen screen-centered flex-col p-20 atmospheric-bg bg-station";
-    this.container.style.overflowY = "hidden"; // Enforce internal scroll only
+    this.container.style.overflowY = "hidden";
 
-    // Grain effect
     const grain = document.createElement("div");
     grain.className = "grain";
     this.container.appendChild(grain);
 
-    // Scanline effect
     const scanline = document.createElement("div");
     scanline.className = "scanline";
     this.container.appendChild(scanline);
 
-    // Content Wrapper (to ensure it's above grain/scanline)
     const contentWrapper = document.createElement("div");
     contentWrapper.className = "flex-col align-center w-full h-full relative";
     contentWrapper.style.zIndex = "10";
@@ -142,12 +140,11 @@ export class SettingsScreen {
     h1.style.flexShrink = "0";
     contentWrapper.appendChild(h1);
 
-    // Internal Scroll Container
     const scrollContainer = document.createElement("div");
     scrollContainer.className = "settings-content flex-col gap-20 p-20 flex-grow w-full";
     scrollContainer.style.overflowY = "auto";
-    scrollContainer.style.minHeight = "0"; // Critical for flex-grow + overflow
-    scrollContainer.style.maxWidth = "800px"; // Better readability
+    scrollContainer.style.minHeight = "0";
+    scrollContainer.style.maxWidth = "800px";
     scrollContainer.style.margin = "0 auto";
     contentWrapper.appendChild(scrollContainer);
 
@@ -157,7 +154,31 @@ export class SettingsScreen {
     settingsGrid.style.border = "1px solid var(--color-border-strong)";
     settingsGrid.style.width = "100%";
 
-    // Visual Style Section
+    this.renderVisualStyleSection(settingsGrid, global);
+    this.renderDeveloperSection(settingsGrid, global);
+    this.renderAccountSection(settingsGrid, global);
+    this.renderDataManagementSection(settingsGrid, global);
+
+    scrollContainer.appendChild(settingsGrid);
+
+    // Actions
+    const actions = document.createElement("div");
+    actions.className = "flex-row justify-center w-full p-20";
+    actions.style.maxWidth = "540px";
+    actions.style.flexShrink = "0";
+
+    const backBtn = document.createElement("button");
+    backBtn.className = "menu-button back-button";
+    backBtn.setAttribute("data-focus-id", "btn-settings-back");
+    backBtn.textContent = "Save & Back";
+    backBtn.onclick = () => {
+      this.onBack();
+    };
+    actions.appendChild(backBtn);
+    contentWrapper.appendChild(actions);
+  }
+
+  private renderVisualStyleSection(grid: HTMLElement, global: GlobalConfig) {
     const styleGroup = document.createElement("div");
     styleGroup.className = "control-group";
     styleGroup.style.width = "100%";
@@ -169,7 +190,7 @@ export class SettingsScreen {
     stylePreview.id = "settings-unit-style-preview";
     stylePreview.className = "style-preview-container";
     styleGroup.appendChild(stylePreview);
-    settingsGrid.appendChild(styleGroup);
+    grid.appendChild(styleGroup);
 
     this.unitStyleSelector = new UnitStyleSelector(
       stylePreview,
@@ -177,16 +198,12 @@ export class SettingsScreen {
       this.assetManager,
       globalConfig.unitStyle,
       (style) => {
-        ConfigManager.saveGlobal({
-          ...ConfigManager.loadGlobal(),
-          unitStyle: style,
-        });
+        ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), unitStyle: style });
         this.unitStyleSelector?.renderPreviews();
       },
     );
     this.unitStyleSelector.render();
 
-    // Theme Section
     const themeGroup = document.createElement("div");
     themeGroup.className = "control-group";
     themeGroup.style.width = "100%";
@@ -209,21 +226,15 @@ export class SettingsScreen {
       if (t.id === globalConfig.themeId) opt.selected = true;
       themeSelect.appendChild(opt);
     });
-
     themeSelect.addEventListener("change", () => {
       const themeId = themeSelect.value;
       this.themeManager.setTheme(themeId);
-      ConfigManager.saveGlobal({
-        ...ConfigManager.loadGlobal(),
-        themeId,
-      });
-      // Refresh previews when theme changes
+      ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), themeId });
       this.unitStyleSelector?.renderPreviews();
     });
     themeGroup.appendChild(themeSelect);
-    settingsGrid.appendChild(themeGroup);
+    grid.appendChild(themeGroup);
 
-    // Terminal Phosphor Section
     const phosphorGroup = document.createElement("div");
     phosphorGroup.className = "control-group";
     phosphorGroup.style.width = "100%";
@@ -245,7 +256,6 @@ export class SettingsScreen {
       if (m.id === globalConfig.phosphor) opt.selected = true;
       phosphorSelect.appendChild(opt);
     });
-
     phosphorSelect.addEventListener("change", () => {
       const mode = phosphorSelect.value as "green" | "amber";
       if (mode === "amber") {
@@ -253,26 +263,22 @@ export class SettingsScreen {
       } else {
         document.body.classList.remove("crt-amber");
       }
-      ConfigManager.saveGlobal({
-        ...ConfigManager.loadGlobal(),
-        phosphor: mode,
-      });
-      // Refresh previews
+      ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), phosphor: mode });
       this.unitStyleSelector?.renderPreviews();
     });
     phosphorGroup.appendChild(phosphorSelect);
-    settingsGrid.appendChild(phosphorGroup);
+    grid.appendChild(phosphorGroup);
+  }
 
-    // Developer Options Section
+  private renderDeveloperSection(grid: HTMLElement, global: GlobalConfig) {
     const devHeader = document.createElement("h3");
     devHeader.textContent = "Developer Options";
     devHeader.style.marginTop = "20px";
     devHeader.style.borderBottom = "1px solid var(--color-border)";
     devHeader.style.paddingBottom = "5px";
     devHeader.style.color = "var(--color-text-dim)";
-    settingsGrid.appendChild(devHeader);
+    grid.appendChild(devHeader);
 
-    // Log Level
     const logGroup = document.createElement("div");
     logGroup.className = "control-group flex-row justify-between align-center";
     logGroup.style.width = "100%";
@@ -293,26 +299,18 @@ export class SettingsScreen {
     logSelect.onchange = () => {
       const newLevelStr = logSelect.value;
       if (
-        newLevelStr === "DEBUG" ||
-        newLevelStr === "INFO" ||
-        newLevelStr === "WARN" ||
-        newLevelStr === "ERROR" ||
-        newLevelStr === "NONE"
+        newLevelStr === "DEBUG" || newLevelStr === "INFO" ||
+        newLevelStr === "WARN" || newLevelStr === "ERROR" || newLevelStr === "NONE"
       ) {
         Logger.setLevel(LogLevel[newLevelStr]);
-        ConfigManager.saveGlobal({
-          ...ConfigManager.loadGlobal(),
-          logLevel: newLevelStr,
-        });
+        ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), logLevel: newLevelStr });
       }
     };
     logGroup.appendChild(logSelect);
-    settingsGrid.appendChild(logGroup);
+    grid.appendChild(logGroup);
 
-    // Debug Snapshots
     const snapshotGroup = document.createElement("div");
-    snapshotGroup.className =
-      "control-group flex-row justify-between align-center";
+    snapshotGroup.className = "control-group flex-row justify-between align-center";
     snapshotGroup.style.width = "100%";
     const snapshotLabel = document.createElement("label");
     snapshotLabel.textContent = "Debug Snapshots:";
@@ -322,18 +320,13 @@ export class SettingsScreen {
     snapshotToggle.type = "checkbox";
     snapshotToggle.checked = globalConfig.debugSnapshots;
     snapshotToggle.onchange = () => {
-      ConfigManager.saveGlobal({
-        ...ConfigManager.loadGlobal(),
-        debugSnapshots: snapshotToggle.checked,
-      });
+      ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), debugSnapshots: snapshotToggle.checked });
     };
     snapshotGroup.appendChild(snapshotToggle);
-    settingsGrid.appendChild(snapshotGroup);
+    grid.appendChild(snapshotGroup);
 
-    // Snapshot Interval
     const intervalGroup = document.createElement("div");
-    intervalGroup.className =
-      "control-group flex-row justify-between align-center";
+    intervalGroup.className = "control-group flex-row justify-between align-center";
     intervalGroup.style.width = "100%";
     const intervalLabel = document.createElement("label");
     intervalLabel.textContent = "Snapshot Interval (Ticks, 0=Default):";
@@ -352,12 +345,10 @@ export class SettingsScreen {
       });
     };
     intervalGroup.appendChild(intervalInput);
-    settingsGrid.appendChild(intervalGroup);
+    grid.appendChild(intervalGroup);
 
-    // Debug Overlay
     const overlayGroup = document.createElement("div");
-    overlayGroup.className =
-      "control-group flex-row justify-between align-center";
+    overlayGroup.className = "control-group flex-row justify-between align-center";
     overlayGroup.style.width = "100%";
     const overlayLabel = document.createElement("label");
     overlayLabel.textContent = "Debug Overlay:";
@@ -367,28 +358,25 @@ export class SettingsScreen {
     overlayToggle.type = "checkbox";
     overlayToggle.checked = globalConfig.debugOverlayEnabled;
     overlayToggle.onchange = () => {
-      ConfigManager.saveGlobal({
-        ...ConfigManager.loadGlobal(),
-        debugOverlayEnabled: overlayToggle.checked,
-      });
+      ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), debugOverlayEnabled: overlayToggle.checked });
     };
     overlayGroup.appendChild(overlayToggle);
-    settingsGrid.appendChild(overlayGroup);
+    grid.appendChild(overlayGroup);
+  }
 
-    // Account & Cloud Sync Section
+  private renderAccountSection(grid: HTMLElement, global: GlobalConfig) {
     const accountHeader = document.createElement("h3");
     accountHeader.textContent = "Account & Cloud Sync";
     accountHeader.style.marginTop = "20px";
     accountHeader.style.borderBottom = "1px solid var(--color-border)";
     accountHeader.style.paddingBottom = "5px";
     accountHeader.style.color = "var(--color-text-dim)";
-    settingsGrid.appendChild(accountHeader);
+    grid.appendChild(accountHeader);
 
     const accountGroup = document.createElement("div");
     accountGroup.className = "control-group flex-col gap-10";
     accountGroup.style.width = "100%";
 
-    // Cloud Sync Toggle
     const syncGroup = document.createElement("div");
     syncGroup.className = "flex-row justify-between align-center";
     syncGroup.style.width = "100%";
@@ -407,14 +395,11 @@ export class SettingsScreen {
     syncToggle.disabled = !isConfigured;
     syncToggle.onchange = () => {
       const enabled = syncToggle.checked;
-      ConfigManager.saveGlobal({
-        ...ConfigManager.loadGlobal(),
-        cloudSyncEnabled: enabled,
-      });
+      ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), cloudSyncEnabled: enabled });
       if (this.cloudSync) {
         this.cloudSync.setEnabled(enabled);
         if (enabled) {
-          this.cloudSync.initialize().then(() => this.render());
+          void this.cloudSync.initialize().then(() => this.render());
         } else {
           this.render();
         }
@@ -432,131 +417,124 @@ export class SettingsScreen {
       errorMsg.style.fontSize = "0.8em";
       accountGroup.appendChild(errorMsg);
     } else if (globalConfig.cloudSyncEnabled) {
-      const user = this.cloudSync.getUser();
-      const isAnonymous = this.cloudSync.isAnonymous();
-
-      if (user && !isAnonymous) {
-        // Signed in
-        const userInfo = document.createElement("div");
-        userInfo.className = "flex-row justify-between align-center";
-        userInfo.style.padding = "10px";
-        userInfo.style.background = "var(--color-surface)";
-        userInfo.style.border = "1px solid var(--color-border)";
-
-        const userDetails = document.createElement("div");
-        userDetails.className = "flex-col";
-
-        const userName = document.createElement("div");
-        userName.textContent =
-          user.displayName || user.email || "Authenticated User";
-        userName.style.fontWeight = "bold";
-        userDetails.appendChild(userName);
-
-        const userStatus = document.createElement("div");
-        userStatus.textContent = "✓ Cloud Sync Active";
-        userStatus.style.fontSize = "0.8em";
-        userStatus.style.color = "var(--color-primary)";
-        userDetails.appendChild(userStatus);
-
-        userInfo.appendChild(userDetails);
-
-        const signOutBtn = document.createElement("button");
-        signOutBtn.className = "menu-button";
-        signOutBtn.style.fontSize = "0.8em";
-        signOutBtn.style.padding = "5px 10px";
-        signOutBtn.textContent = "Sign Out";
-        signOutBtn.onclick = async () => {
-          if (this.cloudSync) {
-            await this.cloudSync.signOut();
-            this.render();
-          }
-        };
-        userInfo.appendChild(signOutBtn);
-
-        accountGroup.appendChild(userInfo);
-      } else {
-        // Anonymous or Not signed in
-        const authDesc = document.createElement("div");
-        authDesc.textContent =
-          "Sign in to enable cross-device synchronization and protect your saves.";
-        authDesc.style.fontSize = "0.8em";
-        authDesc.style.color = "var(--color-text-dim)";
-        accountGroup.appendChild(authDesc);
-
-        const authButtons = document.createElement("div");
-        authButtons.className = "flex-row gap-10";
-        authButtons.style.marginTop = "5px";
-
-        const googleBtn = document.createElement("button");
-        googleBtn.className = "menu-button";
-        googleBtn.style.flex = "1";
-        googleBtn.textContent = "Sign in with Google";
-        googleBtn.onclick = async () => {
-          if (!this.cloudSync) return;
-          try {
-            await this.cloudSync.signInWithGoogle();
-            this.render();
-          } catch (err) {
-            this.modalService.show({
-              title: "Sign In Failed",
-              message: "Could not connect to Google. Please try again later.",
-              buttons: [
-                { label: "OK", isPrimary: true, onClick: (m) => m.close() },
-              ],
-            });
-          }
-        };
-        authButtons.appendChild(googleBtn);
-
-        const githubBtn = document.createElement("button");
-        githubBtn.className = "menu-button";
-        githubBtn.style.flex = "1";
-        githubBtn.textContent = "Sign in with GitHub";
-        githubBtn.onclick = async () => {
-          if (!this.cloudSync) return;
-          try {
-            await this.cloudSync.signInWithGithub();
-            this.render();
-          } catch (err) {
-            this.modalService.show({
-              title: "Sign In Failed",
-              message: "Could not connect to GitHub. Please try again later.",
-              buttons: [
-                { label: "OK", isPrimary: true, onClick: (m) => m.close() },
-              ],
-            });
-          }
-        };
-        authButtons.appendChild(githubBtn);
-
-        accountGroup.appendChild(authButtons);
-      }
+      this.renderCloudSyncAuthUI(accountGroup);
     } else {
       const infoMsg = document.createElement("div");
-      infoMsg.textContent =
-        "Cloud Sync is disabled. Enable it above to use online saves.";
+      infoMsg.textContent = "Cloud Sync is disabled. Enable it above to use online saves.";
       infoMsg.style.color = "var(--color-text-dim)";
       infoMsg.style.fontSize = "0.8em";
       accountGroup.appendChild(infoMsg);
     }
-    settingsGrid.appendChild(accountGroup);
+    grid.appendChild(accountGroup);
+  }
 
-    // Data Management Section
+  private renderCloudSyncAuthUI(accountGroup: HTMLElement) {
+    const user = this.cloudSync.getUser();
+    const isAnonymous = this.cloudSync.isAnonymous();
+
+    if (user && !isAnonymous) {
+      const userInfo = document.createElement("div");
+      userInfo.className = "flex-row justify-between align-center";
+      userInfo.style.padding = "10px";
+      userInfo.style.background = "var(--color-surface)";
+      userInfo.style.border = "1px solid var(--color-border)";
+
+      const userDetails = document.createElement("div");
+      userDetails.className = "flex-col";
+
+      const userName = document.createElement("div");
+      userName.textContent = user.displayName || user.email || "Authenticated User";
+      userName.style.fontWeight = "bold";
+      userDetails.appendChild(userName);
+
+      const userStatus = document.createElement("div");
+      userStatus.textContent = "✓ Cloud Sync Active";
+      userStatus.style.fontSize = "0.8em";
+      userStatus.style.color = "var(--color-primary)";
+      userDetails.appendChild(userStatus);
+
+      userInfo.appendChild(userDetails);
+
+      const signOutBtn = document.createElement("button");
+      signOutBtn.className = "menu-button";
+      signOutBtn.style.fontSize = "0.8em";
+      signOutBtn.style.padding = "5px 10px";
+      signOutBtn.textContent = "Sign Out";
+      signOutBtn.onclick = async () => {
+        if (this.cloudSync) {
+          await this.cloudSync.signOut();
+          this.render();
+        }
+      };
+      userInfo.appendChild(signOutBtn);
+      accountGroup.appendChild(userInfo);
+    } else {
+      const authDesc = document.createElement("div");
+      authDesc.textContent = "Sign in to enable cross-device synchronization and protect your saves.";
+      authDesc.style.fontSize = "0.8em";
+      authDesc.style.color = "var(--color-text-dim)";
+      accountGroup.appendChild(authDesc);
+
+      const authButtons = document.createElement("div");
+      authButtons.className = "flex-row gap-10";
+      authButtons.style.marginTop = "5px";
+
+      const googleBtn = document.createElement("button");
+      googleBtn.className = "menu-button";
+      googleBtn.style.flex = "1";
+      googleBtn.textContent = "Sign in with Google";
+      googleBtn.onclick = async () => {
+        if (!this.cloudSync) return;
+        try {
+          await this.cloudSync.signInWithGoogle();
+          this.render();
+        } catch (_err) {
+          void this.modalService.show({
+            title: "Sign In Failed",
+            message: "Could not connect to Google. Please try again later.",
+            buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }],
+          });
+        }
+      };
+      authButtons.appendChild(googleBtn);
+
+      const githubBtn = document.createElement("button");
+      githubBtn.className = "menu-button";
+      githubBtn.style.flex = "1";
+      githubBtn.textContent = "Sign in with GitHub";
+      githubBtn.onclick = async () => {
+        if (!this.cloudSync) return;
+        try {
+          await this.cloudSync.signInWithGithub();
+          this.render();
+        } catch (_err) {
+          void this.modalService.show({
+            title: "Sign In Failed",
+            message: "Could not connect to GitHub. Please try again later.",
+            buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }],
+          });
+        }
+      };
+      authButtons.appendChild(githubBtn);
+      accountGroup.appendChild(authButtons);
+    }
+  }
+
+  private renderDataManagementSection(grid: HTMLElement, global: GlobalConfig) {
     const dataHeader = document.createElement("h3");
     dataHeader.textContent = "Data Management";
     dataHeader.style.marginTop = "20px";
     dataHeader.style.borderBottom = "1px solid var(--color-border)";
     dataHeader.style.paddingBottom = "5px";
     dataHeader.style.color = "var(--color-text-dim)";
-    settingsGrid.appendChild(dataHeader);
+    grid.appendChild(dataHeader);
 
     const resetGroup = document.createElement("div");
     resetGroup.className = "control-group flex-col gap-10";
     resetGroup.style.width = "100%";
 
     const resetDesc = document.createElement("div");
-    resetDesc.textContent =
-      "Clear all campaign progress, settings, and local data.";
+    resetDesc.textContent = "Clear all campaign progress, settings, and local data.";
     resetDesc.style.fontSize = "0.8em";
     resetDesc.style.color = "var(--color-text-dim)";
     resetGroup.appendChild(resetDesc);
@@ -572,11 +550,7 @@ export class SettingsScreen {
         message:
           "This will permanently delete all your campaign progress, settings, and local storage. This action cannot be undone. Are you sure?",
         buttons: [
-          {
-            label: "Cancel",
-            isCancel: true,
-            onClick: (modal) => modal.close(false),
-          },
+          { label: "Cancel", isCancel: true, onClick: (modal) => modal.close(false) },
           {
             label: "Delete Everything",
             isPrimary: true,
@@ -585,7 +559,6 @@ export class SettingsScreen {
           },
         ],
       });
-
       if (confirmed) {
         localStorage.clear();
         window.location.reload();
@@ -594,6 +567,7 @@ export class SettingsScreen {
     resetGroup.appendChild(resetBtn);
 
     // Cloud Data Management
+    const isConfigured = this.cloudSync?.isConfigured() ?? false;
     if (isConfigured && globalConfig.cloudSyncEnabled) {
       const cloudDeleteBtn = document.createElement("button");
       cloudDeleteBtn.className = "menu-button danger-button";
@@ -606,11 +580,7 @@ export class SettingsScreen {
           message:
             "This will permanently delete all your campaign backups from the cloud. Local data will remain. Are you sure?",
           buttons: [
-            {
-              label: "Cancel",
-              isCancel: true,
-              onClick: (modal) => modal.close(false),
-            },
+            { label: "Cancel", isCancel: true, onClick: (modal) => modal.close(false) },
             {
               label: "Delete Cloud Data",
               isPrimary: true,
@@ -619,24 +589,19 @@ export class SettingsScreen {
             },
           ],
         });
-
         if (confirmed) {
           try {
             await this.cloudSync.deleteCampaign(CAMPAIGN_DEFAULTS.STORAGE_KEY);
-            this.modalService.show({
+            void this.modalService.show({
               title: "Success",
               message: "Cloud backups have been deleted.",
-              buttons: [
-                { label: "OK", isPrimary: true, onClick: (m) => m.close() },
-              ],
+              buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }],
             });
-          } catch (err) {
-            this.modalService.show({
+          } catch (_err) {
+            void this.modalService.show({
               title: "Error",
               message: "Failed to delete cloud data. Please try again later.",
-              buttons: [
-                { label: "OK", isPrimary: true, onClick: (m) => m.close() },
-              ],
+              buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }],
             });
           }
         }
@@ -644,24 +609,6 @@ export class SettingsScreen {
       resetGroup.appendChild(cloudDeleteBtn);
     }
 
-    settingsGrid.appendChild(resetGroup);
-
-    scrollContainer.appendChild(settingsGrid);
-
-    // Actions
-    const actions = document.createElement("div");
-    actions.className = "flex-row justify-center w-full p-20";
-    actions.style.maxWidth = "540px";
-    actions.style.flexShrink = "0";
-
-    const backBtn = document.createElement("button");
-    backBtn.className = "menu-button back-button";
-    backBtn.setAttribute("data-focus-id", "btn-settings-back");
-    backBtn.textContent = "Save & Back";
-    backBtn.onclick = () => {
-      this.onBack();
-    };
-    actions.appendChild(backBtn);
-    contentWrapper.appendChild(actions);
+    grid.appendChild(resetGroup);
   }
 }

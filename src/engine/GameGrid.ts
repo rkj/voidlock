@@ -1,13 +1,15 @@
 import type {
   MapDefinition,
   Grid,
-  Door} from "../shared/types";
+  CanMoveParams} from "../shared/types";
 import {
   CellType,
   BoundaryType,
 } from "../shared/types";
 import { Graph } from "./Graph";
 import { MathUtils } from "../shared/utils/MathUtils";
+
+export type { CanMoveParams };
 
 export class GameGrid implements Grid {
   private graph: Graph;
@@ -35,14 +37,14 @@ export class GameGrid implements Grid {
     return this.graph.cells[y][x].type === CellType.Floor;
   }
 
-  canMove(
-    fromX: number,
-    fromY: number,
-    toX: number,
-    toY: number,
-    doors?: Map<string, Door>,
-    allowClosedDoors: boolean = false,
-  ): boolean {
+  canMove({
+    fromX,
+    fromY,
+    toX,
+    toY,
+    doors,
+    allowClosedDoors = false,
+  }: CanMoveParams): boolean {
     if (!this.isWalkable(fromX, fromY) || !this.isWalkable(toX, toY)) {
       return false;
     }

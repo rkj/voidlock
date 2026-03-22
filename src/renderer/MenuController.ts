@@ -122,7 +122,7 @@ export class MenuController {
   public update(state: GameState) {
     this.lastState = state;
     this.discovery.update(state);
-    if (state.map && state.map.cells && state.map.cells.length > 0) {
+    if (state.map?.cells && state.map.cells.length > 0) {
       this.lastFullMap = state.map;
     }
   }
@@ -180,7 +180,7 @@ export class MenuController {
   }
 
   public handleCanvasClick(cell: Vector2, state?: GameState): void {
-    const activeState = state || this.lastState;
+    const activeState = state ?? this.lastState;
     if (!activeState) return;
 
     if (this.stateMachine.state === "TARGET_SELECT") {
@@ -190,12 +190,11 @@ export class MenuController {
       );
       if (option) {
         this.handleTargetSelect(option.key, activeState);
-      } else {
+      } else if (
+        this.selection.pendingAction === CommandType.MOVE_TO ||
+        this.selection.pendingAction === CommandType.USE_ITEM
+      ) {
         // Direct cell selection for actions that support it (Move To, some items)
-        if (
-          this.selection.pendingAction === CommandType.MOVE_TO ||
-          this.selection.pendingAction === CommandType.USE_ITEM
-        ) {
           this.selection.pendingTargetLocation = cell;
           this.selection.pendingTargetId = null;
           this.selection.overlayOptions = [];
@@ -208,7 +207,6 @@ export class MenuController {
           } else {
             this.transitionTo("UNIT_SELECT", "Selected Location");
           }
-        }
       }
     } else {
       // Direct unit selection from canvas
@@ -784,7 +782,7 @@ export class MenuController {
       ...state,
       map: {
         ...this.lastFullMap,
-        doors: state.map.doors || this.lastFullMap.doors, // Doors are dynamic
+        doors: state.map.doors ?? this.lastFullMap.doors, // Doors are dynamic
       },
     };
   }

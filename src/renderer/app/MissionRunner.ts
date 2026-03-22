@@ -1,4 +1,4 @@
-import type { GameState } from "@src/shared/types";
+import type { GameState, MapDefinition } from "@src/shared/types";
 import { MissionType, MapGeneratorType } from "@src/shared/types";
 import type { MissionReport } from "@src/shared/campaign_types";
 import type { MissionCoordinator } from "./MissionCoordinator";
@@ -71,7 +71,7 @@ export class MissionRunner {
     let mapGeneratorType = config.mapGeneratorType;
 
     if (config.missionType === MissionType.Prologue) {
-      staticMapData = prologueMap as any;
+      staticMapData = prologueMap as unknown as MapDefinition;
       mapGeneratorType = MapGeneratorType.Static;
     }
 
@@ -81,7 +81,7 @@ export class MissionRunner {
         mapGeneratorType,
         seed: config.lastSeed,
         staticMapData,
-        campaignNode: this.deps.missionSetupManager.currentCampaignNode || undefined,
+        campaignNode: this.deps.missionSetupManager.currentCampaignNode ?? undefined,
         skipDeployment: !this.deps.missionSetupManager.manualDeployment || config.missionType === MissionType.Prologue,
         debugSnapshotInterval: config.debugSnapshotInterval || 0,
       },
@@ -118,15 +118,15 @@ export class MissionRunner {
     );
     if (!confirmed) return;
 
-    this.deps.missionCoordinator.abortMission(
-      this.currentGameState,
-      this.deps.missionSetupManager.currentCampaignNode,
-      this.deps.missionSetupManager.currentSeed,
-      this.deps.missionSetupManager.currentSquad,
-      (report) => {
+    this.deps.missionCoordinator.abortMission({
+      currentGameState: this.currentGameState,
+      currentCampaignNode: this.deps.missionSetupManager.currentCampaignNode,
+      currentSeed: this.deps.missionSetupManager.currentSeed,
+      currentSquad: this.deps.missionSetupManager.currentSquad,
+      onAbortResolved: (report) => {
         this.onMissionComplete(report);
       },
-    );
+    });
   }
 
   private onMissionComplete(report: MissionReport) {
@@ -159,14 +159,13 @@ export class MissionRunner {
     const replayData = this.deps.gameClient.getReplayData();
 
     // Show debrief screen
-    this.navigationOrchestrator.switchScreen(
-      "debrief",
-      false,
-      true,
-      false,
-      report,
-      replayData?.unitStyle || this.deps.missionSetupManager.unitStyle,
-    );
+    this.navigationOrchestrator.switchScreenWithArgs({
+      id: "debrief",
+      isCampaign: false,
+      updateHash: true,
+      force: false,
+      showArgs: [report, replayData?.unitStyle || this.deps.missionSetupManager.unitStyle],
+    });
   }
 
   public updateUI(state: GameState) {

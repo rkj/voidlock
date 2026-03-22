@@ -20,6 +20,17 @@ import {
 } from "./config/GameConstants";
 import { MathUtils } from "../shared/utils/MathUtils";
 
+export interface DirectorDeps {
+  spawnPoints: SpawnPoint[];
+  prng: PRNG;
+  onSpawn: (enemy: Enemy) => void;
+  itemEffectService: ItemEffectHandler;
+  startingThreatLevel?: number;
+  map?: MapDefinition;
+  startingPoints?: number;
+  missionType?: MissionType;
+}
+
 export class Director implements IDirector {
   private turn: number = 0;
   private timeInCurrentTurn: number = 0;
@@ -37,16 +48,16 @@ export class Director implements IDirector {
 
   private itemEffectService: ItemEffectHandler;
 
-  constructor(
-    spawnPoints: SpawnPoint[],
-    prng: PRNG,
-    onSpawn: (enemy: Enemy) => void,
-    itemEffectService: ItemEffectHandler,
-    startingThreatLevel: number = 0,
-    map?: MapDefinition,
-    startingPoints: number = DIRECTOR.STARTING_POINTS,
-    missionType: MissionType = MissionType.Default,
-  ) {
+  constructor({
+    spawnPoints,
+    prng,
+    onSpawn,
+    itemEffectService,
+    startingThreatLevel = 0,
+    map,
+    startingPoints = DIRECTOR.STARTING_POINTS,
+    missionType = MissionType.Default,
+  }: DirectorDeps) {
     this.spawnPoints = spawnPoints;
     this.prng = prng;
     this.onSpawn = onSpawn;

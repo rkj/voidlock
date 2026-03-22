@@ -16,13 +16,47 @@ import {
   MissionType,
   CommandType,
   EngineMode,
-  GameClientConfig
 } from "../shared/types";
 import type { MapFactory } from "./map/MapFactory";
 import { Logger } from "../shared/Logger";
 
 // Factory type for creating MapFactory instances based on config
 type MapGeneratorFactory = (config: MapGenerationConfig) => MapFactory;
+
+export interface GameClientInitConfig {
+  seed: number;
+  mapGeneratorType: MapGeneratorType;
+  mapData?: MapDefinition;
+  fogOfWarEnabled?: boolean;
+  debugOverlayEnabled?: boolean;
+  agentControlEnabled?: boolean;
+  unitStyle?: UnitStyle;
+  themeId?: string;
+  squadConfig?: SquadConfig;
+  missionType?: MissionType;
+  width?: number;
+  height?: number;
+  spawnPointCount?: number;
+  losOverlayEnabled?: boolean;
+  startingThreatLevel?: number;
+  initialTimeScale?: number;
+  startPaused?: boolean;
+  allowTacticalPause?: boolean;
+  mode?: EngineMode;
+  commandLog?: CommandLogEntry[];
+  campaignNodeId?: string;
+  targetTick?: number;
+  baseEnemyCount?: number;
+  enemyGrowthPerMission?: number;
+  missionDepth?: number;
+  nodeType?: CampaignNodeType;
+  startingPoints?: number;
+  bonusLootCount?: number;
+  skipDeployment?: boolean;
+  debugSnapshots?: boolean;
+  debugSnapshotInterval?: number;
+  initialSnapshots?: GameState[];
+}
 
 interface MissionConfig {
   seed: number;
@@ -145,194 +179,199 @@ export class GameClient {
     };
   }
 
-  public init(config: GameClientConfig) {
-    const {
-      seed,
-      mapGeneratorType,
-      map: mapData,
-      fogOfWarEnabled = true,
-      debugOverlayEnabled = false,
-      agentControlEnabled = true,
-      unitStyle = UnitStyle.TacticalIcons,
-      themeId = "default",
-      squadConfig = { soldiers: [], inventory: {} },
-      missionType = MissionType.Default,
-      width = 16,
-      height = 16,
-      spawnPointCount = 3,
-      losOverlayEnabled = false,
-      startingThreatLevel = 0,
-      initialTimeScale = 1.0,
-      startPaused = false,
-      allowTacticalPause = true,
-      mode = EngineMode.Simulation,
-      commandLog = [],
-      campaignNodeId,
-      targetTick = 0,
-      baseEnemyCount = 3,
-      enemyGrowthPerMission = 1,
-      missionDepth = 0,
-      nodeType,
-      startingPoints,
-      bonusLootCount = 0,
-      skipDeployment = true,
-      debugSnapshots = false,
-      debugSnapshotInterval = 0,
-      initialSnapshots = [],
-    } = config;
+  public init(cfg: GameClientInitConfig) {
+    const p = GameClient.resolveInitConfig(cfg);
+
     this.isStopped = false;
     this.currentSessionId = Math.random().toString(36).substring(2, 15);
-    this.initialSeed = seed;
-    this.initialSquadConfig = squadConfig;
-    this.initialMissionType = missionType;
-    this.initialNodeType = nodeType;
-    this.initialMissionDepth = missionDepth;
-    this.initialBaseEnemyCount = baseEnemyCount;
-    this.initialEnemyGrowthPerMission = enemyGrowthPerMission;
-    this.initialStartingPoints = startingPoints;
-    this.initialStartingThreatLevel = startingThreatLevel;
-    this.initialSkipDeployment = skipDeployment;
-    this.initialAllowTacticalPause = allowTacticalPause;
-    this.initialBonusLootCount = bonusLootCount;
-    this.initialAgentControlEnabled = agentControlEnabled;
-    this.initialUnitStyle = unitStyle;
-    this.initialThemeId = themeId;
+    this.storeInitialParams(p);
 
-    // In Replay mode, we force allowTacticalPause to false to ensure absolute pause (0.0 timescale)
-    // and disable redundant "Active Pause" logic.
-    const effectiveAllowTacticalPause =
-      mode === EngineMode.Replay ? false : allowTacticalPause;
-
-    const generatorConfig: MapGenerationConfig = {
-      seed,
-      width,
-      height,
-      type: mapGeneratorType,
-      spawnPointCount,
-      bonusLootCount,
-    };
-
-    // Use the factory to get the map, based on type and data
-    const generator = this.mapGeneratorFactory(generatorConfig);
-    Logger.info(`GameClient: init mapGeneratorType=${mapGeneratorType}, hasMapData=${!!mapData}`);
-    const map =
-      mapGeneratorType === MapGeneratorType.Static
-        ? generator.load(mapData!)
-        : generator.generate();
+    const effectiveAllowTacticalPause = p.mode === EngineMode.Replay ? false : p.allowTacticalPause;
+    const map = this.generateOrLoadMap({ seed: p.seed, width: p.width, height: p.height, mapGeneratorType: p.mapGeneratorType, spawnPointCount: p.spawnPointCount, bonusLootCount: p.bonusLootCount, mapData: p.mapData });
 
     this.initialMap = map;
-    this.startTime = Date.now();
+    this.initCommandStream(p.commandLog, p.targetTick);
+    this.initSpeedState(p.startPaused, effectiveAllowTacticalPause, p.initialTimeScale);
 
-    // If we have a command log, synchronize startTime so subsequent commands have correct ticks
-    const lastCommandTick =
-      commandLog && commandLog.length > 0
-        ? commandLog[commandLog.length - 1].tick
-        : 0;
+    this.postInitMessage({
+      seed: p.seed, map, fogOfWarEnabled: p.fogOfWarEnabled, debugOverlayEnabled: p.debugOverlayEnabled,
+      debugSnapshots: p.debugSnapshots, debugSnapshotInterval: p.debugSnapshotInterval,
+      agentControlEnabled: p.agentControlEnabled, unitStyle: p.unitStyle, themeId: p.themeId,
+      squadConfig: p.squadConfig, missionType: p.missionType, losOverlayEnabled: p.losOverlayEnabled,
+      startingThreatLevel: p.startingThreatLevel, baseEnemyCount: p.baseEnemyCount,
+      enemyGrowthPerMission: p.enemyGrowthPerMission, missionDepth: p.missionDepth,
+      startingPoints: p.startingPoints, initialTimeScale: this.computeEffectiveTimeScale(),
+      allowTacticalPause: effectiveAllowTacticalPause, mode: p.mode, commandLog: p.commandLog,
+      initialSnapshots: p.initialSnapshots, targetTick: p.targetTick, nodeType: p.nodeType,
+      campaignNodeId: p.campaignNodeId, skipDeployment: p.skipDeployment,
+    });
 
-    const effectiveStartTimeTick = Math.max(lastCommandTick, targetTick);
-    this.startTime -= effectiveStartTimeTick;
-
-    if (commandLog && commandLog.length > 0) {
-      this.commandStream = commandLog.map((cl) => ({
-        t: cl.tick,
-        cmd: cl.command,
-      }));
-    } else {
-      this.commandStream = [];
+    if (p.mode === EngineMode.Simulation && typeof localStorage !== "undefined") {
+      this.persistSimulationConfig({
+        seed: p.seed, mapGeneratorType: p.mapGeneratorType, mapData: p.mapData,
+        fogOfWarEnabled: p.fogOfWarEnabled, debugOverlayEnabled: p.debugOverlayEnabled,
+        agentControlEnabled: p.agentControlEnabled, squadConfig: p.squadConfig,
+        missionType: p.missionType, width: p.width, height: p.height,
+        spawnPointCount: p.spawnPointCount, losOverlayEnabled: p.losOverlayEnabled,
+        startingThreatLevel: p.startingThreatLevel, baseEnemyCount: p.baseEnemyCount,
+        enemyGrowthPerMission: p.enemyGrowthPerMission, missionDepth: p.missionDepth,
+        initialTimeScale: p.initialTimeScale, startPaused: p.startPaused,
+        allowTacticalPause: p.allowTacticalPause, campaignNodeId: p.campaignNodeId,
+        nodeType: p.nodeType, bonusLootCount: p.bonusLootCount, skipDeployment: p.skipDeployment,
+      }, p.commandLog, p.targetTick);
     }
+  }
 
-    // Reset speed state for new session
+  private static resolveInitConfig(cfg: GameClientInitConfig) {
+    const base = GameClient.resolveBaseConfig(cfg);
+    const extra = GameClient.resolveExtraConfig(cfg);
+    return { ...base, ...extra };
+  }
+
+  private static resolveBaseConfig(cfg: GameClientInitConfig) {
+    return {
+      seed: cfg.seed,
+      mapGeneratorType: cfg.mapGeneratorType,
+      mapData: cfg.mapData,
+      fogOfWarEnabled: cfg.fogOfWarEnabled ?? true,
+      debugOverlayEnabled: cfg.debugOverlayEnabled ?? false,
+      agentControlEnabled: cfg.agentControlEnabled ?? true,
+      unitStyle: cfg.unitStyle ?? UnitStyle.TacticalIcons,
+      themeId: cfg.themeId ?? "default",
+      squadConfig: cfg.squadConfig ?? ({ soldiers: [], inventory: {} } as SquadConfig),
+      missionType: cfg.missionType ?? MissionType.Default,
+      width: cfg.width ?? 16,
+      height: cfg.height ?? 16,
+      spawnPointCount: cfg.spawnPointCount ?? 3,
+      losOverlayEnabled: cfg.losOverlayEnabled ?? false,
+      startingThreatLevel: cfg.startingThreatLevel ?? 0,
+    };
+  }
+
+  private static resolveExtraConfig(cfg: GameClientInitConfig) {
+    return {
+      initialTimeScale: cfg.initialTimeScale ?? 1.0,
+      startPaused: cfg.startPaused ?? false,
+      allowTacticalPause: cfg.allowTacticalPause ?? true,
+      mode: cfg.mode ?? EngineMode.Simulation,
+      commandLog: cfg.commandLog ?? ([] as CommandLogEntry[]),
+      campaignNodeId: cfg.campaignNodeId,
+      targetTick: cfg.targetTick ?? 0,
+      baseEnemyCount: cfg.baseEnemyCount ?? 3,
+      enemyGrowthPerMission: cfg.enemyGrowthPerMission ?? 1,
+      missionDepth: cfg.missionDepth ?? 0,
+      nodeType: cfg.nodeType,
+      startingPoints: cfg.startingPoints,
+      bonusLootCount: cfg.bonusLootCount ?? 0,
+      skipDeployment: cfg.skipDeployment ?? true,
+      debugSnapshots: cfg.debugSnapshots ?? false,
+      debugSnapshotInterval: cfg.debugSnapshotInterval ?? 0,
+      initialSnapshots: cfg.initialSnapshots ?? ([] as GameState[]),
+    };
+  }
+
+  private storeInitialParams(p: {
+    seed: number;
+    squadConfig: SquadConfig;
+    missionType: MissionType;
+    nodeType?: CampaignNodeType;
+    missionDepth: number;
+    baseEnemyCount: number;
+    enemyGrowthPerMission: number;
+    startingPoints?: number;
+    startingThreatLevel: number;
+    skipDeployment: boolean;
+    allowTacticalPause: boolean;
+    bonusLootCount: number;
+    agentControlEnabled: boolean;
+    unitStyle: UnitStyle;
+    themeId: string;
+  }): void {
+    this.initialSeed = p.seed;
+    this.initialSquadConfig = p.squadConfig;
+    this.initialMissionType = p.missionType;
+    this.initialNodeType = p.nodeType;
+    this.initialMissionDepth = p.missionDepth;
+    this.initialBaseEnemyCount = p.baseEnemyCount;
+    this.initialEnemyGrowthPerMission = p.enemyGrowthPerMission;
+    this.initialStartingPoints = p.startingPoints;
+    this.initialStartingThreatLevel = p.startingThreatLevel;
+    this.initialSkipDeployment = p.skipDeployment;
+    this.initialAllowTacticalPause = p.allowTacticalPause;
+    this.initialBonusLootCount = p.bonusLootCount;
+    this.initialAgentControlEnabled = p.agentControlEnabled;
+    this.initialUnitStyle = p.unitStyle;
+    this.initialThemeId = p.themeId;
+  }
+
+  private generateOrLoadMap(p: {
+    seed: number;
+    width: number;
+    height: number;
+    mapGeneratorType: MapGeneratorType;
+    spawnPointCount: number;
+    bonusLootCount: number;
+    mapData?: MapDefinition;
+  }): MapDefinition {
+    const config: MapGenerationConfig = {
+      seed: p.seed,
+      width: p.width,
+      height: p.height,
+      type: p.mapGeneratorType,
+      spawnPointCount: p.spawnPointCount,
+      bonusLootCount: p.bonusLootCount,
+    };
+    const generator = this.mapGeneratorFactory(config);
+    Logger.info(`GameClient: init mapGeneratorType=${p.mapGeneratorType}, hasMapData=${!!p.mapData}`);
+    if (p.mapGeneratorType === MapGeneratorType.Static) {
+      if (!p.mapData) throw new Error("mapData is required for Static map generator");
+      return generator.load(p.mapData);
+    }
+    return generator.generate();
+  }
+
+  private initCommandStream(commandLog: CommandLogEntry[], targetTick: number): void {
+    this.startTime = Date.now();
+    const lastCommandTick = commandLog.length > 0 ? commandLog[commandLog.length - 1].tick : 0;
+    this.startTime -= Math.max(lastCommandTick, targetTick);
+
+    this.commandStream = commandLog.length > 0
+      ? commandLog.map((cl) => ({ t: cl.tick, cmd: cl.command }))
+      : [];
+  }
+
+  private initSpeedState(startPaused: boolean, allowTacticalPause: boolean, initialTimeScale: number): void {
     this.isPaused = startPaused;
-    this.allowTacticalPause = effectiveAllowTacticalPause;
-
-    const minScale = this.allowTacticalPause ? 0.1 : 1.0;
+    this.allowTacticalPause = allowTacticalPause;
+    const minScale = allowTacticalPause ? 0.1 : 1.0;
     const clampedScale = Math.min(Math.max(initialTimeScale, minScale), 10.0);
-
     this.currentScale = clampedScale;
     this.lastNonPausedScale = clampedScale;
+  }
 
-    const effectiveTimeScale = this.isPaused
-      ? this.allowTacticalPause
-        ? 0.1
-        : 0.0
-      : this.currentScale;
+  private computeEffectiveTimeScale(): number {
+    if (!this.isPaused) return this.currentScale;
+    return this.allowTacticalPause ? 0.1 : 0.0;
+  }
 
-    const msg: WorkerMessage = {
-      type: "INIT",
-      payload: {
-        seed,
-        map,
-        fogOfWarEnabled,
-        debugOverlayEnabled,
-        debugSnapshots,
-        debugSnapshotInterval,
-        agentControlEnabled,
-        unitStyle,
-        themeId,
-        squadConfig,
-        missionType,
-        losOverlayEnabled,
-        startingThreatLevel,
-        baseEnemyCount,
-        enemyGrowthPerMission,
-        missionDepth,
-        startingPoints,
-        initialTimeScale: effectiveTimeScale,
-        startPaused: this.isPaused,
-        allowTacticalPause: effectiveAllowTacticalPause,
-        mode,
-        initialCommandLog: commandLog,
-        initialSnapshots,
-        targetTick,
-        targetTimeScale: this.lastNonPausedScale,
-        nodeType,
-        campaignNodeId,
-        skipDeployment,
-        sessionId: this.currentSessionId,
-      },
-    };
+  private postInitMessage(payload: Extract<WorkerMessage, { type: "INIT" }>["payload"]): void {
+    const msg: WorkerMessage = { type: "INIT", payload };
     this.worker.postMessage(msg);
+  }
 
-    if (mode === EngineMode.Simulation && typeof localStorage !== "undefined") {
-      this.saveMissionConfig({
-        seed,
-        mapGeneratorType,
-        mapData,
-        fogOfWarEnabled,
-        debugOverlayEnabled,
-        agentControlEnabled,
-        squadConfig,
-        missionType,
-        width,
-        height,
-        spawnPointCount,
-        losOverlayEnabled,
-        startingThreatLevel,
-        baseEnemyCount,
-        enemyGrowthPerMission,
-        missionDepth,
-        initialTimeScale,
-        startPaused,
-        allowTacticalPause,
-        campaignNodeId,
-        nodeType,
-        bonusLootCount,
-        skipDeployment,
-      });
-
-      // If we provided an initial command log, make sure it's also in the persistent log
-      if (commandLog && commandLog.length > 0) {
-        localStorage.setItem(
-          "voidlock_mission_log",
-          JSON.stringify(commandLog),
-        );
-      } else {
-        localStorage.setItem("voidlock_mission_log", "[]");
-      }
-
-      if (targetTick > 0) {
-        localStorage.setItem("voidlock_mission_tick", targetTick.toString());
-      }
+  private persistSimulationConfig(
+    config: MissionConfig,
+    commandLog: CommandLogEntry[],
+    targetTick: number,
+  ): void {
+    this.saveMissionConfig(config);
+    if (commandLog.length > 0) {
+      localStorage.setItem("voidlock_mission_log", JSON.stringify(commandLog));
+    } else {
+      localStorage.setItem("voidlock_mission_log", "[]");
+    }
+    if (targetTick > 0) {
+      localStorage.setItem("voidlock_mission_tick", targetTick.toString());
     }
   }
 
@@ -537,7 +576,6 @@ export class GameClient {
   }
 
   public loadReplay(data: ReplayData) {
-    // Convert RecordedCommand[] to CommandLogEntry[]
     const commandLog: CommandLogEntry[] = data.commands.map((rc) => ({
       tick: rc.t,
       command: rc.cmd,
@@ -550,7 +588,7 @@ export class GameClient {
     this.init({
       seed: data.seed,
       mapGeneratorType: MapGeneratorType.Static,
-      map: data.map,
+      mapData: data.map,
       fogOfWarEnabled: true,
       debugOverlayEnabled: false,
       agentControlEnabled: data.agentControlEnabled ?? true,
@@ -595,7 +633,7 @@ export class GameClient {
     this.init({
       seed: data.seed,
       mapGeneratorType: MapGeneratorType.Static,
-      map: data.map,
+      mapData: data.map,
       fogOfWarEnabled: true,
       debugOverlayEnabled: false,
       agentControlEnabled: data.agentControlEnabled ?? true,

@@ -370,7 +370,7 @@ export function RosterSoldier(props: {
   const xp = "xp" in data && typeof data.xp === "number" ? data.xp : 0;
   const hp = "hp" in data && typeof data.hp === "number" ? data.hp : 0;
 
-  const stats = UnitUtils.calculateEffectiveStats(data as any);
+  const stats = UnitUtils.calculateEffectiveStats(data);
   const maxHp = stats.maxHp;
 
   return (
@@ -413,7 +413,7 @@ export function SquadBuilderSoldier(props: {
   }
 
   const status = getStatus(data);
-  const effectiveStats = UnitUtils.calculateEffectiveStats(data as any);
+  const effectiveStats = UnitUtils.calculateEffectiveStats(data as CampaignSoldier | SquadSoldierConfig);
   const name = getName(data);
   const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
 
@@ -469,123 +469,86 @@ export class SoldierWidget {
     return container;
   }
 
+  private static applyBaseClasses(container: HTMLElement, options: SoldierWidgetOptions, rawStatus: string) {
+    const contextClass = `soldier-widget-${options.context}`;
+    if (!container.classList.contains("soldier-widget")) container.classList.add("soldier-widget");
+    if (!container.classList.contains("soldier-item")) container.classList.add("soldier-item");
+    if (!container.classList.contains(contextClass)) container.classList.add(contextClass);
+
+    if (options.context === "roster") {
+      if (!container.classList.contains("menu-item")) container.classList.add("menu-item");
+    } else if (options.context === "debrief") {
+      if (!container.classList.contains("debrief-item")) container.classList.add("debrief-item");
+    } else if (options.context === "squad-builder" || options.context === "tactical") {
+      if (!container.classList.contains("soldier-card")) container.classList.add("soldier-card");
+    }
+
+    container.classList.toggle("selected", !!options.selected);
+    container.classList.toggle("active", !!options.selected && options.context === "roster");
+    container.classList.toggle("dead", rawStatus === "Dead");
+    container.classList.toggle("wounded", rawStatus === "Wounded");
+    container.classList.toggle("extracted", rawStatus === "Extracted");
+  }
+
+  private static applyClickHandlers(container: HTMLElement, options: SoldierWidgetOptions) {
+    if (!options.onClick) return;
+    container.classList.add("clickable");
+    container.addEventListener("click", (e) => options.onClick?.(e));
+    if (options.onDoubleClick) {
+      container.addEventListener("dblclick", (e) => options.onDoubleClick?.(e));
+    }
+    container.tabIndex = 0;
+    container.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { options.onClick?.(e); e.preventDefault(); }
+    });
+  }
+
+  private static buildContent(params: {
+    data: SoldierWidgetData;
+    options: SoldierWidgetOptions;
+    displayName: string;
+    level: number;
+    rawStatus: string;
+    container: HTMLElement;
+  }): HTMLElement | DocumentFragment | undefined {
+    const { data, options, displayName, level, rawStatus, container } = params;
+    switch (options.context) {
+      case "tactical":
+        return (<TacticalSoldier unit={data as Unit} displayName={displayName} options={options} />) as HTMLElement;
+      case "debrief":
+        return (<DebriefSoldier res={data as SoldierMissionResult} displayName={displayName} currentLevel={level} />) as HTMLElement;
+      case "roster":
+        container.style.borderLeft = `4px solid ${getStatusColor(status)}`;
+        return (<RosterSoldier data={data as CampaignSoldier | SquadSoldierConfig} displayName={displayName} level={level} options={options} />) as HTMLElement;
+      case "squad-builder":
+        container.classList.toggle("deployed", !!options.isDeployed);
+        container.classList.toggle("disabled", rawStatus !== "Healthy");
+        return (<SquadBuilderSoldier data={data as Archetype | SquadSoldierConfig} displayName={displayName} level={level} options={options} />) as HTMLElement;
+    }
+  }
+
   public static update(
     container: HTMLElement,
     data: SoldierWidgetData,
     options: SoldierWidgetOptions,
   ): void {
-    const contextClass = `soldier-widget-${options.context}`;
-    if (!container.classList.contains("soldier-widget"))
-      container.classList.add("soldier-widget");
-    if (!container.classList.contains("soldier-item"))
-      container.classList.add("soldier-item");
-    if (!container.classList.contains(contextClass))
-      container.classList.add(contextClass);
-
-    // Add context-specific standard classes for styling and tests
-    if (options.context === "roster") {
-      if (!container.classList.contains("menu-item"))
-        container.classList.add("menu-item");
-    } else if (options.context === "debrief") {
-      if (!container.classList.contains("debrief-item"))
-        container.classList.add("debrief-item");
-    } else if (options.context === "squad-builder" || options.context === "tactical") {
-      if (!container.classList.contains("soldier-card"))
-        container.classList.add("soldier-card");
-    }
-
-    container.classList.toggle("selected", !!options.selected);
-    container.classList.toggle(
-      "active",
-      !!options.selected && options.context === "roster",
-    );
-
     const rawStatus = "status" in data && data.status
       ? data.status
       : "state" in data && data.state
         ? data.state
         : "Healthy";
 
-    container.classList.toggle("dead", rawStatus === "Dead");
-    container.classList.toggle("wounded", rawStatus === "Wounded");
-    container.classList.toggle("extracted", rawStatus === "Extracted");
-
-    if (options.onClick) {
-      container.classList.add("clickable");
-      container.addEventListener("click", (e) => options.onClick!(e));
-      if (options.onDoubleClick) {
-        container.addEventListener("dblclick", (e) => options.onDoubleClick!(e));
-      }
-      container.tabIndex = 0;
-      container.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          options.onClick!(e);
-          e.preventDefault();
-        }
-      });
-    }
+    SoldierWidget.applyBaseClasses(container, options, String(rawStatus));
+    SoldierWidget.applyClickHandlers(container, options);
 
     const name = getName(data);
     const tacticalNumber = getTacticalNumber(data);
     let displayName = tacticalNumber ? `${name} (${tacticalNumber})` : name;
-    if (options.prefix) {
-      displayName = `${options.prefix}${displayName}`;
-    }
+    if (options.prefix) displayName = `${options.prefix}${displayName}`;
     const level = getLevel(data);
 
-    // Context-specific rendering
     container.innerHTML = "";
-    let content: HTMLElement | DocumentFragment;
-
-    switch (options.context) {
-      case "tactical":
-        content = (
-          <TacticalSoldier
-            unit={data as Unit}
-            displayName={displayName}
-            options={options}
-          />
-        );
-        break;
-      case "debrief":
-        content = (
-          <DebriefSoldier
-            res={data as SoldierMissionResult}
-            displayName={displayName}
-            currentLevel={level}
-          />
-        );
-        break;
-      case "roster":
-        content = (
-          <RosterSoldier
-            data={data as CampaignSoldier | SquadSoldierConfig}
-            displayName={displayName}
-            level={level}
-            options={options}
-          />
-        );
-        if (options.context === "roster") {
-          container.style.borderLeft = `4px solid ${getStatusColor(status)}`;
-        }
-        break;
-      case "squad-builder":
-        content = (
-          <SquadBuilderSoldier
-            data={data as Archetype | SquadSoldierConfig}
-            displayName={displayName}
-            level={level}
-            options={options}
-          />
-        );
-        container.classList.toggle("deployed", !!options.isDeployed);
-        const isHealthy = rawStatus === "Healthy";
-        container.classList.toggle("disabled", !isHealthy);
-        break;
-    }
-
-    if (content) {
-      container.appendChild(content);
-    }
+    const content = SoldierWidget.buildContent({ data, options, displayName, level, rawStatus: String(rawStatus), container });
+    if (content) container.appendChild(content);
   }
 }

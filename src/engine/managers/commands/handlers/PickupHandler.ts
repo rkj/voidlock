@@ -1,28 +1,17 @@
 import type {
   Unit,
-  Command,
-  GameState,
   PickupCommand} from "@src/shared/types";
 import {
   CommandType,
   UnitState
 } from "@src/shared/types";
-import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import type { IUnitCommandHandler } from "../IUnitCommandHandler";
-import type { UnitCommandRegistry } from "../UnitCommandRegistry";
+import type { IUnitCommandHandler, CommandExecParams } from "../IUnitCommandHandler";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class PickupHandler implements IUnitCommandHandler {
   public type = CommandType.PICKUP;
 
-  public execute(
-    unit: Unit,
-    cmd: Command,
-    state: GameState,
-    isManual: boolean,
-    registry: UnitCommandRegistry,
-    director?: ItemEffectHandler,
-  ): Unit {
+  public execute({ unit, cmd, state, isManual, registry, director }: CommandExecParams): Unit {
     const pickupCmd = cmd as PickupCommand;
     let currentUnit = { ...unit };
 
@@ -33,9 +22,9 @@ export class PickupHandler implements IUnitCommandHandler {
       const loot = state.loot?.find((l) => l.id === pickupCmd.lootId);
       const objective = state.objectives?.find((o) => o.id === pickupCmd.lootId);
       if (loot) {
-        currentUnit = registry.execute(
-          currentUnit,
-          {
+        currentUnit = registry.execute({
+          unit: currentUnit,
+          cmd: {
             type: CommandType.MOVE_TO,
             unitIds: [currentUnit.id],
             target: MathUtils.toCellCoord(loot.pos),
@@ -44,12 +33,12 @@ export class PickupHandler implements IUnitCommandHandler {
           state,
           isManual,
           director,
-        );
+        });
         currentUnit.activeCommand = pickupCmd;
       } else if (objective?.targetCell) {
-        currentUnit = registry.execute(
-          currentUnit,
-          {
+        currentUnit = registry.execute({
+          unit: currentUnit,
+          cmd: {
             type: CommandType.MOVE_TO,
             unitIds: [currentUnit.id],
             target: objective.targetCell,
@@ -58,7 +47,7 @@ export class PickupHandler implements IUnitCommandHandler {
           state,
           isManual,
           director,
-        );
+        });
         currentUnit.activeCommand = pickupCmd;
       }
     }

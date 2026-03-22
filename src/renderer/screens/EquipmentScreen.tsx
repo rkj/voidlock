@@ -225,33 +225,67 @@ export class EquipmentScreen {
   }
 
   public render() {
-
     const lastFocusId = document.activeElement?.getAttribute("data-focus-id");
     FocusManager.saveFocus();
-
-    const oldLeft = this.container.querySelector(".soldier-list-panel .scroll-content");
-    const oldCenter = this.container.querySelector(".soldier-equipment-panel .scroll-content");
-    const oldRight = this.container.querySelector(".armory-panel .scroll-content");
-    if (oldLeft) this.savedScrollTop.left = oldLeft.scrollTop;
-    if (oldCenter) this.savedScrollTop.center = oldCenter.scrollTop;
-    if (oldRight) this.savedScrollTop.right = oldRight.scrollTop;
+    this.saveScrollPositions();
 
     this.container.className = "screen equipment-screen flex-col h-full";
     this.container.style.display = "flex";
     this.container.style.overflow = "hidden";
 
-    const isSlotEmpty = !this.config.soldiers[this.selectedSoldierIndex];
-    let rightPanelTitle = "Logistics & Supplies";
-    if (this.recruitMode) rightPanelTitle = "Procurement";
-    else if (this.reviveMode) rightPanelTitle = "Integral Restoration";
-    else if (isSlotEmpty) rightPanelTitle = "Asset Reserve";
-
     this.inspector.setSoldier(this.config.soldiers[this.selectedSoldierIndex]);
 
-    const ui = (
+    this.container.innerHTML = "";
+    this.container.appendChild(this.buildUI());
+
+    this.restoreScrollPositions();
+    this.restoreFocusAfterRender(lastFocusId);
+  }
+
+  private saveScrollPositions() {
+    const left = this.container.querySelector(".soldier-list-panel .scroll-content");
+    const center = this.container.querySelector(".soldier-equipment-panel .scroll-content");
+    const right = this.container.querySelector(".armory-panel .scroll-content");
+    if (left) this.savedScrollTop.left = left.scrollTop;
+    if (center) this.savedScrollTop.center = center.scrollTop;
+    if (right) this.savedScrollTop.right = right.scrollTop;
+  }
+
+  private restoreScrollPositions() {
+    const left = this.container.querySelector(".soldier-list-panel .scroll-content");
+    const center = this.container.querySelector(".soldier-equipment-panel .scroll-content");
+    const right = this.container.querySelector(".armory-panel .scroll-content");
+    if (left) left.scrollTop = this.savedScrollTop.left;
+    if (center) center.scrollTop = this.savedScrollTop.center;
+    if (right) right.scrollTop = this.savedScrollTop.right;
+  }
+
+  private restoreFocusAfterRender(lastFocusId: string | null | undefined) {
+    if (!FocusManager.restoreFocus(this.container)) {
+      if (lastFocusId?.startsWith("supply-plus-")) {
+        const minusBtn = this.container.querySelector(`[data-focus-id="${lastFocusId.replace("plus", "minus")}"]`) as HTMLElement;
+        if (minusBtn) minusBtn.focus();
+      }
+    }
+  }
+
+  private getRightPanelTitle(): string {
+    const isSlotEmpty = !this.config.soldiers[this.selectedSoldierIndex];
+    if (this.recruitMode) return "Procurement";
+    if (this.reviveMode) return "Integral Restoration";
+    if (isSlotEmpty) return "Asset Reserve";
+    return "Logistics & Supplies";
+  }
+
+  private buildUI() {
+    const rightPanelTitle = this.getRightPanelTitle();
+    const activeSoldiers = this.config.soldiers.filter(s => !!s).length;
+    const canBack = !this.isPrologue && (!this.isStoreLocked || this.isShop);
+    const canLaunch = this.isCampaign && this.hasNodeSelected && !this.isShop && !!this.onLaunch;
+
+    return (
       <Fragment>
         <div class="flex-row flex-grow p-10 gap-10 equipment-main-content" style={{ overflow: "hidden", minHeight: "0" }}>
-          {/* Left Panel */}
           <div class="panel soldier-list-panel" style={{ width: "260px" }}>
             <h2 class="panel-title" style={{ flexShrink: "0" }}>Asset Roster</h2>
             <div class="scroll-content" style={{ padding: "10px" }}>
@@ -259,7 +293,6 @@ export class EquipmentScreen {
             </div>
           </div>
 
-          {/* Center Panel */}
           <div class="panel soldier-equipment-panel" style={{ flexGrow: "1" }}>
             <h2 class="panel-title" style={{ flexShrink: "0" }}>Asset Loadout</h2>
             <div class="scroll-content" style={{ padding: "10px" }}>
@@ -267,7 +300,6 @@ export class EquipmentScreen {
             </div>
           </div>
 
-          {/* Right Panel */}
           <div class="panel armory-panel roster-panel" style={{ width: "400px", display: "flex", flexDirection: "column" }}>
             <h2 class="panel-title" style={{ flexShrink: "0" }}>{rightPanelTitle}</h2>
             <div class="scroll-content roster-list" style={{ padding: "10px", flexGrow: "1", overflowY: "auto" }}>
@@ -278,7 +310,7 @@ export class EquipmentScreen {
         </div>
 
         <div class="flex-row justify-end p-10 gap-10" style={{ flexShrink: "0", borderTop: "1px solid var(--color-border-strong)", backgroundColor: "var(--color-surface-elevated)" }}>
-          {(!this.isPrologue && (!this.isStoreLocked || this.isShop)) && (
+          {canBack && (
             <button
               class="back-button"
               data-focus-id="btn-back"
@@ -288,7 +320,7 @@ export class EquipmentScreen {
               {this.isShop ? "Exit Hub" : "Back"}
             </button>
           )}
-          {(this.isCampaign && this.hasNodeSelected && !this.isShop && this.onLaunch) && (
+          {canLaunch && (
             <button
               class="primary-button"
               id="btn-launch-mission"
@@ -301,12 +333,12 @@ export class EquipmentScreen {
                 fontSize: "0.9em",
                 display: "flex",
                 alignItems: "center",
-                opacity: this.config.soldiers.filter(s => !!s).length === 0 ? 0.5 : 1
+                opacity: activeSoldiers === 0 ? 0.5 : 1
               }}
               data-focus-id="btn-launch-mission"
-              disabled={this.config.soldiers.filter(s => !!s).length === 0}
-              title={this.config.soldiers.filter(s => !!s).length === 0 ? "Assign at least one asset to authorize operation" : ""}
-              onClick={() => this.onLaunch!(this.config)}
+              disabled={activeSoldiers === 0}
+              title={activeSoldiers === 0 ? "Assign at least one asset to authorize operation" : ""}
+              onClick={() => this.onLaunch?.(this.config)}
             >
               Authorize Operation
             </button>
@@ -314,23 +346,6 @@ export class EquipmentScreen {
         </div>
       </Fragment>
     );
-
-    this.container.innerHTML = "";
-    this.container.appendChild(ui);
-
-    const newLeft = this.container.querySelector(".soldier-list-panel .scroll-content");
-    const newCenter = this.container.querySelector(".soldier-equipment-panel .scroll-content");
-    const newRight = this.container.querySelector(".armory-panel .scroll-content");
-    if (newLeft) newLeft.scrollTop = this.savedScrollTop.left;
-    if (newCenter) newCenter.scrollTop = this.savedScrollTop.center;
-    if (newRight) newRight.scrollTop = this.savedScrollTop.right;
-
-    if (!FocusManager.restoreFocus(this.container)) {
-      if (lastFocusId?.startsWith("supply-plus-")) {
-        const minusBtn = this.container.querySelector(`[data-focus-id="${lastFocusId.replace("plus", "minus")}"]`) as HTMLElement;
-        if (minusBtn) minusBtn.focus();
-      }
-    }
   }
 
   private renderSoldierListItems() {
@@ -677,12 +692,12 @@ export class EquipmentScreen {
     );
 
     const state = this.isCampaign ? this.manager.getState() : null;
-    const unlockedItems = state?.unlockedItems || [];
+    const unlockedItems = state?.unlockedItems ?? [];
     const basicSupplies = ["frag_grenade", "medkit", "mine"];
     const isUnlocked = (id: string) => !state || basicSupplies.includes(id) || unlockedItems.includes(id);
 
     Object.values(ItemLibrary).filter((i) => i.action && isUnlocked(i.id)).forEach((item) => {
-      const count = (this.config.inventory && this.config.inventory[item.id]) || 0;
+      const count = this.config.inventory?.[item.id] || 0;
       items.push(
         <div class="flex-row justify-between align-center card w-full" style={{ marginBottom: "4px", padding: "6px 10px", gap: "8px" }} title={`${item.name}\n${item.description || ""}`}>
           <div class="flex-col" style={{ flexGrow: "1" }}>
@@ -696,7 +711,7 @@ export class EquipmentScreen {
               data-focus-id={`supply-minus-${item.id}`}
               style={{ padding: "2px 8px" }}
               onClick={() => {
-                const current = (this.config.inventory && this.config.inventory[item.id]) || 0;
+                const current = this.config.inventory?.[item.id] || 0;
                 if (current > 0) {
                   this.config.inventory[item.id] = current - 1;
                   this.render();
@@ -710,7 +725,7 @@ export class EquipmentScreen {
               disabled={count >= 2}
               title={count >= 2 ? "Maximum 2 per mission reached" : ""}
               onClick={() => {
-                const current = (this.config.inventory && this.config.inventory[item.id]) || 0;
+                const current = this.config.inventory?.[item.id] || 0;
                 if (current < 2) {
                   const s = this.isCampaign ? this.manager.getState() : null;
                   if (s && s.scrap < item.cost) return;

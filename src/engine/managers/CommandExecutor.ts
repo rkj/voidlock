@@ -19,6 +19,14 @@ import { PickupHandler } from "./commands/handlers/PickupHandler";
 import { ExtractHandler } from "./commands/handlers/ExtractHandler";
 import { UseItemHandler } from "./commands/handlers/UseItemHandler";
 
+export interface ExecuteCommandParams {
+  unit: Unit;
+  cmd: Command;
+  state: GameState;
+  isManual?: boolean;
+  director?: ItemEffectHandler;
+}
+
 export class CommandExecutor {
   private registry: UnitCommandRegistry;
 
@@ -36,13 +44,13 @@ export class CommandExecutor {
     this.registry.register(new UseItemHandler());
   }
 
-  public executeCommand(
-    unit: Unit,
-    cmd: Command,
-    state: GameState,
-    isManual: boolean = true,
-    director?: ItemEffectHandler,
-  ): Unit {
+  public executeCommand({
+    unit,
+    cmd,
+    state,
+    isManual = true,
+    director,
+  }: ExecuteCommandParams): Unit {
     const currentUnit: Unit = { ...unit, activeCommand: cmd };
 
     if (isManual) {
@@ -69,6 +77,6 @@ export class CommandExecutor {
       currentUnit.aiEnabled = false;
     }
 
-    return this.registry.execute(currentUnit, cmd, state, isManual, director);
+    return this.registry.execute({ unit: currentUnit, cmd, state, isManual, director });
   }
 }

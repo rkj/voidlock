@@ -15,6 +15,25 @@ import { MapSanitizer } from "../map/MapSanitizer";
 import { PlacementValidator, OccupantType } from "./PlacementValidator";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
+interface PlaceRoomParams {
+  rx: number;
+  ry: number;
+  w: number;
+  h: number;
+  parentX: number;
+  parentY: number;
+  dir: Direction;
+}
+
+interface CheckRoomParams {
+  rx: number;
+  ry: number;
+  w: number;
+  h: number;
+  parentX: number;
+  parentY: number;
+}
+
 export class TreeShipGenerator {
   private prng: PRNG;
   private width: number;
@@ -65,12 +84,7 @@ export class TreeShipGenerator {
    * 5. Feature Placement: Mission entities (Spawn Points, etc.) are distributed across the
    *    leaf nodes (rooms) of the generated tree.
    */
-  public generate(
-    spawnPointCount: number = 1,
-    _bonusLootCount: number = 0,
-  ): MapDefinition {
-    this.placementValidator.clear();
-    // 1. Initialize Grid (Void) and walls
+  private initializeGrid(): void {
     this.cells = Array(this.height * this.width)
       .fill(null)
       .map((_, i) => ({
@@ -78,7 +92,6 @@ export class TreeShipGenerator {
         y: Math.floor(i / this.width),
         type: CellType.Void,
       }));
-
     this.walls.clear();
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
@@ -88,128 +101,104 @@ export class TreeShipGenerator {
         if (y === 0) this.walls.add(this.getBoundaryKey(x, -1, x, 0));
       }
     }
+  }
 
-    const spineCells: { x: number; y: number }[] = [];
-
-    // 2. Main Skeleton
-    this.generateSkeleton(spineCells);
-
-    // 3. Grow Room Trees
-    this.frontier = [];
-    spineCells.forEach((cell) => {
-      const checkAndAdd = (dx: number, dy: number, dir: Direction) => {
+  private seedFrontierFromSpine(spineCells: { x: number; y: number }[]): void {
+    const dirs: { dx: number; dy: number; dir: Direction }[] = [
+      { dx: 0, dy: -1, dir: "n" },
+      { dx: 0, dy: 1, dir: "s" },
+      { dx: 1, dy: 0, dir: "e" },
+      { dx: -1, dy: 0, dir: "w" },
+    ];
+    for (const cell of spineCells) {
+      for (const { dx, dy, dir } of dirs) {
         const nx = cell.x + dx;
         const ny = cell.y + dy;
-        if (
-          nx >= 0 &&
-          nx < this.width &&
-          ny >= 0 &&
-          ny < this.height &&
-          this.getCell(nx, ny)?.type === CellType.Void
-        ) {
-          this.frontier.push({
-            parentX: cell.x,
-            parentY: cell.y,
-            dir,
-          });
+        const inBounds = nx >= 0 && nx < this.width && ny >= 0 && ny < this.height;
+        if (inBounds && this.getCell(nx, ny)?.type === CellType.Void) {
+          this.frontier.push({ parentX: cell.x, parentY: cell.y, dir });
         }
-      };
-      checkAndAdd(0, -1, "n");
-      checkAndAdd(0, 1, "s");
-      checkAndAdd(1, 0, "e");
-      checkAndAdd(-1, 0, "w");
-    });
+      }
+    }
+  }
 
+  private getAlignmentsForDir(params: { dir: Direction; w: number; h: number; parentX: number; parentY: number }): { rx: number; ry: number }[] {
+    const { dir, w, h, parentX, parentY } = params;
+    const alignments: { rx: number; ry: number }[] = [];
+    if (dir === "n") {
+      for (let r = parentX - w + 1; r <= parentX; r++) alignments.push({ rx: r, ry: parentY - h });
+    } else if (dir === "s") {
+      for (let r = parentX - w + 1; r <= parentX; r++) alignments.push({ rx: r, ry: parentY + 1 });
+    } else if (dir === "e") {
+      for (let r = parentY - h + 1; r <= parentY; r++) alignments.push({ rx: parentX + 1, ry: r });
+    } else if (dir === "w") {
+      for (let r = parentY - h + 1; r <= parentY; r++) alignments.push({ rx: parentX - w, ry: r });
+    }
+    return alignments;
+  }
+
+  private tryPlaceRoomFromFrontier(parentX: number, parentY: number, dir: Direction): void {
+    const attempts = [{ w: 2, h: 2 }, { w: 2, h: 1 }, { w: 1, h: 2 }, { w: 1, h: 1 }];
+    for (const { w, h } of attempts) {
+      const alignments = this.getAlignmentsForDir({ dir, w, h, parentX, parentY });
+      this.prng.shuffle(alignments);
+      for (const { rx, ry } of alignments) {
+        if (!this.checkProposedRoomForCollisionsAndCycles({ rx, ry, w, h, parentX, parentY })) {
+          this.placeRoom({ rx, ry, w, h, parentX, parentY, dir });
+          return;
+        }
+      }
+    }
+  }
+
+  private growRoomTrees(): void {
     while (this.frontier.length > 0) {
       const idx = this.prng.nextInt(0, this.frontier.length - 1);
       const { parentX, parentY, dir } = this.frontier[idx];
       this.frontier.splice(idx, 1);
       if (this.prng.next() > 0.4) continue;
-
-      const attempts = [
-        { w: 2, h: 2 },
-        { w: 2, h: 1 },
-        { w: 1, h: 2 },
-        { w: 1, h: 1 },
-      ];
-      let placed = false;
-      for (const size of attempts) {
-        const { w, h } = size;
-        const alignments: { rx: number; ry: number }[] = [];
-        if (dir === "n") {
-          for (let r = parentX - w + 1; r <= parentX; r++)
-            alignments.push({ rx: r, ry: parentY - h });
-        } else if (dir === "s") {
-          for (let r = parentX - w + 1; r <= parentX; r++)
-            alignments.push({ rx: r, ry: parentY + 1 });
-        } else if (dir === "e") {
-          for (let r = parentY - h + 1; r <= parentY; r++)
-            alignments.push({ rx: parentX + 1, ry: r });
-        } else if (dir === "w") {
-          for (let r = parentY - h + 1; r <= parentY; r++)
-            alignments.push({ rx: parentX - w, ry: r });
-        }
-
-        this.prng.shuffle(alignments);
-        for (const alignment of alignments) {
-          if (
-            !this.checkProposedRoomForCollisionsAndCycles(
-              alignment.rx,
-              alignment.ry,
-              w,
-              h,
-              parentX,
-              parentY,
-            )
-          ) {
-            this.placeRoom(
-              alignment.rx,
-              alignment.ry,
-              w,
-              h,
-              parentX,
-              parentY,
-              dir,
-            );
-            placed = true;
-            break;
-          }
-        }
-        if (placed) break;
-      }
+      this.tryPlaceRoomFromFrontier(parentX, parentY, dir);
     }
+  }
 
-    // 5. Features
-    this.placeFeatures(spawnPointCount);
-
+  private buildWallDefinitions(): WallDefinition[] {
     const mapWalls: WallDefinition[] = [];
     this.walls.forEach((key) => {
       const parts = key.split("--").map((p) => p.split(",").map(Number));
       const c1 = { x: parts[0][0], y: parts[0][1] };
       const c2 = { x: parts[1][0], y: parts[1][1] };
-
       if (c1.x === c2.x) {
-        // Vertical adjacency -> Horizontal wall
         const maxY = Math.max(c1.y, c2.y);
-        mapWalls.push({
-          p1: { x: c1.x, y: maxY },
-          p2: { x: c1.x + 1, y: maxY },
-        });
+        mapWalls.push({ p1: { x: c1.x, y: maxY }, p2: { x: c1.x + 1, y: maxY } });
       } else {
-        // Horizontal adjacency -> Vertical wall
         const maxX = Math.max(c1.x, c2.x);
-        mapWalls.push({
-          p1: { x: maxX, y: c1.y },
-          p2: { x: maxX, y: c1.y + 1 },
-        });
+        mapWalls.push({ p1: { x: maxX, y: c1.y }, p2: { x: maxX, y: c1.y + 1 } });
       }
     });
+    return mapWalls;
+  }
+
+  public generate(
+    spawnPointCount: number = 1,
+    _bonusLootCount: number = 0,
+  ): MapDefinition {
+    this.placementValidator.clear();
+    this.initializeGrid();
+
+    const spineCells: { x: number; y: number }[] = [];
+    this.generateSkeleton(spineCells);
+
+    this.frontier = [];
+    this.seedFrontierFromSpine(spineCells);
+    this.growRoomTrees();
+
+    this.placeFeatures(spawnPointCount);
 
     const map: MapDefinition = {
       width: this.width,
       height: this.height,
       cells: this.cells,
-      walls: mapWalls,
+      walls: this.buildWallDefinitions(),
       doors: this.doors,
       spawnPoints: this.spawnPoints,
       squadSpawn: this.squadSpawn,
@@ -222,15 +211,7 @@ export class TreeShipGenerator {
     return map;
   }
 
-  private placeRoom(
-    rx: number,
-    ry: number,
-    w: number,
-    h: number,
-    parentX: number,
-    parentY: number,
-    dir: Direction,
-  ) {
+  private placeRoom({ rx, ry, w, h, parentX, parentY, dir }: PlaceRoomParams) {
     const roomId = `room-${rx}-${ry}`;
     for (let y = ry; y < ry + h; y++) {
       for (let x = rx; x < rx + w; x++) {
@@ -263,24 +244,22 @@ export class TreeShipGenerator {
     });
     for (let y = ry; y < ry + h; y++) {
       for (let x = rx; x < rx + w; x++) {
-        for (const d of validDirs) {
-          const nx = x + d.dx;
-          const ny = y + d.dy;
-          if (
-            nx >= 0 &&
-            nx < this.width &&
-            ny >= 0 &&
-            ny < this.height &&
-            this.getCell(nx, ny)?.type === CellType.Void
-          ) {
-            if (this.prng.next() < 0.5)
-              this.frontier.push({
-                parentX: x,
-                parentY: y,
-                dir: d.k,
-              });
-          }
-        }
+        this.maybeExpandFrontier(x, y, validDirs);
+      }
+    }
+  }
+
+  private maybeExpandFrontier(
+    x: number,
+    y: number,
+    validDirs: { dx: number; dy: number; k: "n" | "e" | "s" | "w" }[],
+  ): void {
+    for (const d of validDirs) {
+      const nx = x + d.dx;
+      const ny = y + d.dy;
+      const inBounds = nx >= 0 && nx < this.width && ny >= 0 && ny < this.height;
+      if (inBounds && this.getCell(nx, ny)?.type === CellType.Void && this.prng.next() < 0.5) {
+        this.frontier.push({ parentX: x, parentY: y, dir: d.k });
       }
     }
   }
@@ -347,66 +326,48 @@ export class TreeShipGenerator {
     });
   }
 
-  private placeFeatures(spawnPointCount: number) {
-    let floors = this.cells.filter((c) => c.type === CellType.Floor);
-    if (floors.length < 3) {
-      const points = [
-        { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) },
-        { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) - 1 },
-        { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) + 1 },
-        { x: Math.floor(this.width / 2) - 1, y: Math.floor(this.height / 2) },
-        { x: Math.floor(this.width / 2) + 1, y: Math.floor(this.height / 2) },
-      ];
-      for (const p of points) {
-        if (p.x >= 0 && p.x < this.width && p.y >= 0 && p.y < this.height) {
-          this.setFloor(p.x, p.y);
-          if (
-            p.x !== Math.floor(this.width / 2) ||
-            p.y !== Math.floor(this.height / 2)
-          ) {
-            const dx = p.x - Math.floor(this.width / 2);
-            const dy = p.y - Math.floor(this.height / 2);
-            if (dx > 0) this.openWall(p.x, p.y, "w");
-            else if (dx < 0) this.openWall(p.x, p.y, "e");
-            else if (dy > 0) this.openWall(p.x, p.y, "n");
-            else if (dy < 0) this.openWall(p.x, p.y, "s");
-          }
+  private getRoomsInCells(cells: Cell[]): Map<string, Cell[]> {
+    const roomMap = new Map<string, Cell[]>();
+    cells.forEach((c) => {
+      if (c.roomId && !c.roomId.startsWith("corridor-")) {
+        let arr = roomMap.get(c.roomId);
+        if (!arr) {
+          arr = [];
+          roomMap.set(c.roomId, arr);
         }
+        arr.push(c);
       }
-      floors = this.cells.filter((c) => c.type === CellType.Floor);
+    });
+    return roomMap;
+  }
+
+  private ensureMinFloors(): Cell[] {
+    const floors = this.cells.filter((c) => c.type === CellType.Floor);
+    if (floors.length >= 3) return floors;
+
+    const points = [
+      { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) },
+      { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) - 1 },
+      { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) + 1 },
+      { x: Math.floor(this.width / 2) - 1, y: Math.floor(this.height / 2) },
+      { x: Math.floor(this.width / 2) + 1, y: Math.floor(this.height / 2) },
+    ];
+    for (const p of points) {
+      if (p.x < 0 || p.x >= this.width || p.y < 0 || p.y >= this.height) continue;
+      this.setFloor(p.x, p.y);
+      if (p.x === Math.floor(this.width / 2) && p.y === Math.floor(this.height / 2)) continue;
+      const dx = p.x - Math.floor(this.width / 2);
+      const dy = p.y - Math.floor(this.height / 2);
+      if (dx > 0) this.openWall(p.x, p.y, "w");
+      else if (dx < 0) this.openWall(p.x, p.y, "e");
+      else if (dy > 0) this.openWall(p.x, p.y, "n");
+      else if (dy < 0) this.openWall(p.x, p.y, "s");
     }
+    return this.cells.filter((c) => c.type === CellType.Floor);
+  }
 
-    const midX = this.width / 2;
-    const midY = this.height / 2;
-    const quadrants: Cell[][] = [[], [], [], []];
-    const getQuadIdx = (c: { x: number; y: number }) => {
-      if (c.x < midX && c.y < midY) return 0;
-      if (c.x >= midX && c.y < midY) return 1;
-      if (c.x < midX && c.y >= midY) return 2;
-      return 3;
-    };
-    floors.forEach((c) => quadrants[getQuadIdx(c)].push(c));
-
-    const nonEmptyQuads = quadrants
-      .map((q, i) => ({ q, i }))
-      .filter((o) => o.q.length > 0);
-    const squadQuadIdx =
-      nonEmptyQuads[this.prng.nextInt(0, nonEmptyQuads.length - 1)].i;
-    const squadQuad = quadrants[squadQuadIdx];
-
-    const getRoomsInCells = (cells: Cell[]) => {
-      const roomMap = new Map<string, Cell[]>();
-      cells.forEach((c) => {
-        if (c.roomId && !c.roomId.startsWith("corridor-")) {
-          if (!roomMap.has(c.roomId)) roomMap.set(c.roomId, []);
-          roomMap.get(c.roomId)!.push(c);
-        }
-      });
-      return roomMap;
-    };
-
-    // 1. Squad Spawns
-    const roomsInSquadQuadMap = getRoomsInCells(squadQuad);
+  private placeSquadSpawns(squadQuad: Cell[]): void {
+    const roomsInSquadQuadMap = this.getRoomsInCells(squadQuad);
     const squadRoomIds = Array.from(roomsInSquadQuadMap.keys());
     this.prng.shuffle(squadRoomIds);
 
@@ -414,67 +375,84 @@ export class TreeShipGenerator {
     this.squadSpawns = [];
 
     for (let i = 0; i < Math.min(maxSquadSpawns, squadRoomIds.length); i++) {
-      const c = roomsInSquadQuadMap.get(squadRoomIds[i])![0];
+      const squadCells = roomsInSquadQuadMap.get(squadRoomIds[i]);
+      if (!squadCells || squadCells.length === 0) continue;
+      const c = squadCells[0];
       if (i === 0) this.squadSpawn = c;
       this.squadSpawns.push({ x: c.x, y: c.y });
       this.placementValidator.occupy(c, OccupantType.SquadSpawn, c.roomId);
     }
 
-    if (this.squadSpawns.length < maxSquadSpawns) {
-      const available = squadQuad.filter(
-        (c) => !this.placementValidator.isCellOccupied(c),
-      );
-      this.prng.shuffle(available);
+    if (this.squadSpawns.length >= maxSquadSpawns) return;
 
-      while (this.squadSpawns.length < maxSquadSpawns && available.length > 0) {
-        const c = available.pop()!;
-        const rid = `room-forced-squad-${this.squadSpawns.length}-${c.x}-${c.y}`;
-        c.roomId = rid;
-        if (this.squadSpawns.length === 0) this.squadSpawn = { x: c.x, y: c.y };
-        this.squadSpawns.push({ x: c.x, y: c.y });
-        this.placementValidator.occupy(c, OccupantType.SquadSpawn, rid);
-      }
+    const available = squadQuad.filter(
+      (c) => !this.placementValidator.isCellOccupied(c),
+    );
+    this.prng.shuffle(available);
+
+    while (this.squadSpawns.length < maxSquadSpawns && available.length > 0) {
+      const c = available.pop();
+      if (!c) break;
+      const rid = `room-forced-squad-${this.squadSpawns.length}-${c.x}-${c.y}`;
+      c.roomId = rid;
+      if (this.squadSpawns.length === 0) this.squadSpawn = { x: c.x, y: c.y };
+      this.squadSpawns.push({ x: c.x, y: c.y });
+      this.placementValidator.occupy(c, OccupantType.SquadSpawn, rid);
     }
+  }
 
-    // 2. Extraction Point
+  private findExtQuadIdx(
+    squadQuadIdx: number,
+    quadrants: Cell[][],
+    nonEmptyQuads: { q: Cell[]; i: number }[],
+  ): number {
     const oppositeMap: Record<number, number> = { 0: 3, 3: 0, 1: 2, 2: 1 };
-    let extQuadIdx = oppositeMap[squadQuadIdx];
-    if (quadrants[extQuadIdx].length === 0) {
-      let maxDist = -1;
-      nonEmptyQuads.forEach((o) => {
-        const p1 = { x: o.i % 2, y: Math.floor(o.i / 2) };
-        const p2 = { x: squadQuadIdx % 2, y: Math.floor(squadQuadIdx / 2) };
-        const dist = MathUtils.getManhattanDistance(p1, p2);
-        if (dist > maxDist) {
-          maxDist = dist;
-          extQuadIdx = o.i;
-        }
-      });
-    }
-    const extQuad = quadrants[extQuadIdx];
-    const roomsInExtQuadMap = getRoomsInCells(extQuad);
+    const preferred = oppositeMap[squadQuadIdx];
+    if (quadrants[preferred].length > 0) return preferred;
+
+    let maxDist = -1;
+    let extQuadIdx = preferred;
+    nonEmptyQuads.forEach((o) => {
+      const p1 = { x: o.i % 2, y: Math.floor(o.i / 2) };
+      const p2 = { x: squadQuadIdx % 2, y: Math.floor(squadQuadIdx / 2) };
+      const dist = MathUtils.getManhattanDistance(p1, p2);
+      if (dist > maxDist) {
+        maxDist = dist;
+        extQuadIdx = o.i;
+      }
+    });
+    return extQuadIdx;
+  }
+
+  private placeExtraction(extQuad: Cell[]): void {
+    const roomsInExtQuadMap = this.getRoomsInCells(extQuad);
     const extRoomIds = Array.from(roomsInExtQuadMap.keys()).filter(
       (rid) => !this.placementValidator.isRoomOccupied(rid),
     );
 
     if (extRoomIds.length > 0) {
       const rid = extRoomIds[this.prng.nextInt(0, extRoomIds.length - 1)];
-      const c = roomsInExtQuadMap.get(rid)![0];
-      this.extraction = c;
-      this.placementValidator.occupy(c, OccupantType.Extraction, rid);
-    } else {
-      const available = extQuad.filter(
-        (c) => !this.placementValidator.isCellOccupied(c),
-      );
-      const c = available.length > 0 ? available[0] : extQuad[0];
-      const rid = `room-forced-ext-${c.x}-${c.y}`;
-      c.roomId = rid;
-      this.extraction = c;
-      this.placementValidator.occupy(c, OccupantType.Extraction, rid);
+      const extCells = roomsInExtQuadMap.get(rid);
+      if (extCells && extCells.length > 0) {
+        const c = extCells[0];
+        this.extraction = c;
+        this.placementValidator.occupy(c, OccupantType.Extraction, rid);
+      }
+      return;
     }
 
-    // 3. Enemy Spawns
-    const allRoomsMap = getRoomsInCells(floors);
+    const available = extQuad.filter(
+      (c) => !this.placementValidator.isCellOccupied(c),
+    );
+    const c = available.length > 0 ? available[0] : extQuad[0];
+    const rid = `room-forced-ext-${c.x}-${c.y}`;
+    c.roomId = rid;
+    this.extraction = c;
+    this.placementValidator.occupy(c, OccupantType.Extraction, rid);
+  }
+
+  private placeEnemySpawns(floors: Cell[], spawnPointCount: number): void {
+    const allRoomsMap = this.getRoomsInCells(floors);
     const otherRoomIds = Array.from(allRoomsMap.keys()).filter(
       (rid) => !this.placementValidator.isRoomOccupied(rid),
     );
@@ -482,8 +460,11 @@ export class TreeShipGenerator {
 
     let enemiesPlaced = 0;
     while (otherRoomIds.length > 0 && enemiesPlaced < spawnPointCount) {
-      const rid = otherRoomIds.pop()!;
-      const c = allRoomsMap.get(rid)![0];
+      const rid = otherRoomIds.pop();
+      if (!rid) break;
+      const enemyCells = allRoomsMap.get(rid);
+      if (!enemyCells || enemyCells.length === 0) continue;
+      const c = enemyCells[0];
       this.spawnPoints.push({
         id: `spawn-${enemiesPlaced + 1}`,
         pos: { x: c.x, y: c.y },
@@ -514,20 +495,18 @@ export class TreeShipGenerator {
 
     if (enemiesPlaced === 0 && spawnPointCount > 0) {
       const available =
-        floors.find((c) => !this.placementValidator.isCellOccupied(c)) ||
+        floors.find((c) => !this.placementValidator.isCellOccupied(c)) ??
         floors[floors.length - 1];
-      
-      // Even if we pick an occupied cell as ultimate fallback, don't re-occupy if it's already occupied
-      // to avoid triggering some validation errors, though overlap is still an issue.
+
       const rid = `room-forced-enemy-fallback-${available.x}-${available.y}`;
       if (!available.roomId) available.roomId = rid;
-      
+
       this.spawnPoints.push({
         id: `spawn-1`,
         pos: { x: available.x, y: available.y },
         radius: 1,
       });
-      
+
       if (!this.placementValidator.isCellOccupied(available)) {
         this.placementValidator.occupy(
           available,
@@ -537,8 +516,10 @@ export class TreeShipGenerator {
         );
       }
     }
+  }
 
-    // 4. Objectives
+  private placeObjectives(floors: Cell[]): void {
+    const allRoomsMap = this.getRoomsInCells(floors);
     const remainingRoomIds = Array.from(allRoomsMap.keys()).filter(
       (rid) => !this.placementValidator.isRoomOccupied(rid),
     );
@@ -546,40 +527,71 @@ export class TreeShipGenerator {
 
     if (remainingRoomIds.length > 0) {
       const rid = remainingRoomIds[0];
-      const c = allRoomsMap.get(rid)![0];
+      const objCells = allRoomsMap.get(rid);
+      if (!objCells || objCells.length === 0) return;
+      const c = objCells[0];
       this.objectives.push({
         id: "obj-1",
         kind: "Recover",
         targetCell: { x: c.x, y: c.y },
       });
       this.placementValidator.occupy(c, OccupantType.Objective, rid);
-    } else {
-      const available = floors.filter(
-        (c) => !this.placementValidator.isCellOccupied(c),
-      );
-      this.prng.shuffle(available);
-      if (available.length > 0) {
-        const c = available[0];
-        const rid = `room-forced-obj-${c.x}-${c.y}`;
-        c.roomId = rid;
-        this.objectives.push({
-          id: "obj-1",
-          kind: "Recover",
-          targetCell: { x: c.x, y: c.y },
-        });
-        this.placementValidator.occupy(c, OccupantType.Objective, rid);
-      }
+      return;
+    }
+
+    const available = floors.filter(
+      (c) => !this.placementValidator.isCellOccupied(c),
+    );
+    this.prng.shuffle(available);
+    if (available.length > 0) {
+      const c = available[0];
+      const rid = `room-forced-obj-${c.x}-${c.y}`;
+      c.roomId = rid;
+      this.objectives.push({
+        id: "obj-1",
+        kind: "Recover",
+        targetCell: { x: c.x, y: c.y },
+      });
+      this.placementValidator.occupy(c, OccupantType.Objective, rid);
     }
   }
 
-  private checkProposedRoomForCollisionsAndCycles(
-    rx: number,
-    ry: number,
-    w: number,
-    h: number,
-    parentX: number,
-    parentY: number,
-  ): boolean {
+  private placeFeatures(spawnPointCount: number) {
+    const floors = this.ensureMinFloors();
+
+    const midX = this.width / 2;
+    const midY = this.height / 2;
+    const quadrants: Cell[][] = [[], [], [], []];
+    const getQuadIdx = (c: { x: number; y: number }) => {
+      if (c.x < midX && c.y < midY) return 0;
+      if (c.x >= midX && c.y < midY) return 1;
+      if (c.x < midX && c.y >= midY) return 2;
+      return 3;
+    };
+    floors.forEach((c) => quadrants[getQuadIdx(c)].push(c));
+
+    const nonEmptyQuads = quadrants
+      .map((q, i) => ({ q, i }))
+      .filter((o) => o.q.length > 0);
+    const squadQuadIdx =
+      nonEmptyQuads[this.prng.nextInt(0, nonEmptyQuads.length - 1)].i;
+    const squadQuad = quadrants[squadQuadIdx];
+
+    // 1. Squad Spawns
+    this.placeSquadSpawns(squadQuad);
+
+    // 2. Extraction Point
+    const extQuadIdx = this.findExtQuadIdx(squadQuadIdx, quadrants, nonEmptyQuads);
+    this.placeExtraction(quadrants[extQuadIdx]);
+
+    // 3. Enemy Spawns
+    this.placeEnemySpawns(floors, spawnPointCount);
+
+    // 4. Objectives
+    this.placeObjectives(floors);
+  }
+
+  private checkProposedRoomForCollisionsAndCycles({ rx, ry, w, h, parentX, parentY }: CheckRoomParams): boolean {
     if (rx < 0 || ry < 0 || rx + w > this.width || ry + h > this.height)
       return true;
     for (let y = ry; y < ry + h; y++) {
@@ -684,27 +696,11 @@ export class TreeShipGenerator {
     }
   }
 
-  private generateCross(spineCells: { x: number; y: number }[]) {
-    const midX = Math.floor(this.width / 2) + this.prng.nextInt(-1, 1);
-    const midY = Math.floor(this.height / 2) + this.prng.nextInt(-1, 1);
-    for (let x = 1; x < this.width - 1; x++) {
-      this.setFloor(x, midY);
-      const cell = this.getCell(x, midY);
-      if (cell) cell.roomId = "corridor-aorta-h";
-      spineCells.push({ x, y: midY });
-      if (x > 1) this.openWall(x - 1, midY, "e");
-    }
-    for (let y = 1; y < this.height - 1; y++) {
-      if (y === midY) continue;
-      this.setFloor(midX, y);
-      const cell = this.getCell(midX, y);
-      if (cell) cell.roomId = "corridor-aorta-v";
-      spineCells.push({ x: midX, y });
-      if (y === midY - 1) this.openWall(midX, y, "s");
-      else if (y === midY + 1) this.openWall(midX, y, "n");
-      else if (y < midY) this.openWall(midX, y, "s");
-      else this.openWall(midX, y, "n");
-    }
+  private generateCrossVerticalArteries(
+    spineCells: { x: number; y: number }[],
+    midX: number,
+    midY: number,
+  ): void {
     for (let x = 2; x < this.width - 2; x += 4) {
       if (Math.abs(x - midX) < 3) continue;
       if (this.prng.next() < 0.7) {
@@ -730,6 +726,13 @@ export class TreeShipGenerator {
         }
       }
     }
+  }
+
+  private generateCrossHorizontalArteries(
+    spineCells: { x: number; y: number }[],
+    midX: number,
+    midY: number,
+  ): void {
     for (let y = 2; y < this.height - 2; y += 4) {
       if (Math.abs(y - midY) < 3) continue;
       if (this.prng.next() < 0.7) {
@@ -755,5 +758,30 @@ export class TreeShipGenerator {
         }
       }
     }
+  }
+
+  private generateCross(spineCells: { x: number; y: number }[]) {
+    const midX = Math.floor(this.width / 2) + this.prng.nextInt(-1, 1);
+    const midY = Math.floor(this.height / 2) + this.prng.nextInt(-1, 1);
+    for (let x = 1; x < this.width - 1; x++) {
+      this.setFloor(x, midY);
+      const cell = this.getCell(x, midY);
+      if (cell) cell.roomId = "corridor-aorta-h";
+      spineCells.push({ x, y: midY });
+      if (x > 1) this.openWall(x - 1, midY, "e");
+    }
+    for (let y = 1; y < this.height - 1; y++) {
+      if (y === midY) continue;
+      this.setFloor(midX, y);
+      const cell = this.getCell(midX, y);
+      if (cell) cell.roomId = "corridor-aorta-v";
+      spineCells.push({ x: midX, y });
+      if (y === midY - 1) this.openWall(midX, y, "s");
+      else if (y === midY + 1) this.openWall(midX, y, "n");
+      else if (y < midY) this.openWall(midX, y, "s");
+      else this.openWall(midX, y, "n");
+    }
+    this.generateCrossVerticalArteries(spineCells, midX, midY);
+    this.generateCrossHorizontalArteries(spineCells, midX, midY);
   }
 }

@@ -1,26 +1,15 @@
 import type {
   Unit,
-  Command,
-  GameState,
   SetEngagementCommand} from "@src/shared/types";
 import {
   CommandType
 } from "@src/shared/types";
-import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import type { IUnitCommandHandler } from "../IUnitCommandHandler";
-import type { UnitCommandRegistry } from "../UnitCommandRegistry";
+import type { IUnitCommandHandler, CommandExecParams } from "../IUnitCommandHandler";
 
 export class SetEngagementHandler implements IUnitCommandHandler {
   public type = CommandType.SET_ENGAGEMENT;
 
-  public execute(
-    unit: Unit,
-    cmd: Command,
-    _state: GameState,
-    _isManual: boolean,
-    _registry: UnitCommandRegistry,
-    _director?: ItemEffectHandler,
-  ): Unit {
+  public execute({ unit, cmd }: CommandExecParams): Unit {
     const engagementCmd = cmd as SetEngagementCommand;
     const currentUnit = { ...unit };
 

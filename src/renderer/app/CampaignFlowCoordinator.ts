@@ -21,7 +21,7 @@ export class CampaignFlowCoordinator {
     private modalService: ModalService,
   ) {}
 
-  public async onCampaignMenu(
+  public onCampaignMenu(
     applyCampaignTheme: () => void,
     showCampaignSummary: (state: CampaignState) => void,
     showCampaignScreen: () => void,
@@ -76,7 +76,7 @@ export class CampaignFlowCoordinator {
         const outcomeModal = new OutcomeModal(this.modalService, () => {
           if (outcome.ambush) {
             // Ambush triggers a combat mission at this node
-            this.onCampaignNodeSelected(
+            void this.onCampaignNodeSelected(
               node,
               showCampaignScreen,
               prepareMissionSetup,
@@ -85,9 +85,9 @@ export class CampaignFlowCoordinator {
             showCampaignScreen();
           }
         });
-        outcomeModal.show(event.title, outcome.text);
+        void outcomeModal.show(event.title, outcome.text);
       });
-      modal.show(event);
+      void modal.show(event);
       return;
     }
 

@@ -11,7 +11,7 @@ interface LegacyMapData extends Omit<MapDefinition, "cells"> {
 export class MapUtility {
   public static transformMapData(oldMapData: LegacyMapData): MapDefinition {
     const newCells = oldMapData.cells.map((cell: LegacyCell) => {
-      const { doorId, ...rest } = cell;
+      const { doorId: _doorId, ...rest } = cell;
       return rest;
     });
 
