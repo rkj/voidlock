@@ -1,5 +1,6 @@
-import { Vector2, Door, CellType, BoundaryType } from "../shared/types";
-import { Graph } from "./Graph";
+import type { Vector2, Door} from "../shared/types";
+import { CellType, BoundaryType } from "../shared/types";
+import type { Graph } from "./Graph";
 
 export class Pathfinder {
   constructor(

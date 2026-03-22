@@ -1,6 +1,7 @@
-import { RenderLayer } from "./RenderLayer";
-import { SharedRendererState } from "./SharedRendererState";
-import { GameState, UnitState } from "@src/shared/types";
+import type { RenderLayer } from "./RenderLayer";
+import type { SharedRendererState } from "./SharedRendererState";
+import type { GameState } from "@src/shared/types";
+import { UnitState } from "@src/shared/types";
 import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
@@ -37,7 +38,7 @@ export class OverlayLayer implements RenderLayer {
 
     const spawns = map.squadSpawns || (map.squadSpawn ? [map.squadSpawn] : []);
 
-    ctx.fillStyle = this.theme.getColor("--color-success") + "44";
+    ctx.fillStyle = `${this.theme.getColor("--color-success")  }44`;
     spawns.forEach((s) => {
       ctx.fillRect(s.x * cellSize, s.y * cellSize, cellSize, cellSize);
       ctx.strokeStyle = this.theme.getColor("--color-success");

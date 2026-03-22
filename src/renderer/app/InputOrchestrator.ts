@@ -1,9 +1,10 @@
-import { GameClient } from "@src/engine/GameClient";
-import { MenuController } from "../MenuController";
-import { HUDManager } from "../ui/HUDManager";
-import { MissionRunner } from "./MissionRunner";
-import { Renderer } from "../Renderer";
-import { Unit, UnitState, CommandType, Vector2 } from "@src/shared/types";
+import type { GameClient } from "@src/engine/GameClient";
+import type { MenuController } from "../MenuController";
+import type { HUDManager } from "../ui/HUDManager";
+import type { MissionRunner } from "./MissionRunner";
+import type { Renderer } from "../Renderer";
+import type { Unit, Vector2 } from "@src/shared/types";
+import { UnitState, CommandType } from "@src/shared/types";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { MapUtils } from "@src/shared/utils/MapUtils";
 

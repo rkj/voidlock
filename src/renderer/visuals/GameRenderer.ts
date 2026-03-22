@@ -1,11 +1,12 @@
-import {
+import type {
   GameState,
   UnitStyle,
   OverlayOption,
-  BoundaryType,
-  Vector2,
+  Vector2} from "@src/shared/types";
+import {
+  BoundaryType
 } from "@src/shared/types";
-import { RenderLayer } from "./RenderLayer";
+import type { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { MapLayer } from "./MapLayer";
 import { MapEntityLayer } from "./MapEntityLayer";

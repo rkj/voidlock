@@ -1,23 +1,25 @@
-import {
+import type {
   MapDefinition,
-  MapGeneratorType,
   MapGenerationConfig,
   TileAssembly,
   TileDefinition,
   Cell,
-  CellType,
-  BoundaryType,
   WallDefinition,
   Door,
   SpawnPoint,
   Vector2,
   ObjectiveDefinition,
-  IMapValidationResult,
+  IMapValidationResult} from "../../shared/types";
+import {
+  MapGeneratorType,
+  CellType,
+  BoundaryType
 } from "../../shared/types";
 import { TreeShipGenerator } from "../generators/TreeShipGenerator";
 import { SpaceshipGenerator } from "../generators/SpaceshipGenerator";
 import { DenseShipGenerator } from "../generators/DenseShipGenerator";
-import { Graph, Direction } from "../Graph";
+import type { Direction } from "../Graph";
+import { Graph } from "../Graph";
 import { MapSanitizer } from "./MapSanitizer";
 import { MapValidator } from "./MapValidator";
 import { PRNG } from "../../shared/PRNG";
@@ -223,7 +225,7 @@ export class MapFactory {
         cell.roomId = roomId;
 
         cellDef.openEdges.forEach((edge) => {
-          const re = rotateEdge(edge as Direction, tileRef.rotation);
+          const re = rotateEdge(edge, tileRef.rotation);
           const nx = re === "e" ? gx + 1 : re === "w" ? gx - 1 : gx;
           const ny = re === "s" ? gy + 1 : re === "n" ? gy - 1 : gy;
           openBoundaries.add(getBoundaryKey(gx, gy, nx, ny));
@@ -249,12 +251,12 @@ export class MapFactory {
           }
         }
         // Borders
-        if (x === 0) walls.push({ p1: { x: 0, y: y }, p2: { x: 0, y: y + 1 } });
+        if (x === 0) walls.push({ p1: { x: 0, y }, p2: { x: 0, y: y + 1 } });
         if (x === width - 1)
-          walls.push({ p1: { x: x + 1, y: y }, p2: { x: x + 1, y: y + 1 } });
-        if (y === 0) walls.push({ p1: { x: x, y: 0 }, p2: { x: x + 1, y: 0 } });
+          walls.push({ p1: { x: x + 1, y }, p2: { x: x + 1, y: y + 1 } });
+        if (y === 0) walls.push({ p1: { x, y: 0 }, p2: { x: x + 1, y: 0 } });
         if (y === height - 1)
-          walls.push({ p1: { x: x, y: y + 1 }, p2: { x: x + 1, y: y + 1 } });
+          walls.push({ p1: { x, y: y + 1 }, p2: { x: x + 1, y: y + 1 } });
       }
     }
 
@@ -283,7 +285,7 @@ export class MapFactory {
         const tileRef = assembly.tiles[td.tileIndex];
         if (!tileRef) return;
         const def = library[tileRef.tileId];
-        if (!def || !def.doorSockets) return;
+        if (!def?.doorSockets) return;
         const socket = def.doorSockets[td.socketIndex];
         if (!socket) return;
 
@@ -297,7 +299,7 @@ export class MapFactory {
         const gx = tileRef.x + localPos.x - minX;
         const gy = tileRef.y + localPos.y - minY;
 
-        const re = rotateEdge(socket.edge as Direction, tileRef.rotation);
+        const re = rotateEdge(socket.edge, tileRef.rotation);
 
         const orientation =
           re === "e" || re === "w" ? "Vertical" : "Horizontal";
@@ -394,7 +396,7 @@ export class MapFactory {
           if (isSquadSpawn) cellChar = "P";
           else if (spawnPoints?.some((sp) => sp.pos.x === x && sp.pos.y === y))
             cellChar = "S";
-          else if (extraction && extraction.x === x && extraction.y === y)
+          else if (extraction?.x === x && extraction.y === y)
             cellChar = "E";
           else if (
             objectives?.some(
@@ -596,7 +598,7 @@ export class MapFactory {
 
               const boundary = graph.getBoundary(current.x, current.y, nx, ny);
               // Rooms are separated by walls or doors
-              if (boundary && boundary.type === BoundaryType.Open) {
+              if (boundary?.type === BoundaryType.Open) {
                 if (!visited.has(`${nx},${ny}`)) {
                   visited.add(`${nx},${ny}`);
                   queue.push({ x: nx, y: ny });

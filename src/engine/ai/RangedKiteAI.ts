@@ -1,15 +1,16 @@
-import {
+import type {
   GameState,
   Enemy,
   Unit,
-  UnitState,
   Vector2,
-  Grid,
+  Grid} from "../../shared/types";
+import {
+  UnitState
 } from "../../shared/types";
-import { Pathfinder } from "../Pathfinder";
-import { PRNG } from "../../shared/PRNG";
-import { LineOfSight } from "../LineOfSight";
-import { IEnemyAI } from "./EnemyAI";
+import type { Pathfinder } from "../Pathfinder";
+import type { PRNG } from "../../shared/PRNG";
+import type { LineOfSight } from "../LineOfSight";
+import type { IEnemyAI } from "./EnemyAI";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { AI } from "../config/GameConstants";
 

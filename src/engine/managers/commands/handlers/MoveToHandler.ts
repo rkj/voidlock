@@ -1,16 +1,17 @@
-import {
+import type {
   Unit,
   Command,
   GameState,
+  MoveCommand} from "@src/shared/types";
+import {
   CommandType,
-  UnitState,
-  MoveCommand,
+  UnitState
 } from "@src/shared/types";
-import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import { IUnitCommandHandler } from "../IUnitCommandHandler";
-import { Pathfinder } from "@src/engine/Pathfinder";
+import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { IUnitCommandHandler } from "../IUnitCommandHandler";
+import type { Pathfinder } from "@src/engine/Pathfinder";
 import { MathUtils } from "@src/shared/utils/MathUtils";
-import { UnitCommandRegistry } from "../UnitCommandRegistry";
+import type { UnitCommandRegistry } from "../UnitCommandRegistry";
 
 export class MoveToHandler implements IUnitCommandHandler {
   public type = CommandType.MOVE_TO;
@@ -26,7 +27,7 @@ export class MoveToHandler implements IUnitCommandHandler {
     _director?: ItemEffectHandler,
   ): Unit {
     const moveCmd = cmd as MoveCommand;
-    let currentUnit = { ...unit };
+    const currentUnit = { ...unit };
 
     if (
       currentUnit.state !== UnitState.Extracted &&
@@ -53,8 +54,7 @@ export class MoveToHandler implements IUnitCommandHandler {
         currentUnit.targetPos = MathUtils.getCellCenter(path[0], currentUnit.visualJitter);
         currentUnit.state = UnitState.Moving;
       } else if (
-        path &&
-        path.length === 0 &&
+        path?.length === 0 &&
         MathUtils.sameCellPosition(currentUnit.pos, moveCmd.target)
       ) {
         currentUnit.pos = MathUtils.getCellCenter(moveCmd.target, currentUnit.visualJitter);

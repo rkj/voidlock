@@ -1,20 +1,21 @@
-import {
+import type {
   MapDefinition,
   GameState,
   Objective,
+  SquadConfig,
+  CampaignNodeType,
+  Vector2} from "../../shared/types";
+import {
   MissionType,
   CellType,
   UnitState,
-  SquadConfig,
-  EnemyType,
-  CampaignNodeType,
-  Vector2,
+  EnemyType
 } from "../../shared/types";
-import { PRNG } from "../../shared/PRNG";
+import type { PRNG } from "../../shared/PRNG";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { MapUtils } from "../../shared/utils/MapUtils";
-import { EnemyManager } from "./EnemyManager";
-import { LootManager } from "./LootManager";
+import type { EnemyManager } from "./EnemyManager";
+import type { LootManager } from "./LootManager";
 import { PlacementValidator } from "../generators/PlacementValidator";
 import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
 import { HIVE, SCRAP_REWARDS, MISSION_SCALING } from "../config/GameConstants";
@@ -191,7 +192,7 @@ export class MissionManager {
         // Find a room for the Hive that's far from extraction
         const roomCandidates = floors.filter((c) => {
           if (validator.isCellOccupied(c)) return false;
-          const isRoom = c.roomId && c.roomId.startsWith("room-");
+          const isRoom = c.roomId?.startsWith("room-");
           if (!isRoom) return false;
 
           return (
@@ -244,7 +245,7 @@ export class MissionManager {
       const extraction = map.extraction || { x: 0, y: 0 };
       const candidates = floors.filter((c) => {
         if (validator.isCellOccupied(c)) return false;
-        const isRoom = c.roomId && c.roomId.startsWith("room-");
+        const isRoom = c.roomId?.startsWith("room-");
         if (!isRoom) return false;
 
         return (
@@ -285,7 +286,7 @@ export class MissionManager {
   public updateObjectives(state: GameState) {
     state.objectives = state.objectives.map((obj) => {
       let changed = false;
-      let newObj = { ...obj };
+      const newObj = { ...obj };
 
       if (!newObj.visible) {
         const pos = MapUtils.resolveObjectivePosition(newObj, state.enemies);

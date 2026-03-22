@@ -1,8 +1,8 @@
-import { Vector2 } from "./geometry";
-import { LootItem, Mine, Turret } from "./items";
-import { MapDefinition, Objective, MapGeneratorType } from "./map";
-import { Command, Enemy, SquadConfig, Unit, UnitStyle } from "./units";
-import { CampaignNodeType } from "../campaign_types";
+import type { Vector2 } from "./geometry";
+import type { LootItem, Mine, Turret } from "./items";
+import type { MapDefinition, Objective, MapGeneratorType } from "./map";
+import type { Command, Enemy, SquadConfig, Unit, UnitStyle } from "./units";
+import type { CampaignNodeType } from "../campaign_types";
 
 export enum EngineMode {
   Simulation = "Simulation",

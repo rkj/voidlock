@@ -1,4 +1,4 @@
-import { GameState } from "@src/shared/types";
+import type { GameState } from "@src/shared/types";
 
 export type Transformer = (value: unknown, state: GameState) => unknown;
 
@@ -67,7 +67,7 @@ export class UIBinder {
           this.bindings.push({
             element: el,
             attr: bindType,
-            path: path,
+            path,
             transformer: localTransformer,
             lastValue: undefined,
             baseClassName: isClassBinding ? (el.getAttribute("class") || "") : undefined,
@@ -181,15 +181,13 @@ export class UIBinder {
         case "class":
           if (typeof value === "string") {
             if (binding.isAdditiveClass) {
-              const newClass = (binding.baseClassName + " " + value).trim();
+              const newClass = (`${binding.baseClassName  } ${  value}`).trim();
               if (el.className !== newClass) {
                 el.className = newClass;
               }
-            } else {
-              if (el.className !== value) {
+            } else if (el.className !== value) {
                 el.className = value;
               }
-            }
           }
           break;
         default:

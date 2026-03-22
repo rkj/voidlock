@@ -1,5 +1,6 @@
+import type {
+  Unit} from "../../shared/types";
 import {
-  Unit,
   ArchetypeLibrary,
   ItemLibrary,
   WeaponLibrary,
@@ -53,7 +54,7 @@ export class StatsManager {
     const nextStats = {
       ...unit.stats,
       speed: arch.speed + speedBonus,
-      equipmentAccuracyBonus: equipmentAccuracyBonus,
+      equipmentAccuracyBonus,
     };
 
     // Update weapon-dependent stats

@@ -1,7 +1,8 @@
-import { GameState, Enemy, Unit, UnitState, Grid } from "../../shared/types";
-import { Pathfinder } from "../Pathfinder";
-import { PRNG } from "../../shared/PRNG";
-import { LineOfSight } from "../LineOfSight";
+import type { GameState, Enemy, Unit, Grid } from "../../shared/types";
+import { UnitState } from "../../shared/types";
+import type { Pathfinder } from "../Pathfinder";
+import type { PRNG } from "../../shared/PRNG";
+import type { LineOfSight } from "../LineOfSight";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { AI } from "../config/GameConstants";
 
@@ -82,7 +83,7 @@ export class SwarmMeleeAI implements IEnemyAI {
 
     if (targetSoldier) {
       // 3. Attack Mode: Pathfind to soldier
-      const targetPos = (targetSoldier as Unit).pos;
+      const targetPos = (targetSoldier).pos;
       const path = pathfinder.findPath(
         { x: Math.floor(enemy.pos.x), y: Math.floor(enemy.pos.y) },
         { x: Math.floor(targetPos.x), y: Math.floor(targetPos.y) },

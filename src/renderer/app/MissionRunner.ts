@@ -1,15 +1,16 @@
-import { GameState, MissionType, MapGeneratorType } from "@src/shared/types";
-import { MissionReport } from "@src/shared/campaign_types";
-import { MissionCoordinator } from "./MissionCoordinator";
-import { MissionSetupManager } from "./MissionSetupManager";
-import { NavigationOrchestrator } from "./NavigationOrchestrator";
-import { UIOrchestrator } from "./UIOrchestrator";
-import { GameClient } from "@src/engine/GameClient";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { HUDManager } from "../ui/HUDManager";
-import { MenuController } from "../MenuController";
+import type { GameState } from "@src/shared/types";
+import { MissionType, MapGeneratorType } from "@src/shared/types";
+import type { MissionReport } from "@src/shared/campaign_types";
+import type { MissionCoordinator } from "./MissionCoordinator";
+import type { MissionSetupManager } from "./MissionSetupManager";
+import type { NavigationOrchestrator } from "./NavigationOrchestrator";
+import type { UIOrchestrator } from "./UIOrchestrator";
+import type { GameClient } from "@src/engine/GameClient";
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { HUDManager } from "../ui/HUDManager";
+import type { MenuController } from "../MenuController";
 import { Logger } from "@src/shared/Logger";
-import { ModalService } from "../ui/ModalService";
+import type { ModalService } from "../ui/ModalService";
 import prologueMap from "@src/content/maps/prologue.json";
 
 export interface MissionRunnerDependencies {
@@ -149,7 +150,7 @@ export class MissionRunner {
       if (deadIds.size > 0) {
         this.deps.missionSetupManager.currentSquad.soldiers =
           this.deps.missionSetupManager.currentSquad.soldiers.filter(
-            (s) => !s || !s.id || !deadIds.has(s.id),
+            (s) => !s?.id || !deadIds.has(s.id),
           );
         this.deps.missionSetupManager.saveCurrentConfig();
       }

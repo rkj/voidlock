@@ -1,4 +1,4 @@
-import { Vector2 } from "../types/geometry";
+import type { Vector2 } from "../types/geometry";
 
 /**
  * A simple spatial grid for partitioning entities by their grid cell coordinates.

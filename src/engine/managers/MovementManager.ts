@@ -1,5 +1,6 @@
-import { IMovableEntity, UnitState, CommandType, Door } from "../../shared/types";
-import { GameGrid } from "../GameGrid";
+import type { IMovableEntity, Door } from "../../shared/types";
+import { UnitState, CommandType } from "../../shared/types";
+import type { GameGrid } from "../GameGrid";
 import { SPEED_NORMALIZATION_CONST, MOVEMENT } from "../config/GameConstants";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
@@ -50,7 +51,7 @@ export class MovementManager {
         };
       }
       return updated as T;
-    } else if (dist <= moveDist + MOVEMENT.ARRIVAL_THRESHOLD) {
+    } if (dist <= moveDist + MOVEMENT.ARRIVAL_THRESHOLD) {
       const nextPath = entity.path ? entity.path.slice(1) : [];
       let updated: any;
       if (nextPath.length === 0) {
@@ -80,23 +81,23 @@ export class MovementManager {
 
       // Record position history if cell changed
       if ("positionHistory" in entity) {
-        const u = updated as any;
+        const u = updated;
         const cell = MathUtils.toCellCoord(u.pos);
         const last = u.positionHistory[u.positionHistory.length - 1];
-        if (!last || last.x !== cell.x || last.y !== cell.y) {
+        if (last?.x !== cell.x || last.y !== cell.y) {
           u.positionHistory = [...u.positionHistory, cell].slice(-6);
         }
       }
 
       return updated as T;
-    } else {
+    } 
       const newPos = {
         x: entity.pos.x + (dx / dist) * moveDist,
         y: entity.pos.y + (dy / dist) * moveDist,
       };
 
       const movedCell = MathUtils.toCellCoord(newPos);
-      let updated: any = {
+      const updated: any = {
         ...entity,
         pos: newPos,
         state: UnitState.Moving,
@@ -104,14 +105,14 @@ export class MovementManager {
 
       // Record position history if cell changed during partial move
       if ("positionHistory" in entity && (movedCell.x !== currentCell.x || movedCell.y !== currentCell.y)) {
-        const u = updated as any;
+        const u = updated;
         const last = u.positionHistory[u.positionHistory.length - 1];
-        if (!last || last.x !== movedCell.x || last.y !== movedCell.y) {
+        if (last?.x !== movedCell.x || last.y !== movedCell.y) {
           u.positionHistory = [...u.positionHistory, movedCell].slice(-6);
         }
       }
 
       return updated as T;
-    }
+    
   }
 }

@@ -1,5 +1,6 @@
-import { UnitStyle, OverlayOption, Cell } from "@src/shared/types";
-import { Graph } from "@src/engine/Graph";
+import type { OverlayOption, Cell } from "@src/shared/types";
+import { UnitStyle } from "@src/shared/types";
+import type { Graph } from "@src/engine/Graph";
 import { ThemeManager } from "../ThemeManager";
 import { AssetManager } from "./AssetManager";
 

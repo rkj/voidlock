@@ -1,11 +1,12 @@
-import {
+import type {
   GameState,
   Unit,
-  UnitState,
   Vector2,
   Grid,
-  CommandType,
-  Command,
+  Command} from "../../shared/types";
+import {
+  UnitState,
+  CommandType
 } from "../../shared/types";
 import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
 import { MathUtils } from "../../shared/utils/MathUtils";

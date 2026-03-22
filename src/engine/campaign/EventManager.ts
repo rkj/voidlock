@@ -1,10 +1,10 @@
-import {
+import type {
   CampaignState,
   EventChoice,
 } from "../../shared/campaign_types";
-import { PRNG } from "../../shared/PRNG";
+import type { PRNG } from "../../shared/PRNG";
 import { MissionType } from "../../shared/types";
-import { MissionReconciler } from "./MissionReconciler";
+import type { MissionReconciler } from "./MissionReconciler";
 import { SoldierFactory } from "./SoldierFactory";
 
 /**

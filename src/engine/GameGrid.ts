@@ -1,8 +1,9 @@
-import {
+import type {
   MapDefinition,
-  CellType,
   Grid,
-  Door,
+  Door} from "../shared/types";
+import {
+  CellType,
   BoundaryType,
 } from "../shared/types";
 import { Graph } from "./Graph";

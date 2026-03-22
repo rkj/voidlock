@@ -1,4 +1,4 @@
-import { MapDefinition, Vector2, Objective, Enemy } from "@src/shared/types";
+import type { MapDefinition, Vector2, Objective, Enemy } from "@src/shared/types";
 import { CENTER_OFFSET } from "../constants";
 
 /**
@@ -44,7 +44,7 @@ export class MapUtils {
         x: objective.targetCell.x + CENTER_OFFSET,
         y: objective.targetCell.y + CENTER_OFFSET,
       };
-    } else if (objective.targetEnemyId) {
+    } if (objective.targetEnemyId) {
       const enemy = enemies.find((e) => e.id === objective.targetEnemyId);
       if (enemy) {
         return enemy.pos;

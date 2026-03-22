@@ -1,4 +1,5 @@
-import { InputContext, InputPriority, ShortcutInfo } from "@src/shared/types";
+import type { InputContext, ShortcutInfo } from "@src/shared/types";
+import { InputPriority } from "@src/shared/types";
 import { InputDispatcher } from "./InputDispatcher";
 import { KeyboardHelpOverlay } from "./ui/KeyboardHelpOverlay";
 

@@ -179,7 +179,7 @@ export class ModalService {
 
     const instance: ModalInstance = {
       close: (value?: unknown) => {
-        if (this.activeModal && this.activeModal.element === modal) {
+        if (this.activeModal?.element === modal) {
           InputDispatcher.getInstance().popContext("ModalService");
           this.container.removeChild(backdrop);
           const currentResolve = this.activeModal.resolve;
@@ -273,7 +273,7 @@ export class ModalService {
         instance.close();
       }
       return true;
-    } else if (e.key === "Enter") {
+    } if (e.key === "Enter") {
       const primaryBtn = options.buttons?.find((b) => b.isPrimary);
       if (primaryBtn) {
         primaryBtn.onClick(instance);

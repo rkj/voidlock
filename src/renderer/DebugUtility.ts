@@ -1,5 +1,5 @@
-import { GameState, ReplayData } from "@src/shared/types";
-import { ModalService } from "./ui/ModalService";
+import type { GameState, ReplayData } from "@src/shared/types";
+import type { ModalService } from "./ui/ModalService";
 import { Logger } from "@src/shared/Logger";
 
 /**
@@ -25,7 +25,7 @@ export class DebugUtility {
       replayData,
       currentState: state,
       mapGenerator,
-      version: version,
+      version,
       timestamp: Date.now(),
     };
 

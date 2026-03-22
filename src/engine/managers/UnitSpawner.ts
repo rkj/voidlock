@@ -1,14 +1,15 @@
-import {
+import type {
   MapDefinition,
   Unit,
-  UnitState,
   SquadConfig,
+  Vector2} from "../../shared/types";
+import {
+  UnitState,
   ArchetypeLibrary,
   ItemLibrary,
-  WeaponLibrary,
-  Vector2,
+  WeaponLibrary
 } from "../../shared/types";
-import { PRNG } from "../../shared/PRNG";
+import type { PRNG } from "../../shared/PRNG";
 import { SPEED_NORMALIZATION_CONST } from "../config/GameConstants";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { MapUtils } from "../../shared/utils/MapUtils";
@@ -56,7 +57,7 @@ export class UnitSpawner {
       const startY = startPos.y + 0.5;
 
       let hp = soldierConfig.hp ?? arch.baseHp;
-      let innateMaxHp = soldierConfig.maxHp ?? soldierConfig.hp ?? arch.baseHp;
+      const innateMaxHp = soldierConfig.maxHp ?? soldierConfig.hp ?? arch.baseHp;
       let maxHp = innateMaxHp;
       const soldierAim = soldierConfig.soldierAim ?? arch.soldierAim;
       let speed = arch.speed;
@@ -90,25 +91,25 @@ export class UnitSpawner {
       units.push({
         id: soldierConfig.id || `${arch.id}-${unitCount++}`,
         name: soldierConfig.name || arch.name,
-        tacticalNumber: tacticalNumber,
+        tacticalNumber,
         archetypeId: arch.id,
         pos: {
           x: startX + jitter.x,
           y: startY + jitter.y,
         },
         visualJitter: jitter,
-        hp: hp,
-        innateMaxHp: innateMaxHp,
-        maxHp: maxHp,
+        hp,
+        innateMaxHp,
+        maxHp,
         state: UnitState.Idle,
         stats: {
           damage: activeWeapon ? activeWeapon.damage : arch.damage,
           fireRate: activeWeapon ? activeWeapon.fireRate : arch.fireRate,
-          soldierAim: soldierAim,
+          soldierAim,
           equipmentAccuracyBonus,
           accuracy: soldierAim + equipmentAccuracyBonus + weaponAccuracy,
           attackRange: activeWeapon ? activeWeapon.range : arch.attackRange,
-          speed: speed,
+          speed,
         },
         rightHand,
         leftHand,
@@ -189,8 +190,7 @@ export class UnitSpawner {
     map.cells.forEach((cell) => {
       if (
         cell.type === "Floor" &&
-        cell.roomId &&
-        cell.roomId.startsWith("room-")
+        cell.roomId?.startsWith("room-")
       ) {
         if (!rooms.has(cell.roomId)) rooms.set(cell.roomId, []);
         rooms.get(cell.roomId)!.push({ x: cell.x, y: cell.y });

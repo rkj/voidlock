@@ -1,4 +1,4 @@
-import { MapDefinition, Door, Vector2, Cell } from "@src/shared/types";
+import type { MapDefinition, Door, Vector2, Cell } from "@src/shared/types";
 
 interface LegacyCell extends Cell {
   doorId?: string;

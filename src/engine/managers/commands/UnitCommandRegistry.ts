@@ -1,6 +1,6 @@
-import { CommandType, Unit, Command, GameState } from "@src/shared/types";
-import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import { IUnitCommandHandler } from "./IUnitCommandHandler";
+import type { CommandType, Unit, Command, GameState } from "@src/shared/types";
+import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { IUnitCommandHandler } from "./IUnitCommandHandler";
 
 export class UnitCommandRegistry {
   private handlers: Map<CommandType, IUnitCommandHandler> = new Map();

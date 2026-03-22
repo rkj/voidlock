@@ -1,4 +1,4 @@
-import { GameState, UseItemCommand } from "../../shared/types";
+import type { GameState, UseItemCommand } from "../../shared/types";
 
 export interface ItemEffectHandler {
   handleUseItem(state: GameState, cmd: UseItemCommand): void;

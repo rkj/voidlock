@@ -1,16 +1,17 @@
-import {
+import type {
   CampaignNode,
+  CampaignState} from "@src/shared/campaign_types";
+import {
   calculateMapSize,
-  calculateSpawnPoints,
-  CampaignState,
+  calculateSpawnPoints
 } from "@src/shared/campaign_types";
 import { PRNG } from "@src/shared/PRNG";
 import { CampaignEvents } from "@src/content/CampaignEvents";
 import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { ScreenManager } from "@src/renderer/ScreenManager";
-import { CampaignShell } from "@src/renderer/ui/CampaignShell";
-import { ModalService } from "@src/renderer/ui/ModalService";
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { ScreenManager } from "@src/renderer/ScreenManager";
+import type { CampaignShell } from "@src/renderer/ui/CampaignShell";
+import type { ModalService } from "@src/renderer/ui/ModalService";
 
 export class CampaignFlowCoordinator {
   constructor(

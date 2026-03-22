@@ -1,6 +1,7 @@
-import { RenderLayer } from "./RenderLayer";
-import { SharedRendererState } from "./SharedRendererState";
-import { GameState, CellType, BoundaryType, Door } from "@src/shared/types";
+import type { RenderLayer } from "./RenderLayer";
+import type { SharedRendererState } from "./SharedRendererState";
+import type { GameState, Door } from "@src/shared/types";
+import { CellType, BoundaryType } from "@src/shared/types";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class MapLayer implements RenderLayer {

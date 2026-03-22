@@ -1,6 +1,6 @@
-import { RenderLayer } from "./RenderLayer";
-import { SharedRendererState } from "./SharedRendererState";
-import { GameState } from "@src/shared/types";
+import type { RenderLayer } from "./RenderLayer";
+import type { SharedRendererState } from "./SharedRendererState";
+import type { GameState } from "@src/shared/types";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
@@ -326,8 +326,7 @@ export class MapEntityLayer implements RenderLayer {
         (obj.visible || state.settings.debugOverlayEnabled)
       ) {
         if (
-          state.map.extraction &&
-          obj.targetCell.x === state.map.extraction.x &&
+          obj.targetCell.x === state.map.extraction?.x &&
           obj.targetCell.y === state.map.extraction.y
         )
           return;

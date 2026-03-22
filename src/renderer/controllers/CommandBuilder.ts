@@ -1,8 +1,9 @@
-import {
+import type {
   Command,
-  CommandType,
   EngagementPolicy,
-  Vector2,
+  Vector2} from "@src/shared/types";
+import {
+  CommandType
 } from "@src/shared/types";
 
 export interface CommandContext {

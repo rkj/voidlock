@@ -1,16 +1,17 @@
-import {
+import type {
   GameState,
   Unit,
+  Door} from "../../../shared/types";
+import {
   UnitState,
-  CommandType,
-  Door,
+  CommandType
 } from "../../../shared/types";
-import { BehaviorContext } from "../../interfaces/AIContext";
-import { PRNG } from "../../../shared/PRNG";
-import { Behavior, BehaviorResult } from "./Behavior";
-import { GameGrid } from "../../GameGrid";
+import type { BehaviorContext } from "../../interfaces/AIContext";
+import type { PRNG } from "../../../shared/PRNG";
+import type { Behavior, BehaviorResult } from "./Behavior";
+import type { GameGrid } from "../../GameGrid";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
-import { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { calculateTravelTimeMs } from "./BehaviorUtils";
 
@@ -65,7 +66,7 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
       if (currentUnit.aiProfile === "STAND_GROUND") {
         // Hold position
         return { unit: currentUnit, handled: false };
-      } else if (currentUnit.aiProfile === "RUSH") {
+      } if (currentUnit.aiProfile === "RUSH") {
         if (dist > 1.5) {
           const targetCell = {
             x: Math.floor(primaryThreat.pos.x),
@@ -101,7 +102,7 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
               };
             }
             return { unit: currentUnit, handled: true };
-          } else if (currentUnit.activePlan) {
+          } if (currentUnit.activePlan) {
             // Same target and already moving, refresh commitment
             const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
             const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
@@ -179,7 +180,7 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
                 };
               }
               return { unit: currentUnit, handled: true };
-            } else if (currentUnit.activePlan) {
+            } if (currentUnit.activePlan) {
               // Same target and already moving, refresh commitment
               const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
               const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
@@ -229,7 +230,7 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
               };
             }
             return { unit: currentUnit, handled: true };
-          } else if (currentUnit.activePlan) {
+          } if (currentUnit.activePlan) {
             // Same target and already moving, refresh commitment
             const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
             const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);

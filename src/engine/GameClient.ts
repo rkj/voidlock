@@ -1,4 +1,4 @@
-import {
+import type {
   MapDefinition,
   Command,
   GameState,
@@ -6,18 +6,19 @@ import {
   MainMessage,
   ReplayData,
   RecordedCommand,
+  SquadConfig,
+  CommandLogEntry,
+  MapGenerationConfig,
+  CampaignNodeType} from "../shared/types";
+import {
   MapGeneratorType,
   UnitStyle,
-  SquadConfig,
   MissionType,
   CommandType,
   EngineMode,
-  CommandLogEntry,
-  MapGenerationConfig,
-  CampaignNodeType,
-  GameClientConfig,
+  GameClientConfig
 } from "../shared/types";
-import { MapFactory } from "./map/MapFactory";
+import type { MapFactory } from "./map/MapFactory";
 import { Logger } from "../shared/Logger";
 
 // Factory type for creating MapFactory instances based on config
@@ -268,7 +269,7 @@ export class GameClient {
         agentControlEnabled,
         unitStyle,
         themeId,
-        squadConfig: squadConfig,
+        squadConfig,
         missionType,
         losOverlayEnabled,
         startingThreatLevel,

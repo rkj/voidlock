@@ -1,6 +1,6 @@
-import { CampaignSoldier } from "../../shared/campaign_types";
+import type { CampaignSoldier } from "../../shared/campaign_types";
 import { ArchetypeLibrary } from "../../shared/types";
-import { PRNG } from "../../shared/PRNG";
+import type { PRNG } from "../../shared/PRNG";
 import { RosterUtils } from "./RosterUtils";
 
 /**

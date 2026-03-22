@@ -1,13 +1,14 @@
-import {
+import type {
   GameState,
   Command,
+  UseItemCommand} from "@src/shared/types";
+import {
   CommandType,
-  UseItemCommand,
   ItemLibrary,
 } from "@src/shared/types";
-import { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
-import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import { UnitManager } from "@src/engine/managers/UnitManager";
+import type { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
+import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { UnitManager } from "@src/engine/managers/UnitManager";
 
 export class GlobalUseItemHandler implements IGlobalCommandHandler {
   public type = CommandType.USE_ITEM;
@@ -41,7 +42,7 @@ export class GlobalUseItemHandler implements IGlobalCommandHandler {
         if (useItemCmd.unitIds.includes(unit.id)) {
           if (useItemCmd.queue) {
             return { ...unit, commandQueue: unit.commandQueue.concat(useItemCmd) };
-          } else {
+          } 
             const unitWithEmptyQueue = { ...unit, commandQueue: [] };
             return this.unitManager.executeCommand(
               unitWithEmptyQueue,
@@ -50,7 +51,7 @@ export class GlobalUseItemHandler implements IGlobalCommandHandler {
               true,
               this.director,
             );
-          }
+          
         }
         return unit;
       });

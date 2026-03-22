@@ -7,25 +7,28 @@ import { HUDManager } from "../ui/HUDManager";
 import { InputManager } from "../InputManager";
 import { InputDispatcher } from "../InputDispatcher";
 import { ModalService } from "../ui/ModalService";
-import { CampaignShell, CampaignTabId } from "../ui/CampaignShell";
-import { CloudSyncService } from "@src/services/CloudSyncService";
+import type { CampaignTabId } from "../ui/CampaignShell";
+import { CampaignShell } from "../ui/CampaignShell";
+import type { CloudSyncService } from "@src/services/CloudSyncService";
 import { TutorialManager } from "../controllers/TutorialManager";
 import { AdvisorOverlay } from "../ui/AdvisorOverlay";
-import { ScreenManager, ScreenId } from "../ScreenManager";
+import type { ScreenId } from "../ScreenManager";
+import { ScreenManager } from "../ScreenManager";
 import { SaveManager } from "@src/services/SaveManager";
 import { LocalStorageProvider } from "@src/engine/persistence/LocalStorageProvider";
 import { AssetManager } from "../visuals/AssetManager";
 import { ConfigManager } from "../ConfigManager";
 import { Logger, LogLevel } from "@src/shared/Logger";
 import { MapFactory } from "@src/engine/map/MapFactory";
-import { MapGenerationConfig, GameState, Unit } from "@src/shared/types";
-import { Renderer as IRenderer } from "../Renderer";
+import type { MapGenerationConfig, GameState, Unit } from "@src/shared/types";
+import type { Renderer as IRenderer } from "../Renderer";
 import { MissionSetupManager } from "./MissionSetupManager";
 import { MissionCoordinator } from "./MissionCoordinator";
 import { MissionRunner } from "./MissionRunner";
 import { InputOrchestrator } from "./InputOrchestrator";
-import { NavigationOrchestrator, NavigationScreens } from "./NavigationOrchestrator";
-import { SquadBuilder } from "../components/SquadBuilder";
+import type { NavigationScreens } from "./NavigationOrchestrator";
+import { NavigationOrchestrator } from "./NavigationOrchestrator";
+import type { SquadBuilder } from "../components/SquadBuilder";
 import { UIOrchestrator } from "./UIOrchestrator";
 
 export interface AppServiceRegistryConfig {
@@ -92,7 +95,7 @@ export class AppServiceRegistry {
   public async initialize(config: AppServiceRegistryConfig) {
     // 1. Initialize core managers
     const globalConfig = ConfigManager.loadGlobal();
-    Logger.setLevel(LogLevel[globalConfig.logLevel as keyof typeof LogLevel]);
+    Logger.setLevel(LogLevel[globalConfig.logLevel]);
 
     this.themeManager = new ThemeManager();
     await this.themeManager.init();

@@ -1,4 +1,4 @@
-import { Vector2, MapDefinition } from "../../shared/types";
+import type { Vector2, MapDefinition } from "../../shared/types";
 
 export enum OccupantType {
   SquadSpawn = "SquadSpawn",

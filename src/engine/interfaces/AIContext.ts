@@ -1,11 +1,11 @@
-import {
+import type {
   GameState,
   Unit,
   Command,
   Vector2,
 } from "../../shared/types";
-import { ItemEffectHandler } from "./IDirector";
-import { SpatialGrid } from "../../shared/utils/SpatialGrid";
+import type { ItemEffectHandler } from "./IDirector";
+import type { SpatialGrid } from "../../shared/utils/SpatialGrid";
 
 export interface VisibleItem {
   id: string;

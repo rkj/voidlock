@@ -1,9 +1,10 @@
-import {
+import type {
   GameState,
-  Command,
+  Command} from "@src/shared/types";
+import {
   CommandType,
 } from "@src/shared/types";
-import { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
+import type { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
 
 export class DebugForceWinHandler implements IGlobalCommandHandler {
   public type = CommandType.DEBUG_FORCE_WIN;

@@ -1,5 +1,6 @@
-import { GameState, Door, UnitState, BoundaryType } from "../../shared/types";
-import { GameGrid } from "../GameGrid";
+import type { GameState, Door} from "../../shared/types";
+import { UnitState, BoundaryType } from "../../shared/types";
+import type { GameGrid } from "../GameGrid";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class DoorManager {
@@ -59,8 +60,7 @@ export class DoorManager {
           this.updateDoorBoundary(newDoor);
           this.doors.set(id, newDoor);
         }
-      } else {
-        if (door.state === "Open") {
+      } else if (door.state === "Open") {
           newDoor = {
             ...door,
             targetState: "Closed",
@@ -69,7 +69,6 @@ export class DoorManager {
           this.updateDoorBoundary(newDoor);
           this.doors.set(id, newDoor);
         }
-      }
     }
   }
 

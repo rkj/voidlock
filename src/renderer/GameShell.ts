@@ -1,4 +1,4 @@
-import { ScreenLayoutConfig } from "./Screen";
+import type { ScreenLayoutConfig } from "./Screen";
 
 export class GameShell {
   private headerTitle: HTMLElement;

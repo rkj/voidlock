@@ -1,8 +1,8 @@
-import {
+import type {
   CampaignEventDefinition,
   EventChoice,
 } from "../../shared/campaign_types";
-import { ModalService, ModalInstance } from "./ModalService";
+import type { ModalService, ModalInstance } from "./ModalService";
 
 export class EventModal {
   constructor(
@@ -50,7 +50,7 @@ export class EventModal {
           details.style.marginTop = "8px";
           details.style.fontSize = "0.75em";
 
-          if (choice.cost && choice.cost.scrap) {
+          if (choice.cost?.scrap) {
             const span = document.createElement("span");
             span.textContent = `Cost: ${choice.cost.scrap} Credits`;
             span.style.color = "var(--color-error)";

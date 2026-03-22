@@ -1,15 +1,16 @@
-import {
+import type {
   GameState,
   Unit,
+  Enemy,
+  Attacker} from "../../shared/types";
+import {
   UnitState,
   CommandType,
-  Enemy,
-  WeaponLibrary,
-  Attacker,
+  WeaponLibrary
 } from "../../shared/types";
-import { LineOfSight } from "../LineOfSight";
-import { PRNG } from "../../shared/PRNG";
-import { StatsManager } from "./StatsManager";
+import type { LineOfSight } from "../LineOfSight";
+import type { PRNG } from "../../shared/PRNG";
+import type { StatsManager } from "./StatsManager";
 import { isCellVisible } from "../../shared/VisibilityUtils";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { COMBAT } from "../config/GameConstants";
@@ -148,11 +149,11 @@ export class CombatManager {
             currentUnit = { ...currentUnit, state: UnitState.Attacking };
           }
           return { unit: currentUnit, isAttacking: true };
-        } else {
+        } 
           // Engaged but on cooldown - still counts as attacking to prevent stutter-step
           currentUnit = { ...currentUnit, state: UnitState.Attacking };
           return { unit: currentUnit, isAttacking: true };
-        }
+        
       }
     }
 

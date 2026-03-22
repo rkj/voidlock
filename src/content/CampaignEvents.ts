@@ -1,4 +1,4 @@
-import { CampaignEventDefinition } from "../shared/campaign_types";
+import type { CampaignEventDefinition } from "../shared/campaign_types";
 
 export const CampaignEvents: CampaignEventDefinition[] = [
   {

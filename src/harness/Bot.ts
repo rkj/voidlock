@@ -1,4 +1,4 @@
-import { GameState, Command } from "../shared/types";
+import type { GameState, Command } from "../shared/types";
 
 export interface Bot {
   act(state: GameState): Command | null;

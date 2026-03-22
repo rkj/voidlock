@@ -1,21 +1,22 @@
 import { createElement, Fragment } from "@src/renderer/jsx";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { CampaignSoldier } from "@src/shared/campaign_types";
-import {
-  ArchetypeLibrary,
-  ItemLibrary,
-  WeaponLibrary,
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { CampaignSoldier } from "@src/shared/campaign_types";
+import type {
   Item,
   Weapon,
   EquipmentState,
-  SquadSoldierConfig,
+  SquadSoldierConfig} from "@src/shared/types";
+import {
+  ArchetypeLibrary,
+  ItemLibrary,
+  WeaponLibrary
 } from "@src/shared/types";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplayComponent } from "@src/renderer/ui/StatDisplay";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 import { SPEED_NORMALIZATION_CONST } from "@src/shared/constants";
 
-import { ModalService } from "@src/renderer/ui/ModalService";
+import type { ModalService } from "@src/renderer/ui/ModalService";
 
 export interface SoldierInspectorOptions {
   manager: CampaignManager;
@@ -398,13 +399,13 @@ export class SoldierInspector {
     soldier: CampaignSoldier | SquadSoldierConfig,
   ): EquipmentState {
     if ("equipment" in soldier) {
-      return (soldier as CampaignSoldier).equipment;
+      return (soldier).equipment;
     }
     return {
-      rightHand: (soldier as SquadSoldierConfig).rightHand,
-      leftHand: (soldier as SquadSoldierConfig).leftHand,
-      body: (soldier as SquadSoldierConfig).body,
-      feet: (soldier as SquadSoldierConfig).feet,
+      rightHand: (soldier).rightHand,
+      leftHand: (soldier).leftHand,
+      body: (soldier).body,
+      feet: (soldier).feet,
     };
   }
 
@@ -466,7 +467,7 @@ export class SoldierInspector {
       this.soldier.equipment[slot] = newItemId || undefined;
       this.manager.assignEquipment(this.soldier.id, this.soldier.equipment);
     } else {
-      const config = this.soldier as SquadSoldierConfig;
+      const config = this.soldier;
       config[slot] = newItemId || undefined;
       if (this.soldier.id && this.isCampaign) {
         const state = this.manager.getState();
@@ -559,7 +560,7 @@ function ArmoryItem({
   return (
     <div
       class={`menu-item clickable armory-item ${isCurrentlyEquipped ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
-      title={`${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`}
+      title={`${item.name}\n${item.description || ""}${fullStats ? `\n\n${  fullStats}` : ""}`}
       data-focus-id={`armory-item-${item.id}`}
       tabindex="0"
       onClick={() => !isDisabled && onSelect()}

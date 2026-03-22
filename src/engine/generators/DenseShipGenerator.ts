@@ -1,13 +1,14 @@
-import {
+import type {
   MapDefinition,
-  CellType,
   Cell,
   Door,
   SpawnPoint,
   ObjectiveDefinition,
   Vector2,
   WallDefinition,
-  Direction,
+  Direction} from "../../shared/types";
+import {
+  CellType,
   BoundaryType,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
@@ -197,7 +198,7 @@ export class DenseShipGenerator {
       for (let x = 0; x < this.width; x++) {
         line += symbols[this.getGenType(x, y)];
       }
-      out += line + "\n";
+      out += `${line  }\n`;
     }
     return out;
   }

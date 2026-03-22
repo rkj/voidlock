@@ -1,10 +1,11 @@
-import {
+import type {
   GameState,
   UseItemCommand,
-  ItemLibrary,
-  Vector2,
+  Vector2} from "../../shared/types";
+import {
+  ItemLibrary
 } from "../../shared/types";
-import { ItemEffectHandler } from "../interfaces/IDirector";
+import type { ItemEffectHandler } from "../interfaces/IDirector";
 import { ITEMS, DIRECTOR } from "../config/GameConstants";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
@@ -42,13 +43,13 @@ export class ItemEffectService implements ItemEffectHandler {
 
       if (targetPos) {
         state.enemies.forEach((e) => {
-          if (MathUtils.sameCellPosition(e.pos, targetPos!)) {
+          if (MathUtils.sameCellPosition(e.pos, targetPos)) {
             e.hp -= ITEMS.GRENADE_DAMAGE;
           }
         });
 
         state.units.forEach((u) => {
-          if (MathUtils.sameCellPosition(u.pos, targetPos!)) {
+          if (MathUtils.sameCellPosition(u.pos, targetPos)) {
             u.hp -= ITEMS.GRENADE_DAMAGE;
           }
         });

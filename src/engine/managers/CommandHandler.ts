@@ -1,6 +1,7 @@
-import { GameState, Command, CommandType } from "../../shared/types";
-import { UnitManager } from "./UnitManager";
-import { ItemEffectHandler } from "../interfaces/IDirector";
+import type { GameState, Command} from "../../shared/types";
+import { CommandType } from "../../shared/types";
+import type { UnitManager } from "./UnitManager";
+import type { ItemEffectHandler } from "../interfaces/IDirector";
 import { GlobalCommandRegistry } from "./commands/GlobalCommandRegistry";
 import { DeployUnitHandler } from "./commands/handlers/global/DeployUnitHandler";
 import { UndeployUnitHandler } from "./commands/handlers/global/UndeployUnitHandler";

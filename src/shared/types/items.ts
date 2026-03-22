@@ -1,4 +1,4 @@
-import { Vector2 } from "./geometry";
+import type { Vector2 } from "./geometry";
 
 export type Mine = {
   id: string;

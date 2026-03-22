@@ -1,5 +1,5 @@
-import { GameState, Unit } from "@src/shared/types";
-import { MenuController } from "@src/renderer/MenuController";
+import type { GameState, Unit } from "@src/shared/types";
+import type { MenuController } from "@src/renderer/MenuController";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { UIBinder } from "@src/renderer/ui/UIBinder";
 import { HUDTopBar, HUDSoldierPanel, HUDRightPanel, HUDMobileActionPanel, HUDTutorialDirective } from "@src/renderer/ui/HUD";

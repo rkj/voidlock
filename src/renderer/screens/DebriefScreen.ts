@@ -1,6 +1,6 @@
-import { MissionReport } from "@src/shared/campaign_types";
+import type { MissionReport } from "@src/shared/campaign_types";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
-import { GameClient } from "@src/engine/GameClient";
+import type { GameClient } from "@src/engine/GameClient";
 import { UnitStyle, InputPriority } from "@src/shared/types";
 import { ReplayController } from "@src/renderer/controllers/ReplayController";
 import { InputDispatcher } from "../InputDispatcher";

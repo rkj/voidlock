@@ -1,5 +1,5 @@
 import { createElement, Fragment } from "@src/renderer/jsx";
-import { CampaignTabId, CampaignShellMode } from "./CampaignShell";
+import type { CampaignTabId, CampaignShellMode } from "./CampaignShell";
 
 interface TopBarProps {
   mode: CampaignShellMode;

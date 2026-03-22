@@ -1,25 +1,26 @@
-import { ScreenManager, ScreenId } from "../ScreenManager";
-import { CampaignShell, CampaignTabId, CampaignShellMode } from "../ui/CampaignShell";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { ThemeManager } from "../ThemeManager";
-import { MissionSetupManager } from "./MissionSetupManager";
-import { SquadBuilder } from "../components/SquadBuilder";
-import { CampaignNode } from "@src/shared/campaign_types";
-import { MissionType, SquadConfig } from "@src/shared/types";
-import { MainMenuScreen } from "../screens/MainMenuScreen";
-import { CampaignScreen } from "../screens/CampaignScreen";
-import { DebriefScreen } from "../screens/DebriefScreen";
-import { EquipmentScreen } from "../screens/EquipmentScreen";
-import { MissionSetupScreen } from "../screens/MissionSetupScreen";
-import { CampaignSummaryScreen } from "../screens/CampaignSummaryScreen";
-import { StatisticsScreen } from "../screens/StatisticsScreen";
-import { EngineeringScreen } from "../screens/EngineeringScreen";
-import { SettingsScreen } from "../screens/SettingsScreen";
-import { ModalService } from "../ui/ModalService";
+import type { ScreenManager, ScreenId } from "../ScreenManager";
+import type { CampaignShell, CampaignTabId, CampaignShellMode } from "../ui/CampaignShell";
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { ThemeManager } from "../ThemeManager";
+import type { MissionSetupManager } from "./MissionSetupManager";
+import type { SquadBuilder } from "../components/SquadBuilder";
+import type { CampaignNode } from "@src/shared/campaign_types";
+import type { SquadConfig } from "@src/shared/types";
+import { MissionType } from "@src/shared/types";
+import type { MainMenuScreen } from "../screens/MainMenuScreen";
+import type { CampaignScreen } from "../screens/CampaignScreen";
+import type { DebriefScreen } from "../screens/DebriefScreen";
+import type { EquipmentScreen } from "../screens/EquipmentScreen";
+import type { MissionSetupScreen } from "../screens/MissionSetupScreen";
+import type { CampaignSummaryScreen } from "../screens/CampaignSummaryScreen";
+import type { StatisticsScreen } from "../screens/StatisticsScreen";
+import type { EngineeringScreen } from "../screens/EngineeringScreen";
+import type { SettingsScreen } from "../screens/SettingsScreen";
+import type { ModalService } from "../ui/ModalService";
 import { EventModal, OutcomeModal } from "../ui/EventModal";
 import { PRNG } from "@src/shared/PRNG";
 import { CampaignEvents } from "@src/content/CampaignEvents";
-import { TutorialManager } from "../controllers/TutorialManager";
+import type { TutorialManager } from "../controllers/TutorialManager";
 import { Logger } from "@src/shared/Logger";
 
 export interface NavigationScreens {
@@ -102,7 +103,7 @@ export class NavigationOrchestrator {
     const screenObj = this.getScreenObject(id);
     if (screenObj) {
       // Screens have different show() signatures, so we use apply
-      (screenObj.show as Function).apply(screenObj, showArgs);
+      (screenObj.show).apply(screenObj, showArgs);
     }
 
     // 4. Update ScreenManager (DOM display and Hash)

@@ -1,15 +1,16 @@
-import {
+import type {
   BoundaryDefinition,
+  GameState,
+  Objective,
+  OverlayOption} from "@src/shared/types";
+import {
   BoundaryType,
   CellType,
-  GameState,
   ItemLibrary,
-  Objective,
-  OverlayOption,
   UnitState,
   WeaponLibrary,
 } from "@src/shared/types";
-import { RoomDiscoveryManager } from "./RoomDiscoveryManager";
+import type { RoomDiscoveryManager } from "./RoomDiscoveryManager";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
@@ -200,7 +201,7 @@ export class TargetOverlayGenerator {
 
         const key = this.getRoomKey(index);
         options.push({
-          key: key,
+          key,
           label: `Room ${key}`,
           pos: center,
         });
@@ -225,8 +226,7 @@ export class TargetOverlayGenerator {
         if (obj.state === "Pending" && obj.visible && obj.targetCell) {
           // Avoid double-counting if objective is at extraction (already handled in renderer, but here for keys)
           if (
-            gameState.map.extraction &&
-            obj.targetCell.x === gameState.map.extraction.x &&
+            obj.targetCell.x === gameState.map.extraction?.x &&
             obj.targetCell.y === gameState.map.extraction.y
           ) {
             return;

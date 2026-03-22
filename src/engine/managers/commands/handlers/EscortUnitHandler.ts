@@ -1,13 +1,14 @@
-import {
+import type {
   Unit,
   Command,
-  GameState,
+  GameState} from "@src/shared/types";
+import {
   CommandType,
   UnitState,
 } from "@src/shared/types";
-import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import { IUnitCommandHandler } from "../IUnitCommandHandler";
-import { UnitCommandRegistry } from "../UnitCommandRegistry";
+import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { IUnitCommandHandler } from "../IUnitCommandHandler";
+import type { UnitCommandRegistry } from "../UnitCommandRegistry";
 
 export class EscortUnitHandler implements IUnitCommandHandler {
   public type = CommandType.ESCORT_UNIT;
@@ -20,7 +21,7 @@ export class EscortUnitHandler implements IUnitCommandHandler {
     _registry: UnitCommandRegistry,
     _director?: ItemEffectHandler,
   ): Unit {
-    let currentUnit = { ...unit };
+    const currentUnit = { ...unit };
 
     if (
       currentUnit.state !== UnitState.Extracted &&

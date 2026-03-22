@@ -1,16 +1,20 @@
-import {
+import type {
+  MapDefinition,
   GameState,
   Unit,
   Enemy,
-  UnitState,
   Command,
-  MissionType,
+  SquadConfig,
   Door,
-  EngineMode,
   CommandLogEntry,
-  CommandType,
   UseItemCommand,
   CoreEngineConfig,
+} from "@src/shared/types";
+import {
+  UnitState,
+  MissionType,
+  EngineMode,
+  CommandType,
 } from "@src/shared/types";
 import { PRNG } from "../shared/PRNG";
 import { MathUtils } from "../shared/utils/MathUtils";
@@ -19,7 +23,7 @@ import { GameGrid } from "./GameGrid";
 import { Pathfinder } from "./Pathfinder";
 import { LineOfSight } from "./LineOfSight";
 import { Director } from "./Director";
-import { IDirector } from "./interfaces/IDirector";
+import type { IDirector } from "./interfaces/IDirector";
 import { ItemEffectService } from "./managers/ItemEffectService";
 import { MissionManager } from "./managers/MissionManager";
 import { DoorManager } from "./managers/DoorManager";
@@ -124,8 +128,8 @@ export class CoreEngine {
 
     this.state = {
       t: 0,
-      seed: seed,
-      missionType: missionType,
+      seed,
+      missionType,
       nodeType,
       campaignNodeId,
       map: {
@@ -162,16 +166,16 @@ export class CoreEngine {
       },
       status: skipDeployment ? "Playing" : "Deployment",
       settings: {
-        mode: mode,
-        debugOverlayEnabled: debugOverlayEnabled,
-        debugSnapshots: debugSnapshots,
-        debugSnapshotInterval: debugSnapshotInterval,
-        losOverlayEnabled: losOverlayEnabled,
+        mode,
+        debugOverlayEnabled,
+        debugSnapshots,
+        debugSnapshotInterval,
+        losOverlayEnabled,
         timeScale: initialTimeScale,
-        targetTimeScale: targetTimeScale,
+        targetTimeScale,
         isPaused: startPaused,
         isSlowMotion: initialTimeScale < 1.0,
-        allowTacticalPause: allowTacticalPause,
+        allowTacticalPause,
         sessionId,
       },
       squadInventory: squadConfig.inventory || {},

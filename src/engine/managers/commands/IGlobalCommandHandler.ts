@@ -1,4 +1,4 @@
-import { GameState, Command, CommandType } from "@src/shared/types";
+import type { GameState, Command, CommandType } from "@src/shared/types";
 
 export interface IGlobalCommandHandler {
   type: CommandType;

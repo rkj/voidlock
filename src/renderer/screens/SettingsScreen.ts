@@ -4,9 +4,9 @@ import { Logger, LogLevel } from "@src/shared/Logger";
 import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
-import { ThemeManager } from "../ThemeManager";
-import { CloudSyncService } from "@src/services/CloudSyncService";
-import { ModalService } from "../ui/ModalService";
+import type { ThemeManager } from "../ThemeManager";
+import type { CloudSyncService } from "@src/services/CloudSyncService";
+import type { ModalService } from "../ui/ModalService";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 
 import { AssetManager } from "../visuals/AssetManager";
@@ -215,7 +215,7 @@ export class SettingsScreen {
       this.themeManager.setTheme(themeId);
       ConfigManager.saveGlobal({
         ...ConfigManager.loadGlobal(),
-        themeId: themeId,
+        themeId,
       });
       // Refresh previews when theme changes
       this.unitStyleSelector?.renderPreviews();

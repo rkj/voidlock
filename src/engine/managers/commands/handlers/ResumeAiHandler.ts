@@ -1,7 +1,8 @@
-import { Unit, Command, GameState, CommandType } from "@src/shared/types";
-import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import { IUnitCommandHandler } from "../IUnitCommandHandler";
-import { UnitCommandRegistry } from "../UnitCommandRegistry";
+import type { Unit, Command, GameState} from "@src/shared/types";
+import { CommandType } from "@src/shared/types";
+import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { IUnitCommandHandler } from "../IUnitCommandHandler";
+import type { UnitCommandRegistry } from "../UnitCommandRegistry";
 
 export class ResumeAiHandler implements IUnitCommandHandler {
   public type = CommandType.RESUME_AI;
@@ -14,7 +15,7 @@ export class ResumeAiHandler implements IUnitCommandHandler {
     _registry: UnitCommandRegistry,
     _director?: ItemEffectHandler,
   ): Unit {
-    let currentUnit = { ...unit };
+    const currentUnit = { ...unit };
 
     currentUnit.aiEnabled = true;
     currentUnit.activeCommand = undefined;

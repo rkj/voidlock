@@ -1,11 +1,12 @@
 import { CoreEngine } from "@src/engine/CoreEngine";
 import { DenseShipGenerator } from "@src/engine/generators/DenseShipGenerator";
 import { Logger } from "@src/shared/Logger";
-import {
+import type {
   SquadConfig,
+  MapDefinition} from "@src/shared/types";
+import {
   MissionType,
   UnitState,
-  MapDefinition,
   CommandType,
 } from "@src/shared/types";
 

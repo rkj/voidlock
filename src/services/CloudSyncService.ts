@@ -10,6 +10,8 @@ import {
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
+import type {
+  User} from "firebase/auth";
 import {
   signInAnonymously,
   onAuthStateChanged,
@@ -17,16 +19,14 @@ import {
   GithubAuthProvider,
   signInWithPopup,
   linkWithPopup,
-  signOut,
-  User,
-  Auth,
+  signOut
 } from "firebase/auth";
 import { db, auth, isFirebaseConfigured } from "./firebase";
 import {
   CampaignStateSchema,
   CampaignSummarySchema,
 } from "@src/shared/schemas/campaign";
-import { CampaignState, CampaignSummary } from "@src/shared/campaign_types";
+import type { CampaignState, CampaignSummary } from "@src/shared/campaign_types";
 import { Logger } from "@src/shared/Logger";
 import pkg from "../../package.json";
 
@@ -83,7 +83,7 @@ export class CloudSyncService {
         } else {
           try {
             if (!auth) throw new Error("Firebase Auth not initialized");
-            const credential = await signInAnonymously(auth as Auth);
+            const credential = await signInAnonymously(auth);
             this.user = credential.user;
             this.userId = credential.user.uid;
             this.syncEnabled = true;

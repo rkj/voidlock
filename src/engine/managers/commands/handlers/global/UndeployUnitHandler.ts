@@ -1,10 +1,11 @@
-import {
+import type {
   GameState,
   Command,
-  CommandType,
-  UndeployUnitCommand,
+  UndeployUnitCommand} from "@src/shared/types";
+import {
+  CommandType
 } from "@src/shared/types";
-import { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
+import type { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
 
 export class UndeployUnitHandler implements IGlobalCommandHandler {
   public type = CommandType.UNDEPLOY_UNIT;

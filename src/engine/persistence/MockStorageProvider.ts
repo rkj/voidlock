@@ -1,4 +1,4 @@
-import { StorageProvider } from "./StorageProvider";
+import type { StorageProvider } from "./StorageProvider";
 
 /**
  * In-memory StorageProvider implementation for testing.

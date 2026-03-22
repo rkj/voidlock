@@ -1,13 +1,14 @@
-import {
+import type {
   GameState,
-  Unit,
+  Unit} from "../../shared/types";
+import {
   UnitState,
   CommandType,
 } from "../../shared/types";
-import { CommandExecutor } from "./CommandExecutor";
-import { StatsManager } from "./StatsManager";
-import { LootManager } from "./LootManager";
-import { ItemEffectHandler } from "../interfaces/IDirector";
+import type { CommandExecutor } from "./CommandExecutor";
+import type { StatsManager } from "./StatsManager";
+import type { LootManager } from "./LootManager";
+import type { ItemEffectHandler } from "../interfaces/IDirector";
 
 /**
  * Handles unit state transitions, command queue processing, and channeling state.
@@ -122,7 +123,7 @@ export class UnitStateManager {
         state: UnitState.Extracted,
         channeling: undefined,
       };
-    } else if (channeling.action === "Collect") {
+    } if (channeling.action === "Collect") {
       if (channeling.targetId) {
         const targetId = channeling.targetId;
         const obj = state.objectives.find((o) => o.id === targetId);
@@ -145,7 +146,7 @@ export class UnitStateManager {
         state: UnitState.Idle,
         channeling: undefined,
       };
-    } else if (channeling.action === "Pickup") {
+    } if (channeling.action === "Pickup") {
       if (channeling.targetId) {
         const loot = state.loot?.find((l) => l.id === channeling.targetId);
         const objective = state.objectives?.find((o) => o.id === channeling.targetId);
@@ -181,10 +182,9 @@ export class UnitStateManager {
         state: UnitState.Idle,
         channeling: undefined,
       };
-    } else if (channeling.action === "UseItem") {
+    } if (channeling.action === "UseItem") {
       if (
-        currentUnit.activeCommand &&
-        currentUnit.activeCommand.type === CommandType.USE_ITEM
+        currentUnit.activeCommand?.type === CommandType.USE_ITEM
       ) {
         const cmd = currentUnit.activeCommand;
         const count = state.squadInventory[cmd.itemId] || 0;

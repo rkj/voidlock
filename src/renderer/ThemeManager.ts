@@ -1,4 +1,4 @@
-import { ThemeConfig } from "@src/shared/types";
+import type { ThemeConfig } from "@src/shared/types";
 import { Logger } from "@src/shared/Logger";
 
 export class ThemeManager {
@@ -26,7 +26,7 @@ export class ThemeManager {
   public async init(): Promise<void> {
     try {
       const response = await fetch(
-        import.meta.env.BASE_URL + "assets/assets.json",
+        `${import.meta.env.BASE_URL  }assets/assets.json`,
       );
       if (!response.ok) {
         throw new Error(`Failed to fetch assets.json: ${response.statusText}`);
@@ -106,7 +106,7 @@ export class ThemeManager {
    */
   public getIconUrl(iconName: string): string {
     return (
-      import.meta.env.BASE_URL + `assets/icons/${iconName.toLowerCase()}.svg`
+      `${import.meta.env.BASE_URL  }assets/icons/${iconName.toLowerCase()}.svg`
     );
   }
 

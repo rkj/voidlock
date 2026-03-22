@@ -1,6 +1,6 @@
 import { UnitStyle } from "@src/shared/types";
 import { AssetManager } from "../visuals/AssetManager";
-import { ThemeManager } from "../ThemeManager";
+import type { ThemeManager } from "../ThemeManager";
 
 export class UnitStyleSelector {
   private container: HTMLElement | null;
@@ -55,14 +55,14 @@ export class UnitStyleSelector {
       item.appendChild(label);
 
       item.onclick = () => {
-        this.currentStyle = style.id as UnitStyle;
+        this.currentStyle = style.id;
         this.updateActiveState();
         this.onChange(this.currentStyle);
       };
 
       item.onkeydown = (e) => {
         if (e.key === "Enter" || e.key === " ") {
-          this.currentStyle = style.id as UnitStyle;
+          this.currentStyle = style.id;
           this.updateActiveState();
           this.onChange(this.currentStyle);
           e.preventDefault();
@@ -119,7 +119,7 @@ export class UnitStyleSelector {
 
   private drawPreview(canvas: HTMLCanvasElement, style: UnitStyle) {
     const ctx = canvas.getContext("2d");
-    if (!ctx || !ctx.fillRect) return;
+    if (!ctx?.fillRect) return;
 
     const { width, height } = canvas;
     const cellSize = width / 2; // Preview as 2x2 grid

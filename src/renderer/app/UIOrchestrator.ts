@@ -1,7 +1,7 @@
-import { GameClient } from "@src/engine/GameClient";
-import { ModalService } from "../ui/ModalService";
+import type { GameClient } from "@src/engine/GameClient";
+import type { ModalService } from "../ui/ModalService";
 import { Logger } from "@src/shared/Logger";
-import { GameState } from "@src/shared/types";
+import type { GameState } from "@src/shared/types";
 import { TimeUtility } from "../TimeUtility";
 
 export interface UIOrchestratorDependencies {

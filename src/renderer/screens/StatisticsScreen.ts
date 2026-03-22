@@ -1,4 +1,4 @@
-import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import type { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
@@ -124,7 +124,7 @@ export class StatisticsScreen {
       row.style.flexWrap = "wrap";
 
       const labelSpan = document.createElement("span");
-      labelSpan.textContent = label + ":";
+      labelSpan.textContent = `${label  }:`;
       labelSpan.style.color = "var(--color-text-dim)";
       labelSpan.style.minWidth = "120px"; // Ensure label doesn't get too squashed
 

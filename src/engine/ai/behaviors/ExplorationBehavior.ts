@@ -1,20 +1,21 @@
-import {
+import type {
   GameState,
   Unit,
+  Door} from "../../../shared/types";
+import {
   UnitState,
-  CommandType,
-  Door,
+  CommandType
 } from "../../../shared/types";
-import { BehaviorContext, ExplorationContext } from "../../interfaces/AIContext";
-import { PRNG } from "../../../shared/PRNG";
-import { Behavior, BehaviorResult } from "./Behavior";
+import type { BehaviorContext, ExplorationContext } from "../../interfaces/AIContext";
+import type { PRNG } from "../../../shared/PRNG";
+import type { Behavior, BehaviorResult } from "./Behavior";
 import {
   isMapFullyDiscovered,
   findClosestUndiscoveredCell,
 } from "./BehaviorUtils";
-import { GameGrid } from "../../GameGrid";
+import type { GameGrid } from "../../GameGrid";
 import { isCellDiscovered } from "../../../shared/VisibilityUtils";
-import { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { Logger } from "../../../shared/Logger";
 
@@ -93,8 +94,7 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
           );
           const newTarget = { x: targetCell.x, y: targetCell.y };
           const isDifferent =
-            !currentUnit.explorationTarget ||
-            currentUnit.explorationTarget.x !== newTarget.x ||
+            currentUnit.explorationTarget?.x !== newTarget.x ||
             currentUnit.explorationTarget.y !== newTarget.y;
 
           if (isDifferent) {
@@ -140,7 +140,7 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
                 };
               }
               return { unit: currentUnit, handled: true };
-            } else if (currentUnit.activePlan) {
+            } if (currentUnit.activePlan) {
               // Target is different but not closer enough to switch, refresh current plan commitment
               currentUnit.activePlan = {
                 ...currentUnit.activePlan,

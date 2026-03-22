@@ -1,6 +1,6 @@
-import { CampaignSoldier } from "../../shared/campaign_types";
+import type { CampaignSoldier } from "../../shared/campaign_types";
 import { SOLDIER_NAMES } from "../config/SoldierNames";
-import { PRNG } from "../../shared/PRNG";
+import type { PRNG } from "../../shared/PRNG";
 
 /**
  * Utility functions for roster management.

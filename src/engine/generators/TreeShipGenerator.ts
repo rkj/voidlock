@@ -1,13 +1,14 @@
-import {
+import type {
   MapDefinition,
-  CellType,
   Cell,
   Door,
   SpawnPoint,
   ObjectiveDefinition,
   Vector2,
   WallDefinition,
-  Direction,
+  Direction} from "../../shared/types";
+import {
+  CellType
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { MapSanitizer } from "../map/MapSanitizer";

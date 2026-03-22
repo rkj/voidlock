@@ -1,19 +1,20 @@
-import {
+import type {
   GameState,
   Unit,
-  UnitState,
-  CommandType,
   Vector2,
-  Door,
+  Door} from "../../../shared/types";
+import {
+  UnitState,
+  CommandType
 } from "../../../shared/types";
-import { BehaviorContext } from "../../interfaces/AIContext";
-import { PRNG } from "../../../shared/PRNG";
-import { Behavior, BehaviorResult } from "./Behavior";
+import type { BehaviorContext } from "../../interfaces/AIContext";
+import type { PRNG } from "../../../shared/PRNG";
+import type { Behavior, BehaviorResult } from "./Behavior";
 import { isCellVisible, isCellDiscovered } from "../../../shared/VisibilityUtils";
-import { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
-import { LineOfSight } from "../../LineOfSight";
-import { GameGrid } from "../../GameGrid";
+import type { LineOfSight } from "../../LineOfSight";
+import type { GameGrid } from "../../GameGrid";
 import { Logger } from "../../../shared/Logger";
 import { calculateTravelTimeMs } from "./BehaviorUtils";
 
@@ -92,7 +93,7 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
 
       if (safeCells.length > 0) {
         // Anti-backtracking: filter out recently visited cells
-        let filteredSafe = safeCells.filter(cell => 
+        const filteredSafe = safeCells.filter(cell => 
           !currentUnit.positionHistory.some(h => h.x === cell.x && h.y === cell.y)
         );
         
@@ -148,7 +149,7 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
             unit: currentUnit,
             handled: currentUnit.state === UnitState.Moving,
           };
-        } else if (currentUnit.activePlan) {
+        } if (currentUnit.activePlan) {
           // Same target and already moving, refresh commitment
           const travelTimeMs = calculateTravelTimeMs(currentUnit, closestSafe.dist);
           currentUnit.activePlan = {
@@ -214,7 +215,7 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
 
       if (candidateWaypoints.length > 0) {
         // Anti-backtracking: filter recently visited cells
-        let filteredWaypoints = candidateWaypoints.filter(cell => 
+        const filteredWaypoints = candidateWaypoints.filter(cell => 
           !currentUnit.positionHistory.some(h => h.x === cell.x && h.y === cell.y)
         );
 
@@ -261,7 +262,7 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
           }
 
           return { unit: currentUnit, handled: true };
-        } else if (currentUnit.activePlan) {
+        } if (currentUnit.activePlan) {
           // Same target and already moving, refresh commitment
           const goalPos = { x: bestWaypoint.x + 0.5, y: bestWaypoint.y + 0.5 };
           const dist = MathUtils.getDistance(currentUnit.pos, goalPos);
@@ -305,7 +306,7 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
       const betterCandidates = scoredCandidates.filter(c => c.newDist > dist);
 
       // Anti-backtracking filter
-      let filtered = betterCandidates.filter(c => 
+      const filtered = betterCandidates.filter(c => 
         !currentUnit.positionHistory.some(h => h.x === c.pos.x && h.y === c.pos.y)
       );
 
@@ -351,7 +352,7 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
           }
 
           return { unit: currentUnit, handled: true };
-        } else if (currentUnit.activePlan) {
+        } if (currentUnit.activePlan) {
           // Same target and already moving, refresh commitment
           const goalPos = { x: best.pos.x + 0.5, y: best.pos.y + 0.5 };
           const dist = MathUtils.getDistance(currentUnit.pos, goalPos);
@@ -412,7 +413,7 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
             };
           }
           return { unit: currentUnit, handled: true };
-        } else if (currentUnit.activePlan) {
+        } if (currentUnit.activePlan) {
           // Same target and already moving, refresh commitment
           const dist = MathUtils.getDistance(currentUnit.pos, closestAlly.pos);
           const travelTimeMs = calculateTravelTimeMs(currentUnit, dist);
@@ -427,8 +428,7 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
           handled: currentUnit.state === UnitState.Moving,
         };
       }
-    } else {
-      if (
+    } else if (
         currentUnit.engagementPolicy === "IGNORE" &&
         currentUnit.engagementPolicySource === "Autonomous" &&
         currentUnit.state === UnitState.Idle &&
@@ -440,7 +440,6 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
           engagementPolicySource: undefined,
         };
       }
-    }
     return { unit: currentUnit, handled: false };
   }
 }

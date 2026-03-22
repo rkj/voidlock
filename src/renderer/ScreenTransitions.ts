@@ -1,4 +1,4 @@
-import { ScreenId } from "@src/renderer/ScreenManager";
+import type { ScreenId } from "@src/renderer/ScreenManager";
 
 export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
   "main-menu": [

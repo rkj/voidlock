@@ -1,13 +1,14 @@
-import {
+import type {
   GameState,
   LootItem,
-  Objective,
+  Objective} from "../../shared/types";
+import {
   UnitState,
 } from "../../shared/types";
 import { SpatialGrid } from "../../shared/utils/SpatialGrid";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { MapUtils } from "../../shared/utils/MapUtils";
-import { VisibleItem } from "../interfaces/AIContext";
+import type { VisibleItem } from "../interfaces/AIContext";
 
 /**
  * Handles opportunistic pickup logic and item assignments to units.

@@ -1,4 +1,4 @@
-import { GameState } from "./types";
+import type { GameState } from "./types";
 
 export function isCellVisible(state: GameState, x: number, y: number): boolean {
   if (x < 0 || x >= state.map.width || y < 0 || y >= state.map.height) {

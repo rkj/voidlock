@@ -1,11 +1,13 @@
-import {
+import type {
   MapDefinition,
-  CellType,
-  BoundaryType,
   WallDefinition,
-  BoundaryDefinition,
+  BoundaryDefinition} from "../../shared/types";
+import {
+  CellType,
+  BoundaryType
 } from "../../shared/types";
-import { Graph, Direction } from "../Graph";
+import type { Direction } from "../Graph";
+import { Graph } from "../Graph";
 
 export class MapSanitizer {
   public static sanitize(map: MapDefinition): void {

@@ -1,14 +1,15 @@
-import {
+import type {
   GameState,
   Unit,
-  UnitState,
-  Door,
+  Door} from "../../shared/types";
+import {
+  UnitState
 } from "../../shared/types";
-import { GameGrid } from "../GameGrid";
-import { LineOfSight } from "../LineOfSight";
+import type { GameGrid } from "../GameGrid";
+import type { LineOfSight } from "../LineOfSight";
 import { VipAI } from "../ai/VipAI";
-import { PRNG } from "../../shared/PRNG";
-import { Behavior } from "../ai/behaviors/Behavior";
+import type { PRNG } from "../../shared/PRNG";
+import type { Behavior } from "../ai/behaviors/Behavior";
 import { VipBehavior } from "../ai/behaviors/VipBehavior";
 import { SafetyBehavior } from "../ai/behaviors/SafetyBehavior";
 import { InteractionBehavior } from "../ai/behaviors/InteractionBehavior";
@@ -16,8 +17,8 @@ import { CombatBehavior } from "../ai/behaviors/CombatBehavior";
 import { ObjectiveBehavior } from "../ai/behaviors/ObjectiveBehavior";
 import { ExplorationBehavior } from "../ai/behaviors/ExplorationBehavior";
 import { isCellDiscovered } from "../../shared/VisibilityUtils";
-import { ItemEffectHandler } from "../interfaces/IDirector";
-import { AIContext } from "../interfaces/AIContext";
+import type { ItemEffectHandler } from "../interfaces/IDirector";
+import type { AIContext } from "../interfaces/AIContext";
 import { Logger } from "../../shared/Logger";
 
 export class UnitAI {

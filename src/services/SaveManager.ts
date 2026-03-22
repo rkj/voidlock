@@ -1,7 +1,7 @@
-import { StorageProvider } from "@src/engine/persistence/StorageProvider";
+import type { StorageProvider } from "@src/engine/persistence/StorageProvider";
 import { LocalStorageProvider } from "@src/engine/persistence/LocalStorageProvider";
 import { CloudSyncService } from "./CloudSyncService";
-import { CampaignState } from "@src/shared/campaign_types";
+import type { CampaignState } from "@src/shared/campaign_types";
 import { Logger } from "@src/shared/Logger";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 

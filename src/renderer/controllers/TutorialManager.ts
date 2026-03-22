@@ -1,11 +1,12 @@
-import { GameClient } from "@src/engine/GameClient";
-import { GameState, MissionType } from "@src/shared/types";
-import { ScreenId } from "@src/renderer/ScreenManager";
+import type { GameClient } from "@src/engine/GameClient";
+import type { GameState} from "@src/shared/types";
+import { MissionType } from "@src/shared/types";
+import type { ScreenId } from "@src/renderer/ScreenManager";
 import { Logger } from "@src/shared/Logger";
 import { MathUtils } from "@src/shared/utils/MathUtils";
-import { Vector2 } from "@src/shared/types/geometry";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { Renderer } from "../Renderer";
+import type { Vector2 } from "@src/shared/types/geometry";
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { Renderer } from "../Renderer";
 
 export interface AdvisorMessage {
   id: string;
@@ -507,7 +508,7 @@ constructor(config: TutorialManagerConfig) {
 
   private advanceStep(state: GameState) {
       const currentStep = this.prologueSteps[this.currentStepIndex];
-      if (currentStep && currentStep.onComplete) {
+      if (currentStep?.onComplete) {
           currentStep.onComplete(this, state);
       }
       
@@ -600,7 +601,7 @@ constructor(config: TutorialManagerConfig) {
 
     if (this.isProloguePassiveStep()) return false;
     const currentStep = this.prologueSteps[this.currentStepIndex];
-    if (!currentStep || !currentStep.inputGate) return true;
+    if (!currentStep?.inputGate) return true;
     return currentStep.inputGate.allowedActions.includes(action);
   }
 
@@ -608,7 +609,7 @@ constructor(config: TutorialManagerConfig) {
     if (!this.isActive || !this.isPrologueActive) return false;
     const currentStep = this.prologueSteps[this.currentStepIndex];
     // A step is passive if it has an empty allowedActions list
-    return !!(currentStep && currentStep.inputGate && currentStep.inputGate.allowedActions.length === 0);
+    return !!(currentStep?.inputGate?.allowedActions.length === 0);
   }
 
   // Condition Helpers
@@ -673,7 +674,7 @@ constructor(config: TutorialManagerConfig) {
 
   public checkReachedObjectiveRoom(state: GameState): boolean {
       const obj = state.objectives.find(o => o.id === "prologue-disk" || o.kind === "Recover");
-      if (!obj || !obj.targetCell) return false;
+      if (!obj?.targetCell) return false;
       return state.units.some(u => MathUtils.getDistance(u.pos, obj.targetCell!) < 1.5);
   }
 

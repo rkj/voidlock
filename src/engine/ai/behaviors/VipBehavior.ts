@@ -1,10 +1,11 @@
-import { GameState, Unit, UnitState, Door } from "../../../shared/types";
-import { BehaviorContext } from "../../interfaces/AIContext";
-import { PRNG } from "../../../shared/PRNG";
-import { Behavior, BehaviorResult } from "./Behavior";
-import { LineOfSight } from "../../LineOfSight";
-import { VipAI } from "../VipAI";
-import { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { GameState, Unit, Door } from "../../../shared/types";
+import { UnitState } from "../../../shared/types";
+import type { BehaviorContext } from "../../interfaces/AIContext";
+import type { PRNG } from "../../../shared/PRNG";
+import type { Behavior, BehaviorResult } from "./Behavior";
+import type { LineOfSight } from "../../LineOfSight";
+import type { VipAI } from "../VipAI";
+import type { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 
 export class VipBehavior implements Behavior<BehaviorContext> {

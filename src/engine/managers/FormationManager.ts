@@ -1,5 +1,5 @@
-import { Unit, Vector2 } from "../../shared/types";
-import { GameGrid } from "../GameGrid";
+import type { Unit, Vector2 } from "../../shared/types";
+import type { GameGrid } from "../GameGrid";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
 export interface EscortSlot {

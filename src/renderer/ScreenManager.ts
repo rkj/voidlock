@@ -89,7 +89,7 @@ export class ScreenManager {
 
     if (!force) {
       const validNext = VALID_TRANSITIONS[this.currentScreen];
-      if (!validNext || !validNext.includes(id)) {
+      if (!validNext?.includes(id)) {
         Logger.error(`Invalid screen transition: ${this.currentScreen} -> ${id}`);
         return;
       }

@@ -1,4 +1,4 @@
-import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import type { MetaManager } from "@src/renderer/campaign/MetaManager";
 import {
   ArchetypeLibrary,
   ItemLibrary,

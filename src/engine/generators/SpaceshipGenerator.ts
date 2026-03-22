@@ -1,13 +1,14 @@
-import {
+import type {
   MapDefinition,
-  CellType,
   Cell,
   Door,
   SpawnPoint,
   ObjectiveDefinition,
   Vector2,
   WallDefinition,
-  Direction,
+  Direction} from "../../shared/types";
+import {
+  CellType
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { MapSanitizer } from "../map/MapSanitizer";
@@ -363,7 +364,14 @@ export class SpaceshipGenerator {
             currX--;
             dir = "w";
           }
-        } else {
+        } else if (currY < targetY) {
+            currY++;
+            dir = "s";
+          } else {
+            currY--;
+            dir = "n";
+          }
+      } else if (currY !== targetY) {
           if (currY < targetY) {
             currY++;
             dir = "s";
@@ -371,26 +379,13 @@ export class SpaceshipGenerator {
             currY--;
             dir = "n";
           }
-        }
-      } else {
-        if (currY !== targetY) {
-          if (currY < targetY) {
-            currY++;
-            dir = "s";
-          } else {
-            currY--;
-            dir = "n";
-          }
-        } else {
-          if (currX < targetX) {
+        } else if (currX < targetX) {
             currX++;
             dir = "e";
           } else {
             currX--;
             dir = "w";
           }
-        }
-      }
 
       const c1 = this.getCell(prevX, prevY);
       const c2 = this.getCell(currX, currY);

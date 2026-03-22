@@ -1,22 +1,23 @@
-import {
+import type {
   GameState,
   Unit,
-  UnitState,
-  CommandType,
-  MissionType,
   PickupCommand,
   Vector2,
   Door,
-  Objective,
+  Objective} from "../../../shared/types";
+import {
+  UnitState,
+  CommandType,
+  MissionType
 } from "../../../shared/types";
-import { BehaviorContext, ObjectiveContext, VisibleItem } from "../../interfaces/AIContext";
-import { PRNG } from "../../../shared/PRNG";
-import { Behavior, BehaviorResult } from "./Behavior";
+import type { BehaviorContext, ObjectiveContext, VisibleItem } from "../../interfaces/AIContext";
+import type { PRNG } from "../../../shared/PRNG";
+import type { Behavior, BehaviorResult } from "./Behavior";
 import {
   isCellVisible,
   isCellDiscovered,
 } from "../../../shared/VisibilityUtils";
-import { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { MapUtils } from "../../../shared/utils/MapUtils";
 import { Logger } from "../../../shared/Logger";
@@ -62,7 +63,7 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
     if (context.itemGrid) {
       visibleItemsFromGrid = context.itemGrid.queryByKeys(
         state.visibleCells || [],
-      ) as VisibleItem[];
+      );
     } else {
       // Fallback if grid not available (shouldn't happen in production)
       visibleItemsFromGrid = (
@@ -162,7 +163,7 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
         
         const isAlreadyTargeting = 
           currentUnit.activeCommand?.type === CommandType.PICKUP &&
-          (currentUnit.activeCommand as PickupCommand).lootId === closest.id;
+          (currentUnit.activeCommand).lootId === closest.id;
 
         if (!isAlreadyTargeting) {
           Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} picking up ${closest.id} (${label})`);
@@ -287,7 +288,7 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
             if (bestObj.obj.kind === "Recover") {
               const isAlreadyRecovering = 
                 currentUnit.activeCommand?.type === CommandType.PICKUP &&
-                (currentUnit.activeCommand as PickupCommand).lootId === bestObj.obj.id;
+                (currentUnit.activeCommand).lootId === bestObj.obj.id;
 
               if (!isAlreadyRecovering) {
                 Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} at target, picking up ${bestObj.obj.id}`);

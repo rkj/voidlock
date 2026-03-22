@@ -1,4 +1,4 @@
-import { TileDefinition } from "../shared/types";
+import type { TileDefinition } from "../shared/types";
 
 /**
  * Space Hulk (1993) Tile Library

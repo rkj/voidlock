@@ -1,10 +1,11 @@
-import {
+import type {
   GameState,
   Command,
-  CommandType,
-  DeployUnitCommand,
+  DeployUnitCommand} from "@src/shared/types";
+import {
+  CommandType
 } from "@src/shared/types";
-import { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
+import type { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { MapUtils } from "@src/shared/utils/MapUtils";
 
@@ -45,7 +46,7 @@ export class DeployUnitHandler implements IGlobalCommandHandler {
             isDeployed: true,
           };
         }
-        if (occupantToDisplace && u.id === occupantToDisplace.id) {
+        if (u.id === occupantToDisplace?.id) {
           return {
             ...u,
             pos: wasDeployed ? MathUtils.getCellCenter(oldCell, u.visualJitter) : u.pos,

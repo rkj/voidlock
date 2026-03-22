@@ -1,6 +1,6 @@
 import { ConfigManager } from "@src/renderer/ConfigManager";
-import { CampaignOverrides } from "@src/shared/campaign_types";
-import { UnitStyle, MapGeneratorType } from "@src/shared/types";
+import type { CampaignOverrides } from "@src/shared/campaign_types";
+import type { UnitStyle, MapGeneratorType } from "@src/shared/types";
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
 
 export interface NewCampaignWizardOptions {

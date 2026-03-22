@@ -1,5 +1,5 @@
-import { AdvisorMessage } from "@src/renderer/controllers/TutorialManager";
-import { GameClient } from "@src/engine/GameClient";
+import type { AdvisorMessage } from "@src/renderer/controllers/TutorialManager";
+import type { GameClient } from "@src/engine/GameClient";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { Logger } from "@src/shared/Logger";
 import { InputDispatcher } from "../InputDispatcher";
@@ -94,7 +94,7 @@ export class AdvisorOverlay {
     }
     
     let illustrationUrl = msg.illustration ? this.themeManager.getAssetUrl(msg.illustration) : null;
-    if (!illustrationUrl && msg.illustration && msg.illustration.includes(".")) {
+    if (!illustrationUrl && msg.illustration?.includes(".")) {
       illustrationUrl = `assets/${msg.illustration}`; // Backward compatibility
     }
 

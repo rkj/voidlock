@@ -1,5 +1,5 @@
-import { CommandType, Command, GameState } from "@src/shared/types";
-import { IGlobalCommandHandler } from "./IGlobalCommandHandler";
+import type { CommandType, Command, GameState } from "@src/shared/types";
+import type { IGlobalCommandHandler } from "./IGlobalCommandHandler";
 
 export class GlobalCommandRegistry {
   private handlers: Map<CommandType, IGlobalCommandHandler> = new Map();

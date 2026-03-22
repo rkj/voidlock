@@ -1,11 +1,12 @@
-import {
+import type {
   GameState,
   Command,
-  CommandType,
-  ExploreCommand,
+  ExploreCommand} from "@src/shared/types";
+import {
+  CommandType
 } from "@src/shared/types";
-import { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
-import { UnitManager } from "@src/engine/managers/UnitManager";
+import type { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
+import type { UnitManager } from "@src/engine/managers/UnitManager";
 
 export class StartMissionHandler implements IGlobalCommandHandler {
   public type = CommandType.START_MISSION;

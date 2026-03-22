@@ -1,4 +1,4 @@
-import { GameState, Vector2 } from "@src/shared/types";
+import type { GameState, Vector2 } from "@src/shared/types";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
 /**

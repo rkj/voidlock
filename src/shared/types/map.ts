@@ -1,4 +1,4 @@
-import { Vector2, WallDefinition } from "./geometry";
+import type { Vector2, WallDefinition } from "./geometry";
 
 export enum CellType {
   Void = "Void",

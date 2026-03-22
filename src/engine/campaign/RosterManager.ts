@@ -1,5 +1,5 @@
-import { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
-import { EquipmentState } from "../../shared/types";
+import type { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
+import type { EquipmentState } from "../../shared/types";
 import {
   DEFAULT_ARCHETYPES,
   CAMPAIGN_DEFAULTS,

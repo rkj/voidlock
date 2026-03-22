@@ -1,27 +1,28 @@
-import {
+import type {
   GameState,
   Unit,
-  UnitState,
-  CommandType,
   Vector2,
   Command,
-  Door,
+  Door} from "../../shared/types";
+import {
+  UnitState,
+  CommandType
 } from "../../shared/types";
-import { PRNG } from "../../shared/PRNG";
-import { GameGrid } from "../GameGrid";
-import { Pathfinder } from "../Pathfinder";
-import { LineOfSight } from "../LineOfSight";
-import { LootManager } from "./LootManager";
+import type { PRNG } from "../../shared/PRNG";
+import type { GameGrid } from "../GameGrid";
+import type { Pathfinder } from "../Pathfinder";
+import type { LineOfSight } from "../LineOfSight";
+import type { LootManager } from "./LootManager";
 import { StatsManager } from "./StatsManager";
-import { MovementManager } from "./MovementManager";
+import type { MovementManager } from "./MovementManager";
 import { CombatManager } from "./CombatManager";
 import { UnitAI } from "./UnitAI";
 import { CommandExecutor } from "./CommandExecutor";
 import { FormationManager } from "./FormationManager";
 import { ItemDistributionService } from "./ItemDistributionService";
 import { UnitStateManager } from "./UnitStateManager";
-import { ItemEffectHandler } from "../interfaces/IDirector";
-import { AIContext } from "../interfaces/AIContext";
+import type { ItemEffectHandler } from "../interfaces/IDirector";
+import type { AIContext } from "../interfaces/AIContext";
 import { isCellVisible } from "../../shared/VisibilityUtils";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { MapUtils } from "../../shared/utils/MapUtils";

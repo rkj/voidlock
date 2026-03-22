@@ -1,6 +1,6 @@
-import { RenderLayer } from "./RenderLayer";
-import { SharedRendererState } from "./SharedRendererState";
-import { GameState, AttackEvent } from "@src/shared/types";
+import type { RenderLayer } from "./RenderLayer";
+import type { SharedRendererState } from "./SharedRendererState";
+import type { GameState, AttackEvent } from "@src/shared/types";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
 
 export class EffectLayer implements RenderLayer {

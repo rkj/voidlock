@@ -1,7 +1,8 @@
-import {
+import type {
   CampaignState,
   CampaignNode,
-  MissionReport,
+  MissionReport} from "../../shared/campaign_types";
+import {
   calculateLevel,
   STAT_BOOSTS,
 } from "../../shared/campaign_types";
@@ -153,12 +154,12 @@ export class MissionReconciler {
     });
 
     state.history.push({
-      nodeId: nodeId,
+      nodeId,
       seed: 0,
       result: "Won",
       aliensKilled: 0,
-      scrapGained: scrapGained,
-      intelGained: intelGained,
+      scrapGained,
+      intelGained,
       timeSpent: 0,
       soldierResults: [],
     });

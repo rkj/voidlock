@@ -1,4 +1,4 @@
-import { TileDefinition } from "../shared/types";
+import type { TileDefinition } from "../shared/types";
 
 export const SpaceHulkTiles: Record<string, TileDefinition> = {
   corridor_1x1: {

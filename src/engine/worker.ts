@@ -1,5 +1,6 @@
 import { CoreEngine } from "./CoreEngine";
-import { WorkerMessage, MainMessage, EngineMode } from "../shared/types";
+import type { WorkerMessage, MainMessage} from "../shared/types";
+import { EngineMode } from "../shared/types";
 
 let engine: CoreEngine | null = null;
 let loopId: ReturnType<typeof setInterval> | null = null;

@@ -1,7 +1,8 @@
-import {
+import type {
   CampaignNode,
   CampaignNodeType,
-  GameRules,
+  GameRules} from "../../shared/types";
+import {
   MissionType,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";

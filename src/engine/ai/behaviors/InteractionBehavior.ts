@@ -1,18 +1,18 @@
-import {
+import type {
   GameState,
   Unit,
+  Door} from "../../../shared/types";
+import {
   UnitState,
   CommandType,
-  MissionType,
-  PickupCommand,
-  Door,
+  MissionType
 } from "../../../shared/types";
-import { BehaviorContext } from "../../interfaces/AIContext";
-import { PRNG } from "../../../shared/PRNG";
+import type { BehaviorContext } from "../../interfaces/AIContext";
+import type { PRNG } from "../../../shared/PRNG";
 import { MathUtils } from "../../../shared/utils/MathUtils";
-import { Behavior, BehaviorResult } from "./Behavior";
+import type { Behavior, BehaviorResult } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
-import { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { ItemEffectHandler } from "../../interfaces/IDirector";
 import { Logger } from "../../../shared/Logger";
 
 export class InteractionBehavior implements Behavior<BehaviorContext> {
@@ -43,7 +43,7 @@ export class InteractionBehavior implements Behavior<BehaviorContext> {
       if (
         loot &&
         currentUnit.activeCommand?.type === CommandType.PICKUP &&
-        (currentUnit.activeCommand as PickupCommand).lootId === loot.id
+        (currentUnit.activeCommand).lootId === loot.id
       ) {
         const baseTime = ITEMS.BASE_PICKUP_TIME;
         const duration =
@@ -80,11 +80,11 @@ export class InteractionBehavior implements Behavior<BehaviorContext> {
 
           const hasExplicitPickup =
             currentUnit.activeCommand?.type === CommandType.PICKUP &&
-            (currentUnit.activeCommand as PickupCommand).lootId === obj.id;
+            (currentUnit.activeCommand).lootId === obj.id;
 
           const isClaimedByMe =
             hasExplicitPickup ||
-            (context.claimedObjectives && context.claimedObjectives.get(obj.id) === currentUnit.id);
+            (context.claimedObjectives?.get(obj.id) === currentUnit.id);
 
           // In Prologue, require an explicit PICKUP command — don't auto-collect
           // so the tutorial can teach the player to use the Pickup action manually.

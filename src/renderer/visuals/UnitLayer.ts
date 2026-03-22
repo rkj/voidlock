@@ -1,11 +1,12 @@
-import { RenderLayer } from "./RenderLayer";
-import { SharedRendererState } from "./SharedRendererState";
-import {
+import type { RenderLayer } from "./RenderLayer";
+import type { SharedRendererState } from "./SharedRendererState";
+import type {
   GameState,
-  UnitState,
-  UnitStyle,
   Vector2,
-  Unit,
+  Unit} from "@src/shared/types";
+import {
+  UnitState,
+  UnitStyle
 } from "@src/shared/types";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";

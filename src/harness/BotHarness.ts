@@ -1,5 +1,5 @@
-import { GameClient } from "../engine/GameClient";
-import { Bot } from "./Bot";
+import type { GameClient } from "../engine/GameClient";
+import type { Bot } from "./Bot";
 
 export class BotHarness {
   constructor(

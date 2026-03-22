@@ -1,10 +1,11 @@
-import {
+import type {
   GameState,
   Command,
-  CommandType,
-  ToggleDebugOverlayCommand,
+  ToggleDebugOverlayCommand} from "@src/shared/types";
+import {
+  CommandType
 } from "@src/shared/types";
-import { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
+import type { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
 
 export class ToggleDebugOverlayHandler implements IGlobalCommandHandler {
   public type = CommandType.TOGGLE_DEBUG_OVERLAY;

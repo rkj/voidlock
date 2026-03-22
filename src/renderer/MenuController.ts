@@ -1,28 +1,30 @@
-import {
-  CommandType,
+import type {
   EngagementPolicy,
   GameState,
-  ItemLibrary,
   MapDefinition,
   OverlayOption,
-  UnitState,
-  Vector2,
-} from "@src/shared/types";
+  Vector2} from "@src/shared/types";
 import {
-  MENU_CONFIG,
+  CommandType,
+  ItemLibrary,
+  UnitState
+} from "@src/shared/types";
+import type {
   MenuOptionDefinition,
-  MenuState,
+  MenuState} from "./MenuConfig";
+import {
+  MENU_CONFIG
 } from "./MenuConfig";
 import { MenuStateMachine } from "./controllers/MenuStateMachine";
 import { SelectionManager } from "./controllers/SelectionManager";
 import { RoomDiscoveryManager } from "./controllers/RoomDiscoveryManager";
 import { TargetOverlayGenerator } from "./controllers/TargetOverlayGenerator";
 import { CommandBuilder } from "./controllers/CommandBuilder";
-import { GameClient } from "@src/engine/GameClient";
+import type { GameClient } from "@src/engine/GameClient";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { Logger } from "@src/shared/Logger";
-import { TutorialManager } from "./controllers/TutorialManager";
+import type { TutorialManager } from "./controllers/TutorialManager";
 
 export interface RenderableMenuState {
   title: string;
@@ -184,7 +186,7 @@ export class MenuController {
     if (this.stateMachine.state === "TARGET_SELECT") {
       const options = this.overlayOptions; // Use getter to lazy-populate
       const option = options.find(
-        (o) => o.pos && o.pos.x === cell.x && o.pos.y === cell.y,
+        (o) => o.pos?.x === cell.x && o.pos.y === cell.y,
       );
       if (option) {
         this.handleTargetSelect(option.key, activeState);
@@ -337,10 +339,10 @@ export class MenuController {
   private handleModeSelect(key: string, _gameState: GameState) {
     const config = MENU_CONFIG.MODE_SELECT;
     const option = config.options.find((o) => o.key.toString() === key);
-    if (option && option.type === "MODE") {
+    if (option?.type === "MODE") {
       this.selection.pendingMode = option.modeValue || null;
       this.transitionTo(option.nextState || "UNIT_SELECT", option.label);
-    } else if (option && option.type === "BACK") {
+    } else if (option?.type === "BACK") {
       this.goBack();
     }
   }
@@ -353,7 +355,7 @@ export class MenuController {
 
     const options = this.overlayOptions;
     const option = options.find((o) => o.key === key);
-    if (option && option.pos) {
+    if (option?.pos) {
       this.selection.pendingTargetLocation = option.pos;
       this.selection.pendingTargetId = option.id || null;
       this.selection.overlayOptions = [];
@@ -449,7 +451,7 @@ export class MenuController {
     const result: RenderableMenuState = {
       title: config.title,
       options: [],
-      breadcrumbs: breadcrumbs,
+      breadcrumbs,
     };
 
     const fullState = this.rehydrateState(gameState);

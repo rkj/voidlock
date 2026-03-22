@@ -1,12 +1,13 @@
 import { createElement, Fragment } from "@src/renderer/jsx";
-import { SquadConfig, MissionType } from "@src/shared/types";
+import type { SquadConfig} from "@src/shared/types";
+import { MissionType } from "@src/shared/types";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { CampaignShell } from "@src/renderer/ui/CampaignShell";
-import { ModalService } from "@src/renderer/ui/ModalService";
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { CampaignShell } from "@src/renderer/ui/CampaignShell";
+import type { ModalService } from "@src/renderer/ui/ModalService";
 
 type DragData =
   | { type: "campaign"; id: string; archetypeId: string }
@@ -68,7 +69,7 @@ export class SquadBuilder {
       (s) => s && s.archetypeId !== "vip",
     ).length;
     const hasVipInSquad = this.squad.soldiers.some(
-      (s) => s && s.archetypeId === "vip",
+      (s) => s?.archetypeId === "vip",
     );
 
     if (data.archetypeId === "vip") {
@@ -76,17 +77,15 @@ export class SquadBuilder {
         await this.modal.alert("VIP already assigned.");
         return;
       }
-    } else {
-      if (totalNonVip >= MAX_SQUAD_SIZE) {
+    } else if (totalNonVip >= MAX_SQUAD_SIZE) {
         await this.modal.alert(
           `Maximum of ${MAX_SQUAD_SIZE} soldiers allowed.`,
         );
         return;
       }
-    }
 
     if (data.type === "campaign") {
-      if (this.squad.soldiers.some((s) => s && s.id === data.id)) return;
+      if (this.squad.soldiers.some((s) => s?.id === data.id)) return;
       const state = this.manager.getState();
       const s = state?.roster.find((r) => r.id === data.id);
       if (s) {
@@ -182,7 +181,7 @@ export class SquadBuilder {
       ).length;
       if (
         totalNonVip < MAX_SQUAD_SIZE &&
-        !this.squad.soldiers.some((s) => s && s.id === soldierId)
+        !this.squad.soldiers.some((s) => s?.id === soldierId)
       ) {
         const newState = this.manager.getState();
         const s = newState?.roster.find((r) => r.id === soldierId);
@@ -269,7 +268,7 @@ export class SquadBuilder {
         const healthyAvailable = sortedRoster.filter(
           (s) =>
             s.status === "Healthy" &&
-            !this.squad.soldiers.some((deployed) => deployed && deployed.id === s.id) &&
+            !this.squad.soldiers.some((deployed) => deployed?.id === s.id) &&
             s.archetypeId !== "vip",
         );
 
@@ -287,7 +286,7 @@ export class SquadBuilder {
 
         rosterItems = sortedRoster
           .filter((s) => s.archetypeId !== "vip")
-          .filter((s) => !this.squad.soldiers.some((deployed) => deployed && deployed.id === s.id))
+          .filter((s) => !this.squad.soldiers.some((deployed) => deployed?.id === s.id))
           .map((soldier) => {
             const isHealthy = soldier.status === "Healthy";
             const card = SoldierWidget.render(soldier, {
@@ -364,7 +363,7 @@ export class SquadBuilder {
       const availableArchetypes = Object.values(ArchetypeLibrary).filter(
         (arch) =>
           arch.id !== "vip" &&
-          !this.squad.soldiers.some((s) => s && s.archetypeId === arch.id),
+          !this.squad.soldiers.some((s) => s?.archetypeId === arch.id),
       );
 
       if (this.selectedId === null && availableArchetypes.length > 0) {
@@ -380,7 +379,7 @@ export class SquadBuilder {
 
       rosterItems = Object.values(ArchetypeLibrary)
         .filter((arch) => !(arch.id === "vip" && isEscortMission))
-        .filter((arch) => !this.squad.soldiers.some((s) => s && s.archetypeId === arch.id))
+        .filter((arch) => !this.squad.soldiers.some((s) => s?.archetypeId === arch.id))
         .map((arch) => {
           const card = SoldierWidget.render(arch, {
             context: "squad-builder",
@@ -408,9 +407,9 @@ export class SquadBuilder {
     // Slots logic
     const hasVip =
       isEscortMission ||
-      this.squad.soldiers.some((s) => s && s.archetypeId === "vip");
+      this.squad.soldiers.some((s) => s?.archetypeId === "vip");
     const vipInSquad = this.squad.soldiers.find(
-      (s) => s && s.archetypeId === "vip",
+      (s) => s?.archetypeId === "vip",
     );
     const numSlots = hasVip ? 5 : 4;
     const slots: any[] = [];
@@ -422,7 +421,7 @@ export class SquadBuilder {
     for (let i = 0; i < numSlots; i++) {
       let slotContent: any = null;
       let slotClass = "deployment-slot";
-      let slotLabel = `Deployment Slot ${hasVip ? (i === 0 ? "VIP" : i) : i + 1}`;
+      const slotLabel = `Deployment Slot ${hasVip ? (i === 0 ? "VIP" : i) : i + 1}`;
       let tabIndex = -1;
       let onClick: any = null;
       let onKeyDown: any = null;
@@ -442,7 +441,7 @@ export class SquadBuilder {
               tabindex="-1"
               onClick={(e: Event) => {
                 e.stopPropagation();
-                const idx = this.squad.soldiers.findIndex((s) => s && s.archetypeId === "vip");
+                const idx = this.squad.soldiers.findIndex((s) => s?.archetypeId === "vip");
                 if (idx !== -1) this.squad.soldiers.splice(idx, 1);
                 this.onSquadUpdated(this.squad);
                 this.render();
@@ -492,7 +491,7 @@ export class SquadBuilder {
                   const s = state?.roster.find((r) => r.id === this.selectedId);
                   if (s) this.addToSquad({ type: "campaign", id: s.id, archetypeId: s.archetypeId });
                 } else {
-                  this.addToSquad({ type: "custom", archetypeId: this.selectedId! });
+                  this.addToSquad({ type: "custom", archetypeId: this.selectedId });
                 }
               }
             };

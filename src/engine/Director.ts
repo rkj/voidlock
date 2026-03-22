@@ -1,18 +1,19 @@
-import {
+import type {
   Enemy,
   SpawnPoint,
   Vector2,
-  EnemyType,
-  EnemyArchetypeLibrary,
   GameState,
   UseItemCommand,
-  MapDefinition,
+  MapDefinition} from "../shared/types";
+import {
+  EnemyType,
+  EnemyArchetypeLibrary,
   CellType,
   UnitState,
   MissionType,
 } from "../shared/types";
-import { PRNG } from "../shared/PRNG";
-import { IDirector, ItemEffectHandler } from "./interfaces/IDirector";
+import type { PRNG } from "../shared/PRNG";
+import type { IDirector, ItemEffectHandler } from "./interfaces/IDirector";
 import {
   DIRECTOR,
   SPEED_NORMALIZATION_CONST,
@@ -296,7 +297,7 @@ export class Director implements IDirector {
     // Use weighted selection similar to original intent but restricted to affordable
     if (threat < DIRECTOR.THREAT_LOW) {
       return EnemyType.XenoMite;
-    } else {
+    } 
       // Weighted among affordable
       if (affordable.length === 1) return affordable[0].type;
 
@@ -304,12 +305,12 @@ export class Director implements IDirector {
       // or we could implement a better weighted shuffle.
       // Actually, let's just pick one randomly from affordable.
       return affordable[this.prng.nextInt(0, affordable.length - 1)].type;
-    }
+    
   }
   private getDifficultyForType(type: EnemyType): number {
     if (type === EnemyType.WarriorDrone || type === EnemyType.SpitterAcid) {
       return DIRECTOR.DIFFICULTY_MEDIUM;
-    } else if (type === EnemyType.PraetorianGuard) {
+    } if (type === EnemyType.PraetorianGuard) {
       return DIRECTOR.DIFFICULTY_HARD;
     }
     return DIRECTOR.DIFFICULTY_EASY;

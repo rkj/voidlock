@@ -30,12 +30,12 @@ export class Boundary {
       const y = Math.max(this.y1, this.y2);
       const x = this.x1;
       return { p1: { x, y }, p2: { x: x + 1, y } };
-    } else {
+    } 
       // Vertical boundary (separated by x)
       const x = Math.max(this.x1, this.x2);
       const y = this.y1;
       return { p1: { x, y }, p2: { x, y: y + 1 } };
-    }
+    
   }
 }
 

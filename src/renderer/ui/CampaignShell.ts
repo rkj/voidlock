@@ -1,5 +1,5 @@
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";

@@ -1,4 +1,4 @@
-import { GameState } from "@src/shared/types";
+import type { GameState } from "@src/shared/types";
 
 export interface RenderLayer {
   draw(

@@ -1,11 +1,12 @@
 import { createElement, Fragment } from "@src/renderer/jsx";
+import type {
+  SquadConfig} from "@src/shared/types";
 import {
-  SquadConfig,
   ItemLibrary,
   ArchetypeLibrary,
   InputPriority,
 } from "@src/shared/types";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
@@ -14,7 +15,7 @@ import { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
 import { FocusManager } from "../utils/FocusManager";
 
-import { ModalService } from "@src/renderer/ui/ModalService";
+import type { ModalService } from "@src/renderer/ui/ModalService";
 
 export interface EquipmentScreenConfig {
   containerId: string;
@@ -325,7 +326,7 @@ export class EquipmentScreen {
     if (newRight) newRight.scrollTop = this.savedScrollTop.right;
 
     if (!FocusManager.restoreFocus(this.container)) {
-      if (lastFocusId && lastFocusId.startsWith("supply-plus-")) {
+      if (lastFocusId?.startsWith("supply-plus-")) {
         const minusBtn = this.container.querySelector(`[data-focus-id="${lastFocusId.replace("plus", "minus")}"]`) as HTMLElement;
         if (minusBtn) minusBtn.focus();
       }
@@ -418,13 +419,13 @@ export class EquipmentScreen {
 
     if (this.recruitMode) {
       return this.renderRecruitmentItems();
-    } else if (this.reviveMode) {
+    } if (this.reviveMode) {
       return this.renderReviveItems();
-    } else if (isSlotEmpty) {
+    } if (isSlotEmpty) {
       return this.renderRosterPickerItems();
-    } else {
+    } 
       return this.renderRightPanelItems();
-    }
+    
   }
 
   private renderRightPanelActions() {
@@ -432,7 +433,7 @@ export class EquipmentScreen {
     if (this.recruitMode || this.reviveMode) return null;
 
     const state = this.manager.getState();
-    if (!state || !state.roster) return null;
+    if (!state?.roster) return null;
 
     // Persistent Recruit button to allow recruiting even when squad is full (regression_tkzi)
     if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
@@ -687,7 +688,7 @@ export class EquipmentScreen {
           <div class="flex-col" style={{ flexGrow: "1" }}>
             <div class="supply-item-header" style={{ fontWeight: "bold", fontSize: "0.85em", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
               <span>{item.name}</span>
-              <span style={{ color: "var(--color-primary)", fontSize: "0.8em", opacity: "0.8" }}>{state ? item.cost + " CR" : "Free"}</span>
+              <span style={{ color: "var(--color-primary)", fontSize: "0.8em", opacity: "0.8" }}>{state ? `${item.cost  } CR` : "Free"}</span>
             </div>
           </div>
           <div class="flex-row align-center gap-10">

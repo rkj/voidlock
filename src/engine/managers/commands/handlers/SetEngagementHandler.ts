@@ -1,13 +1,14 @@
-import {
+import type {
   Unit,
   Command,
   GameState,
-  CommandType,
-  SetEngagementCommand,
+  SetEngagementCommand} from "@src/shared/types";
+import {
+  CommandType
 } from "@src/shared/types";
-import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import { IUnitCommandHandler } from "../IUnitCommandHandler";
-import { UnitCommandRegistry } from "../UnitCommandRegistry";
+import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { IUnitCommandHandler } from "../IUnitCommandHandler";
+import type { UnitCommandRegistry } from "../UnitCommandRegistry";
 
 export class SetEngagementHandler implements IUnitCommandHandler {
   public type = CommandType.SET_ENGAGEMENT;
@@ -21,7 +22,7 @@ export class SetEngagementHandler implements IUnitCommandHandler {
     _director?: ItemEffectHandler,
   ): Unit {
     const engagementCmd = cmd as SetEngagementCommand;
-    let currentUnit = { ...unit };
+    const currentUnit = { ...unit };
 
     currentUnit.engagementPolicy = engagementCmd.mode;
     currentUnit.engagementPolicySource = "Manual";

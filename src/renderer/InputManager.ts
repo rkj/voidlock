@@ -1,10 +1,11 @@
-import { ScreenManager } from "@src/renderer/ScreenManager";
-import { MenuController } from "@src/renderer/MenuController";
-import {
+import type { ScreenManager } from "@src/renderer/ScreenManager";
+import type { MenuController } from "@src/renderer/MenuController";
+import type {
   GameState,
   InputContext,
-  InputPriority,
-  ShortcutInfo,
+  ShortcutInfo} from "@src/shared/types";
+import {
+  InputPriority
 } from "@src/shared/types";
 import { InputDispatcher } from "./InputDispatcher";
 import { MathUtils } from "@src/shared/utils/MathUtils";
@@ -239,7 +240,7 @@ export class InputManager implements InputContext {
     if (target.id !== "game-canvas") return false;
 
     const state = this.config.currentGameState();
-    if (!state || state.status !== "Deployment") return false;
+    if (state?.status !== "Deployment") return false;
 
     const cell = this.config.getCellCoordinates(e.clientX, e.clientY);
     const worldPos = this.config.getWorldCoordinates(e.clientX, e.clientY);
@@ -278,7 +279,7 @@ export class InputManager implements InputContext {
       const canvas = document.getElementById("game-canvas");
       if (canvas) {
         const state = this.config.currentGameState();
-        if (state && state.status === "Deployment") {
+        if (state?.status === "Deployment") {
           const cell = this.config.getCellCoordinates(e.clientX, e.clientY);
           const worldPos = this.config.getWorldCoordinates(e.clientX, e.clientY);
           const bestUnit = state.units.findLast(
@@ -307,7 +308,7 @@ export class InputManager implements InputContext {
       const cell = this.config.getCellCoordinates(e.clientX, e.clientY);
       const state = this.config.currentGameState();
 
-      if (state && state.status === "Deployment") {
+      if (state?.status === "Deployment") {
         const isValidSpawn = MapUtils.isValidSpawnPoint(state.map, cell);
 
         if (isValidSpawn) {
@@ -361,7 +362,7 @@ export class InputManager implements InputContext {
       this.hasMovedSignificantly = false;
 
       const state = this.config.currentGameState();
-      if (state && state.status === "Deployment") {
+      if (state?.status === "Deployment") {
         const cell = this.config.getCellCoordinates(touch.clientX, touch.clientY);
         const worldPos = this.config.getWorldCoordinates(touch.clientX, touch.clientY);
 
@@ -410,7 +411,7 @@ export class InputManager implements InputContext {
 
       this.lastTouchPos = { x: touch.clientX, y: touch.clientY };
       return true;
-    } else if (e.touches.length === 2 && this.lastTouchDistance && this.lastTouchCenter) {
+    } if (e.touches.length === 2 && this.lastTouchDistance && this.lastTouchCenter) {
       const distance = this.getTouchDistance(e.touches);
       const center = this.getTouchCenter(e.touches);
 
@@ -437,7 +438,7 @@ export class InputManager implements InputContext {
       const cell = this.config.getCellCoordinates(touch.clientX, touch.clientY);
       const state = this.config.currentGameState();
 
-      if (state && state.status === "Deployment") {
+      if (state?.status === "Deployment") {
         const isValidSpawn = MapUtils.isValidSpawnPoint(state.map, cell);
 
         if (isValidSpawn) {

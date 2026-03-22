@@ -1,5 +1,6 @@
-import { GameState, UnitState } from "../../shared/types";
-import { LineOfSight } from "../LineOfSight";
+import type { GameState} from "../../shared/types";
+import { UnitState } from "../../shared/types";
+import type { LineOfSight } from "../LineOfSight";
 
 export class VisibilityManager {
   constructor(private los: LineOfSight) {}
@@ -13,7 +14,7 @@ export class VisibilityManager {
     const height = state.map.height;
     const size = width * height;
 
-    if (!state.gridState || state.gridState.length !== size) {
+    if (state.gridState?.length !== size) {
       state.gridState = new Uint8Array(size);
     }
 

@@ -1,7 +1,7 @@
-import { GameState, Enemy } from "../../shared/types";
-import { LineOfSight } from "../LineOfSight";
-import { PRNG } from "../../shared/PRNG";
-import { CombatManager } from "./CombatManager";
+import type { GameState, Enemy } from "../../shared/types";
+import type { LineOfSight } from "../LineOfSight";
+import type { PRNG } from "../../shared/PRNG";
+import type { CombatManager } from "./CombatManager";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class TurretManager {

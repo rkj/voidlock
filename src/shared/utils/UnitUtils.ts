@@ -1,10 +1,11 @@
+import type {
+  SquadSoldierConfig} from "../types";
 import {
   ArchetypeLibrary,
   ItemLibrary,
-  WeaponLibrary,
-  SquadSoldierConfig,
+  WeaponLibrary
 } from "../types";
-import { CampaignSoldier } from "../campaign_types";
+import type { CampaignSoldier } from "../campaign_types";
 import { SPEED_NORMALIZATION_CONST } from "../constants";
 
 /**
@@ -99,13 +100,13 @@ export class UnitUtils {
     soldier: CampaignSoldier | SquadSoldierConfig
   ): any {
     if ("equipment" in soldier) {
-      return (soldier as CampaignSoldier).equipment;
+      return (soldier).equipment;
     }
     return {
-      rightHand: (soldier as SquadSoldierConfig).rightHand,
-      leftHand: (soldier as SquadSoldierConfig).leftHand,
-      body: (soldier as SquadSoldierConfig).body,
-      feet: (soldier as SquadSoldierConfig).feet,
+      rightHand: (soldier).rightHand,
+      leftHand: (soldier).leftHand,
+      body: (soldier).body,
+      feet: (soldier).feet,
     };
   }
 }

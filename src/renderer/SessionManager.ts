@@ -1,4 +1,4 @@
-import { ScreenId } from "@src/renderer/ScreenManager";
+import type { ScreenId } from "@src/renderer/ScreenManager";
 import { Logger } from "@src/shared/Logger";
 
 export class SessionManager {

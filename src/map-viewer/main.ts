@@ -1,5 +1,5 @@
 import { MapRenderer } from "./MapRenderer";
-import { MapDefinition } from "../shared/types";
+import type { MapDefinition } from "../shared/types";
 import { ThemeManager } from "../renderer/ThemeManager";
 
 const mapInput = document.getElementById("map-input") as HTMLTextAreaElement;

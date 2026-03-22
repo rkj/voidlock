@@ -1,5 +1,6 @@
-import { Vector2, Door, CellType, BoundaryType } from "../shared/types";
-import { Graph, Boundary } from "./Graph";
+import type { Vector2, Door} from "../shared/types";
+import { CellType, BoundaryType } from "../shared/types";
+import type { Graph, Boundary } from "./Graph";
 import { UNIT_RADIUS } from "./config/GameConstants";
 import { MathUtils } from "../shared/utils/MathUtils";
 
@@ -211,8 +212,8 @@ export class LineOfSight {
       curY += (dyRaw / len) * 0.001;
     }
 
-    let x0 = Math.floor(curX);
-    let y0 = Math.floor(curY);
+    const x0 = Math.floor(curX);
+    const y0 = Math.floor(curY);
     const x1 = Math.floor(end.x);
     const y1 = Math.floor(end.y);
 

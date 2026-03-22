@@ -1,5 +1,6 @@
-import { Bot } from "./Bot";
-import { GameState, Command, CommandType, UnitState } from "../shared/types";
+import type { Bot } from "./Bot";
+import type { GameState, Command} from "../shared/types";
+import { CommandType, UnitState } from "../shared/types";
 
 export class SimpleBot implements Bot {
   act(state: GameState): Command | null {
@@ -10,7 +11,7 @@ export class SimpleBot implements Bot {
     const objective = state.objectives.find(
       (o) => o.kind === "Recover" && o.state === "Pending",
     );
-    if (objective && objective.targetCell) {
+    if (objective?.targetCell) {
       const unit = idleUnits[0];
       return {
         type: CommandType.MOVE_TO,

@@ -1,7 +1,7 @@
-import { GameState, Command, CommandType } from "@src/shared/types";
-import { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
-import { UnitManager } from "@src/engine/managers/UnitManager";
-import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { GameState, Command, CommandType } from "@src/shared/types";
+import type { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
+import type { UnitManager } from "@src/engine/managers/UnitManager";
+import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 
 export class UnitCommandApplier implements IGlobalCommandHandler {
   constructor(
@@ -16,7 +16,7 @@ export class UnitCommandApplier implements IGlobalCommandHandler {
         if (cmd.unitIds.includes(unit.id)) {
           if (cmd.queue) {
             return { ...unit, commandQueue: unit.commandQueue.concat(cmd) };
-          } else {
+          } 
             const unitWithEmptyQueue = { ...unit, commandQueue: [] };
             return this.unitManager.executeCommand(
               unitWithEmptyQueue,
@@ -25,7 +25,7 @@ export class UnitCommandApplier implements IGlobalCommandHandler {
               true,
               this.director,
             );
-          }
+          
         }
         return unit;
       });

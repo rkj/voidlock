@@ -1,11 +1,13 @@
-import {
+import type {
   MapDefinition,
-  CellType,
   IMapValidationResult,
-  Vector2,
+  Vector2} from "../../shared/types";
+import {
+  CellType,
   BoundaryType,
 } from "../../shared/types";
-import { Graph, Direction } from "../Graph";
+import type { Direction } from "../Graph";
+import { Graph } from "../Graph";
 
 export class MapValidator {
   public static validate(map: MapDefinition): IMapValidationResult {
@@ -37,7 +39,7 @@ export class MapValidator {
     if (doors) {
       for (const door of doors) {
         if (!door.id) issues.push("Door found with no ID.");
-        if (!door.segment || door.segment.length !== 2) {
+        if (door.segment?.length !== 2) {
           issues.push(`Door ${door.id} must have exactly 2 segments.`);
           continue;
         }
@@ -311,8 +313,7 @@ export class MapValidator {
       for (const ss of map.squadSpawns) {
         // Skip if it's the same as squadSpawn to avoid false positives
         if (
-          map.squadSpawn &&
-          ss.x === map.squadSpawn.x &&
+          ss.x === map.squadSpawn?.x &&
           ss.y === map.squadSpawn.y
         )
           continue;
@@ -380,7 +381,7 @@ export class MapValidator {
 
               if (isWithinBounds(nx, ny) && !visitedCells.has(`${nx},${ny}`)) {
                 const nCell = graph.cells[ny]?.[nx];
-                if (nCell && nCell.type === CellType.Floor) {
+                if (nCell?.type === CellType.Floor) {
                   visitedCells.add(`${nx},${ny}`);
                   queue.push({ x: nx, y: ny });
                 }
@@ -404,7 +405,7 @@ export class MapValidator {
 
     // Squad reachability check
     const squadStart =
-      map.squadSpawn || (map.squadSpawns && map.squadSpawns[0]);
+      map.squadSpawn || (map.squadSpawns?.[0]);
     if (squadStart) {
       const visitedFromSquad = new Set<string>();
       const queue: Vector2[] = [squadStart];
@@ -447,7 +448,7 @@ export class MapValidator {
                 !visitedFromSquad.has(`${nx},${ny}`)
               ) {
                 const nCell = graph.cells[ny]?.[nx];
-                if (nCell && nCell.type === CellType.Floor) {
+                if (nCell?.type === CellType.Floor) {
                   visitedFromSquad.add(`${nx},${ny}`);
                   queue.push({ x: nx, y: ny });
                 }

@@ -1,5 +1,6 @@
-import { GameClient } from "@src/engine/GameClient";
-import { GameState, EngineMode, UnitStyle } from "@src/shared/types";
+import type { GameClient } from "@src/engine/GameClient";
+import type { GameState, UnitStyle } from "@src/shared/types";
+import { EngineMode } from "@src/shared/types";
 import { Renderer } from "@src/renderer/Renderer";
 import { Logger } from "@src/shared/Logger";
 

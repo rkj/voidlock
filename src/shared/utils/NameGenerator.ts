@@ -1,4 +1,4 @@
-import { PRNG } from "../PRNG";
+import type { PRNG } from "../PRNG";
 
 export const FIRST_NAMES = [
   "Kyle",

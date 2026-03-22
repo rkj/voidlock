@@ -1,16 +1,17 @@
 import { InputBinder } from "./InputBinder";
-import {
+import type {
   MapGeneratorType,
+  SquadSoldierConfig} from "@src/shared/types";
+import {
   MissionType,
   CommandType,
-  SquadSoldierConfig,
   UnitState,
   SquadConfig,
 } from "@src/shared/types";
+import type {
+  MissionReport} from "@src/shared/campaign_types";
 import {
-  calculateSpawnPoints,
-  MissionReport,
-  CampaignNode,
+  calculateSpawnPoints
 } from "@src/shared/campaign_types";
 import pkg from "../../../package.json";
 import { ConfigManager } from "../ConfigManager";
@@ -28,9 +29,9 @@ import { SquadBuilder } from "../components/SquadBuilder";
 import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
 import { AppServiceRegistry } from "./AppServiceRegistry";
-import { Renderer } from "../Renderer";
+import type { Renderer } from "../Renderer";
 import { Logger } from "@src/shared/Logger";
-import { AdvisorOverlay } from "../ui/AdvisorOverlay";
+import type { AdvisorOverlay } from "../ui/AdvisorOverlay";
 
 const VERSION = pkg.version;
 
@@ -496,9 +497,9 @@ export class GameApp {
           try {
             const data = JSON.parse(content);
             const replayData = data.replayData || data;
-            const currentState = data.currentState as any;
+            const currentState = data.currentState;
 
-            if (replayData && replayData.commands) {
+            if (replayData?.commands) {
               this.gameClient.loadReplay(replayData);
 
               let report: MissionReport;

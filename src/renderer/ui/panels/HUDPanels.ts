@@ -1,12 +1,13 @@
-import { GameState, UnitState, Unit, MissionType } from "@src/shared/types";
-import { MenuController } from "@src/renderer/MenuController";
+import type { GameState, Unit} from "@src/shared/types";
+import { UnitState, MissionType } from "@src/shared/types";
+import type { MenuController } from "@src/renderer/MenuController";
 import { MenuRenderer } from "@src/renderer/ui/MenuRenderer";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { MapUtils } from "@src/shared/utils/MapUtils";
-import { UIBinder } from "@src/renderer/ui/UIBinder";
+import type { UIBinder } from "@src/renderer/ui/UIBinder";
 
 /**
  * Deployed from HUDManager as part of ADR 0052.
@@ -110,7 +111,7 @@ export class DeploymentPanel {
 
     const units = state.units.filter((u) => u.archetypeId !== "vip");
     const selectedUnitId = this.callbacks.getSelectedUnitId();
-    const currentHash = units.map(u => `${u.id}:${u.isDeployed}`).join("|") + `:${selectedUnitId}`;
+    const currentHash = `${units.map(u => `${u.id}:${u.isDeployed}`).join("|")  }:${selectedUnitId}`;
     
     const squadList = deploymentDiv.querySelector(".deployment-squad-list") as HTMLElement;
     if (squadList && currentHash !== this.lastDeploymentHash) {
@@ -341,7 +342,7 @@ export class EnemyIntelPanel {
     const groups: { [type: string]: number } = {};
     visibleEnemies.forEach((e) => { groups[e.type] = (groups[e.type] || 0) + 1; });
     const types = Object.keys(groups).sort();
-      intelDiv.innerHTML = "<h3>Hostile Contact Intel</h3>" + types.map(type => {
+      intelDiv.innerHTML = `<h3>Hostile Contact Intel</h3>${  types.map(type => {
         const e = visibleEnemies.find(en => en.type === type)!;
         const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
         return `
@@ -356,7 +357,7 @@ export class EnemyIntelPanel {
             </div>
           </div>
         `;
-      }).join("");
+      }).join("")}`;
   }
 }
 
@@ -414,7 +415,7 @@ export class GameOverPanel {
     
     container.innerHTML = "";
     const summaryDiv = document.createElement("div");
-    summaryDiv.className = "game-over-summary" + (state.status === "Won" ? "" : " lost");
+    summaryDiv.className = `game-over-summary${  state.status === "Won" ? "" : " lost"}`;
     summaryDiv.innerHTML = `
       <h2 class="game-over-title">${state.status === "Won" ? "OPERATION CLOSED — Targets Secured" : "OPERATION CLOSED — Total Asset Loss"}</h2>
       <div class="game-over-objectives"><h3 class="game-over-panel-title">Recovery Targets</h3>${this.callbacks.objectivesPanel.renderObjectivesList(state)}</div>

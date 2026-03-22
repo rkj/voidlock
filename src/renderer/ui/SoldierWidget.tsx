@@ -1,18 +1,20 @@
 import { createElement, Fragment } from "@src/renderer/jsx";
-import {
+import type {
   CampaignSoldier,
-  SoldierMissionResult,
+  SoldierMissionResult} from "@src/shared/campaign_types";
+import {
   calculateLevel,
   XP_THRESHOLDS,
 } from "@src/shared/campaign_types";
-import {
+import type {
   Unit,
+  Archetype,
+  SquadSoldierConfig} from "@src/shared/types";
+import {
   UnitState,
   ArchetypeLibrary,
   WeaponLibrary,
-  ItemLibrary,
-  Archetype,
-  SquadSoldierConfig,
+  ItemLibrary
 } from "@src/shared/types";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplayComponent } from "@src/renderer/ui/StatDisplay";

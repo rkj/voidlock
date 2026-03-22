@@ -1,4 +1,5 @@
-import { MapGeneratorType, MissionType } from "@src/shared/types";
+import type { MissionType } from "@src/shared/types";
+import { MapGeneratorType } from "@src/shared/types";
 
 /**
  * InputBinder is responsible for attaching and detaching DOM event listeners.
@@ -182,7 +183,7 @@ export class InputBinder {
     el.addEventListener(type, (e) => {
       handler(e);
     });
-    let entries = this.handlers.get(el) || [];
+    const entries = this.handlers.get(el) || [];
     entries.push({ type, handler });
     this.handlers.set(el, entries);
   }

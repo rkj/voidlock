@@ -1,21 +1,22 @@
 import { Renderer } from "@src/renderer/Renderer";
-import {
+import type {
   GameState,
-  UnitState,
-  EngineMode,
   MapDefinition,
   SquadConfig,
   MissionType,
-  MapGeneratorType,
+  MapGeneratorType} from "@src/shared/types";
+import {
+  UnitState,
+  EngineMode
 } from "@src/shared/types";
-import { CampaignNode, MissionReport } from "@src/shared/campaign_types";
+import type { CampaignNode, MissionReport } from "@src/shared/campaign_types";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { Logger } from "@src/shared/Logger";
-import { CampaignShell } from "@src/renderer/ui/CampaignShell";
-import { GameClient } from "@src/engine/GameClient";
-import { ScreenManager } from "@src/renderer/ScreenManager";
-import { MenuController } from "@src/renderer/MenuController";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { CampaignShell } from "@src/renderer/ui/CampaignShell";
+import type { GameClient } from "@src/engine/GameClient";
+import type { ScreenManager } from "@src/renderer/ScreenManager";
+import type { MenuController } from "@src/renderer/MenuController";
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { ThemeManager } from "../ThemeManager";
 import { AssetManager } from "../visuals/AssetManager";
 
@@ -332,7 +333,7 @@ export class MissionCoordinator {
   ): MissionReport {
     return {
       nodeId: node ? node.id : "custom",
-      seed: seed,
+      seed,
       result: state.status === "Won" ? "Won" : "Lost",
       aliensKilled: state.stats.aliensKilled,
       scrapGained: state.stats.scrapGained,
@@ -366,7 +367,7 @@ export class MissionCoordinator {
     if (state) {
       return {
         nodeId: node ? node.id : "custom",
-        seed: seed,
+        seed,
         result: "Lost",
         aliensKilled: state.stats.aliensKilled,
         scrapGained: state.stats.scrapGained,
@@ -389,7 +390,7 @@ export class MissionCoordinator {
     // Fallback if no game state
     return {
       nodeId: node ? node.id : "custom",
-      seed: seed,
+      seed,
       result: "Lost",
       aliensKilled: 0,
       scrapGained: 0,

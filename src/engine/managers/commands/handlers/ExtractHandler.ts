@@ -1,13 +1,14 @@
-import {
+import type {
   Unit,
   Command,
-  GameState,
+  GameState} from "@src/shared/types";
+import {
   CommandType,
   UnitState,
 } from "@src/shared/types";
-import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
-import { IUnitCommandHandler } from "../IUnitCommandHandler";
-import { UnitCommandRegistry } from "../UnitCommandRegistry";
+import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { IUnitCommandHandler } from "../IUnitCommandHandler";
+import type { UnitCommandRegistry } from "../UnitCommandRegistry";
 
 export class ExtractHandler implements IUnitCommandHandler {
   public type = CommandType.EXTRACT;

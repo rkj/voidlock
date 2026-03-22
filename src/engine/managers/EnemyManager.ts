@@ -1,19 +1,21 @@
-import {
+import type {
   GameState,
   Enemy,
+  Door} from "../../shared/types";
+import {
   EnemyType,
   EnemyArchetypeLibrary,
-  UnitState,
-  Door,
+  UnitState
 } from "../../shared/types";
-import { GameGrid } from "../GameGrid";
-import { Pathfinder } from "../Pathfinder";
-import { LineOfSight } from "../LineOfSight";
-import { PRNG } from "../../shared/PRNG";
-import { IEnemyAI, SwarmMeleeAI } from "../ai/EnemyAI";
+import type { GameGrid } from "../GameGrid";
+import type { Pathfinder } from "../Pathfinder";
+import type { LineOfSight } from "../LineOfSight";
+import type { PRNG } from "../../shared/PRNG";
+import type { IEnemyAI} from "../ai/EnemyAI";
+import { SwarmMeleeAI } from "../ai/EnemyAI";
 import { RangedKiteAI } from "../ai/RangedKiteAI";
-import { CombatManager } from "./CombatManager";
-import { MovementManager } from "./MovementManager";
+import type { CombatManager } from "./CombatManager";
+import type { MovementManager } from "./MovementManager";
 import {
   SCRAP_REWARDS,
 } from "../config/GameConstants";

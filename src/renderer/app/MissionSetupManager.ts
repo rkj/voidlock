@@ -1,23 +1,26 @@
-import {
+import type {
   MapGeneratorType,
-  MissionType,
   SquadConfig,
-  MapDefinition,
-} from "@src/shared/types";
+  MapDefinition} from "@src/shared/types";
 import {
-  CampaignNode,
+  MissionType
+} from "@src/shared/types";
+import type {
+  CampaignNode} from "@src/shared/campaign_types";
+import {
   calculateMapSize,
   calculateSpawnPoints,
 } from "@src/shared/campaign_types";
-import { ConfigManager, GameConfig } from "../ConfigManager";
+import type { GameConfig } from "../ConfigManager";
+import { ConfigManager } from "../ConfigManager";
 import { MapUtility } from "@src/renderer/MapUtility";
 import { MapValidator } from "@src/shared/validation/MapValidator";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { ArchetypeLibrary } from "@src/shared/types/units";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { ThemeManager } from "@src/renderer/ThemeManager";
-import { ModalService } from "@src/renderer/ui/ModalService";
+import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import type { ThemeManager } from "@src/renderer/ThemeManager";
+import type { ModalService } from "@src/renderer/ui/ModalService";
 import { Logger } from "@src/shared/Logger";
 
 export class MissionSetupManager {
@@ -56,7 +59,7 @@ export class MissionSetupManager {
 
   public rehydrateCampaignNode(): boolean {
     const config = ConfigManager.loadCampaign();
-    if (config && config.campaignNodeId) {
+    if (config?.campaignNodeId) {
       const state = this.campaignManager.getState();
       if (state) {
         const node = state.nodes.find((n) => n.id === config.campaignNodeId);
@@ -349,7 +352,7 @@ export class MissionSetupManager {
         } else {
           this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
             (s) => {
-              if (s && s.id) {
+              if (s?.id) {
                 const rs = state.roster.find((r) => r.id === s.id);
                 if (rs) {
                   s.name = rs.name;

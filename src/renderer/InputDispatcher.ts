@@ -1,4 +1,4 @@
-import { InputContext, ShortcutInfo } from "@src/shared/types";
+import type { InputContext, ShortcutInfo } from "@src/shared/types";
 
 export class InputDispatcher {
   private static instance: InputDispatcher;
@@ -95,7 +95,7 @@ export class InputDispatcher {
     if (context.trapsFocus) {
       this.focusStack.push(document.activeElement as HTMLElement);
       if (context.container) {
-        this.focusFirstElement(context.container!);
+        this.focusFirstElement(context.container);
       }
     }
   }
@@ -151,7 +151,7 @@ export class InputDispatcher {
 
   private handleTouchStart(e: TouchEvent) {
     for (const context of this.contextStack) {
-      if (context.handleTouchStart && context.handleTouchStart(e)) {
+      if (context.handleTouchStart?.(e)) {
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -161,7 +161,7 @@ export class InputDispatcher {
 
   private handleTouchMove(e: TouchEvent) {
     for (const context of this.contextStack) {
-      if (context.handleTouchMove && context.handleTouchMove(e)) {
+      if (context.handleTouchMove?.(e)) {
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -171,7 +171,7 @@ export class InputDispatcher {
 
   private handleTouchEnd(e: TouchEvent) {
     for (const context of this.contextStack) {
-      if (context.handleTouchEnd && context.handleTouchEnd(e)) {
+      if (context.handleTouchEnd?.(e)) {
         e.stopPropagation();
         return;
       }
@@ -180,7 +180,7 @@ export class InputDispatcher {
 
   private handleMouseDown(e: MouseEvent) {
     for (const context of this.contextStack) {
-      if (context.handleMouseDown && context.handleMouseDown(e)) {
+      if (context.handleMouseDown?.(e)) {
         e.stopPropagation();
         return;
       }
@@ -189,7 +189,7 @@ export class InputDispatcher {
 
   private handleMouseMove(e: MouseEvent) {
     for (const context of this.contextStack) {
-      if (context.handleMouseMove && context.handleMouseMove(e)) {
+      if (context.handleMouseMove?.(e)) {
         e.stopPropagation();
         return;
       }
@@ -198,7 +198,7 @@ export class InputDispatcher {
 
   private handleMouseUp(e: MouseEvent) {
     for (const context of this.contextStack) {
-      if (context.handleMouseUp && context.handleMouseUp(e)) {
+      if (context.handleMouseUp?.(e)) {
         e.stopPropagation();
         return;
       }
@@ -207,7 +207,7 @@ export class InputDispatcher {
 
   private handleWheel(e: WheelEvent) {
     for (const context of this.contextStack) {
-      if (context.handleWheel && context.handleWheel(e)) {
+      if (context.handleWheel?.(e)) {
         e.preventDefault();
         e.stopPropagation();
         return;
@@ -260,7 +260,7 @@ export class InputDispatcher {
       return;
     }
 
-    let active = document.activeElement as HTMLElement;
+    const active = document.activeElement as HTMLElement;
     let currentIndex = focusableElements.indexOf(active);
 
     if (currentIndex === -1 && active) {

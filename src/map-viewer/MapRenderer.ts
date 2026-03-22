@@ -1,4 +1,5 @@
-import { MapDefinition, CellType, BoundaryType } from "../shared/types";
+import type { MapDefinition} from "../shared/types";
+import { CellType, BoundaryType } from "../shared/types";
 import { Graph } from "../engine/Graph";
 import { ThemeManager } from "../renderer/ThemeManager";
 

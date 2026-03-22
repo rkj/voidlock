@@ -1,5 +1,5 @@
-import { MetaStats } from "../../shared/campaign_types";
-import { StorageProvider } from "../persistence/StorageProvider";
+import type { MetaStats } from "../../shared/campaign_types";
+import type { StorageProvider } from "../persistence/StorageProvider";
 import { CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
 import { MetaStatsSchema } from "../../shared/schemas";
 import { Logger } from "../../shared/Logger";
@@ -50,13 +50,13 @@ export class MetaManager {
       const result = MetaStatsSchema.safeParse(data || {});
       if (result.success) {
         return result.data as MetaStats;
-      } else {
+      } 
         Logger.warn(
           "MetaManager: Validation failed, using defaults.",
           result.error.format(),
         );
         return MetaStatsSchema.parse({});
-      }
+      
     } catch (e) {
       Logger.warn("MetaManager: Failed to load global statistics.", e);
       return MetaStatsSchema.parse({});

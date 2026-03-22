@@ -1,11 +1,12 @@
-import {
+import type {
   Vector2,
   GameState,
   Unit,
-  UnitState,
-  Door,
+  Door} from "../../../shared/types";
+import {
+  UnitState
 } from "../../../shared/types";
-import { GameGrid } from "../../GameGrid";
+import type { GameGrid } from "../../GameGrid";
 import { isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { SPEED_NORMALIZATION_CONST } from "../../config/GameConstants";

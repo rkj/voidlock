@@ -1,4 +1,4 @@
-import { MenuState } from "@src/renderer/MenuConfig";
+import type { MenuState } from "@src/renderer/MenuConfig";
 
 /**
  * Manages the stack of menu states and transitions between them.

@@ -1,4 +1,4 @@
-import {
+import type {
   CampaignState,
   CampaignNode,
   CampaignSoldier,
@@ -7,11 +7,12 @@ import {
   CampaignOverrides,
   EventChoice,
 } from "../../shared/campaign_types";
-import { PRNG } from "../../shared/PRNG";
-import { StorageProvider } from "../persistence/StorageProvider";
+import type { PRNG } from "../../shared/PRNG";
+import type { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
 import { MetaManager } from "./MetaManager";
-import { EquipmentState, MapGeneratorType } from "../../shared/types";
+import type { EquipmentState} from "../../shared/types";
+import { MapGeneratorType } from "../../shared/types";
 import { RosterManager } from "./RosterManager";
 import { MissionReconciler } from "./MissionReconciler";
 import { EventManager } from "./EventManager";
@@ -359,7 +360,7 @@ export class CampaignManager {
           }
 
           return true;
-        } else {
+        } 
           // If even with defaults it fails, try the full manual repair
           Logger.warn(
             "CampaignManager: Validation failed, attempting full recovery.",
@@ -373,7 +374,7 @@ export class CampaignManager {
               return true;
             }
           }
-        }
+        
       }
     } catch (e) {
       Logger.warn("CampaignManager: Failed to load campaign state.", e);
@@ -501,13 +502,13 @@ export class CampaignManager {
       const finalResult = CampaignStateSchema.safeParse(state);
       if (finalResult.success) {
         return finalResult.data as CampaignState;
-      } else {
+      } 
         Logger.warn(
           "CampaignManager: Repair failed:",
           finalResult.error.format(),
         );
         return null;
-      }
+      
     } catch (e) {
       Logger.warn("CampaignManager: Error during repair:", e);
       return null;
@@ -538,8 +539,7 @@ export class CampaignManager {
     // 4.1 Record Prologue completion
     const node = this.state.nodes.find((n) => n.id === report.nodeId);
     if (
-      node &&
-      node.missionType === "Prologue" &&
+      node?.missionType === "Prologue" &&
       report.result === "Won"
     ) {
       MetaManager.getInstance(this.storage).recordPrologueCompleted();

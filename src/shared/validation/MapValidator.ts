@@ -1,4 +1,4 @@
-import { MapDefinition } from "../types/map";
+import type { MapDefinition } from "../types/map";
 import { MapDefinitionSchema } from "../schemas/map";
 import { Logger } from "../Logger";
 

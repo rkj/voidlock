@@ -1,4 +1,4 @@
-import { GameState, Vector2 } from "../../shared/types";
+import type { GameState, Vector2 } from "../../shared/types";
 import { SCRAP_REWARDS, MISSION_SCALING } from "../config/GameConstants";
 
 export class LootManager {

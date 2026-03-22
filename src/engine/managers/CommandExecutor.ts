@@ -1,11 +1,12 @@
-import {
+import type {
   Unit,
   Command,
-  CommandType,
-  GameState,
+  GameState} from "../../shared/types";
+import {
+  CommandType
 } from "../../shared/types";
-import { Pathfinder } from "../Pathfinder";
-import { ItemEffectHandler } from "../interfaces/IDirector";
+import type { Pathfinder } from "../Pathfinder";
+import type { ItemEffectHandler } from "../interfaces/IDirector";
 import { UnitCommandRegistry } from "./commands/UnitCommandRegistry";
 import { MoveToHandler } from "./commands/handlers/MoveToHandler";
 import { EscortUnitHandler } from "./commands/handlers/EscortUnitHandler";
@@ -42,7 +43,7 @@ export class CommandExecutor {
     isManual: boolean = true,
     director?: ItemEffectHandler,
   ): Unit {
-    let currentUnit: Unit = { ...unit, activeCommand: cmd };
+    const currentUnit: Unit = { ...unit, activeCommand: cmd };
 
     if (isManual) {
       currentUnit.activePlan = undefined;
