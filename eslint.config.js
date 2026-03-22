@@ -61,9 +61,9 @@ export default tseslint.config(
       "@typescript-eslint/no-misused-promises": "warn",
       "@typescript-eslint/await-thenable": "error",
       "@typescript-eslint/require-await": "warn",
-      "@typescript-eslint/no-unnecessary-condition": "warn",
+      "@typescript-eslint/no-unnecessary-condition": "off", // too noisy — 389 defensive checks
       "@typescript-eslint/no-unnecessary-type-assertion": "warn",
-      "@typescript-eslint/prefer-nullish-coalescing": "warn",
+      "@typescript-eslint/prefer-nullish-coalescing": ["warn", { ignorePrimitives: true }],
       "@typescript-eslint/prefer-optional-chain": "warn",
       "@typescript-eslint/consistent-type-imports": ["warn", { prefer: "type-imports" }],
       "@typescript-eslint/no-unused-vars": ["warn", {

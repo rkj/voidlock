@@ -11,6 +11,7 @@
     "test:e2e": "vitest run --config vitest.config.e2e.ts",
     "screenshot:update": "UPDATE_SNAPSHOTS=1 vitest run --config vitest.config.e2e.ts",
     "lint": "tsc --noEmit",
+    "lint:quality": "eslint src/",
     "preview": "vite preview",
     "balance-sim": "tsx src/harness/BalanceSimulator.ts",
     "process-assets": "tsx scripts/process_assets.ts",
