@@ -76,6 +76,21 @@ docs/                # Specs, ADRs, guides
 - Uses **Jujutsu (jj)** for version control, not git.
 - Uses **Beads (bd)** for task/issue tracking.
 
+### Beads in jj Workspaces
+
+The canonical beads database lives in `~/voidlock/.beads/` (the main repo). jj workspaces (e.g. `~/jj-voidlock-claude/`) must **share** the main repo's Dolt server — do NOT run `bd init` independently, as that creates a separate empty database.
+
+To configure a jj workspace to share the main beads database:
+
+1. Kill any orphaned Dolt server the workspace started: `kill $(cat .beads/dolt-server.pid)`
+2. Set `.beads/metadata.json` to point at the main server:
+   - `dolt_server_port`: read from `~/voidlock/.beads/dolt-server.port`
+   - `dolt_database`: `"voidlock"` (must match main repo's `metadata.json`)
+   - `project_id`: copy from `~/voidlock/.beads/metadata.json`
+3. Verify with `bd list --status=open` — you should see the same issues as the main repo.
+
+The port may change when the main repo's Dolt server restarts. If `bd` commands fail with "database not found", re-read the port from `~/voidlock/.beads/dolt-server.port` and update `.beads/metadata.json`.
+
 ## Quick Start for Agents
 
 1. Read `docs/ARCHITECTURE.md` for the big picture

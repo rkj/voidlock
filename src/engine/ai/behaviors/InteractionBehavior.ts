@@ -3,6 +3,7 @@ import {
   Unit,
   UnitState,
   CommandType,
+  MissionType,
   PickupCommand,
   Door,
 } from "../../../shared/types";
@@ -77,10 +78,19 @@ export class InteractionBehavior implements Behavior<BehaviorContext> {
             Math.abs(currentUnit.pos.x - (obj.targetCell.x + 0.5)) < ITEMS.INTERACTION_RADIUS &&
             Math.abs(currentUnit.pos.y - (obj.targetCell.y + 0.5)) < ITEMS.INTERACTION_RADIUS;
 
+          const hasExplicitPickup =
+            currentUnit.activeCommand?.type === CommandType.PICKUP &&
+            (currentUnit.activeCommand as PickupCommand).lootId === obj.id;
+
           const isClaimedByMe =
-            (currentUnit.activeCommand?.type === CommandType.PICKUP &&
-              (currentUnit.activeCommand as PickupCommand).lootId === obj.id) ||
+            hasExplicitPickup ||
             (context.claimedObjectives && context.claimedObjectives.get(obj.id) === currentUnit.id);
+
+          // In Prologue, require an explicit PICKUP command — don't auto-collect
+          // so the tutorial can teach the player to use the Pickup action manually.
+          if (state.missionType === MissionType.Prologue && !hasExplicitPickup) {
+            continue;
+          }
 
           if (
             isAtTarget &&
