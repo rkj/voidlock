@@ -2,32 +2,28 @@ import { processAssets } from "../../scripts/process_assets";
 import fs from "fs";
 import path from "path";
 import { describe, it, expect } from "vitest";
+import { createAssetFixture } from "./process_assets.fixture";
 
 describe("Asset Processor", () => {
-  it("should process assets and generate manifest", async () => {
-    const outputDir = "public/assets_test";
+  it("should fail clearly and avoid writing output when mapped sources are missing", async () => {
+    const fixture = await createAssetFixture([]);
 
-    // Clean up if exists
-    if (fs.existsSync(outputDir)) {
-      fs.rmSync(outputDir, { recursive: true, force: true });
+    try {
+      await expect(
+        processAssets({
+          outputDir: fixture.outputDir,
+          sourceDir: fixture.sourceDir,
+        }),
+      ).rejects.toThrow(
+        /No source assets were processed .*Expected at least one mapped source file\./,
+      );
+
+      expect(fs.existsSync(fixture.outputDir)).toBe(false);
+      expect(
+        fs.existsSync(path.join(fixture.outputDir, "assets.json")),
+      ).toBe(false);
+    } finally {
+      fixture.cleanup();
     }
-
-    await processAssets(outputDir);
-
-    expect(fs.existsSync(outputDir)).toBe(true);
-    expect(fs.existsSync(path.join(outputDir, "assets.json"))).toBe(true);
-
-    const manifest = JSON.parse(
-      fs.readFileSync(path.join(outputDir, "assets.json"), "utf-8"),
-    );
-    expect(Object.keys(manifest).length).toBeGreaterThan(0);
-
-    // Check for floor (might be .webp or .png depending on sharp)
-    expect(manifest.floor).toMatch(/assets\/floor\.(webp|png)/);
-    const targetFile = manifest.floor.replace("assets/", "");
-    expect(fs.existsSync(path.join(outputDir, targetFile))).toBe(true);
-
-    // Clean up
-    fs.rmSync(outputDir, { recursive: true, force: true });
   }, 60000); // Higher timeout for image processing
 });

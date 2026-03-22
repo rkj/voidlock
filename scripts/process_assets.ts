@@ -29,14 +29,35 @@ const MAPPING: Record<string, string> = {
   "data.png": "data_disk.webp",
 };
 
-async function processAssets(outputDir: string = DEFAULT_OUTPUT_DIR) {
-  const manifestFile = path.join(outputDir, "assets.json");
+type ProcessAssetsOptions = {
+  outputDir?: string;
+  sourceDir?: string;
+};
 
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
+function resolveProcessAssetsOptions(
+  outputDirOrOptions: string | ProcessAssetsOptions,
+): Required<ProcessAssetsOptions> {
+  if (typeof outputDirOrOptions === "string") {
+    return {
+      outputDir: outputDirOrOptions,
+      sourceDir: SOURCE_DIR,
+    };
   }
 
+  return {
+    outputDir: outputDirOrOptions.outputDir ?? DEFAULT_OUTPUT_DIR,
+    sourceDir: outputDirOrOptions.sourceDir ?? SOURCE_DIR,
+  };
+}
+
+async function processAssets(
+  outputDirOrOptions: string | ProcessAssetsOptions = DEFAULT_OUTPUT_DIR,
+) {
+  const { outputDir, sourceDir } =
+    resolveProcessAssetsOptions(outputDirOrOptions);
+  const manifestFile = path.join(outputDir, "assets.json");
   const manifest: Record<string, string> = {};
+  let processedCount = 0;
 
   let sharp: any = null;
   try {
@@ -49,11 +70,19 @@ async function processAssets(outputDir: string = DEFAULT_OUTPUT_DIR) {
     );
   }
 
+  if (!fs.existsSync(sourceDir) || !fs.statSync(sourceDir).isDirectory()) {
+    throw new Error(`Asset source directory not found: ${sourceDir}`);
+  }
+
   for (const [sourceFile, targetFile] of Object.entries(MAPPING)) {
-    const sourcePath = path.join(SOURCE_DIR, sourceFile);
+    const sourcePath = path.join(sourceDir, sourceFile);
     const targetPath = path.join(outputDir, targetFile);
 
     if (fs.existsSync(sourcePath)) {
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+
       console.log(`Processing ${sourceFile} -> ${targetFile}...`);
 
       await sharp(sourcePath)
@@ -67,9 +96,16 @@ async function processAssets(outputDir: string = DEFAULT_OUTPUT_DIR) {
 
       const logicalName = targetFile.replace(".webp", "");
       manifest[logicalName] = `assets/${targetFile}`;
+      processedCount += 1;
     } else {
       console.warn(`Source file not found: ${sourcePath}`);
     }
+  }
+
+  if (processedCount === 0) {
+    throw new Error(
+      `No source assets were processed from ${sourceDir}. Expected at least one mapped source file.`,
+    );
   }
 
   fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 2));
