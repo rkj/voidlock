@@ -219,204 +219,208 @@ export class SquadBuilder {
   public render() {
     const MAX_SQUAD_SIZE = 4;
     const isEscortMission = this.missionType === MissionType.EscortVIP;
-    const total = this.squad.soldiers.filter(
-      (s) => s && s.archetypeId !== "vip",
-    ).length;
+    const total = this.squad.soldiers.filter((s) => s && s.archetypeId !== "vip").length;
 
-    // Update launch button state
-    const launchBtn = document.getElementById(
-      "btn-launch-mission",
-    ) as HTMLButtonElement;
-    if (launchBtn) {
-      const isEmpty = total === 0;
-      const isOverfilled = total > MAX_SQUAD_SIZE;
-      launchBtn.disabled = isEmpty || isOverfilled;
-      if (isEmpty) {
-        launchBtn.title = "Select at least one asset to authorize operation";
-      } else if (isOverfilled) {
-        launchBtn.title = `Maximum of ${MAX_SQUAD_SIZE} assets allowed`;
-      } else {
-        launchBtn.title = "";
+    this.updateLaunchButton(total, MAX_SQUAD_SIZE);
+
+    const squadTotalColor =
+      total > MAX_SQUAD_SIZE ? "var(--color-danger)"
+        : total === MAX_SQUAD_SIZE ? "var(--color-primary)"
+          : "var(--color-text-muted)";
+
+    const { rosterItems, recruitButton } = this.isCampaign
+      ? this.buildCampaignRoster()
+      : this.buildCustomRoster(isEscortMission);
+    const slots = this.buildSlots(isEscortMission);
+
+    const ui = (
+      <Fragment>
+        <div id="squad-total-count" style={{ marginBottom: "10px", fontWeight: "bold", color: squadTotalColor }}>
+          Assigned Assets: {total}/{MAX_SQUAD_SIZE}
+        </div>
+        <div class="squad-builder-container">
+          <div class="panel roster-panel">
+            <h2 class="panel-title">Asset Reserve</h2>
+            <div class="roster-list">{rosterItems}</div>
+            <div class="roster-actions">{recruitButton}</div>
+          </div>
+          <div class="panel deployment-panel">
+            <h2 class="panel-title">Operational Deployment</h2>
+            {slots}
+          </div>
+        </div>
+      </Fragment>
+    ) as HTMLElement;
+
+    this.container.innerHTML = "";
+    this.container.appendChild(ui);
+  }
+
+  private updateLaunchButton(total: number, maxSquadSize: number): void {
+    const launchBtn = document.getElementById("btn-launch-mission") as HTMLButtonElement;
+    if (!launchBtn) return;
+    const isEmpty = total === 0;
+    const isOverfilled = total > maxSquadSize;
+    launchBtn.disabled = isEmpty || isOverfilled;
+    if (isEmpty) {
+      launchBtn.title = "Select at least one asset to authorize operation";
+    } else if (isOverfilled) {
+      launchBtn.title = `Maximum of ${maxSquadSize} assets allowed`;
+    } else {
+      launchBtn.title = "";
+    }
+  }
+
+  private buildCampaignRoster(): { rosterItems: (HTMLElement | DocumentFragment)[]; recruitButton: HTMLElement | DocumentFragment | null } {
+    const rosterItems: (HTMLElement | DocumentFragment)[] = [];
+    const state = this.manager.getState();
+    if (!state) return { rosterItems, recruitButton };
+
+    const statusWeights: Record<string, number> = { Healthy: 0, Wounded: 1, Dead: 2 };
+    const sortedRoster = [...state.roster].sort((a, b) => {
+      const weightA = statusWeights[a.status] ?? 3;
+      const weightB = statusWeights[b.status] ?? 3;
+      return weightA - weightB;
+    });
+
+    const healthyAvailable = sortedRoster.filter(
+      (s) =>
+        s.status === "Healthy" &&
+        !this.squad.soldiers.some((deployed) => deployed?.id === s.id) &&
+        s.archetypeId !== "vip",
+    );
+
+    // Auto-select logic
+    if (this.selectedId === null && healthyAvailable.length > 0) {
+      this.selectedId = healthyAvailable[0].id;
+    } else if (this.selectedId !== null) {
+      const isStillAvailable = healthyAvailable.some((s) => s.id === this.selectedId);
+      if (!isStillAvailable) {
+        this.selectedId = healthyAvailable.length > 0 ? healthyAvailable[0].id : null;
       }
     }
 
-    const squadTotalColor =
-      total > MAX_SQUAD_SIZE
-        ? "var(--color-danger)"
-        : total === MAX_SQUAD_SIZE
-          ? "var(--color-primary)"
-          : "var(--color-text-muted)";
-
-    // Roster logic
-    let rosterItems: (HTMLElement | DocumentFragment)[] = [];
-    let recruitButton: HTMLElement | DocumentFragment | null = null;
-
-    if (this.isCampaign) {
-      const state = this.manager.getState();
-      if (state) {
-        const statusWeights: Record<string, number> = {
-          Healthy: 0,
-          Wounded: 1,
-          Dead: 2,
-        };
-        const sortedRoster = [...state.roster].sort((a, b) => {
-          const weightA = statusWeights[a.status] ?? 3;
-          const weightB = statusWeights[b.status] ?? 3;
-          return weightA - weightB;
-        });
-
-        const healthyAvailable = sortedRoster.filter(
-          (s) =>
-            s.status === "Healthy" &&
-            !this.squad.soldiers.some((deployed) => deployed?.id === s.id) &&
-            s.archetypeId !== "vip",
-        );
-
-        // Auto-select logic
-        if (this.selectedId === null && healthyAvailable.length > 0) {
-          this.selectedId = healthyAvailable[0].id;
-        } else if (this.selectedId !== null) {
-          const isStillAvailable = healthyAvailable.some(
-            (s) => s.id === this.selectedId,
-          );
-          if (!isStillAvailable) {
-            this.selectedId = healthyAvailable.length > 0 ? healthyAvailable[0].id : null;
-          }
-        }
-
-        rosterItems = sortedRoster
-          .filter((s) => s.archetypeId !== "vip")
-          .filter((s) => !this.squad.soldiers.some((deployed) => deployed?.id === s.id))
-          .map((soldier) => {
-            const isHealthy = soldier.status === "Healthy";
-            const card = SoldierWidget.render(soldier, {
-              context: "squad-builder",
-              isDeployed: false,
-              onClick: isHealthy ? () => {
-                this.selectedId = soldier.id;
-                void this.addToSquad({
-                  type: "campaign",
-                  id: soldier.id,
-                  archetypeId: soldier.archetypeId,
-                });
-              } : undefined,
-              onDoubleClick: isHealthy ? () => { void this.addToSquad({
-                type: "campaign",
-                id: soldier.id,
-                archetypeId: soldier.archetypeId,
-              }); } : undefined
-            });
-
-            if (soldier.id === this.selectedId) {
-              card.classList.add("selected-for-deployment");
-            }
-
-            // Draggable
-            if (isHealthy) {
-              card.draggable = true;
-              card.addEventListener("dragstart", (e) => {
-                const dragData: DragData = {
-                  type: "campaign",
-                  id: soldier.id,
-                  archetypeId: soldier.archetypeId,
-                };
-                e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
-              });
-            }
-
-            // Revive button for dead clones
-            if (soldier.status === "Dead" && state.rules.deathRule === "Clone") {
-              const canAfford = state.scrap >= 250;
-              card.appendChild(
-                <button
-                  class="btn-revive"
-                  data-focus-id={`revive-squad-builder-${soldier.id}`}
-                  disabled={!canAfford}
-                  onClick={(e: Event) => {
-                    e.stopPropagation();
-                    void this.handleRevive(soldier.id);
-                  }}
-                >
-                  Restore Lost Asset (250 Credits)
-                </button>
-              );
-            }
-
-            return card;
-          });
-
-        if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
-          recruitButton = (
-            <button
-              class="btn-recruit"
-              data-focus-id="btn-recruit-squad-builder"
-              disabled={state.scrap < 100}
-              onClick={() => { void this.handleRecruit(); }}
-            >
-              Acquire New Asset (100 Credits)
-            </button>
-          );
-        }
-      }
-    } else {
-      // Custom mode
-      const availableArchetypes = Object.values(ArchetypeLibrary).filter(
-        (arch) =>
-          arch.id !== "vip" &&
-          !this.squad.soldiers.some((s) => s?.archetypeId === arch.id),
-      );
-
-      if (this.selectedId === null && availableArchetypes.length > 0) {
-        this.selectedId = availableArchetypes[0].id;
-      } else if (this.selectedId !== null) {
-        const isStillAvailable = availableArchetypes.some(
-          (arch) => arch.id === this.selectedId,
-        );
-        if (!isStillAvailable) {
-          this.selectedId = availableArchetypes.length > 0 ? availableArchetypes[0].id : null;
-        }
-      }
-
-      rosterItems = Object.values(ArchetypeLibrary)
-        .filter((arch) => !(arch.id === "vip" && isEscortMission))
-        .filter((arch) => !this.squad.soldiers.some((s) => s?.archetypeId === arch.id))
-        .map((arch) => {
-          const card = SoldierWidget.render(arch, {
+    rosterItems.push(
+      ...sortedRoster
+        .filter((s) => s.archetypeId !== "vip")
+        .filter((s) => !this.squad.soldiers.some((deployed) => deployed?.id === s.id))
+        .map((soldier) => {
+          const isHealthy = soldier.status === "Healthy";
+          const card = SoldierWidget.render(soldier, {
             context: "squad-builder",
-            onClick: () => {
-              this.selectedId = arch.id;
-              void this.addToSquad({ type: "custom", archetypeId: arch.id });
-            },
-            onDoubleClick: () => { void this.addToSquad({ type: "custom", archetypeId: arch.id }); }
+            isDeployed: false,
+            onClick: isHealthy
+              ? () => {
+                  this.selectedId = soldier.id;
+                  void this.addToSquad({ type: "campaign", id: soldier.id, archetypeId: soldier.archetypeId });
+                }
+              : undefined,
+            onDoubleClick: isHealthy
+              ? () => { void this.addToSquad({ type: "campaign", id: soldier.id, archetypeId: soldier.archetypeId }); }
+              : undefined,
           });
 
-          if (arch.id === this.selectedId) {
+          if (soldier.id === this.selectedId) {
             card.classList.add("selected-for-deployment");
           }
 
-          card.draggable = true;
-          card.addEventListener("dragstart", (e) => {
-            const dragData: DragData = { type: "custom", archetypeId: arch.id };
-            e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
-          });
+          if (isHealthy) {
+            card.draggable = true;
+            card.addEventListener("dragstart", (e) => {
+              const dragData: DragData = { type: "campaign", id: soldier.id, archetypeId: soldier.archetypeId };
+              e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
+            });
+          }
+
+          if (soldier.status === "Dead" && state.rules.deathRule === "Clone") {
+            const canAfford = state.scrap >= 250;
+            card.appendChild(
+              <button
+                class="btn-revive"
+                data-focus-id={`revive-squad-builder-${soldier.id}`}
+                disabled={!canAfford}
+                onClick={(e: Event) => {
+                  e.stopPropagation();
+                  void this.handleRevive(soldier.id);
+                }}
+              >
+                Restore Lost Asset (250 Credits)
+              </button>
+            );
+          }
 
           return card;
-        });
+        }),
+    );
+
+    if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
+      recruitButton = (
+        <button
+          class="btn-recruit"
+          data-focus-id="btn-recruit-squad-builder"
+          disabled={state.scrap < 100}
+          onClick={() => { void this.handleRecruit(); }}
+        >
+          Acquire New Asset (100 Credits)
+        </button>
+      );
     }
 
-    // Slots logic
-    const hasVip =
-      isEscortMission ||
-      this.squad.soldiers.some((s) => s?.archetypeId === "vip");
-    const vipInSquad = this.squad.soldiers.find(
-      (s) => s?.archetypeId === "vip",
+    return { rosterItems, recruitButton };
+  }
+
+  private buildCustomRoster(isEscortMission: boolean): { rosterItems: (HTMLElement | DocumentFragment)[]; recruitButton: null } {
+    const availableArchetypes = Object.values(ArchetypeLibrary).filter(
+      (arch) =>
+        arch.id !== "vip" &&
+        !this.squad.soldiers.some((s) => s?.archetypeId === arch.id),
     );
+
+    if (this.selectedId === null && availableArchetypes.length > 0) {
+      this.selectedId = availableArchetypes[0].id;
+    } else if (this.selectedId !== null) {
+      const isStillAvailable = availableArchetypes.some((arch) => arch.id === this.selectedId);
+      if (!isStillAvailable) {
+        this.selectedId = availableArchetypes.length > 0 ? availableArchetypes[0].id : null;
+      }
+    }
+
+    const rosterItems = Object.values(ArchetypeLibrary)
+      .filter((arch) => !(arch.id === "vip" && isEscortMission))
+      .filter((arch) => !this.squad.soldiers.some((s) => s?.archetypeId === arch.id))
+      .map((arch) => {
+        const card = SoldierWidget.render(arch, {
+          context: "squad-builder",
+          onClick: () => {
+            this.selectedId = arch.id;
+            void this.addToSquad({ type: "custom", archetypeId: arch.id });
+          },
+          onDoubleClick: () => { void this.addToSquad({ type: "custom", archetypeId: arch.id }); },
+        });
+
+        if (arch.id === this.selectedId) {
+          card.classList.add("selected-for-deployment");
+        }
+
+        card.draggable = true;
+        card.addEventListener("dragstart", (e) => {
+          const dragData: DragData = { type: "custom", archetypeId: arch.id };
+          e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
+        });
+
+        return card;
+      });
+
+    return { rosterItems, recruitButton: null };
+  }
+
+  private buildSlots(isEscortMission: boolean): (HTMLElement | DocumentFragment)[] {
+    const hasVip = isEscortMission || this.squad.soldiers.some((s) => s?.archetypeId === "vip");
+    const vipInSquad = this.squad.soldiers.find((s) => s?.archetypeId === "vip");
     const numSlots = hasVip ? 5 : 4;
     const slots: (HTMLElement | DocumentFragment)[] = [];
 
-    const nonVipSoldiers = this.squad.soldiers.filter(
-      (s) => s && s.archetypeId !== "vip",
-    );
+    const nonVipSoldiers = this.squad.soldiers.filter((s) => s && s.archetypeId !== "vip");
 
     for (let i = 0; i < numSlots; i++) {
       let slotContent: HTMLElement | DocumentFragment | string | null = null;
@@ -477,8 +481,6 @@ export class SquadBuilder {
             </div>
           );
           slotContent = card;
-          // Support dblclick to remove as well
-          // (Handled by manual listener later)
         } else {
           slotContent = <div style={{ color: "var(--color-text-dim)", fontSize: "0.8em" }}>(Empty)</div>;
           if (this.selectedId) {
@@ -517,7 +519,6 @@ export class SquadBuilder {
         </div>
       ) as HTMLElement;
 
-      // Add Drag & Drop listeners
       if (!slotClass.includes("occupied") && !slotClass.includes("locked")) {
         slotEl.addEventListener("dragover", (e) => {
           e.preventDefault();
@@ -531,45 +532,23 @@ export class SquadBuilder {
           if (dataStr) void this.addToSquad(JSON.parse(dataStr));
         });
       }
-      
-      // Double click to remove for occupied slots
+
       if (slotClass.includes("occupied")) {
-          slotEl.addEventListener("dblclick", () => {
-              const soldierIdx = hasVip ? i - 1 : i;
-              const soldier = i === 0 && hasVip ? vipInSquad : nonVipSoldiers[soldierIdx];
-              if (soldier) {
-                  const actualIdx = this.squad.soldiers.indexOf(soldier);
-                  if (actualIdx !== -1) this.squad.soldiers.splice(actualIdx, 1);
-                  this.onSquadUpdated(this.squad);
-                  this.render();
-              }
-          });
+        slotEl.addEventListener("dblclick", () => {
+          const soldierIdx = hasVip ? i - 1 : i;
+          const target = i === 0 && hasVip ? vipInSquad : nonVipSoldiers[soldierIdx];
+          if (target) {
+            const actualIdx = this.squad.soldiers.indexOf(target);
+            if (actualIdx !== -1) this.squad.soldiers.splice(actualIdx, 1);
+            this.onSquadUpdated(this.squad);
+            this.render();
+          }
+        });
       }
 
       slots.push(slotEl);
     }
 
-    // Final Assembly
-    const ui = (
-      <Fragment>
-        <div id="squad-total-count" style={{ marginBottom: "10px", fontWeight: "bold", color: squadTotalColor }}>
-          Assigned Assets: {total}/{MAX_SQUAD_SIZE}
-        </div>
-        <div class="squad-builder-container">
-          <div class="panel roster-panel">
-            <h2 class="panel-title">Asset Reserve</h2>
-            <div class="roster-list">{rosterItems}</div>
-            <div class="roster-actions">{recruitButton}</div>
-          </div>
-          <div class="panel deployment-panel">
-            <h2 class="panel-title">Operational Deployment</h2>
-            {slots}
-          </div>
-        </div>
-      </Fragment>
-    ) as HTMLElement;
-
-    this.container.innerHTML = "";
-    this.container.appendChild(ui);
+    return slots;
   }
 }

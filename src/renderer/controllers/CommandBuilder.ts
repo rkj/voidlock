@@ -41,8 +41,6 @@ export class CommandBuilder {
 
     switch (action) {
       case CommandType.MOVE_TO:
-        if (!targetLocation) return null;
-        return { ...base, type: action, target: targetLocation };
       case CommandType.OVERWATCH_POINT:
         if (!targetLocation) return null;
         return { ...base, type: action, target: targetLocation };

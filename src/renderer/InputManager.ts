@@ -154,82 +154,83 @@ export class InputManager implements InputContext {
       return false;
     }
 
-    const panKeys = ["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"];
-    if (panKeys.includes(e.key.toLowerCase())) {
-      let dir = e.key.toLowerCase();
-      if (dir === "arrowup" || dir === "w") dir = "up";
-      if (dir === "arrowdown" || dir === "s") dir = "down";
-      if (dir === "arrowleft" || dir === "a") dir = "left";
-      if (dir === "arrowright" || dir === "d") dir = "right";
-      this.config.panMap(dir);
-      return true;
-    }
+    return this.handlePanKey(e)
+      ?? this.handleToggleKeys(e)
+      ?? this.handleEscapeKey(e)
+      ?? this.handleQKey(e)
+      ?? this.handleTabKey(e)
+      ?? this.handleNumberKey(e)
+      ?? false;
+  }
 
+  private handlePanKey(e: KeyboardEvent): boolean | null {
+    const panMap: Record<string, string> = {
+      arrowup: "up", w: "up", arrowdown: "down", s: "down",
+      arrowleft: "left", a: "left", arrowright: "right", d: "right",
+    };
+    const dir = panMap[e.key.toLowerCase()];
+    if (!dir) return null;
+    this.config.panMap(dir);
+    return true;
+  }
+
+  private handleToggleKeys(e: KeyboardEvent): boolean | null {
     if (e.key === " ") {
       this.config.togglePause();
       return true;
     }
-
     if (e.key === "~" || e.key === "`") {
-      const state = this.config.currentGameState();
-      if (state) {
+      if (this.config.currentGameState()) {
         this.config.onToggleDebug(!this.config.screenManager.getScreenElement("mission")?.classList.contains("debug-overlay-enabled"));
       }
       return true;
     }
-
     if (e.key.toLowerCase() === "l") {
-      const state = this.config.currentGameState();
-      if (state) {
+      if (this.config.currentGameState()) {
         this.config.onToggleLos(!this.config.screenManager.getScreenElement("mission")?.classList.contains("los-overlay-enabled"));
       }
       return true;
     }
+    return null;
+  }
 
-    if (e.key === "Escape") {
-      if (this.config.menuController.menuState !== "ACTION_SELECT") {
-        this.config.handleMenuInput("q", e.shiftKey);
-      } else if (this.config.getSelectedUnitId()) {
-        this.config.onUnitDeselect();
-      } else {
-        this.config.abortMission();
-      }
-      return true;
+  private handleEscapeKey(e: KeyboardEvent): boolean | null {
+    if (e.key !== "Escape") return null;
+    if (this.config.menuController.menuState !== "ACTION_SELECT") {
+      this.config.handleMenuInput("q", e.shiftKey);
+    } else if (this.config.getSelectedUnitId()) {
+      this.config.onUnitDeselect();
+    } else {
+      this.config.abortMission();
     }
+    return true;
+  }
 
-    if (e.key.toLowerCase() === "q") {
-      if (this.config.menuController.menuState !== "ACTION_SELECT") {
-        this.config.handleMenuInput("q", e.shiftKey);
-      } else if (this.config.getSelectedUnitId()) {
-        this.config.onUnitDeselect();
-      } else {
-        // In ACTION_SELECT with no unit selected, 'q' should NOT abort.
-        // We return false to allow GlobalShortcuts to handle it (e.g. for pause menu)
-        return false;
-      }
-      return true;
+  private handleQKey(e: KeyboardEvent): boolean | null {
+    if (e.key.toLowerCase() !== "q") return null;
+    if (this.config.menuController.menuState !== "ACTION_SELECT") {
+      this.config.handleMenuInput("q", e.shiftKey);
+    } else if (this.config.getSelectedUnitId()) {
+      this.config.onUnitDeselect();
+    } else {
+      return false;
     }
+    return true;
+  }
 
-    if (e.key === "Tab") {
-      // Allow default Tab behavior if focus is on a UI element (button, input, etc.)
-      // to enable navigating HUD/Deployment elements.
-      const active = document.activeElement;
-      const isUIElement = active && active !== document.body && active.id !== "game-canvas";
-      
-      if (isUIElement) {
-        return false;
-      }
+  private handleTabKey(e: KeyboardEvent): boolean | null {
+    if (e.key !== "Tab") return null;
+    const active = document.activeElement;
+    const isUIElement = active && active !== document.body && active.id !== "game-canvas";
+    if (isUIElement) return false;
+    this.config.cycleUnits(e.shiftKey);
+    return true;
+  }
 
-      this.config.cycleUnits(e.shiftKey);
-      return true;
-    }
-
-    if (/^[1-9]$/.test(e.key)) {
-      this.config.handleMenuInput(e.key, e.shiftKey);
-      return true;
-    }
-
-    return false;
+  private handleNumberKey(e: KeyboardEvent): boolean | null {
+    if (!/^[1-9]$/.test(e.key)) return null;
+    this.config.handleMenuInput(e.key, e.shiftKey);
+    return true;
   }
 
   public handleMouseDown(e: MouseEvent): boolean {
