@@ -70,8 +70,7 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
       targetTick: 0,
       baseEnemyCount: 1,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: skipDeployment
@@ -107,8 +106,7 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
       targetTick: 0,
       baseEnemyCount: 1,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: skipDeployment
@@ -141,8 +139,7 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
       targetTick: 0,
       baseEnemyCount: 1,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -169,8 +166,7 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
       targetTick: 0,
       baseEnemyCount: 1,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: true
@@ -201,8 +197,7 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
       targetTick: 0,
       baseEnemyCount: 1,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: true
@@ -227,8 +222,7 @@ describe("Replay Determinism & Desync Fix (bidg8)", () => {
       targetTick: 0,
       baseEnemyCount: 1,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: true

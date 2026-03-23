@@ -34,7 +34,7 @@ describe("Regression: Unit visibility and state pruning", () => {
       squadConfig: { soldiers: [], inventory: {} },
       agentControlEnabled: true,
       debugOverlayEnabled: false,
-      missionType: // debugOverlayEnabled = false
+      missionType: undefined
     });
     engine.clearUnits();
 
@@ -148,7 +148,7 @@ describe("Regression: Unit visibility and state pruning", () => {
       squadConfig: { soldiers: [], inventory: {} },
       agentControlEnabled: true,
       debugOverlayEnabled: true,
-      missionType: // debugOverlayEnabled = true
+      missionType: undefined
     });
     engine.clearUnits();
 

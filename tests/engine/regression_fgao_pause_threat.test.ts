@@ -27,7 +27,7 @@ describe("Regression fgao: Pause Threat", () => {
       missionType: MissionType.Default,
       losOverlayEnabled: false,
       startingThreatLevel: 0,
-      initialTimeScale: // starting threat
+      initialTimeScale: 1.0
     });
 
     const initialThreat = engine.getState().stats.threatLevel;

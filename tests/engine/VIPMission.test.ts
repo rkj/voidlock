@@ -194,8 +194,7 @@ describe("VIP Mission Mechanics", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: 0
     });

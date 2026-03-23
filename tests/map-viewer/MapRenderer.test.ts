@@ -26,6 +26,15 @@ const mockCanvas = {
   height: 0,
 } as unknown as HTMLCanvasElement;
 
+const mockTheme = {
+  getColor: vi.fn((key) => {
+    if (key === "--color-floor") return "#1a1a1a";
+    if (key === "--color-grid") return "#333333";
+    if (key === "--color-wall") return "#ffffff";
+    return "#000000";
+  }),
+} as any;
+
 const sampleMap: MapDefinition = {
   width: 2,
   height: 2,
@@ -46,7 +55,7 @@ describe("MapRenderer", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    renderer = new MapRenderer(mockCanvas);
+    renderer = new MapRenderer(mockCanvas, mockTheme);
   });
 
   it("should render a map", () => {

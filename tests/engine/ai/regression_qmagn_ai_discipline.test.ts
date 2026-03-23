@@ -33,7 +33,7 @@ describe("AI Discipline (Extraction)", () => {
       squadConfig: { soldiers: [], inventory: {} },
       agentControlEnabled: true,
       debugOverlayEnabled: true,
-      missionType: // debugOverlayEnabled
+      missionType: undefined
     });
     engine.clearUnits();
   });

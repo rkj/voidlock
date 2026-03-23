@@ -26,7 +26,7 @@ describe("CoreEngine: allowTacticalPause Clamping", () => {
       mode: EngineMode.Simulation,
       initialCommandLog: [],
       allowTacticalPause: false,
-      targetTick: // allowTacticalPause = false
+      targetTick: undefined
     });
 
     engine.setTimeScale(0.5);
@@ -55,7 +55,7 @@ describe("CoreEngine: allowTacticalPause Clamping", () => {
       mode: EngineMode.Simulation,
       initialCommandLog: [],
       allowTacticalPause: true,
-      targetTick: // allowTacticalPause = true
+      targetTick: undefined
     });
 
     engine.setTimeScale(0.5);

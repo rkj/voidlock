@@ -45,12 +45,11 @@ describe("Manual Deployment Feature", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false,
-      debugSnapshots: // skipDeployment = false
+      debugSnapshots: false
     });
     expect(engine.getState().status).toBe("Deployment");
   });
@@ -61,8 +60,7 @@ describe("Manual Deployment Feature", () => {
     const engine1 = new CoreEngine({
       map: mockMap,
       seed: 1,
-      squadConfig: // seed 1
-      squadConfig,
+      squadConfig: squadConfig,
       agentControlEnabled: false,
       debugOverlayEnabled: false,
       missionType: undefined,
@@ -76,8 +74,7 @@ describe("Manual Deployment Feature", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -85,8 +82,7 @@ describe("Manual Deployment Feature", () => {
     const engine2 = new CoreEngine({
       map: mockMap,
       seed: 2,
-      squadConfig: // seed 2
-      squadConfig,
+      squadConfig: squadConfig,
       agentControlEnabled: false,
       debugOverlayEnabled: false,
       missionType: undefined,
@@ -100,8 +96,7 @@ describe("Manual Deployment Feature", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false

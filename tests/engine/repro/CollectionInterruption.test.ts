@@ -26,8 +26,7 @@ describe("Collection Interruption Repro", () => {
       seed: 123,
       squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled: true
-      false
+      debugOverlayEnabled: false
     });
 
     const realUnit = (engine as any).state.units[0];

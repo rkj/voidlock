@@ -48,38 +48,23 @@ describe("Replay Determinism", () => {
       seed: seed,
       squadConfig: defaultSquad,
       agentControlEnabled: false,
-      debugOverlayEnabled: // agentControl
-      false,
-      missionType: // debugSnapshots
-      MissionType.Default,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
       losOverlayEnabled: false,
-      startingThreatLevel: // los
-      0,
-      initialTimeScale: // threat
-      1.0,
-      startPaused: // timescale
-      false,
-      mode: // startPaused
-      EngineMode.Simulation,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
       initialCommandLog: [],
-      allowTacticalPause: // commandLog
-      true,
-      targetTick: // allowPause
-      0,
-      baseEnemyCount: // targetTick
-      1,
-      enemyGrowthPerMission: // enemies
-      1,
-      missionDepth: // growth
-      0,
-      nodeType: // depth
-      "Combat",
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 1,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
-      startingPoints: // campaignNodeId
-      undefined,
-      skipDeployment: // startingPoints
-      true,
-      debugSnapshots: // skipDeployment
+      startingPoints: undefined,
+      skipDeployment: true,
+      debugSnapshots: false
     });
 
     // Run for 100 ticks
@@ -121,12 +106,11 @@ describe("Replay Determinism", () => {
       targetTick: 0,
       baseEnemyCount: 1,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: true,
-      debugSnapshots: // skipDeployment
+      debugSnapshots: false
     });
 
     // Run for 200 ticks

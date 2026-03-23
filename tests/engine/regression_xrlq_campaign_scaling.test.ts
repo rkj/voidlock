@@ -32,8 +32,7 @@ describe("Director & Campaign Scaling Regression (xrlq)", () => {
       missionType: MissionType.Default,
       losOverlayEnabled: false,
       startingThreatLevel: 0,
-      initialTimeScale: // startingThreatLevel
-      1.0,
+      initialTimeScale: 1.0,
       startPaused: true,
       mode: EngineMode.Simulation,
       initialCommandLog: [],
@@ -42,9 +41,8 @@ describe("Director & Campaign Scaling Regression (xrlq)", () => {
       baseEnemyCount: 3,
       enemyGrowthPerMission: // baseEnemyCount
       1.0,
-      missionDepth: // enemyGrowthPerMission
-      0,
-      nodeType: // missionDepth
+      missionDepth: 0,
+      nodeType: undefined
     });
 
     const state = engine.getState();

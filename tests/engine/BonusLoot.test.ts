@@ -64,8 +64,7 @@ describe("Bonus Loot (Scrap Crates)", () => {
       enemyGrowthPerMission: 1,
       missionDepth: 0,
       nodeType: undefined,
-      campaignNodeId: // nodeType defaults to undefined
-      undefined,
+      campaignNodeId: undefined,
       startingPoints: 0
     });
     const state = engine.getState();
@@ -114,8 +113,7 @@ describe("Bonus Loot (Scrap Crates)", () => {
       enemyGrowthPerMission: 1,
       missionDepth: 0,
       nodeType: undefined,
-      campaignNodeId: // nodeType defaults to undefined
-      undefined,
+      campaignNodeId: undefined,
       startingPoints: 0
     });
 

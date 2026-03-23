@@ -29,8 +29,7 @@ describe("ExtractHandler Auto-Targeting Repro", () => {
       seed: 123,
       squadConfig: { soldiers: [{ id: "u1", archetypeId: "scout" }], inventory: {} },
       agentControlEnabled: false,
-      debugOverlayEnabled: // Manual control
-      false
+      debugOverlayEnabled: false
     });
 
     const u1 = engine.getState().units[0];

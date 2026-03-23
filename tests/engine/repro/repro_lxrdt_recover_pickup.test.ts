@@ -54,10 +54,8 @@ describe("Repro LXRDt: Recover Objective Pickup", () => {
       seed: 123,
       squadConfig: squadConfig as any,
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled
-      false,
-      missionType: // debugOverlayEnabled
-      MissionType.Default
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
     });
     
     // Position unit at the objective
@@ -114,10 +112,8 @@ describe("Repro LXRDt: Recover Objective Pickup", () => {
       seed: 123,
       squadConfig: squadConfig as any,
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled
-      false,
-      missionType: // debugOverlayEnabled
-      MissionType.Default
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
     });
     
     const unit = engine.getState().units[0];

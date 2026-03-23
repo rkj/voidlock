@@ -43,39 +43,23 @@ describe("Deployment Validation and Interaction", () => {
       seed: 123,
       squadConfig: squadConfig,
       agentControlEnabled: false,
-      debugOverlayEnabled: // allowTacticalPause
-      false,
-      missionType: // debugOverlayEnabled
-      MissionType.Default,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
       losOverlayEnabled: false,
-      startingThreatLevel: // isCampaign
-      0,
-      initialTimeScale: // missionDepth
-      1.0,
-      startPaused: // enemyGrowthPerMission
-      false,
-      mode: // isSlowMotion
-      EngineMode.Simulation,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
+      mode: EngineMode.Simulation,
       initialCommandLog: [],
-      allowTacticalPause: // initialCommandLog
-      true,
-      targetTick: // isNewGame
-      0,
-      baseEnemyCount: // startTick
-      3,
-      enemyGrowthPerMission: // baseEnemyCount
-      1,
-      missionDepth: // spawnPointCount
-      0,
-      nodeType: // bonusLootCount
-      "Combat",
-      campaignNodeId: // missionNodeCategory
-      undefined,
-      startingPoints: // missionId
-      undefined,
-      skipDeployment: // seed
-      false,
-      debugSnapshots: // skipDeployment = false
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0, nodeType: "Combat",
+      campaignNodeId: undefined,
+      startingPoints: undefined,
+      skipDeployment: false,
+      debugSnapshots: false
     });
   });
 
@@ -166,8 +150,7 @@ describe("Deployment Validation and Interaction", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -217,8 +200,7 @@ describe("Deployment Validation and Interaction", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -272,8 +254,7 @@ describe("Deployment Validation and Interaction", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false

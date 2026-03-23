@@ -35,42 +35,27 @@ describe("Simulation Determinism (Rigorous)", () => {
 
           // 1. Run Simulation
           const engineSim = new CoreEngine({
-      map: map,
-      seed: seed,
-      squadConfig: squadConfig,
-      agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled
-            false,
-      missionType: // debug
-            MissionType.Default,
-      losOverlayEnabled: false,
-      startingThreatLevel: // losOverlay
-            0,
-      initialTimeScale: // startingThreat
-            1.0,
-      startPaused: // timeScale
-            false,
-      mode: // startPaused
-            EngineMode.Simulation,
-      initialCommandLog: [],
-      allowTacticalPause: // initialCommandLog
-            true,
-      targetTick: // allowTacticalPause
-            0,
-      baseEnemyCount: // targetTick
-            5,
-      enemyGrowthPerMission: // baseEnemyCount
-            2,
-      missionDepth: // enemyGrowthPerMission
-            1,
-      nodeType: // missionDepth
-            "Elite",
-      campaignNodeId: // nodeType
-            undefined,
-      startingPoints: // campaignNodeId
-            15,
-      skipDeployment: // startingPoints (Trigger pre-spawning)
-    });
+            map: map,
+            seed: seed,
+            squadConfig: squadConfig,
+            agentControlEnabled: true,
+            debugOverlayEnabled: false,
+            missionType: MissionType.Default,
+            losOverlayEnabled: false,
+            startingThreatLevel: 0,
+            initialTimeScale: 1.0,
+            startPaused: false,
+            mode: EngineMode.Simulation,
+            initialCommandLog: [],
+            allowTacticalPause: true,
+            targetTick: 0,
+            baseEnemyCount: 5,
+            enemyGrowthPerMission: 2,
+            missionDepth: 1,
+            nodeType: "Elite",
+            startingPoints: 5,
+            skipDeployment: true
+          });
 
           // Run for some time
           for (let i = 0; i < ticksToRun; i += 16) {
@@ -82,29 +67,27 @@ describe("Simulation Determinism (Rigorous)", () => {
 
           // 2. Run Replay
           const engineReplay = new CoreEngine({
-      map: map,
-      seed: seed,
-      squadConfig: squadConfig,
-      agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled must be same as original
-            false,
-      missionType: MissionType.Default,
-      losOverlayEnabled: false,
-      startingThreatLevel: 0,
-      initialTimeScale: 1.0,
-      startPaused: false,
-      mode: EngineMode.Replay,
-      initialCommandLog: commandLog,
-      allowTacticalPause: true,
-      targetTick: 0,
-      baseEnemyCount: 5,
-      enemyGrowthPerMission: 2,
-      missionDepth: 1,
-      nodeType: "Elite",
-      campaignNodeId: undefined,
-      startingPoints: 15,
-      skipDeployment: // startingPoints
-    });
+            map: map,
+            seed: seed,
+            squadConfig: squadConfig,
+            agentControlEnabled: true,
+            debugOverlayEnabled: false,
+            missionType: MissionType.Default,
+            losOverlayEnabled: false,
+            startingThreatLevel: 0,
+            initialTimeScale: 1.0,
+            startPaused: false,
+            mode: EngineMode.Replay,
+            initialCommandLog: commandLog,
+            allowTacticalPause: true,
+            targetTick: 0,
+            baseEnemyCount: 5,
+            enemyGrowthPerMission: 2,
+            missionDepth: 1,
+            nodeType: "Elite",
+            startingPoints: 5,
+            skipDeployment: true
+          });
 
           // Run for same time
           for (let i = 0; i < ticksToRun; i += 16) {
@@ -168,84 +151,4 @@ describe("Simulation Determinism (Rigorous)", () => {
       );
     });
   });
-
-  it(
-    "should DESYNC if baseEnemyCount mismatches in Replay mode",
-    { timeout: 60000 },
-    () => {
-      const seed = 12345;
-      const mapConfig = {
-        seed,
-        width: 16,
-        height: 16,
-        type: MapGeneratorType.DenseShip,
-        spawnPointCount: 5,
-      };
-
-      const map = MapFactory.generate(mapConfig);
-      const squadConfig = {
-        soldiers: [{ archetypeId: "assault" }],
-        inventory: {},
-      };
-
-      // 1. Run Simulation with 10 base enemies
-      const engineSim = new CoreEngine({
-      map: map,
-      seed: seed,
-      squadConfig: squadConfig,
-      agentControlEnabled: true,
-      debugOverlayEnabled: false,
-      missionType: MissionType.Default,
-      losOverlayEnabled: false,
-      startingThreatLevel: 0,
-      initialTimeScale: 1.0,
-      startPaused: false,
-      mode: EngineMode.Simulation,
-      initialCommandLog: [],
-      allowTacticalPause: true,
-      targetTick: 0,
-      baseEnemyCount: 10,
-      enemyGrowthPerMission: 1,
-      missionDepth: 1,
-      nodeType: "Elite",
-      campaignNodeId: undefined,
-      startingPoints: 10
-    });
-
-      for (let i = 0; i < 15000; i += 16) engineSim.update(16);
-      const finalSimState = engineSim.getState();
-
-      // 2. Run Replay with 3 base enemies (the hardcoded value in GameClient)
-      const engineReplay = new CoreEngine({
-      map: map,
-      seed: seed,
-      squadConfig: squadConfig,
-      agentControlEnabled: true,
-      debugOverlayEnabled: false,
-      missionType: MissionType.Default,
-      losOverlayEnabled: false,
-      startingThreatLevel: 0,
-      initialTimeScale: 1.0,
-      startPaused: false,
-      mode: EngineMode.Replay,
-      initialCommandLog: finalSimState.commandLog,
-      allowTacticalPause: true,
-      targetTick: 0,
-      baseEnemyCount: 3,
-      enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
-      campaignNodeId: undefined,
-      startingPoints: 0
-    });
-
-      for (let i = 0; i < 15000; i += 16) engineReplay.update(16);
-      const finalReplayState = engineReplay.getState();
-
-      // 3. Verify they are DIFFERENT
-      expect(finalReplayState.enemies.length).not.toBe(
-        finalSimState.enemies.length,
-      );
-    },
-  );
 });

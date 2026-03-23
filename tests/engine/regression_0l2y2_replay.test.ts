@@ -28,10 +28,8 @@ describe("Mission Replay Regression", () => {
       seed: seed,
       squadConfig: squadConfig,
       agentControlEnabled: false,
-      debugOverlayEnabled: // agentControl
-      false,
-      missionType: // debug
-      MissionType.Default
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
     });
 
     // 1. Simulation Phase

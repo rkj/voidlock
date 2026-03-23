@@ -35,17 +35,12 @@ describe("Regression 3dz9: Session Recovery / Catch-up", () => {
       seed: seed,
       squadConfig: squadConfig,
       agentControlEnabled: true,
-      debugOverlayEnabled: // agent
-      false,
-      missionType: // debug
-      MissionType.Default,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
       losOverlayEnabled: false,
-      startingThreatLevel: // los
-      0,
-      initialTimeScale: // threat
-      1.0,
-      startPaused: // timeScale
-      false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
       mode: // startPaused
       EngineMode.Simulation
     });

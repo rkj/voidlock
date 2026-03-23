@@ -38,8 +38,7 @@ describe("Regression 8b9a: Auto Extraction Discovery", () => {
       seed: 1,
       squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       agentControlEnabled: true,
-      debugOverlayEnabled: // Agent control enabled
-      false
+      debugOverlayEnabled: false
     });
 
     engine.applyCommand({

@@ -53,8 +53,7 @@ describe("Regression 65pf: Extract Command", () => {
       enemyGrowthPerMission: 1,
       missionDepth: 0,
       nodeType: undefined,
-      campaignNodeId: // nodeType defaults to undefined
-      undefined,
+      campaignNodeId: undefined,
       startingPoints: 0
     });
   });

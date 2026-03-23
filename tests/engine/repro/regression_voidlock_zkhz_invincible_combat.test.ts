@@ -25,16 +25,13 @@ describe("Invincible Combat Repro (voidlock-zkhz)", () => {
       seed: currentState.seed,
       squadConfig: squadConfig,
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled
-      true,
-      missionType: // debugOverlayEnabled
-      currentState.missionType,
+      debugOverlayEnabled: true,
+      missionType: undefined,
       losOverlayEnabled: false,
       startingThreatLevel: // losOverlayEnabled
       currentState.stats.threatLevel,
       initialTimeScale: 0.1,
-      startPaused: // initialTimeScale
-      false,
+      startPaused: false,
       mode: // startPaused
       EngineMode.Simulation
     });

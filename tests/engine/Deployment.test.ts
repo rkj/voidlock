@@ -51,8 +51,7 @@ describe("Deployment Phase", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -78,8 +77,7 @@ describe("Deployment Phase", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -106,8 +104,7 @@ describe("Deployment Phase", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -145,8 +142,7 @@ describe("Deployment Phase", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -217,8 +213,7 @@ describe("Deployment Phase", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -266,8 +261,7 @@ describe("Deployment Phase", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false
@@ -298,8 +292,7 @@ describe("Deployment Phase", () => {
       targetTick: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
-      missionDepth: 0,
-      nodeType: "Combat",
+      missionDepth: 0, nodeType: "Combat",
       campaignNodeId: undefined,
       startingPoints: undefined,
       skipDeployment: false

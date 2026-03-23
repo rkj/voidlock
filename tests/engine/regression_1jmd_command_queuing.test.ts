@@ -34,8 +34,7 @@ describe("Regression 1jmd: Command Queuing", () => {
       seed: 123,
       squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled
-      false,
+      debugOverlayEnabled: false,
       missionType: MissionType.Default
     });
   });

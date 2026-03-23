@@ -32,9 +32,8 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
       seed: 123,
       squadConfig: { soldiers: [], inventory: {} },
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled = true
-      true,
-      missionType: // skipDeployment = true
+      debugOverlayEnabled: true,
+      missionType: undefined
     });
     engine.clearUnits();
     engine.clearEnemies();

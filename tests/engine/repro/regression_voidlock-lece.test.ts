@@ -44,28 +44,19 @@ describe("Regression voidlock-lece: Elite/Boss mission completion", () => {
       debugOverlayEnabled: false,
       missionType: MissionType.Default,
       losOverlayEnabled: false,
-      startingThreatLevel: // losOverlayEnabled
-      0,
-      initialTimeScale: // startingThreatLevel
-      1.0,
-      startPaused: // initialTimeScale
-      false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
       mode: // startPaused
       undefined,
       initialCommandLog: // mode
       [],
-      allowTacticalPause: // initialCommandLog
-      true,
-      targetTick: // allowTacticalPause
-      0,
-      baseEnemyCount: // targetTick
-      3,
-      enemyGrowthPerMission: // baseEnemyCount
-      1,
-      missionDepth: // enemyGrowthPerMission
-      0,
-      nodeType: // missionDepth
-      "Elite"
+      allowTacticalPause: true,
+      targetTick: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      missionDepth: 0,
+      nodeType: "Elite"
     });
 
     const state = getInternalState(engine);

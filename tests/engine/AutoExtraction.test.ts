@@ -30,9 +30,8 @@ describe("Auto Extraction Logic", () => {
       seed: 1,
       squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       agentControlEnabled: true,
-      debugOverlayEnabled: // Agent control enabled
-      false,
-      missionType: // random seed
+      debugOverlayEnabled: false,
+      missionType: undefined
     });
 
     // Initial tick to spawn

@@ -29,8 +29,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
       seed: 123,
       squadConfig: { soldiers: [{ archetypeId: "scout" }], inventory: {} },
       agentControlEnabled: false,
-      debugOverlayEnabled: // Manual control
-      false
+      debugOverlayEnabled: false
     });
 
     const realUnit = (engine as any).state.units[0];

@@ -58,30 +58,13 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       mapGeneratorType: MapGeneratorType.Procedural,
       map: mockMap,
       agentControlEnabled: true,
-      debugOverlayEnabled: // fog
-      false,
-      fogOfWarEnabled: // debug
-      true,
-      unitStyle: // agent
-      UnitStyle.TacticalIcons,
-      themeId: // unitStyle
-      "default",
-      squadConfig: // themeId
-      defaultSquad,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+      squadConfig: defaultSquad,
       missionType: MissionType.Default,
-      allowTacticalPause: 16,
-      startPaused: 16,
-      startingThreatLevel: 3,
-      enemyGrowthPerMission: false,
-      missionDepth: // los
-      0,
-      nodeType: // threat
-      1.0,
-      campaignNodeId: // scale
-      false,
-      startingPoints: // paused
-      true,
-      commandLog: // allowTacticalPause = true
+      allowTacticalPause: true,
     });
 
     client.pause();
@@ -104,15 +87,7 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       themeId: "default",
       squadConfig: defaultSquad,
       missionType: MissionType.Default,
-      allowTacticalPause: 16,
-      startPaused: 16,
-      startingThreatLevel: 3,
-      enemyGrowthPerMission: false,
-      missionDepth: 0,
-      nodeType: 1.0,
-      campaignNodeId: false,
-      startingPoints: false,
-      commandLog: // allowTacticalPause = false
+      allowTacticalPause: false,
     });
 
     client.pause();
@@ -135,15 +110,7 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       themeId: "default",
       squadConfig: defaultSquad,
       missionType: MissionType.Default,
-      allowTacticalPause: 16,
-      startPaused: 16,
-      startingThreatLevel: 3,
-      enemyGrowthPerMission: false,
-      missionDepth: 0,
-      nodeType: 1.0,
-      campaignNodeId: false,
-      startingPoints: false,
-      commandLog: // allowTacticalPause = false
+      allowTacticalPause: false,
     });
 
     client.setTimeScale(0.5);
@@ -166,15 +133,7 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       themeId: "default",
       squadConfig: defaultSquad,
       missionType: MissionType.Default,
-      allowTacticalPause: 16,
-      startPaused: 16,
-      startingThreatLevel: 3,
-      enemyGrowthPerMission: false,
-      missionDepth: 0,
-      nodeType: 1.0,
-      campaignNodeId: false,
-      startingPoints: false,
-      commandLog: // allowTacticalPause = false
+      allowTacticalPause: false,
     });
 
     client.setTimeScale(2.0);

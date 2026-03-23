@@ -43,10 +43,8 @@ describe("Regression voidlock-9uzl: Escort mission failure when soldiers extract
       seed: 12345,
       squadConfig: squadConfig,
       agentControlEnabled: false,
-      debugOverlayEnabled: // agentControlEnabled
-      false,
-      missionType: // debugOverlayEnabled
-      MissionType.EscortVIP
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
     });
 
     const state = engine.getState();

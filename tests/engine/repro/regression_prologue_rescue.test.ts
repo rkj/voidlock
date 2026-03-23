@@ -25,10 +25,8 @@ describe("Prologue Honest Difficulty & Scripted Rescue", () => {
       seed: 12345,
       squadConfig: squadConfig,
       agentControlEnabled: false,
-      debugOverlayEnabled: // agentControlEnabled
-      false,
-      missionType: // debugOverlayEnabled
-      MissionType.Prologue
+      debugOverlayEnabled: false,
+      missionType: MissionType.Prologue
     });
 
     const state = engine.getState();

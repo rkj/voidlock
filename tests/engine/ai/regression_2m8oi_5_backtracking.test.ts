@@ -31,9 +31,8 @@ describe("Anti-Backtracking", () => {
       seed: 123,
       squadConfig: { soldiers: [], inventory: {} },
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled = true
-      true,
-      missionType: // skipDeployment = true
+      debugOverlayEnabled: true,
+      missionType: undefined
     });
     engine.clearUnits();
     engine.clearEnemies();

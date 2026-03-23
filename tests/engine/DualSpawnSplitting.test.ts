@@ -33,12 +33,10 @@ describe("CoreEngine Dual Spawn Splitting", () => {
     const engine = new CoreEngine({
       map: map,
       seed: 123,
-      squadConfig: // seed
-      squadConfig,
+      squadConfig: squadConfig,
       agentControlEnabled: false,
-      debugOverlayEnabled: // agentControl
-      false,
-      missionType: // debug
+      debugOverlayEnabled: false,
+      missionType: undefined
     });
 
     const units = engine.getState().units;
@@ -81,13 +79,10 @@ describe("CoreEngine Dual Spawn Splitting", () => {
     const engine = new CoreEngine({
       map: map,
       seed: 123,
-      squadConfig: // seed
-      squadConfig,
+      squadConfig: squadConfig,
       agentControlEnabled: false,
-      debugOverlayEnabled: // agentControl
-      false,
-      missionType: // debug
-      MissionType.EscortVIP
+      debugOverlayEnabled: false,
+      missionType: MissionType.EscortVIP
     });
 
     const units = engine.getState().units;

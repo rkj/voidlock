@@ -36,8 +36,7 @@ describe("New Command Logic: EXPLORE, OVERWATCH, and Agent Control", () => {
       seed: 123,
       squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled
-      false,
+      debugOverlayEnabled: false,
       missionType: MissionType.Default
     });
   });

@@ -75,6 +75,13 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
     const sharedState = new SharedRendererState();
     sharedState.cellSize = 32;
     sharedState.unitStyle = UnitStyle.Sprites;
+    sharedState.assets = {
+      getMiscSprite: vi.fn().mockReturnValue(null),
+      iconImages: {}
+    } as any;
+    sharedState.theme = {
+      getColor: vi.fn().mockReturnValue("#000000")
+    } as any;
     const layer = new MapEntityLayer(sharedState);
 
     const mockContext = {
@@ -124,6 +131,13 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
     const sharedState = new SharedRendererState();
     sharedState.cellSize = 32;
     sharedState.unitStyle = UnitStyle.Sprites;
+    sharedState.assets = {
+      getMiscSprite: vi.fn().mockReturnValue(null),
+      iconImages: {}
+    } as any;
+    sharedState.theme = {
+      getColor: vi.fn().mockReturnValue("#000000")
+    } as any;
     const layer = new MapEntityLayer(sharedState);
 
     const mockContext = {

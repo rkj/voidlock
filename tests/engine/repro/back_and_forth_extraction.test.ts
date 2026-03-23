@@ -37,17 +37,12 @@ describe('AI Back and Forth Repro', () => {
       seed: seed,
       squadConfig: squadConfig,
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled
-      true,
-      missionType: // debugOverlayEnabled
-      MissionType.Default,
+      debugOverlayEnabled: true,
+      missionType: MissionType.Default,
       losOverlayEnabled: false,
-      startingThreatLevel: // losOverlayEnabled
-      0,
-      initialTimeScale: // startingThreatLevel
-      1.0,
-      startPaused: // initialTimeScale
-      false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
       mode: // startPaused
       EngineMode.Simulation
     });

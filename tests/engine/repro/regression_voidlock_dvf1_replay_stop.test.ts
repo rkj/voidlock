@@ -39,17 +39,12 @@ describe("CoreEngine Replay Termination", () => {
       seed: 12345,
       squadConfig: squadConfig,
       agentControlEnabled: false,
-      debugOverlayEnabled: // agentControl
-      false,
-      missionType: // debug
-      MissionType.Default,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
       losOverlayEnabled: false,
-      startingThreatLevel: // losOverlay
-      0,
-      initialTimeScale: // threat
-      1.0,
-      startPaused: // timescale
-      false,
+      startingThreatLevel: 0,
+      initialTimeScale: 1.0,
+      startPaused: false,
       mode: // paused
       EngineMode.Simulation
     });

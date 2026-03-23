@@ -31,8 +31,7 @@ describe("AI Commitment Guard", () => {
       seed: 123,
       squadConfig: { soldiers: [], inventory: {} },
       agentControlEnabled: true,
-      debugOverlayEnabled: // agentControlEnabled = true
-      false
+      debugOverlayEnabled: false
     });
     engine.clearUnits();
   });

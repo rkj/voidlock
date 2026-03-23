@@ -78,8 +78,7 @@ describe("Regression lv7j: Unit Movement on Refresh", () => {
       mode: EngineMode.Simulation,
       initialCommandLog: commandLog,
       allowTacticalPause: true,
-      targetTick: // allowTacticalPause
-      tickBeforeRefresh
+      targetTick: tickBeforeRefresh
     });
 
     const recoveredState = recoveredEngine.getState();

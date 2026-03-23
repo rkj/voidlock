@@ -23,10 +23,8 @@ describe("Regression IHFP: Unit Kill Tracking", () => {
       seed: 123,
       squadConfig: { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       agentControlEnabled: false,
-      debugOverlayEnabled: // agentControlEnabled
-      false,
-      missionType: // debugOverlayEnabled
-      MissionType.Default
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default
     });
 
     engine.clearUnits();

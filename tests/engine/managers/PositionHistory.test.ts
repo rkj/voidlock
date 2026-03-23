@@ -59,7 +59,6 @@ describe("Unit Position History", () => {
       archetypeId: "assault",
       kills: 0,
       damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
-      objectivesCompleted: 0,
     });
 
     // Move across several cells

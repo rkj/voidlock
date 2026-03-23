@@ -29,7 +29,6 @@ const mockContext = {
   })),
   // ... other methods
   setLineDash: vi.fn(),
-  closePath: vi.fn(),
   fillText: vi.fn(),
   drawImage: vi.fn(),
   arc: vi.fn(),
