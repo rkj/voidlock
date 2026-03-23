@@ -43,7 +43,13 @@ describe("UnitManager Combat (15hj)", () => {
     pathfinder = new Pathfinder(grid.getGraph(), doors);
     los = new LineOfSight(grid.getGraph(), doors);
     const movementManager = new MovementManager(grid);
-    unitManager = new UnitManager(grid, pathfinder, movementManager, los, true);
+    unitManager = new UnitManager({
+      gameGrid: grid,
+      pathfinder,
+      movementManager,
+      los,
+      agentControlEnabled: true,
+    });
     prng = new PRNG(123);
     lootManager = new LootManager();
   });
@@ -82,7 +88,13 @@ describe("UnitManager Combat (15hj)", () => {
     pathfinder = new Pathfinder(grid.getGraph(), doors);
     los = new LineOfSight(grid.getGraph(), doors);
     const movementManager = new MovementManager(grid);
-    unitManager = new UnitManager(grid, pathfinder, movementManager, los, true);
+    unitManager = new UnitManager({
+      gameGrid: grid,
+      pathfinder,
+      movementManager,
+      los,
+      agentControlEnabled: true,
+    });
 
     const unit: Unit = {
       id: "u1",
@@ -130,7 +142,7 @@ describe("UnitManager Combat (15hj)", () => {
     expect(los.hasLineOfSight(unit.pos, enemy.pos)).toBe(true);
     expect(los.hasLineOfFire(unit.pos, enemy.pos)).toBe(false);
 
-    unitManager.update(state, 100, doors, prng, lootManager);
+    unitManager.update({ state, dt: 100, doors, prng, lootManager });
 
     // Unit should be in Attacking state (because it has LOS and is in range)
     // OR should it? If it can't fire, maybe it shouldn't be in Attacking state?

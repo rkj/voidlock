@@ -113,7 +113,7 @@ export class SettingsScreen {
   }
 
   private render() {
-    const globalConfig = ConfigManager.loadGlobal();
+    const global = ConfigManager.loadGlobal();
 
     this.container.innerHTML = "";
     this.container.className = "screen screen-centered flex-col p-20 atmospheric-bg bg-station";
@@ -196,7 +196,7 @@ export class SettingsScreen {
       stylePreview,
       this.themeManager,
       this.assetManager,
-      globalConfig.unitStyle,
+      global.unitStyle,
       (style) => {
         ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), unitStyle: style });
         this.unitStyleSelector?.renderPreviews();
@@ -223,7 +223,7 @@ export class SettingsScreen {
       const opt = document.createElement("option");
       opt.value = t.id;
       opt.textContent = t.label;
-      if (t.id === globalConfig.themeId) opt.selected = true;
+      if (t.id === global.themeId) opt.selected = true;
       themeSelect.appendChild(opt);
     });
     themeSelect.addEventListener("change", () => {
@@ -253,7 +253,7 @@ export class SettingsScreen {
       const opt = document.createElement("option");
       opt.value = m.id;
       opt.textContent = m.label;
-      if (m.id === globalConfig.phosphor) opt.selected = true;
+      if (m.id === global.phosphor) opt.selected = true;
       phosphorSelect.appendChild(opt);
     });
     phosphorSelect.addEventListener("change", () => {
@@ -293,7 +293,7 @@ export class SettingsScreen {
       const opt = document.createElement("option");
       opt.value = l;
       opt.textContent = l;
-      if (l === globalConfig.logLevel) opt.selected = true;
+      if (l === global.logLevel) opt.selected = true;
       logSelect.appendChild(opt);
     });
     logSelect.onchange = () => {
@@ -318,7 +318,7 @@ export class SettingsScreen {
 
     const snapshotToggle = document.createElement("input");
     snapshotToggle.type = "checkbox";
-    snapshotToggle.checked = globalConfig.debugSnapshots;
+    snapshotToggle.checked = global.debugSnapshots;
     snapshotToggle.onchange = () => {
       ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), debugSnapshots: snapshotToggle.checked });
     };
@@ -337,7 +337,7 @@ export class SettingsScreen {
     intervalInput.min = "0";
     intervalInput.max = "1000";
     intervalInput.style.width = "60px";
-    intervalInput.value = globalConfig.debugSnapshotInterval.toString();
+    intervalInput.value = global.debugSnapshotInterval.toString();
     intervalInput.onchange = () => {
       ConfigManager.saveGlobal({
         ...ConfigManager.loadGlobal(),
@@ -356,7 +356,7 @@ export class SettingsScreen {
 
     const overlayToggle = document.createElement("input");
     overlayToggle.type = "checkbox";
-    overlayToggle.checked = globalConfig.debugOverlayEnabled;
+    overlayToggle.checked = global.debugOverlayEnabled;
     overlayToggle.onchange = () => {
       ConfigManager.saveGlobal({ ...ConfigManager.loadGlobal(), debugOverlayEnabled: overlayToggle.checked });
     };
@@ -391,7 +391,7 @@ export class SettingsScreen {
 
     const syncToggle = document.createElement("input");
     syncToggle.type = "checkbox";
-    syncToggle.checked = globalConfig.cloudSyncEnabled && isConfigured;
+    syncToggle.checked = global.cloudSyncEnabled && isConfigured;
     syncToggle.disabled = !isConfigured;
     syncToggle.onchange = () => {
       const enabled = syncToggle.checked;
@@ -416,7 +416,7 @@ export class SettingsScreen {
       errorMsg.style.color = "var(--color-error)";
       errorMsg.style.fontSize = "0.8em";
       accountGroup.appendChild(errorMsg);
-    } else if (globalConfig.cloudSyncEnabled) {
+    } else if (global.cloudSyncEnabled) {
       this.renderCloudSyncAuthUI(accountGroup);
     } else {
       const infoMsg = document.createElement("div");
@@ -568,7 +568,7 @@ export class SettingsScreen {
 
     // Cloud Data Management
     const isConfigured = this.cloudSync?.isConfigured() ?? false;
-    if (isConfigured && globalConfig.cloudSyncEnabled) {
+    if (isConfigured && global.cloudSyncEnabled) {
       const cloudDeleteBtn = document.createElement("button");
       cloudDeleteBtn.className = "menu-button danger-button";
       cloudDeleteBtn.style.width = "100%";

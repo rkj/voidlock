@@ -71,7 +71,7 @@ describe("Regression voidlock-uvkz: Mission objective overlap", () => {
       const p = new PRNG(s);
       const mm = new MissionManager(MissionType.RecoverIntel, p);
       const st: GameState = JSON.parse(JSON.stringify(state));
-      mm.setupMission(st, map, enemyManager);
+      mm.setupMission({ state: st, map, enemyManager });
 
       if (
         st.objectives.some(

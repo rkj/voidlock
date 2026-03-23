@@ -39,12 +39,12 @@ describe("RosterManager Regression: Roster Limit (voidlock-wvtg)", () => {
   it("should allow recruitment up to MAX_ROSTER_SIZE", () => {
     // Recruit up to the limit
     for (let i = 0; i < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE; i++) {
-      rosterManager.recruitSoldier(state, "assault");
+      RosterManager.recruitSoldier(state, "assault");
     }
     expect(state.roster.length).toBe(CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE);
 
     // Try to recruit one more
-    expect(() => rosterManager.recruitSoldier(state, "assault")).toThrow(
+    expect(() => RosterManager.recruitSoldier(state, "assault")).toThrow(
       `Roster is full (max ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} soldiers).`,
     );
   });
@@ -52,7 +52,7 @@ describe("RosterManager Regression: Roster Limit (voidlock-wvtg)", () => {
   it("should not count dead soldiers differently for the limit", () => {
     // Fill roster with 11 healthy soldiers
     for (let i = 0; i < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE - 1; i++) {
-      rosterManager.recruitSoldier(state, "assault");
+      RosterManager.recruitSoldier(state, "assault");
     }
     
     // Add one dead soldier
@@ -77,7 +77,7 @@ describe("RosterManager Regression: Roster Limit (voidlock-wvtg)", () => {
     expect(state.roster.length).toBe(CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE);
 
     // Try to recruit one more
-    expect(() => rosterManager.recruitSoldier(state, "assault")).toThrow(
+    expect(() => RosterManager.recruitSoldier(state, "assault")).toThrow(
       `Roster is full (max ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} soldiers).`,
     );
   });

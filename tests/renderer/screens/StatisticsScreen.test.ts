@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { StatisticsScreen } from "@src/renderer/screens/StatisticsScreen";
-import { MetaManager } from "@src/engine/managers/MetaManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 
 describe("StatisticsScreen", () => {
   let container: HTMLElement;
@@ -44,7 +44,12 @@ describe("StatisticsScreen", () => {
   it("should render correctly with updated stats", () => {
     const meta = MetaManager.getInstance();
     meta.recordCampaignStarted();
-    meta.recordMissionResult(10, 2, true, 500);
+    meta.recordMissionResult({
+      kills: 10,
+      casualties: 2,
+      won: true,
+      scrapGained: 500
+    });
     meta.recordCampaignResult(true);
 
     const screen = new StatisticsScreen({

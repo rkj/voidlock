@@ -41,7 +41,7 @@ describe("Campaign Progression (XP and Leveling)", () => {
       ],
     };
 
-    manager.processMissionResult(report1);
+    manager.reconcileMission(report1);
 
     const updatedSoldier = manager.getState()!.roster[0];
     expect(updatedSoldier.level).toBe(2);
@@ -86,7 +86,7 @@ describe("Campaign Progression (XP and Leveling)", () => {
       ],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     const updatedSoldier = manager.getState()!.roster[0];
     expect(updatedSoldier.xp).toBe(0);
@@ -119,7 +119,7 @@ describe("Campaign Progression (XP and Leveling)", () => {
       ],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     const updatedSoldier = manager.getState()!.roster[0];
     expect(updatedSoldier.xp).toBe(30);
@@ -153,7 +153,7 @@ describe("Campaign Progression (XP and Leveling)", () => {
       ],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     const updatedSoldier = manager.getState()!.roster[0];
     expect(updatedSoldier.level).toBe(3);

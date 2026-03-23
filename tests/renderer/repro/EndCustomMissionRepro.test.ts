@@ -88,7 +88,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     removeChangeListener: vi.fn(),
     load: vi.fn(),
     save: vi.fn(),
-    processMissionResult: vi.fn(),
+    reconcileMission: vi.fn(),
     startNewCampaign: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
@@ -134,7 +134,7 @@ describe("End Custom Mission Regression", () => {
   it("should NOT crash when custom mission ends and NO campaign is active", async () => {
     const { CampaignManager } = await import("@src/renderer/campaign/CampaignManager");
     const manager = CampaignManager.getInstance();
-    const processSpy = vi.spyOn(manager, "processMissionResult");
+    const processSpy = vi.spyOn(manager, "reconcileMission");
 
     const appAny = app as any;
     

@@ -20,12 +20,12 @@ describe("MetaManager Progression", () => {
   });
 
   it("should record intel gained from missions", () => {
-    metaManager.recordMissionResult(10, 0, true, 100, 50);
+    metaManager.recordMissionResult({ kills: 10, casualties: 0, won: true, scrapGained: 100, intelGained: 50 });
     expect(metaManager.getStats().currentIntel).toBe(50);
   });
 
   it("should allow spending intel to unlock archetypes", () => {
-    metaManager.recordMissionResult(0, 0, true, 0, 100);
+    metaManager.recordMissionResult({ kills: 0, casualties: 0, won: true, scrapGained: 0, intelGained: 100 });
 
     metaManager.unlockArchetype("heavy", 50);
 
@@ -42,7 +42,7 @@ describe("MetaManager Progression", () => {
   });
 
   it("should allow spending intel to unlock items", () => {
-    metaManager.recordMissionResult(0, 0, true, 0, 100);
+    metaManager.recordMissionResult({ kills: 0, casualties: 0, won: true, scrapGained: 0, intelGained: 100 });
 
     metaManager.unlockItem("autocannon", 75);
 
@@ -53,7 +53,7 @@ describe("MetaManager Progression", () => {
   });
 
   it("should persist unlocks across instances", () => {
-    metaManager.recordMissionResult(0, 0, true, 0, 100);
+    metaManager.recordMissionResult({ kills: 0, casualties: 0, won: true, scrapGained: 0, intelGained: 100 });
     metaManager.unlockArchetype("heavy", 50);
 
     MetaManager.resetInstance();

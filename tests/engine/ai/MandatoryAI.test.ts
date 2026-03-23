@@ -114,10 +114,13 @@ describe("Mandatory AI Scenarios (ADR 0041)", () => {
       width: 10,
       height: 10,
       cells: [
-        {x: 0, y: 5, type: CellType.Floor}, {x: 1, y: 5, type: CellType.Floor}, {x: 2, y: 5, type: CellType.Floor},
-        {x: 3, y: 5, type: CellType.Floor}, // Junction
-        {x: 3, y: 4, type: CellType.Floor}, {x: 3, y: 3, type: CellType.Floor}, {x: 4, y: 3, type: CellType.Floor}, // Branch A
-        {x: 3, y: 6, type: CellType.Floor}, {x: 3, y: 7, type: CellType.Floor}, {x: 4, y: 7, type: CellType.Floor}, // Branch B
+        {x: 0, y: 5, type: CellType.Floor, roomId: "room-1"}, {x: 1, y: 5, type: CellType.Floor, roomId: "room-1"}, {x: 2, y: 5, type: CellType.Floor, roomId: "room-1"},
+        {x: 3, y: 5, type: CellType.Floor, roomId: "room-1"}, // Junction
+        {x: 3, y: 4, type: CellType.Floor, roomId: "room-2"}, {x: 3, y: 3, type: CellType.Floor, roomId: "room-2"}, {x: 4, y: 3, type: CellType.Floor, roomId: "room-2"}, // Branch A
+        {x: 3, y: 6, type: CellType.Floor, roomId: "room-3"}, {x: 3, y: 7, type: CellType.Floor, roomId: "room-3"}, {x: 4, y: 7, type: CellType.Floor, roomId: "room-3"}, // Branch B
+        // Extra undiscovered cells
+        {x: 5, y: 3, type: CellType.Floor, roomId: "room-2"}, {x: 6, y: 3, type: CellType.Floor, roomId: "room-2"},
+        {x: 5, y: 7, type: CellType.Floor, roomId: "room-3"}, {x: 6, y: 7, type: CellType.Floor, roomId: "room-3"},
       ],
       spawnPoints: [],
       extraction: { x: 0, y: 5 },

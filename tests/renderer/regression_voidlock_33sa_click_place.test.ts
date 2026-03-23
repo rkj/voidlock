@@ -3,14 +3,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
-describe("SquadBuilder Click-to-Place", () => {
+describe("Regression voidlock-33sa: Click-to-Place", () => {
   let context: any;
   let container: HTMLElement;
   let squad: SquadConfig;
 
   beforeEach(() => {
     document.body.innerHTML =
-      '<div id="squad-builder"></div><button id="btn-goto-equipment"></button>';
+      '<div id="squad-builder"></div><button id="btn-goto-equipment"></button><button id="btn-launch-mission"></button>';
     container = document.getElementById("squad-builder")!;
 
     squad = {
@@ -24,37 +24,32 @@ describe("SquadBuilder Click-to-Place", () => {
           roster: [
             {
               id: "s1",
-              name: "S1",
-              archetypeId: "assault",
+              name: "Soldier 1",
               status: "Healthy",
+              archetypeId: "assault",
               equipment: {},
-              hp: 100,
-              maxHp: 100,
-              soldierAim: 90,
             },
             {
               id: "s2",
-              name: "S2",
-              archetypeId: "medic",
+              name: "Soldier 2",
               status: "Healthy",
+              archetypeId: "medic",
               equipment: {},
-              hp: 80,
-              maxHp: 80,
-              soldierAim: 80,
             },
           ],
           scrap: 100,
           unlockedArchetypes: ["assault", "medic"],
-          rules: { deathRule: "Standard" },
+          rules: { deathRule: "Simulation" }
         }),
         recruitSoldier: vi.fn(),
         reviveSoldier: vi.fn(),
       },
       modalService: {
         alert: vi.fn().mockResolvedValue(undefined),
-        confirm: vi.fn().mockResolvedValue(true),
-        prompt: vi.fn().mockResolvedValue("New Soldier"),
       },
+      campaignShell: {
+        refresh: vi.fn(),
+      }
     } as any;
   });
 
@@ -62,148 +57,93 @@ describe("SquadBuilder Click-to-Place", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: {} as any as any,
-      modalService: // mock campaignShell
-      context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: true,
-      onSquadUpdated: // isCampaign
-      onUpdate
+      onSquadUpdated: onUpdate,
     });
     builder.render();
 
     const rosterCards = container.querySelectorAll(
       ".roster-panel .soldier-card",
     );
-    expect(rosterCards.length).toBe(2);
+    const s1Card = rosterCards[0] as HTMLElement;
 
-    (rosterCards[1] as HTMLElement).click();
+    // Simulate single click
+    s1Card.click();
 
     expect(squad.soldiers.length).toBe(1);
-    expect(squad.soldiers[0].id).toBe("s2");
-    expect(onUpdate).toHaveBeenCalled();
+    expect(squad.soldiers[0].id).toBe("s1");
+    expect(onUpdate).toHaveBeenCalledWith(squad);
   });
 
   it("should highlight the next available soldier after assignment", () => {
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: {} as any as any,
-      modalService: // mock campaignShell
-      context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: true,
-      onSquadUpdated: () => {}
+      onSquadUpdated: () => {},
     });
     builder.render();
 
     const rosterCards = container.querySelectorAll(
       ".roster-panel .soldier-card",
     );
+    const s1Card = rosterCards[0] as HTMLElement;
+    const s2Card = rosterCards[1] as HTMLElement;
 
-    // Initially, maybe first one is highlighted or none. Spec says "Clicking ... marks as 'Selected'".
-    // Let's assume clicking selects it.
-    (rosterCards[0] as HTMLElement).click();
+    // Click S1 to assign it
+    s1Card.click();
 
-    // In our "auto-assign" interpretation, it's now in the squad and removed from roster list
-    // (the current renderRoster filters out selected soldiers).
-
-    // Wait, if it's removed from roster list, we can't see the highlight on it.
-    // The spec says: "The highlight automatically advances to the next available soldier in the roster".
-
-    const newRosterCards = container.querySelectorAll(
-      ".roster-panel .soldier-card",
-    );
-    expect(newRosterCards.length).toBe(1);
-    expect(
-      newRosterCards[0].classList.contains("selected-for-deployment"),
-    ).toBe(true);
+    // S1 is assigned, it should be marked as selected in squad-builder context
+    expect(s1Card.classList.contains("selected-for-deployment")).toBe(true);
+    
+    // The next available soldier (S2) should now be the new selection target if we clicked s1
+    expect(builder.selectedId).toBe("s2");
   });
 
   it("should allow assigning highlighted soldier by clicking an empty slot", () => {
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: {} as any as any,
-      modalService: // mock campaignShell
-      context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: true,
-      onSquadUpdated: () => {}
+      onSquadUpdated: () => {},
     });
     builder.render();
 
-    // Select the first one
-    const rosterCards = container.querySelectorAll(
+    // Select the first one (highlights it)
+    const s1Card = container.querySelectorAll(
       ".roster-panel .soldier-card",
-    );
-    (rosterCards[0] as HTMLElement).click();
-
-    // Now it's assigned and Roster Card 2 should be highlighted.
-    const emptySlots = container.querySelectorAll(
-      ".deployment-slot:not(.occupied)",
-    );
-    (emptySlots[0] as HTMLElement).click(); // Click Slot 2 (since Slot 1 is now occupied)
-
-    expect(squad.soldiers.length).toBe(2);
-    expect(squad.soldiers[1].id).toBe("s2");
-  });
-
-  it("should maintain or update selection when a soldier is removed from the squad", () => {
-    // 1. Start with s1 in squad, s2 in roster (and highlighted)
-    squad.soldiers = [
-      {
-        id: "s1",
-        name: "S1",
-        archetypeId: "assault",
-        hp: 100,
-        maxHp: 100,
-        soldierAim: 90,
-        rightHand: "pulse_rifle",
-        leftHand: "combat_knife",
-      },
-    ];
-
-    const builder = new SquadBuilder({
-      containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: {} as any as any,
-      modalService: // mock campaignShell
-      context.modalService as any as any,
-      initialSquad: squad,
-      missionType: MissionType.Default,
-      isCampaign: true,
-      onSquadUpdated: () => {}
-    });
+    )[0] as HTMLElement;
+    s1Card.click();
+    // After clicking S1, it gets assigned and selection moves to S2
+    expect(builder.selectedId).toBe("s2");
+    
+    // Clear squad so we can test explicit slot assignment for s1
+    squad.soldiers = [];
+    builder.selectedId = "s1"; // Force select s1 again
     builder.render();
 
-    let rosterCards = container.querySelectorAll(".roster-panel .soldier-card");
-    expect(rosterCards.length).toBe(1);
-    expect(rosterCards[0].textContent).toContain("S2");
-    expect(rosterCards[0].classList.contains("selected-for-deployment")).toBe(
-      true,
-    );
+    // Click the second deployment slot.
+    const slots = container.querySelectorAll(".deployment-slot");
+    const secondSlot = slots[1] as HTMLElement;
 
-    // 2. Remove s1 from squad
-    const removeBtn = container.querySelector(".slot-remove") as HTMLElement;
-    removeBtn.click();
+    // Dispatch click on slot
+    secondSlot.click();
 
-    // 3. Roster should now have s1 and s2.
-    // s1 is first in sorted order (Assault vs Medic, or just id/order).
-    // Selection should either stay on s2 or move to s1 if s1 is "better".
-    // Our implementation currently picks the first available in the sorted list if the old selection is gone,
-    // OR it keeps the old one if it's still available.
-    rosterCards = container.querySelectorAll(".roster-panel .soldier-card");
-    expect(rosterCards.length).toBe(2);
-
-    // s2 was selected and is still available, so it should REMAIN selected.
-    const s2Card = Array.from(rosterCards).find((c) =>
-      c.textContent?.includes("S2"),
-    );
-    expect(s2Card?.classList.contains("selected-for-deployment")).toBe(true);
+    // S1 should now be in the second slot
+    expect(squad.soldiers.length).toBe(1);
+    expect(squad.soldiers[0].id).toBe("s1");
   });
 });

@@ -32,7 +32,7 @@ describe("Campaign Victory Trigger (voidlock-iq1b)", () => {
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     expect(state.status).toBe("Victory");
 
@@ -60,7 +60,7 @@ describe("Campaign Victory Trigger (voidlock-iq1b)", () => {
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     expect(state.status).toBe("Active");
   });
@@ -84,7 +84,7 @@ describe("Campaign Victory Trigger (voidlock-iq1b)", () => {
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     expect(state.status).not.toBe("Victory");
   });

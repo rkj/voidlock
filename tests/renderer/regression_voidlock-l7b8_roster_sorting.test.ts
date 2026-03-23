@@ -3,14 +3,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
-describe("Roster Sorting Regression (voidlock-l7b8)", () => {
+describe("Regression voidlock-l7b8: Roster Sorting", () => {
   let mockCampaignManager: any;
   let mockCampaignShell: any;
   let mockModalService: any;
   let container: HTMLElement;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     document.body.innerHTML = '<div id="squad-builder"></div>';
     container = document.getElementById("squad-builder")!;
 
@@ -31,139 +30,115 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     };
   });
 
-  it("should sort roster by status: Healthy > Wounded > Dead", async () => {
+  it("should sort roster: Healthy > Wounded > Dead", () => {
     const mockState = {
       roster: [
         {
-          id: "1",
+          id: "s1",
           name: "Dead Guy",
           status: "Dead",
           archetypeId: "assault",
-          level: 1,
           equipment: {},
         },
         {
-          id: "2",
+          id: "s2",
           name: "Healthy Guy",
           status: "Healthy",
-          archetypeId: "medic",
-          level: 2,
+          archetypeId: "scout",
           equipment: {},
         },
         {
-          id: "3",
+          id: "s3",
           name: "Wounded Guy",
           status: "Wounded",
           archetypeId: "heavy",
-          level: 3,
           equipment: {},
         },
       ],
-      rules: {
-        difficulty: "Standard",
-        themeId: "default",
-      },
-      history: [],
-      currentSector: 1,
+      scrap: 1000,
+      unlockedArchetypes: ["assault", "scout", "heavy"],
+      rules: { deathRule: "Clone" },
     };
+
     mockCampaignManager.getState.mockReturnValue(mockState);
 
     const initialSquad: SquadConfig = { soldiers: [], inventory: {} };
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: mockCampaignManager as any as any,
-      campaignShell: mockCampaignShell as any as any,
-      modalService: mockModalService as any as any,
-      initialSquad: initialSquad,
+      campaignManager: mockCampaignManager as any,
+      campaignShell: mockCampaignShell as any,
+      modalService: mockModalService as any,
+      initialSquad,
       missionType: MissionType.Default,
       isCampaign: true,
-      onSquadUpdated: // isCampaign
-      vi.fn()
+      onSquadUpdated: vi.fn(),
     });
 
     builder.render();
 
-    const cards = document.querySelectorAll(".soldier-card");
-    expect(cards.length).toBe(3);
+    const rosterNames = Array.from(
+      container.querySelectorAll(".roster-panel .soldier-card strong"),
+    ).map((el) => el.textContent);
 
-    // Healthy should be first (sorted by weight: Healthy=0, Wounded=1, Dead=2)
-    expect(cards[0].textContent).toContain("Healthy Guy");
-    expect(cards[0].classList.contains("dead")).toBe(false);
-    expect(cards[0].classList.contains("wounded")).toBe(false);
-
-    // Wounded should be second
-    expect(cards[1].textContent).toContain("Wounded Guy");
-    expect(cards[1].classList.contains("wounded")).toBe(true);
-
-    // Dead should be last
-    expect(cards[2].textContent).toContain("Dead Guy");
-    expect(cards[2].classList.contains("dead")).toBe(true);
+    // Expected order: Healthy > Wounded > Dead
+    expect(rosterNames).toEqual(["Healthy Guy", "Wounded Guy", "Dead Guy"]);
   });
 
-  it("should remove soldier from roster list when assigned to squad", () => {
+  it("should sort alphabetically within same status", () => {
     const mockState = {
       roster: [
         {
-          id: "1",
-          name: "In Squad",
+          id: "s1",
+          name: "Zack",
           status: "Healthy",
           archetypeId: "assault",
-          level: 1,
           equipment: {},
         },
         {
-          id: "2",
-          name: "Out of Squad",
+          id: "s2",
+          name: "Adam",
           status: "Healthy",
-          archetypeId: "medic",
-          level: 2,
+          archetypeId: "scout",
+          equipment: {},
+        },
+        {
+          id: "s3",
+          name: "Ben",
+          status: "Wounded",
+          archetypeId: "heavy",
           equipment: {},
         },
       ],
-      rules: { difficulty: "Standard" },
-      history: [],
-      currentSector: 1,
+      scrap: 1000,
+      unlockedArchetypes: ["assault", "scout", "heavy"],
+      rules: { deathRule: "Clone" },
     };
+
     mockCampaignManager.getState.mockReturnValue(mockState);
 
     const initialSquad: SquadConfig = {
-      soldiers: [{ id: "1", name: "In Squad", archetypeId: "assault" }],
+      soldiers: [],
       inventory: {},
     };
 
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: mockCampaignManager as any as any,
-      campaignShell: mockCampaignShell as any as any,
-      modalService: mockModalService as any as any,
-      initialSquad: initialSquad,
+      campaignManager: mockCampaignManager as any,
+      campaignShell: mockCampaignShell as any,
+      modalService: mockModalService as any,
+      initialSquad,
       missionType: MissionType.Default,
       isCampaign: true,
-      onSquadUpdated: vi.fn()
+      onSquadUpdated: vi.fn(),
     });
 
     builder.render();
 
-    // Only cards in roster list (those NOT in squad)
-    const rosterCards = document.querySelectorAll(".roster-list .soldier-card");
+    const rosterNames = Array.from(
+      container.querySelectorAll(".roster-panel .soldier-card strong"),
+    ).map((el) => el.textContent);
 
-    const card1 = Array.from(rosterCards).find((c) =>
-      c.textContent?.includes("In Squad"),
-    );
-    const card2 = Array.from(rosterCards).find((c) =>
-      c.textContent?.includes("Out of Squad"),
-    );
-
-    expect(card1).toBeUndefined();
-    expect(card2).toBeDefined();
-
-    // Verify it is in deployment panel
-    const deploymentCards = document.querySelectorAll(
-      ".deployment-panel .soldier-card",
-    );
-    const deployedCard1 = Array.from(deploymentCards).find((c) =>
-      c.textContent?.includes("In Squad"),
-    );
-    expect(deployedCard1).toBeDefined();
+    // Expected order: Adam (Healthy), Zack (Healthy), Ben (Wounded)
+    expect(rosterNames).toEqual(["Adam", "Zack", "Ben"]);
   });
 });

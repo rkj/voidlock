@@ -100,9 +100,16 @@ export class Graph {
           this.cells[y][x].edges[dir] = boundary;
 
           const isFloor = this.cells[y][x].type === CellType.Floor;
-          const neighborIsVoid = !this.isValid(nx, ny) || this.cells[ny][nx].type === CellType.Void;
-          if (!this.isValid(nx, ny) || (isFloor && neighborIsVoid)) {
+          const neighborExists = this.isValid(nx, ny);
+          if (!neighborExists) {
             boundary.type = BoundaryType.Wall;
+          } else {
+            const neighborIsVoid = this.cells[ny][nx].type === CellType.Void;
+            if (isFloor && neighborIsVoid) {
+              boundary.type = BoundaryType.Wall;
+            } else {
+              boundary.type = BoundaryType.Open;
+            }
           }
         }
       }

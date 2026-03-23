@@ -19,7 +19,7 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
 
     // Clear rank 0 node first to make rank 1 nodes Accessible
     const rank0Node = state.nodes.find((n) => n.rank === 0)!;
-    manager.processMissionResult({
+    manager.reconcileMission({
       nodeId: rank0Node.id,
       seed: 123,
       result: "Won",
@@ -49,7 +49,7 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     // After clearing, nodeToClear should be Cleared
     expect(state.nodes.find((n) => n.id === nodeToClear.id)!.status).toBe(
@@ -90,7 +90,7 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     // Connected nodes should be Accessible
     nodeA.connections.forEach((connId) => {
@@ -127,7 +127,7 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     // currentSector should now be rank + 2 = 2
     expect(state.currentSector).toBe(2);

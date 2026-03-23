@@ -173,7 +173,8 @@ export class UnitManager {
     const realDt = params.realDt ?? dt;
 
     // 0. Update global tracking for invalidation triggers (ADR 0056)
-    const discoveredCount = state.discoveredCells?.length || 0;
+    const discoveredCells = state.discoveredCells || [];
+    const discoveredCount = discoveredCells.length;
     const areaRevealed = this.lastDiscoveredCellsCount > 0 && discoveredCount > this.lastDiscoveredCellsCount;
     this.lastDiscoveredCellsCount = discoveredCount;
 

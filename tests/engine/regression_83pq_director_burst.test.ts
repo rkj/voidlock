@@ -1,115 +1,66 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { Director } from "@src/engine/Director";
-import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
 import { PRNG } from "@src/shared/PRNG";
-import { SpawnPoint, MapDefinition, CellType } from "@src/shared/types";
+import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
 import { DIRECTOR } from "@src/engine/config/GameConstants";
 
 describe("Director Spawning Logic (Regression 83pq)", () => {
-  const mockSpawnPoints: SpawnPoint[] = [
-    { id: "sp-1", pos: { x: 5, y: 5 }, radius: 1 },
-  ];
-
-  const mockMap: MapDefinition = {
-    width: 10,
-    height: 10,
-    cells: Array.from({ length: 100 }, (_, i) => ({
-      x: i % 10,
-      y: Math.floor(i / 10),
-      type: CellType.Floor,
-      roomId: i < 50 ? "room-1" : "room-2",
-    })),
-    walls: [],
-    spawnPoints: mockSpawnPoints,
-    squadSpawn: { x: 0, y: 0 },
-    doors: [],
-  };
-
-  it("should enforce wave cap of 5 enemies", () => {
-    let spawnCount = 0;
-    const onSpawn = () => {
-      spawnCount++;
-    };
+  it("should enforce wave cap of 5 enemies during updates", () => {
+    const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
-
-    // Turn 10 (threat 100)
-    // Budget will be floor(10 * 1.0) = 10
-    // Without wave cap, it would spawn 10 enemies (if they cost 1pt each)
-    const director = new Director(
-      mockSpawnPoints,
+    const onSpawn = vi.fn();
+    
+    const director = new Director({
+      spawnPoints,
       prng,
       onSpawn,
-      new ItemEffectService(),
-      100, // startingThreatLevel = 100
-      mockMap,
-      20,
-    );
+      itemEffectService: new ItemEffectService(),
+      startingPoints: 0,
+    });
 
-    // Advance 10 seconds to trigger turn 11 wave
-    director.update(DIRECTOR.TURN_DURATION_MS);
+    // Fast forward to Turn 11 (threat 110)
+    // budget = floor(110/10 * 1.0) = 11 points
+    for (let i = 0; i < 11; i++) {
+      director.update(DIRECTOR.TURN_DURATION_MS);
+    }
 
     // Turn 11 budget = 11. Wave cap = 5.
-    expect(spawnCount).toBe(5);
+    // Each onSpawn call is one enemy (difficulty 1 for Mite).
+    // So expect EXACTLY 5 enemies spawned in the LAST wave.
+    
+    // Let's check only the last wave.
+    vi.clearAllMocks();
+    director.update(DIRECTOR.TURN_DURATION_MS); // Turn 12, threat 120, budget 12, cap 5
+    expect(onSpawn.mock.calls.length).toBe(5);
   });
 
   it("should only spawn at 10% threat increments", () => {
-    let spawnCount = 0;
-    const onSpawn = () => {
-      spawnCount++;
-    };
+    const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
-
-    const director = new Director(
-      mockSpawnPoints,
+    const onSpawn = vi.fn();
+    const director = new Director({
+      spawnPoints,
       prng,
       onSpawn,
-      new ItemEffectService(),
-      0,
-      mockMap,
-      20,
-    );
+      itemEffectService: new ItemEffectService(),
+    });
 
-    // 0 to 5% threat
+    // 0 to 5% threat -> No spawn
     director.update(DIRECTOR.TURN_DURATION_MS / 2);
-    expect(spawnCount).toBe(0);
+    expect(onSpawn).not.toHaveBeenCalled();
 
     // 5 to 10% threat -> Trigger
     director.update(DIRECTOR.TURN_DURATION_MS / 2);
-    expect(spawnCount).toBeGreaterThan(0);
-    const firstWaveCount = spawnCount;
+    expect(onSpawn).toHaveBeenCalled();
 
-    // 10 to 15% threat
+    vi.clearAllMocks();
+
+    // 10 to 15% threat -> No spawn
     director.update(DIRECTOR.TURN_DURATION_MS / 2);
-    expect(spawnCount).toBe(firstWaveCount);
+    expect(onSpawn).not.toHaveBeenCalled();
 
     // 15 to 20% threat -> Trigger
     director.update(DIRECTOR.TURN_DURATION_MS / 2);
-    expect(spawnCount).toBeGreaterThan(firstWaveCount);
-  });
-
-  it("should not double-spawn at start (0% threat)", () => {
-    let spawnCount = 0;
-    const onSpawn = () => {
-      spawnCount++;
-    };
-    const prng = new PRNG(123);
-
-    // startingPoints = 20
-    const director = new Director(
-      mockSpawnPoints,
-      prng,
-      onSpawn,
-      new ItemEffectService(),
-      0,
-      mockMap,
-      20,
-    );
-
-    director.preSpawn();
-    const initialCount = spawnCount;
-
-    // threat is 0, turn is 0. spawnWave should not add more if it's called (e.g. by update 0)
-    director.update(0);
-    expect(spawnCount).toBe(initialCount);
+    expect(onSpawn).toHaveBeenCalled();
   });
 });

@@ -90,7 +90,7 @@ describe("CampaignManager", () => {
       ],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
     const state = manager.getState();
 
     const node = state?.nodes.find((n) => n.id === targetNodeId);
@@ -123,7 +123,7 @@ describe("CampaignManager", () => {
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     nextNodeIds.forEach((id) => {
       const node = manager.getState()?.nodes.find((n) => n.id === id);
@@ -187,7 +187,7 @@ describe("CampaignManager", () => {
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
     const state = manager.getState();
 
     expect(state?.status).toBe("Defeat");
@@ -214,7 +214,7 @@ describe("CampaignManager", () => {
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
     expect(manager.getState()?.status).toBe("Victory");
   });
 

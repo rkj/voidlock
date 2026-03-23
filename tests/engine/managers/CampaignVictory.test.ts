@@ -65,7 +65,7 @@ describe("Campaign Victory Logic", () => {
       })),
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     expect(manager.getState()?.status).toBe("Victory");
   });
@@ -92,7 +92,7 @@ describe("Campaign Victory Logic", () => {
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
     expect(manager.getState()?.status).toBe("Victory");
   });
 });

@@ -80,7 +80,7 @@ export class MissionManager {
     return (
       missionType === MissionType.ExtractArtifacts ||
       missionType === MissionType.RecoverIntel ||
-      (missionType === MissionType.Default && !state.campaignNodeId) ||
+      (missionType === MissionType.Default && state && !state.campaignNodeId) ||
       missionType === MissionType.Prologue ||
       nodeType === "Boss" ||
       nodeType === "Elite"

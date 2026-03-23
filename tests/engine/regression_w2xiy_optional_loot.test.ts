@@ -47,14 +47,14 @@ describe("Regression: Optional Scrap Crates appearing in Objectives", () => {
         const mockEnemyManager = { addEnemy: vi.fn() };
         const mockLootManager = { spawnLoot: vi.fn() };
 
-        missionManager.setupMission(
-            state as GameState, 
-            mockMap as any, 
-            mockEnemyManager as any, 
-            { soldiers: [], inventory: {} },
-            "Combat", // Passing nodeType="Combat"
-            mockLootManager as any
-        );
+        missionManager.setupMission({
+            state: state as GameState,
+            map: mockMap as any,
+            enemyManager: mockEnemyManager as any,
+            squadConfig: { soldiers: [], inventory: {} },
+            nodeType: "Combat",
+            lootManager: mockLootManager as any
+        });
         
         const hasMapObj = state.objectives?.some(o => o.id === "map-obj-1");
         
@@ -107,14 +107,14 @@ describe("Regression: Optional Scrap Crates appearing in Objectives", () => {
         const mockEnemyManager = { addEnemy: vi.fn() };
         const mockLootManager = { spawnLoot: vi.fn() };
 
-        missionManager.setupMission(
-            state as GameState, 
-            mockMap as any, 
-            mockEnemyManager as any, 
-            { soldiers: [], inventory: {} },
-            undefined, // Missing nodeType
-            mockLootManager as any
-        );
+        missionManager.setupMission({
+            state: state as GameState,
+            map: mockMap as any,
+            enemyManager: mockEnemyManager as any,
+            squadConfig: { soldiers: [], inventory: {} },
+            nodeType: undefined,
+            lootManager: mockLootManager as any
+        });
         
         const hasMapObj = state.objectives?.some(o => o.id === "map-obj-1");
         

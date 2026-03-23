@@ -33,19 +33,22 @@ describe("SquadBuilder Component", () => {
         confirm: vi.fn().mockResolvedValue(true),
         prompt: vi.fn().mockResolvedValue("New Soldier"),
       },
+      campaignShell: {
+        refresh: vi.fn()
+      }
     } as any;
   });
 
   it("should render roster and deployment panels", () => {
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: false,
-      onSquadUpdated: () => {}
+      onSquadUpdated: () => {},
     });
     builder.render();
 
@@ -59,13 +62,13 @@ describe("SquadBuilder Component", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: false,
-      onSquadUpdated: () => {}
+      onSquadUpdated: () => {},
     });
     builder.render();
 
@@ -76,13 +79,13 @@ describe("SquadBuilder Component", () => {
   it("should disable launch button if squad is empty", () => {
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: false,
-      onSquadUpdated: () => {}
+      onSquadUpdated: () => {},
     });
     builder.render();
 
@@ -96,13 +99,13 @@ describe("SquadBuilder Component", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: false,
-      onSquadUpdated: () => {}
+      onSquadUpdated: () => {},
     });
     builder.render();
 
@@ -115,13 +118,13 @@ describe("SquadBuilder Component", () => {
   it("should lock first slot for Escort VIP mission", () => {
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.EscortVIP,
       isCampaign: false,
-      onSquadUpdated: () => {}
+      onSquadUpdated: () => {},
     });
     builder.render();
 
@@ -135,13 +138,13 @@ describe("SquadBuilder Component", () => {
   it("should not have visible slot labels but have aria-labels", () => {
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: false,
-      onSquadUpdated: () => {}
+      onSquadUpdated: () => {},
     });
     builder.render();
 
@@ -156,13 +159,13 @@ describe("SquadBuilder Component", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: false,
-      onSquadUpdated: onUpdate
+      onSquadUpdated: onUpdate,
     });
     builder.render();
 
@@ -179,13 +182,13 @@ describe("SquadBuilder Component", () => {
   it("should render stats in archetype cards", () => {
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: false,
-      onSquadUpdated: () => {}
+      onSquadUpdated: () => {},
     });
     builder.render();
 
@@ -201,13 +204,13 @@ describe("SquadBuilder Component", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: false,
-      onSquadUpdated: onUpdate
+      onSquadUpdated: onUpdate,
     });
     builder.render();
 

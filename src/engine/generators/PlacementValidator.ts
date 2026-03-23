@@ -24,9 +24,10 @@ export class PlacementValidator {
    * Creates a PlacementValidator populated with existing occupants from a map definition.
    */
   public static fromMap(map: MapDefinition): PlacementValidator {
-    const validator = new PlacementValidator();
+    const validator = new PlacementValidator(map?.width, map?.height);
 
     const getRoomId = (pos: Vector2) => {
+      if (!map || !map.cells) return undefined;
       return map.cells.find((c) => c.x === pos.x && c.y === pos.y)?.roomId;
     };
 

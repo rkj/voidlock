@@ -101,7 +101,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     load: vi.fn(),
     save: vi.fn(),
     assignEquipment: vi.fn(),
-    processMissionResult: vi.fn(),
+    reconcileMission: vi.fn(),
     advanceCampaignWithoutMission: vi.fn((nodeId, scrap, intel) => {
         if (mockCampaignState) {
             const node = mockCampaignState.nodes.find((n: any) => n.id === nodeId);

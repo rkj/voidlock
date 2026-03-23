@@ -19,7 +19,7 @@ describe("CampaignManager Unlocks", () => {
 
   it("should initialize new campaign with global unlocked archetypes", () => {
     // 1. Unlock something globally
-    metaManager.recordMissionResult(0, 0, true, 0, 100);
+    metaManager.recordMissionResult({ kills: 0, casualties: 0, won: true, scrapGained: 0, intelGained: 100 });
     metaManager.unlockArchetype("heavy", 50); // heavy might be default, but let's try another one if it's not
     metaManager.unlockArchetype("sniper", 50);
 
@@ -39,7 +39,7 @@ describe("CampaignManager Unlocks", () => {
 
   it("should initialize new campaign with global unlocked items", () => {
     // 1. Unlock something globally
-    metaManager.recordMissionResult(0, 0, true, 0, 100);
+    metaManager.recordMissionResult({ kills: 0, casualties: 0, won: true, scrapGained: 0, intelGained: 100 });
     metaManager.unlockItem("autocannon", 50);
 
     // 2. Start new campaign
@@ -57,7 +57,7 @@ describe("CampaignManager Unlocks", () => {
     const state = campaignManager.getState()!;
     const nodeId = state.nodes[0].id;
 
-    campaignManager.processMissionResult({
+    campaignManager.reconcileMission({
       nodeId,
       seed: 12345,
       result: "Won",
@@ -94,7 +94,7 @@ describe("CampaignManager Unlocks", () => {
 
   it("should allow recruiting unlocked archetypes", () => {
     // 1. Unlock globally
-    metaManager.recordMissionResult(0, 0, true, 0, 100);
+    metaManager.recordMissionResult({ kills: 0, casualties: 0, won: true, scrapGained: 0, intelGained: 100 });
     metaManager.unlockArchetype("heavy", 50);
 
     // 2. Start campaign

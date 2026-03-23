@@ -40,7 +40,13 @@ describe("Weapon System", () => {
     pathfinder = new Pathfinder(gameGrid.getGraph(), doors);
     los = new LineOfSight(gameGrid.getGraph(), doors);
     const movementManager = new MovementManager(gameGrid);
-    unitManager = new UnitManager(gameGrid, pathfinder, movementManager, los, true);
+    unitManager = new UnitManager({
+      gameGrid,
+      pathfinder,
+      movementManager,
+      los,
+      agentControlEnabled: true,
+    });
     prng = new PRNG(123);
     lootManager = new LootManager();
   });
@@ -129,7 +135,7 @@ describe("Weapon System", () => {
       map: map,
     } as unknown as GameState;
 
-    unitManager.update(state, 100, new Map(), prng, lootManager);
+    unitManager.update({ state, dt: 100, doors: new Map(), prng, lootManager });
 
     const updatedUnit = state.units[0];
     expect(updatedUnit.activeWeaponId).toBe("combat_knife");
@@ -189,7 +195,7 @@ describe("Weapon System", () => {
       map: map,
     } as unknown as GameState;
 
-    unitManager.update(state, 100, new Map(), prng, lootManager);
+    unitManager.update({ state, dt: 100, doors: new Map(), prng, lootManager });
 
     const updatedUnit = state.units[0];
     expect(updatedUnit.activeWeaponId).toBe("pulse_rifle");

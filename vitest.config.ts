@@ -14,7 +14,6 @@ export default defineConfig({
     // The suite is currently unstable at higher parallelism on this machine:
     // workers can hit `[vitest-worker]: Timeout calling "onTaskUpdate"`.
     maxWorkers: 2,
-    onConsoleLog: () => false,
   },
   esbuild: {
     jsxFactory: "createElement",

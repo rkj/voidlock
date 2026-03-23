@@ -49,7 +49,7 @@ describe("MetaManager", () => {
         },
       ],
     };
-    campaign.processMissionResult(report1);
+    campaign.reconcileMission(report1);
 
     expect(meta.getStats().totalKills).toBe(10);
     expect(meta.getStats().totalMissionsPlayed).toBe(1);
@@ -92,7 +92,7 @@ describe("MetaManager", () => {
         },
       ],
     };
-    campaign2.processMissionResult(report2);
+    campaign2.reconcileMission(report2);
 
     expect(meta.getStats().totalKills).toBe(15);
     expect(meta.getStats().totalMissionsPlayed).toBe(2);
@@ -128,7 +128,7 @@ describe("MetaManager", () => {
           timeSpent: 2000,
           soldierResults: [],
         };
-        campaign.processMissionResult(report);
+        campaign.reconcileMission(report);
       }
     }
 
@@ -152,7 +152,7 @@ describe("MetaManager", () => {
       timeSpent: 100,
       soldierResults: [],
     };
-    campaign.processMissionResult(report);
+    campaign.reconcileMission(report);
 
     expect(meta.getStats().campaignsWon).toBe(0);
     expect(meta.getStats().campaignsLost).toBe(1);
@@ -185,7 +185,7 @@ describe("MetaManager", () => {
           status: "Dead",
         })),
       };
-      campaign.processMissionResult(report);
+      campaign.reconcileMission(report);
     }
 
     expect(meta.getStats().campaignsWon).toBe(0);

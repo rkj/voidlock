@@ -50,7 +50,7 @@ describe("CampaignManager Prologue Integration", () => {
     const state = manager.getState();
     const prologueNode = state?.nodes[0]!;
     
-    manager.processMissionResult({
+    manager.reconcileMission({
       nodeId: prologueNode.id,
       seed: prologueNode.mapSeed,
       result: "Won",

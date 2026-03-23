@@ -45,7 +45,7 @@ describe("MissionManager", () => {
         }
       }
 
-      missionManager.setupMission(state, map, enemyManager);
+      missionManager.setupMission({ state, map, enemyManager });
 
       const recoverObjectives = state.objectives.filter(
         (o) => o.kind === "Recover",
@@ -72,7 +72,7 @@ describe("MissionManager", () => {
         }
       }
 
-      missionManager.setupMission(state, map, enemyManager);
+      missionManager.setupMission({ state, map, enemyManager });
 
       const recoverObjectives = state.objectives.filter(o => o.kind === "Recover");
       expect(recoverObjectives.length).toBe(3);
@@ -101,7 +101,7 @@ describe("MissionManager", () => {
         }
       }
 
-      missionManager.setupMission(state, map, enemyManager);
+      missionManager.setupMission({ state, map, enemyManager });
 
       const recoverObjectives = state.objectives.filter(o => o.kind === "Recover");
       expect(recoverObjectives.length).toBe(3);
@@ -123,7 +123,7 @@ describe("MissionManager", () => {
         }
       }
 
-      missionManager.setupMission(state, map, enemyManager);
+      missionManager.setupMission({ state, map, enemyManager });
 
       expect(state.enemies.some((e) => e.type === EnemyType.Hive)).toBe(true);
       expect(state.objectives.some((o) => o.kind === "Kill")).toBe(true);

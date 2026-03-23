@@ -49,7 +49,7 @@ export class Director implements IDirector {
   private itemEffectService: ItemEffectHandler;
 
   constructor({
-    spawnPoints,
+    spawnPoints = [],
     prng,
     onSpawn,
     itemEffectService,
@@ -58,12 +58,12 @@ export class Director implements IDirector {
     startingPoints = DIRECTOR.STARTING_POINTS,
     missionType = MissionType.Default,
   }: DirectorDeps) {
-    this.spawnPoints = spawnPoints;
+    this.spawnPoints = spawnPoints ?? [];
     this.prng = prng;
     this.onSpawn = onSpawn;
     this.itemEffectService = itemEffectService;
     this.startingThreatLevel = startingThreatLevel;
-    this.map = map;
+    this.map = map ? { ...map, cells: map.cells || [] } : { width: 10, height: 10, cells: [] };
     this.startingPoints = startingPoints;
     this.missionType = missionType;
 

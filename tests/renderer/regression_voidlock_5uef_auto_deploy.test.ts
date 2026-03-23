@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
-describe("SquadBuilder Auto-Deploy Regression", () => {
+describe("Regression voidlock-5uef: Auto-Deploy", () => {
   let context: any;
   let container: HTMLElement;
   let squad: SquadConfig;
@@ -24,25 +24,25 @@ describe("SquadBuilder Auto-Deploy Regression", () => {
           roster: [
             {
               id: "s1",
-              name: "Existing",
-              archetypeId: "assault",
+              name: "Soldier 1",
               status: "Healthy",
+              archetypeId: "assault",
               equipment: {},
             },
           ],
           scrap: 1000,
-          unlockedArchetypes: ["assault"],
+          unlockedArchetypes: ["assault", "medic"],
         }),
-        recruitSoldier: vi.fn().mockReturnValue("new-soldier-id"),
+        recruitSoldier: vi.fn(),
         reviveSoldier: vi.fn(),
+      },
+      campaignShell: {
+        refresh: vi.fn(),
       },
       modalService: {
         alert: vi.fn().mockResolvedValue(undefined),
         confirm: vi.fn().mockResolvedValue(true),
-        prompt: vi.fn().mockResolvedValue("New Recruit"),
-      },
-      campaignShell: {
-        refresh: vi.fn(),
+        prompt: vi.fn().mockResolvedValue("New Soldier"),
       },
     } as any;
   });
@@ -51,63 +51,56 @@ describe("SquadBuilder Auto-Deploy Regression", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: true,
-      onSquadUpdated: onUpdate
+      onSquadUpdated: onUpdate,
     });
     builder.render();
 
     // Mock that after recruitment, the roster contains the new soldier
-    const updatedRoster = [
-      {
-        id: "s1",
-        name: "Existing",
-        archetypeId: "assault",
-        status: "Healthy",
-        equipment: {},
-      },
-      {
-        id: "new-soldier-id",
-        name: "New Recruit",
-        archetypeId: "assault",
-        status: "Healthy",
-        equipment: { rightHand: "pistol" },
-      },
-    ];
-    (context.campaignManager.getState as any).mockReturnValue({
-      roster: updatedRoster,
+    const newSoldierId = "new-s1";
+    context.campaignManager.recruitSoldier.mockReturnValue(newSoldierId);
+    
+    context.campaignManager.getState.mockReturnValue({
+      roster: [
+        { id: "s1", name: "S1", status: "Healthy", archetypeId: "assault", equipment: {} },
+        { id: newSoldierId, name: "New Guy", status: "Healthy", archetypeId: "medic", equipment: {} },
+      ],
       scrap: 900,
-      unlockedArchetypes: ["assault"],
+      unlockedArchetypes: ["assault", "medic"],
+      rules: { deathRule: "Simulation" }
     });
 
-    const recruitBtn = container.querySelector(
-      ".btn-recruit",
-    ) as HTMLButtonElement;
+    // Simulate recruitment via button click
+    const recruitBtn = container.querySelector(".btn-recruit") as HTMLElement;
     recruitBtn.click();
 
-    await vi.waitFor(() => {
-      expect(context.campaignManager.recruitSoldier).toHaveBeenCalled();
-      expect(squad.soldiers.length).toBe(1);
-    });
+    // Verify recruitSoldier was called
+    expect(context.campaignManager.recruitSoldier).toHaveBeenCalled();
 
-    expect(squad.soldiers[0].id).toBe("new-soldier-id");
-    expect(context.campaignShell.refresh).toHaveBeenCalled();
+    // Verify the new soldier was added to the squad
+    expect(squad.soldiers.length).toBe(1);
+    expect(squad.soldiers[0].id).toBe(newSoldierId);
+    expect(onUpdate).toHaveBeenCalledWith(squad);
   });
 
   it("should auto-deploy newly revived soldier", async () => {
-    const deadSoldier = {
-      id: "dead1",
-      name: "Dead",
-      archetypeId: "assault",
-      status: "Dead",
-      equipment: {},
-    };
-    (context.campaignManager.getState as any).mockReturnValue({
-      roster: [deadSoldier],
+    // Roster has a dead soldier
+    const deadSoldierId = "dead-s1";
+    context.campaignManager.getState.mockReturnValue({
+      roster: [
+        {
+          id: deadSoldierId,
+          name: "Dead Guy",
+          status: "Dead",
+          archetypeId: "assault",
+          equipment: {},
+        },
+      ],
       scrap: 1000,
       unlockedArchetypes: ["assault"],
       rules: { deathRule: "Clone" },
@@ -116,40 +109,44 @@ describe("SquadBuilder Auto-Deploy Regression", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder({
       containerId: "squad-builder",
-      campaignManager: context.campaignManager as any as any,
-      campaignShell: context.campaignShell as any as any,
-      modalService: context.modalService as any as any,
+      campaignManager: context.campaignManager as any,
+      campaignShell: context.campaignShell as any,
+      modalService: context.modalService as any,
       initialSquad: squad,
       missionType: MissionType.Default,
       isCampaign: true,
-      onSquadUpdated: onUpdate
+      onSquadUpdated: onUpdate,
     });
     builder.render();
 
     // Mock that after revival, the soldier is healthy
-    const revivedSoldier = {
-      ...deadSoldier,
-      status: "Healthy",
-      equipment: { rightHand: "rifle" },
-    };
-    (context.campaignManager.getState as any).mockReturnValue({
-      roster: [revivedSoldier],
+    const reviveBtn = container.querySelector(".btn-revive") as HTMLElement;
+    
+    context.campaignManager.getState.mockReturnValue({
+      roster: [
+        {
+          id: deadSoldierId,
+          name: "Dead Guy",
+          status: "Healthy",
+          archetypeId: "assault",
+          equipment: { rightHand: "pulse_rifle" },
+        },
+      ],
       scrap: 750,
       unlockedArchetypes: ["assault"],
       rules: { deathRule: "Clone" },
     });
 
-    const reviveBtn = container.querySelector(
-      ".btn-revive",
-    ) as HTMLButtonElement;
     reviveBtn.click();
 
-    await vi.waitFor(() => {
-      expect(context.campaignManager.reviveSoldier).toHaveBeenCalledWith("dead1");
-      expect(squad.soldiers.length).toBe(1);
-    });
+    // Verify reviveSoldier was called
+    expect(context.campaignManager.reviveSoldier).toHaveBeenCalledWith(
+      deadSoldierId,
+    );
 
-    expect(squad.soldiers[0].id).toBe("dead1");
-    expect(context.campaignShell.refresh).toHaveBeenCalled();
+    // Verify the revived soldier was added to the squad
+    expect(squad.soldiers.length).toBe(1);
+    expect(squad.soldiers[0].id).toBe(deadSoldierId);
+    expect(onUpdate).toHaveBeenCalledWith(squad);
   });
 });

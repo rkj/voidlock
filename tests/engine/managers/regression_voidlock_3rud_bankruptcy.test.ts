@@ -29,7 +29,7 @@ describe("CampaignManager Bankruptcy", () => {
       soldierResults: [], // No soldiers died
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
     expect(state.status).toBe("Active");
   });
 
@@ -50,7 +50,7 @@ describe("CampaignManager Bankruptcy", () => {
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
     expect(state.status).toBe("Defeat");
   });
 
@@ -80,7 +80,7 @@ describe("CampaignManager Bankruptcy", () => {
       })),
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
     expect(state.status).toBe("Defeat");
   });
 
@@ -109,7 +109,7 @@ describe("CampaignManager Bankruptcy", () => {
       })),
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
     expect(state.status).toBe("Active");
   });
 
@@ -139,7 +139,7 @@ describe("CampaignManager Bankruptcy", () => {
       ],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
     expect(state.status).toBe("Active");
   });
 });

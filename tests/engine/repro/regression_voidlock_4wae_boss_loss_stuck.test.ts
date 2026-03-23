@@ -37,7 +37,7 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
       soldierResults: [],
     };
 
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     // Expect Defeat because it was the final mission and we lost
     expect(manager.getState()?.status).toBe("Defeat");
@@ -69,7 +69,7 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
     };
 
     // Trigger reconciliation
-    manager.processMissionResult(report);
+    manager.reconcileMission(report);
 
     // Expect Defeat because we have no healthy soldiers and no money to recruit
     expect(manager.getState()?.status).toBe("Defeat");

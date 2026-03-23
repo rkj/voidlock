@@ -31,20 +31,33 @@ export class GameGrid implements Grid {
   }
 
   isWalkable(x: number, y: number): boolean {
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height || !this.graph.cells[y]) {
       return false;
     }
     return this.graph.cells[y][x].type === CellType.Floor;
   }
 
-  canMove({
-    fromX,
-    fromY,
-    toX,
-    toY,
-    doors,
-    allowClosedDoors = false,
-  }: CanMoveParams): boolean {
+  canMove(params: CanMoveParams | number): boolean {
+    let fromX: number, fromY: number, toX: number, toY: number, doors: Map<string, Door> | undefined, allowClosedDoors: boolean;
+
+    if (typeof params === "number") {
+      fromX = params;
+      fromY = arguments[1];
+      toX = arguments[2];
+      toY = arguments[3];
+      doors = arguments[4];
+      allowClosedDoors = arguments[5] || false;
+    } else {
+      ({
+        fromX,
+        fromY,
+        toX,
+        toY,
+        doors,
+        allowClosedDoors = false,
+      } = params);
+    }
+
     if (!this.isWalkable(fromX, fromY) || !this.isWalkable(toX, toY)) {
       return false;
     }

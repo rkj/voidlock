@@ -1,5 +1,4 @@
 import type { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
-import type { EquipmentState } from "../../shared/types";
 import {
   DEFAULT_ARCHETYPES,
   CAMPAIGN_DEFAULTS,
@@ -12,21 +11,25 @@ import { SoldierFactory } from "./SoldierFactory";
 export class RosterManager {
   /**
    * Generates the initial roster of soldiers for a new campaign.
+   * @param prng Optional PRNG for random generation. (Note: Roster generation is currently deterministic by index)
    * @param unlockedArchetypes Optional list of available archetypes. Defaults to DEFAULT_ARCHETYPES.
    */
-  public generateInitialRoster(
+  public static generateInitialRoster(
+    _prng?: any,
     unlockedArchetypes?: string[],
   ): CampaignSoldier[] {
-    const archetypes = unlockedArchetypes ?? [...DEFAULT_ARCHETYPES];
+    const archetypes = (unlockedArchetypes && unlockedArchetypes.length > 0) 
+      ? unlockedArchetypes 
+      : [...DEFAULT_ARCHETYPES];
     const roster: CampaignSoldier[] = [];
 
     for (let i = 0; i < CAMPAIGN_DEFAULTS.INITIAL_ROSTER_SIZE; i++) {
       const archId = archetypes[i % archetypes.length];
-      roster.push(
-        SoldierFactory.createSoldier(archId, roster, {
-          id: `soldier_${i}`,
-        }),
-      );
+      // Use SoldierFactory to ensure uniform generation
+      const soldier = SoldierFactory.createSoldier(archId, roster, {
+        id: `soldier_${i}`,
+      });
+      roster.push(soldier);
     }
     return roster;
   }
@@ -34,7 +37,7 @@ export class RosterManager {
   /**
    * Recruits a new soldier.
    */
-  public recruitSoldier(
+  public static recruitSoldier(
     state: CampaignState,
     archetypeId: string,
     name?: string,
@@ -50,102 +53,87 @@ export class RosterManager {
       );
     }
 
-    if (!state.unlockedArchetypes.includes(archetypeId)) {
-      throw new Error(`Archetype ${archetypeId} is not unlocked.`);
-    }
-
-    const newSoldier = SoldierFactory.createSoldier(archetypeId, state.roster, {
-      name,
+    const soldierName = name ?? `Recruit ${state.roster.length + 1}`;
+    const soldier = SoldierFactory.createSoldier(archetypeId, state.roster, {
+      name: soldierName,
     });
-
+    
+    state.roster.push(soldier);
     state.scrap -= COST;
-    state.roster.push(newSoldier);
-    return newSoldier.id;
-  }
 
-  /**
-   * Heals a wounded soldier.
-   */
-  public healSoldier(state: CampaignState, soldierId: string): void {
-    const COST = 50;
-    if (state.scrap < COST) {
-      throw new Error("Insufficient scrap to heal soldier.");
-    }
-
-    const soldier = state.roster.find((s) => s.id === soldierId);
-    if (!soldier) {
-      throw new Error(`Soldier not found: ${soldierId}`);
-    }
-
-    if (soldier.status !== "Wounded") {
-      throw new Error("Soldier is not wounded.");
-    }
-
-    state.scrap -= COST;
-    soldier.status = "Healthy";
-    soldier.hp = soldier.maxHp;
+    return soldier.id;
   }
 
   /**
    * Revives a dead soldier.
    */
-  public reviveSoldier(state: CampaignState, soldierId: string): void {
-    if (state.rules.deathRule !== "Clone") {
-      throw new Error("Revival only allowed in 'Clone' mode.");
-    }
-
+  public static reviveSoldier(state: CampaignState, soldierId: string): boolean {
     const COST = 250;
     if (state.scrap < COST) {
-      throw new Error("Insufficient scrap to revive soldier.");
+      return false;
     }
 
     const soldier = state.roster.find((s) => s.id === soldierId);
-    if (!soldier) {
-      throw new Error(`Soldier not found: ${soldierId}`);
+    if (!soldier || soldier.status !== "Dead") {
+      return false;
     }
 
-    if (soldier.status !== "Dead") {
-      throw new Error("Soldier is not dead.");
-    }
-
-    state.scrap -= COST;
     soldier.status = "Healthy";
     soldier.hp = soldier.maxHp;
-  }
+    state.scrap -= COST;
 
-  /**
-   * Assigns equipment to a soldier.
-   */
-  public assignEquipment(
-    state: CampaignState,
-    soldierId: string,
-    equipment: EquipmentState,
-  ): void {
-    const soldier = state.roster.find((s) => s.id === soldierId);
-    if (!soldier) {
-      throw new Error(`Soldier not found: ${soldierId}`);
-    }
-
-    soldier.equipment = { ...equipment };
+    return true;
   }
 
   /**
    * Renames a soldier.
    */
-  public renameSoldier(
+  public static renameSoldier(
     state: CampaignState,
     soldierId: string,
     newName: string,
   ): void {
     const soldier = state.roster.find((s) => s.id === soldierId);
-    if (!soldier) {
-      throw new Error(`Soldier not found: ${soldierId}`);
+    if (soldier) {
+      soldier.name = newName;
+    }
+  }
+
+  /**
+   * Heals a wounded soldier.
+   */
+  public static healSoldier(
+    state: CampaignState,
+    soldierId: string,
+    cost: number,
+  ): boolean {
+    if (state.scrap < cost) {
+      return false;
     }
 
-    if (!newName || newName.trim().length === 0) {
-      throw new Error("Invalid name.");
+    const soldier = state.roster.find((s) => s.id === soldierId);
+    if (!soldier || soldier.status !== "Wounded") {
+      return false;
     }
 
-    soldier.name = newName.trim();
+    soldier.status = "Healthy";
+    soldier.hp = soldier.maxHp;
+    state.scrap -= cost;
+
+    return true;
+  }
+
+  /**
+   * Updates a soldier's equipment.
+   */
+  public static updateSoldierEquipment(
+    state: CampaignState,
+    soldierId: string,
+    equipment: Partial<CampaignSoldier["equipment"]>,
+  ): void {
+    const soldier = state.roster.find((s) => s.id === soldierId);
+    if (soldier) {
+      soldier.equipment = { ...soldier.equipment, ...equipment };
+    }
   }
 }

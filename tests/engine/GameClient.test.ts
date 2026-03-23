@@ -112,7 +112,7 @@ describe("GameClient", () => {
       payload: expect.objectContaining({
         seed: 555,
         mode: EngineMode.Replay,
-        initialCommandLog: [{ tick: 100, command: commands[0].cmd }],
+        commandLog: [{ tick: 100, command: commands[0].cmd }],
       }),
     });
   });

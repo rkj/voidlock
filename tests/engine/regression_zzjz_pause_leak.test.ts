@@ -5,6 +5,7 @@ import {
   MapGeneratorType,
   SquadConfig,
   MapGenerationConfig,
+  UnitStyle,
 } from "@src/shared/types";
 import { MapGenerator } from "@src/engine/MapGenerator";
 
@@ -47,11 +48,12 @@ describe("GameClient Regression zzjz (Pause/Speed Leak)", () => {
     client.init({
       seed: 1,
       mapGeneratorType: MapGeneratorType.Static,
-      map: mockMap,
+      mapData: mockMap,
       agentControlEnabled: true,
       debugOverlayEnabled: false,
       fogOfWarEnabled: true,
-      unitStyle: defaultSquad
+      unitStyle: UnitStyle.TacticalIcons,
+      squadConfig: defaultSquad
     });
     client.setTimeScale(2.0);
     client.pause(); // Should set scale to 0.1 and isPaused to true
@@ -66,11 +68,11 @@ describe("GameClient Regression zzjz (Pause/Speed Leak)", () => {
     client.init({
       seed: 2,
       mapGeneratorType: MapGeneratorType.Static,
-      map: mockMap,
+      mapData: mockMap,
       agentControlEnabled: true,
       debugOverlayEnabled: false,
       fogOfWarEnabled: true,
-      unitStyle: defaultSquad
+      squadConfig: defaultSquad
     });
 
     // 3. Verify defaults are restored

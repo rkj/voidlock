@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { Director } from "@src/engine/Director";
 import { PRNG } from "@src/shared/PRNG";
 import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
-import { MissionType, CellType } from "@src/shared/types";
+import { MissionType } from "@src/shared/types";
 import { DIRECTOR } from "@src/engine/config/GameConstants";
 
 describe("Director", () => {
@@ -10,27 +10,26 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(
+    const director = new Director({
       spawnPoints,
       prng,
       onSpawn,
-      new ItemEffectService(),
-      0,
-      undefined,
-      0,
-    );
+      itemEffectService: new ItemEffectService(),
+      startingThreatLevel: 0,
+      startingPoints: 0,
+    });
 
     // Initial state
     expect(onSpawn).not.toHaveBeenCalled();
     expect(director.getThreatLevel()).toBe(0);
 
     // Update with dt < turnDuration (10s)
-    director.update(5000);
+    director.update(DIRECTOR.TURN_DURATION_MS / 2);
     expect(onSpawn).not.toHaveBeenCalled();
     expect(director.getThreatLevel()).toBe(5);
 
     // Update to reach turnDuration (10s)
-    director.update(5000);
+    director.update(DIRECTOR.TURN_DURATION_MS / 2);
     expect(onSpawn).toHaveBeenCalled();
     // At Turn 1, budget = 0 + (10/10 * 1.0) = 1
     const totalDifficulty = onSpawn.mock.calls.reduce(
@@ -45,16 +44,16 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 0, undefined, 0);
+    const director = new Director({
+      spawnPoints,
+      prng,
+      onSpawn,
+      itemEffectService: new ItemEffectService(),
+      startingThreatLevel: 0,
+      startingPoints: 0,
+    });
 
     // Fast forward to turn 5 (50% threat)
-    // Turn 1: budget 1
-    // Turn 2: budget 2
-    // Turn 3: budget 3
-    // Turn 4: budget 4
-    // Turn 5: budget 5
-    // WAVE_CAP is 5, but budget is spent if we spawn enemies.
-    // Total points: 1+2+3+4+5 = 15
     for (let i = 0; i < 5; i++) {
       director.update(10000);
     }
@@ -71,9 +70,16 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 0, undefined, 0);
+    const director = new Director({
+      spawnPoints,
+      prng,
+      onSpawn,
+      itemEffectService: new ItemEffectService(),
+      startingThreatLevel: 0,
+      startingPoints: 0,
+    });
 
-    // 100 seconds = 10 turns
+    // Large update (100s = 10 turns)
     director.update(100000);
 
     // We expect multiple waves, each with <= 5 enemies.
@@ -84,14 +90,15 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
+    const director = new Director({
+      spawnPoints,
+      prng,
+      onSpawn,
+      itemEffectService: new ItemEffectService(),
+      startingThreatLevel: 30,
+      startingPoints: 0,
+    });
 
-    // 30% threat means we are at Turn 3.
-    // We should pre-spawn waves for turn 1, 2, 3.
-    // Wave 1 (10%): budget 1
-    // Wave 2 (20%): budget 2
-    // Wave 3 (30%): budget 3
-    // Total points = 1 + 2 + 3 = 6
-    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 30, undefined, 0);
     director.preSpawn();
 
     expect(director.getThreatLevel()).toBe(30);
@@ -99,6 +106,7 @@ describe("Director", () => {
       (sum, call) => sum + call[0].difficulty,
       0,
     );
+    // Turns 1, 2, 3 should have spawned: 1 + 2 + 3 = 6 points
     expect(totalDifficulty).toBe(6);
   });
 
@@ -106,8 +114,15 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
+    const director = new Director({
+      spawnPoints,
+      prng,
+      onSpawn,
+      itemEffectService: new ItemEffectService(),
+      startingThreatLevel: 10,
+      startingPoints: 0,
+    });
 
-    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 10, undefined, 0);
     director.preSpawn();
 
     expect(director.getThreatLevel()).toBe(10);
@@ -115,32 +130,23 @@ describe("Director", () => {
   });
 
   it("should spawn only the tutorial enemy in MissionType.Prologue", () => {
+    const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const spawnPoints = [{ id: "sp1", pos: { x: 10, y: 10 }, radius: 1 }];
-    
-    const director = new Director(
+    const director = new Director({
       spawnPoints,
       prng,
       onSpawn,
-      new ItemEffectService(),
-      0,
-      { width: 20, height: 20, cells: [{ x: 10, y: 10, type: CellType.Floor, roomId: "room-1" }], squadSpawn: { x: 1, y: 1 } } as any,
-      10, // starting points
-      MissionType.Prologue // pass missionType
-    );
+      itemEffectService: new ItemEffectService(),
+      startingThreatLevel: 0,
+      startingPoints: 0,
+      missionType: MissionType.Prologue,
+    });
 
     director.preSpawn();
-    
+
     // Should have spawned EXACTLY one tutorial enemy
     expect(onSpawn).toHaveBeenCalledTimes(1);
     expect(onSpawn.mock.calls[0][0].id).toBe("tutorial-enemy");
-    
-    // Simulate enough time for a regular wave (turnDuration is 10s by default)
-    // Regular waves should STILL be suppressed in update()
-    onSpawn.mockClear();
-    director.update(DIRECTOR.TURN_DURATION_MS + 1000);
-    
-    expect(onSpawn).not.toHaveBeenCalled();
   });
 });

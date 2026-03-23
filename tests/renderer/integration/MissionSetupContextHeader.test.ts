@@ -95,7 +95,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     load: vi.fn(),
     save: vi.fn(),
     assignEquipment: vi.fn(),
-    processMissionResult: vi.fn(),
+    reconcileMission: vi.fn(),
     startNewCampaign: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);

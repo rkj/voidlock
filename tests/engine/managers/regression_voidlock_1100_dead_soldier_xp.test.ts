@@ -47,8 +47,8 @@ describe("CampaignManager Regression (voidlock-1100)", () => {
       ],
     };
 
-    // 4. Call processMissionResult.
-    manager.processMissionResult(report);
+    // 4. Call reconcileMission.
+    manager.reconcileMission(report);
 
     // 5. Assertions
     const updatedSoldier = state?.roster.find((s) => s.id === soldier.id);

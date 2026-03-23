@@ -99,7 +99,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     load: vi.fn(),
     save: vi.fn(),
     assignEquipment: vi.fn(),
-    processMissionResult: vi.fn(),
+    reconcileMission: vi.fn(),
     recruitSoldier: vi.fn((archetypeId) => {
         if (mockCampaignState) {
             mockCampaignState.scrap -= 100;

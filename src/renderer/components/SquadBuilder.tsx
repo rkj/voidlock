@@ -280,7 +280,8 @@ export class SquadBuilder {
     const sortedRoster = [...state.roster].sort((a, b) => {
       const weightA = statusWeights[a.status] ?? 3;
       const weightB = statusWeights[b.status] ?? 3;
-      return weightA - weightB;
+      if (weightA !== weightB) return weightA - weightB;
+      return a.name.localeCompare(b.name);
     });
 
     const healthyAvailable = sortedRoster.filter(
@@ -353,6 +354,7 @@ export class SquadBuilder {
         }),
     );
 
+    let recruitButton = null;
     if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
       recruitButton = (
         <button
