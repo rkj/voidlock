@@ -23,10 +23,10 @@ describe("CampaignManager Regression NE16", () => {
     CampaignManager.resetInstance();
     manager = CampaignManager.getInstance(storage);
 
-    // Normal normally has allowTacticalPause: true
-    manager.startNewCampaign(67890, "Normal", false);
+    // Standard normally has allowTacticalPause: true
+    manager.startNewCampaign(67890, "Standard", false);
     state = manager.getState();
-    expect(state?.rules.difficulty).toBe("Clone"); // Normal maps to Clone
+    expect(state?.rules.difficulty).toBe("Standard");
     expect(state?.rules.allowTacticalPause).toBe(false);
   });
 });

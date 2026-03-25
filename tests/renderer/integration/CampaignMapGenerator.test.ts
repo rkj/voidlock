@@ -96,7 +96,17 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     save: vi.fn(),
     assignEquipment: vi.fn(),
     reconcileMission: vi.fn(),
-    startNewCampaign: vi.fn((seed, diff, overrides) => {
+    processMissionResult: vi.fn(),
+    startNewCampaign: vi.fn((configOrSeed: any, diff?: string, overrides?: any) => {
+        let difficulty = "Standard";
+        let mapGen = "DenseShip";
+        if (typeof configOrSeed === "object") {
+            difficulty = configOrSeed.difficulty || "Standard";
+            mapGen = configOrSeed.overrides?.mapGeneratorType || "DenseShip";
+        } else {
+            difficulty = diff || "Standard";
+            mapGen = overrides?.mapGeneratorType || "DenseShip";
+        }
         mockCampaignState = {
             status: "Active",
             nodes: [
@@ -142,17 +152,17 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             unlockedArchetypes: ["scout"],
             rules: {
                 mode: "Preset",
-                difficulty: diff || "Standard",
+                difficulty,
                 deathRule: "Simulation",
                 allowTacticalPause: true,
-                mapGeneratorType: overrides?.mapGeneratorType || "DenseShip",
+                mapGeneratorType: mapGen,
                 difficultyScaling: 1,
                 resourceScarcity: 1,
                 startingScrap: 100,
                 mapGrowthRate: 1,
                 baseEnemyCount: 3,
                 enemyGrowthPerMission: 1,
-                economyMode: "Open",
+                economyMode: "Normal",
                 themeId: "default",
             },
         };

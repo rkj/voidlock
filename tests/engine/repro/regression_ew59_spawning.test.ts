@@ -47,15 +47,15 @@ describe("Regression voidlock-ew59: Point-Based Spawning", () => {
 
     const startingPoints = 20;
 
-    const director = new Director(
-      map.spawnPoints!,
+    const director = new Director({
+      spawnPoints: map.spawnPoints!,
       prng,
       onSpawn,
-      new ItemEffectService(),
-      0, // startingThreatLevel
+      itemEffectService: new ItemEffectService(),
+      startingThreatLevel: 0,
       map,
       startingPoints,
-    );
+    });
 
     director.preSpawn();
 

@@ -10,7 +10,8 @@ import {
   SquadConfig,
 } from "@src/shared/types";
 import type {
-  MissionReport} from "@src/shared/campaign_types";
+  MissionReport,
+  CampaignNode} from "@src/shared/campaign_types";
 import {
   calculateSpawnPoints
 } from "@src/shared/campaign_types";

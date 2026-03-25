@@ -4,7 +4,7 @@ import type {
 } from "../../shared/campaign_types";
 import type { PRNG } from "../../shared/PRNG";
 import { MissionType } from "../../shared/types";
-import type { MissionReconciler } from "./MissionReconciler";
+import { MissionReconciler } from "./MissionReconciler";
 import { SoldierFactory } from "./SoldierFactory";
 
 /**
@@ -19,13 +19,11 @@ export class EventManager {
     nodeId,
     choice,
     prng,
-    reconciler,
   }: {
     state: CampaignState;
     nodeId: string;
     choice: EventChoice;
     prng: PRNG;
-    reconciler: MissionReconciler;
   }): { text: string; ambush: boolean } {
     let outcomeText = "";
     let ambushOccurred = false;
@@ -100,7 +98,7 @@ export class EventManager {
 
     // 4. Advance campaign
     if (!ambushOccurred) {
-      reconciler.advanceCampaignWithoutMission(state, nodeId, 0, 0);
+      MissionReconciler.advanceCampaignWithoutMission(state, nodeId, 0, 0);
     } else {
       const node = state.nodes.find((n) => n.id === nodeId);
       if (node) {

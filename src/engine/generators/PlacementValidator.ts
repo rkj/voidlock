@@ -16,6 +16,10 @@ export class PlacementValidator {
   private occupiedCells: Map<string, OccupantType> = new Map();
   private occupiedRooms: Map<string, OccupantType> = new Map();
 
+  constructor(_width?: number, _height?: number) {
+    // Width and height reserved for future spatial validation
+  }
+
   private getCellKey(pos: Vector2): string {
     return `${pos.x},${pos.y}`;
   }

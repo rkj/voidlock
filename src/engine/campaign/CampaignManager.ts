@@ -1,13 +1,13 @@
-import { CampaignSoldier, CampaignState, NodeStatus, NodeType, CampaignNode, CampaignRules, CampaignOverrides } from "@src/shared/campaign_types";
+import { CampaignSoldier, CampaignState, CampaignNode, CampaignOverrides } from "@src/shared/campaign_types";
+import type { GameRules } from "@src/shared/campaign_types";
 import { PRNG } from "@src/shared/PRNG";
-import { MapGeneratorType, UnitState, MissionType, UnitStyle, EnemyType } from "@src/shared/types";
+import { MapGeneratorType } from "@src/shared/types";
 import { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
 import { RosterManager } from "./RosterManager";
 import { MissionReconciler } from "./MissionReconciler";
 import { EventManager } from "./EventManager";
 import { MetaManager } from "./MetaManager";
-import { SoldierFactory } from "./SoldierFactory";
 
 const STORAGE_KEY = "voidlock_campaign_state";
 
@@ -189,8 +189,9 @@ export class CampaignManager {
     });
 
     this.state = {
+      version: "1.0.0",
+      saveVersion: 1,
       seed,
-      difficulty,
       rules,
       status: "Active",
       scrap: rules.startingScrap,
@@ -201,22 +202,18 @@ export class CampaignManager {
       history: [],
       currentSector: 1,
       lastModifiedAt: Date.now(),
-      stats: {
-        totalKills: 0,
-        totalMissionsPlayed: 0,
-        totalMissionsWon: 0,
-        totalCasualties: 0,
-        totalScrapEarned: 0
-      }
+      unlockedArchetypes: metaStats.unlockedArchetypes ?? [],
+      unlockedItems: [],
     };
 
     this.save();
   }
 
-  public getRulesForDifficulty(difficulty: string): CampaignRules {
+  public getRulesForDifficulty(difficulty: string): GameRules {
     const d = difficulty.toLowerCase();
     if (d === "simulation") {
         return {
+          mode: "Preset",
           deathRule: "Simulation",
           allowTacticalPause: true,
           difficultyScaling: 0.8,
@@ -226,13 +223,14 @@ export class CampaignManager {
           mapGrowthRate: 0.5,
           baseEnemyCount: 2,
           enemyGrowthPerMission: 0.5,
-          economyMode: "Normal",
+          economyMode: "Open",
           skipPrologue: false,
           difficulty: "Simulation"
         };
     } else if (d === "iron") {
         return {
-          deathRule: "Permadeath",
+          mode: "Preset",
+          deathRule: "Iron",
           allowTacticalPause: true,
           difficultyScaling: 1.2,
           resourceScarcity: 1.2,
@@ -241,13 +239,14 @@ export class CampaignManager {
           mapGrowthRate: 0.5,
           baseEnemyCount: 4,
           enemyGrowthPerMission: 1.5,
-          economyMode: "Hard",
+          economyMode: "Limited",
           skipPrologue: false,
-          difficulty: "Iron"
+          difficulty: "Ironman"
         };
     } else if (d === "ironman" || d === "hard") {
         return {
-          deathRule: "Ironman",
+          mode: "Preset",
+          deathRule: "Iron",
           allowTacticalPause: false,
           difficultyScaling: 1.5,
           resourceScarcity: 1.5,
@@ -256,14 +255,15 @@ export class CampaignManager {
           mapGrowthRate: 0.5,
           baseEnemyCount: 5,
           enemyGrowthPerMission: 2.0,
-          economyMode: "Hardcore",
+          economyMode: "Limited",
           skipPrologue: false,
           difficulty: "Ironman"
         };
     }
-    
+
     // Default / Standard
     return {
+      mode: "Preset",
       deathRule: "Clone",
       allowTacticalPause: true,
       difficultyScaling: 1.0,
@@ -273,7 +273,7 @@ export class CampaignManager {
       mapGrowthRate: 0.5,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1.0,
-      economyMode: "Normal",
+      economyMode: "Open",
       skipPrologue: false,
       difficulty: "Standard"
     };
@@ -368,9 +368,17 @@ export class CampaignManager {
     this.save();
   }
 
-  public handleEventChoice(eventId: string, choiceIndex: number): void {
+  public applyEventChoice(nodeId: string, choice: import("../../shared/campaign_types").EventChoice, prng: import("../../shared/PRNG").PRNG): { text: string; ambush: boolean } {
+    if (!this.state) return { text: "", ambush: false };
+    const em = new EventManager();
+    const result = em.applyEventChoice({ state: this.state, nodeId, choice, prng });
+    this.save();
+    return result;
+  }
+
+  public advanceCampaignWithoutMission(nodeId: string, scrapGained: number, intelGained: number): void {
     if (!this.state) return;
-    EventManager.handleChoice(this.state, eventId, choiceIndex);
+    MissionReconciler.advanceCampaignWithoutMission(this.state, nodeId, scrapGained, intelGained);
     this.save();
   }
 }

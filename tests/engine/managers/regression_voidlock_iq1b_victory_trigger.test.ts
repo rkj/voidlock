@@ -14,12 +14,15 @@ describe("Campaign Victory Trigger (voidlock-iq1b)", () => {
   });
 
   it("should set campaign status to 'Victory' when a Boss node mission is won", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
 
     // Find a boss node
     const bossNode = state.nodes.find((n) => n.type === "Boss");
     expect(bossNode).toBeDefined();
+
+    // Must set currentNodeId for reconcileMission to proceed
+    state.currentNodeId = bossNode!.id;
 
     const report: MissionReport = {
       nodeId: bossNode!.id,
@@ -37,17 +40,20 @@ describe("Campaign Victory Trigger (voidlock-iq1b)", () => {
     expect(state.status).toBe("Victory");
 
     // Verify it's saved
-    const savedState = storage.load<any>("voidlock_campaign_v1");
+    const savedState = storage.load<any>("voidlock_campaign_state");
     expect(savedState.status).toBe("Victory");
   });
 
   it("should NOT set campaign status to 'Victory' when a non-Boss node mission is won", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
 
-    // Find a non-boss node (e.g. Combat)
-    const combatNode = state.nodes.find((n) => n.type === "Combat");
+    // Find a non-boss, non-last-rank Combat node
+    const maxRank = Math.max(...state.nodes.map((n) => n.rank));
+    const combatNode = state.nodes.find((n) => n.type === "Combat" && n.rank < maxRank);
     expect(combatNode).toBeDefined();
+
+    state.currentNodeId = combatNode!.id;
 
     const report: MissionReport = {
       nodeId: combatNode!.id,
@@ -66,12 +72,14 @@ describe("Campaign Victory Trigger (voidlock-iq1b)", () => {
   });
 
   it("should NOT set campaign status to 'Victory' when a Boss node mission is LOST", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
 
     // Find a boss node
     const bossNode = state.nodes.find((n) => n.type === "Boss");
     expect(bossNode).toBeDefined();
+
+    state.currentNodeId = bossNode!.id;
 
     const report: MissionReport = {
       nodeId: bossNode!.id,

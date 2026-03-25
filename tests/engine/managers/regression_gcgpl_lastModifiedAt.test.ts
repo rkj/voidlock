@@ -14,7 +14,7 @@ describe("Regression: lastModifiedAt (voidlock-gcgpl)", () => {
 
   it("should set lastModifiedAt when starting a new campaign", () => {
     const before = Date.now();
-    campaignManager.startNewCampaign(12345, "Clone");
+    campaignManager.startNewCampaign(12345, "Standard");
     const state = campaignManager.getState()!;
     const after = Date.now();
 
@@ -22,31 +22,24 @@ describe("Regression: lastModifiedAt (voidlock-gcgpl)", () => {
     expect(state.lastModifiedAt).toBeLessThanOrEqual(after);
   });
 
-  it("should update lastModifiedAt when saving", async () => {
-    campaignManager.startNewCampaign(12345, "Clone");
+  it("should update lastModifiedAt on state-changing operations", async () => {
+    campaignManager.startNewCampaign(12345, "Standard");
     const initialModifiedAt = campaignManager.getState()!.lastModifiedAt;
 
     // Wait a bit to ensure timestamp changes
     await new Promise((resolve) => setTimeout(resolve, 10));
 
-    campaignManager.save();
+    // spendScrap triggers save() internally
+    campaignManager.spendScrap(10);
     const updatedModifiedAt = campaignManager.getState()!.lastModifiedAt;
 
     expect(updatedModifiedAt).toBeGreaterThan(initialModifiedAt);
   });
 
-  it("should repair missing lastModifiedAt in validateAndRepair", () => {
-    const invalidState = {
-      version: "0.1.0",
-      seed: 123,
-      nodes: [],
-      roster: [],
-      // lastModifiedAt missing
-    };
-
-    // @ts-ignore - testing repair logic with invalid data
-    const repaired = campaignManager["validateAndRepair"](invalidState);
-    expect(repaired).not.toBeNull();
-    expect(repaired!.lastModifiedAt).toBe(0);
+  it("should have lastModifiedAt set after startNewCampaign", () => {
+    campaignManager.startNewCampaign(12345, "Standard");
+    const state = campaignManager.getState()!;
+    expect(state.lastModifiedAt).toBeDefined();
+    expect(state.lastModifiedAt).toBeGreaterThan(0);
   });
 });

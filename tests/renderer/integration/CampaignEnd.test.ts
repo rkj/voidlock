@@ -105,6 +105,17 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         mockCampaignState.history.push(report);
       }
     }),
+    processMissionResult: vi.fn((report) => {
+      if (report.result === "Won") {
+        const node = mockCampaignState.nodes.find(
+          (n: any) => n.id === report.nodeId,
+        );
+        if (node?.type === "Boss") {
+          mockCampaignState.status = "Victory";
+        }
+        mockCampaignState.history.push(report);
+      }
+    }),
     save: vi.fn(),
     startNewCampaign: vi.fn((seed, diff, overrides) => {
         console.log("MOCK startNewCampaign called");

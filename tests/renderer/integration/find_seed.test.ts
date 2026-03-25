@@ -1,16 +1,18 @@
-import { SectorMapGenerator } from "./src/engine/generators/SectorMapGenerator";
-import { GameRules } from "./src/shared/types";
+import { SectorMapGenerator } from "@src/engine/generators/SectorMapGenerator";
+import { MapGeneratorType } from "@src/shared/types";
 import { describe, it } from "vitest";
 
-const rules: GameRules = {
+const rules = {
   difficultyScaling: 1,
   skipPrologue: false,
+  mapGrowthRate: 1.0,
+  mapGeneratorType: MapGeneratorType.DenseShip,
 };
 
 describe("Find Seed", () => {
   it("finds a seed where rank 1 has only Combat nodes", () => {
     for (let seed = 0; seed < 1000; seed++) {
-      const map = new SectorMapGenerator().generate(seed, rules);
+      const map = SectorMapGenerator.generate({ seed, rules });
       const nextNodes = map.filter(n => n.rank === 1);
       if (nextNodes.every(n => n.type === "Combat")) {
         console.log("Found seed:", seed);

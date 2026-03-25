@@ -1,7 +1,6 @@
 import type {
   CampaignState,
-  CampaignNode,
-  MissionReport} from "../../shared/campaign_types";
+  CampaignNode} from "../../shared/campaign_types";
 import {
   calculateLevel,
   STAT_BOOSTS,

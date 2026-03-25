@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CampaignManager } from "../../../src/engine/managers/CampaignManager";
+import { EventManager } from "../../../src/engine/campaign/EventManager";
+import { MissionReconciler } from "../../../src/engine/campaign/MissionReconciler";
 import { MockStorageProvider } from "../../../src/engine/persistence/MockStorageProvider";
 import { PRNG } from "../../../src/shared/PRNG";
 import { EventChoice } from "../../../src/shared/campaign_types";
@@ -7,12 +9,19 @@ import { EventChoice } from "../../../src/shared/campaign_types";
 describe("Campaign Events", () => {
   let manager: CampaignManager;
   let storage: MockStorageProvider;
+  let eventManager: EventManager;
+  let reconciler: any;
 
   beforeEach(() => {
     storage = new MockStorageProvider();
     CampaignManager.resetInstance();
     manager = CampaignManager.getInstance(storage);
     manager.startNewCampaign(12345, "Simulation");
+    eventManager = new EventManager();
+    // EventManager expects reconciler as instance with advanceCampaignWithoutMission method
+    reconciler = {
+      advanceCampaignWithoutMission: MissionReconciler.advanceCampaignWithoutMission.bind(MissionReconciler),
+    };
   });
 
   it("should apply rewards correctly", () => {
@@ -28,7 +37,13 @@ describe("Campaign Events", () => {
     };
 
     const prng = new PRNG(1);
-    const result = manager.applyEventChoice(eventNode.id, choice, prng);
+    const result = eventManager.applyEventChoice({
+      state,
+      nodeId: eventNode.id,
+      choice,
+      prng,
+      reconciler,
+    });
 
     expect(state.scrap).toBe(initialScrap + 100);
     expect(state.intel).toBe(initialIntel + 20);
@@ -48,9 +63,15 @@ describe("Campaign Events", () => {
     };
 
     const prng = new PRNG(1);
-    expect(() => manager.applyEventChoice(eventNode.id, choice, prng)).toThrow(
-      "Not enough Credits.",
-    );
+    expect(() =>
+      eventManager.applyEventChoice({
+        state,
+        nodeId: eventNode.id,
+        choice,
+        prng,
+        reconciler,
+      }),
+    ).toThrow("Not enough Credits.");
     expect(state.scrap).toBe(50);
   });
 
@@ -65,7 +86,13 @@ describe("Campaign Events", () => {
 
     const prng = new PRNG(1);
 
-    const result = manager.applyEventChoice(eventNode.id, choice, prng);
+    const result = eventManager.applyEventChoice({
+      state,
+      nodeId: eventNode.id,
+      choice,
+      prng,
+      reconciler,
+    });
 
     const injuredSoldier = state.roster.find((s) => s.hp < s.maxHp);
     expect(injuredSoldier).toBeDefined();
@@ -84,7 +111,13 @@ describe("Campaign Events", () => {
     };
 
     const prng = new PRNG(1);
-    const result = manager.applyEventChoice(eventNode.id, choice, prng);
+    const result = eventManager.applyEventChoice({
+      state,
+      nodeId: eventNode.id,
+      choice,
+      prng,
+      reconciler,
+    });
 
     expect(result.ambush).toBe(true);
     expect(result.text).toContain("It's an ambush!");
@@ -103,7 +136,13 @@ describe("Campaign Events", () => {
     };
 
     const prng = new PRNG(1);
-    const result = manager.applyEventChoice(eventNode.id, choice, prng);
+    const result = eventManager.applyEventChoice({
+      state,
+      nodeId: eventNode.id,
+      choice,
+      prng,
+      reconciler,
+    });
 
     expect(state.roster.length).toBe(initialRosterSize + 1);
     expect(result.text).toContain("Recruited");

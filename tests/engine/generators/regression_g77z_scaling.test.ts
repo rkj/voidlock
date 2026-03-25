@@ -10,36 +10,35 @@ import { MapGeneratorType } from "@src/shared/types";
 describe("Regression: g77z Map Scaling", () => {
   const baseRules: GameRules = {
     mode: "Custom",
-    difficulty: "Clone",
+    difficulty: "Standard",
     deathRule: "Clone",
     allowTacticalPause: true,
     mapGeneratorType: MapGeneratorType.DenseShip,
     difficultyScaling: 1.0,
     resourceScarcity: 1.0,
-    startingScrap: 500,
+    startingScrap: 600,
     mapGrowthRate: 1.0,
     baseEnemyCount: 3,
     enemyGrowthPerMission: 1,
     economyMode: "Open",
+    skipPrologue: false,
   };
 
   it("should generate 7 layers for standard growth rate (1.0)", () => {
-    const generator = new SectorMapGenerator();
-    const nodes = generator.generate(123, baseRules);
+    const nodes = SectorMapGenerator.generate({ seed: 123, rules: baseRules });
 
     const maxRank = Math.max(...nodes.map((n) => n.rank));
     expect(maxRank).toBe(6);
 
     // Check rank assignment
     nodes.forEach((node) => {
-      expect(node.id).toContain(`node_${node.rank}_`);
+      expect(node.id).toContain(`node-${node.rank}-`);
     });
   });
 
   it("should generate 13 layers for extended growth rate (0.5)", () => {
-    const generator = new SectorMapGenerator();
     const rules = { ...baseRules, mapGrowthRate: 0.5 };
-    const nodes = generator.generate(123, rules);
+    const nodes = SectorMapGenerator.generate({ seed: 123, rules });
 
     const maxRank = Math.max(...nodes.map((n) => n.rank));
     expect(maxRank).toBe(12);

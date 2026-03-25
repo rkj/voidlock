@@ -201,7 +201,7 @@ export class GameClient {
       startingThreatLevel: p.startingThreatLevel, baseEnemyCount: p.baseEnemyCount,
       enemyGrowthPerMission: p.enemyGrowthPerMission, missionDepth: p.missionDepth,
       startingPoints: p.startingPoints, initialTimeScale: this.computeEffectiveTimeScale(),
-      allowTacticalPause: effectiveAllowTacticalPause, mode: p.mode, commandLog: p.commandLog,
+      allowTacticalPause: effectiveAllowTacticalPause, mode: p.mode, initialCommandLog: p.commandLog,
       initialSnapshots: p.initialSnapshots, targetTick: p.targetTick, nodeType: p.nodeType,
       campaignNodeId: p.campaignNodeId, skipDeployment: p.skipDeployment,
     });

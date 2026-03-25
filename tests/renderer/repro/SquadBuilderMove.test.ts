@@ -107,11 +107,10 @@ describe("SquadBuilder - Move Logic", () => {
   });
 
   it("should remove archetype from roster list when assigned to squad (Custom)", () => {
-    const allArchetypes = ["scout", "assault", "medic", "heavy", "sniper", "engineer", "test"];
     context.campaignManager.getState.mockReturnValue({
       roster: [],
       scrap: 1000,
-      unlockedArchetypes: allArchetypes,
+      unlockedArchetypes: [],
       rules: { deathRule: "Simulation" }
     });
 
@@ -127,11 +126,11 @@ describe("SquadBuilder - Move Logic", () => {
     });
     builder.render();
 
-    // Roster should have archetypes (Assault, Medic, Scout, Heavy, VIP - though VIP might be filtered)
-    // Actually, in Custom mode, all archetypes are listed.
+    // Custom mode uses ArchetypeLibrary directly (all archetypes shown)
     const initialCount = container.querySelectorAll(
       ".roster-panel .soldier-card",
     ).length;
+    expect(initialCount).toBeGreaterThan(0);
 
     // Assign an assault
     squad.soldiers = [
@@ -141,9 +140,9 @@ describe("SquadBuilder - Move Logic", () => {
     ];
     builder.render();
 
-    // In Custom mode, we DON'T remove from roster because you can have multiple of same archetype
+    // In Custom mode, assigned archetypes ARE removed from roster
     expect(container.querySelectorAll(".roster-panel .soldier-card").length).toBe(
-      initialCount,
+      initialCount - 1,
     );
   });
 });

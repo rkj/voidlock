@@ -16,18 +16,18 @@ describe("Scrap Scaling Regression (voidlock-s78u)", () => {
     expect(manager.getState()?.scrap).toBe(1000);
   });
 
-  it("should start with 500 scrap on Clone difficulty", () => {
-    manager.startNewCampaign(1, "Clone");
-    expect(manager.getState()?.scrap).toBe(500);
-  });
-
-  it("should start with 300 scrap on Standard difficulty", () => {
+  it("should start with 600 scrap on Standard difficulty (default)", () => {
     manager.startNewCampaign(1, "Standard");
-    expect(manager.getState()?.scrap).toBe(300);
+    expect(manager.getState()?.scrap).toBe(600);
   });
 
-  it("should start with 150 scrap on Ironman difficulty", () => {
+  it("should start with 400 scrap on Iron difficulty", () => {
+    manager.startNewCampaign(1, "Iron");
+    expect(manager.getState()?.scrap).toBe(400);
+  });
+
+  it("should start with 200 scrap on Ironman difficulty", () => {
     manager.startNewCampaign(1, "Ironman");
-    expect(manager.getState()?.scrap).toBe(150);
+    expect(manager.getState()?.scrap).toBe(200);
   });
 });

@@ -278,16 +278,16 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
   describe("4) Director Suppression", () => {
     it("should suppress spawning in prologue", () => {
         const onSpawn = vi.fn();
-        const director = new Director(
-            [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }],
-            new PRNG(123),
+        const director = new Director({
+            spawnPoints: [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }],
+            prng: new PRNG(123),
             onSpawn,
-            new ItemEffectService(),
-            0,
-            { width: 10, height: 10, cells: [] },
-            0,
-            MissionType.Prologue
-        );
+            itemEffectService: new ItemEffectService(),
+            startingThreatLevel: 0,
+            map: { width: 10, height: 10, cells: [] } as any,
+            startingPoints: 0,
+            missionType: MissionType.Prologue,
+        });
 
         director.preSpawn();
         expect(onSpawn).toHaveBeenCalled();

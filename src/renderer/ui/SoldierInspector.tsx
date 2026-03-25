@@ -232,7 +232,7 @@ export class SoldierInspector {
               class="menu-button w-full"
               disabled={!state || state.scrap < 50}
               onClick={() => {
-                this.manager.healSoldier(rosterSoldier.id);
+                this.manager.healSoldier(rosterSoldier.id, 50);
                 this.onUpdate();
               }}
             >

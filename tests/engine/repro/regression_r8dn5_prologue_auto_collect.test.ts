@@ -57,14 +57,14 @@ describe("Regression r8dn5: Prologue tutorial pickup step should not auto-collec
   };
 
   it("unit idle at objective cell should NOT auto-collect in Prologue", () => {
-    const engine = new CoreEngine(
-      createPrologueMap() as any,
-      42,
-      squadConfig as any,
-      true,
-      false,
-      MissionType.Prologue,
-    );
+    const engine = new CoreEngine({
+      map: createPrologueMap() as any,
+      seed: 42,
+      squadConfig: squadConfig as any,
+      fogOfWarEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Prologue,
+    });
 
     // Simulate: unit arrived at objective cell via the tutorial "move" step
     const unit = engine.getState().units[0];
@@ -83,14 +83,14 @@ describe("Regression r8dn5: Prologue tutorial pickup step should not auto-collec
   });
 
   it("explicit PICKUP command should still work in Prologue", () => {
-    const engine = new CoreEngine(
-      createPrologueMap() as any,
-      42,
-      squadConfig as any,
-      true,
-      false,
-      MissionType.Prologue,
-    );
+    const engine = new CoreEngine({
+      map: createPrologueMap() as any,
+      seed: 42,
+      squadConfig: squadConfig as any,
+      fogOfWarEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Prologue,
+    });
 
     const unit = engine.getState().units[0];
     unit.pos = { x: 3.5, y: 2.5 };
@@ -115,14 +115,14 @@ describe("Regression r8dn5: Prologue tutorial pickup step should not auto-collec
     const map = createPrologueMap();
     map.objectives[0].id = "artifact1";
 
-    const engine = new CoreEngine(
-      map as any,
-      42,
-      squadConfig as any,
-      true,
-      false,
-      MissionType.Default,
-    );
+    const engine = new CoreEngine({
+      map: map as any,
+      seed: 42,
+      squadConfig: squadConfig as any,
+      fogOfWarEnabled: true,
+      debugOverlayEnabled: false,
+      missionType: MissionType.Default,
+    });
 
     const unit = engine.getState().units[0];
     unit.pos = { x: 3.5, y: 2.5 };

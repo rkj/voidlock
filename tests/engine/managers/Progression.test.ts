@@ -14,15 +14,18 @@ describe("Campaign Progression (XP and Leveling)", () => {
   });
 
   it("should handle leveling up and applying stat boosts", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
     const soldier = state.roster[0];
     const initialMaxHp = soldier.maxHp;
     const initialAim = soldier.soldierAim;
 
+    const nodeId = state.nodes.filter((n) => n.status === "Accessible")[0].id;
+    manager.selectNode(nodeId);
+
     // Level 1 -> 2 (Threshold 100)
     const report1: MissionReport = {
-      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
+      nodeId,
       seed: 1,
       result: "Won",
       aliensKilled: 10,
@@ -60,14 +63,16 @@ describe("Campaign Progression (XP and Leveling)", () => {
   });
 
   it("should calculate XP correctly for a lost mission with casualties", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
     const soldier = state.roster[0];
 
-    // Lost: 10, Dead: 0, Kills: 2 * 10 = 20. Total: 30 (OLD RULES).
-    // NEW RULES: Dead = 0 XP (spec/campaign.md#3.3).
+    const nodeId = state.nodes.filter((n) => n.status === "Accessible")[0].id;
+    manager.selectNode(nodeId);
+
+    // Dead = 0 XP
     const report: MissionReport = {
-      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
+      nodeId,
       seed: 1,
       result: "Lost",
       aliensKilled: 5,
@@ -94,13 +99,16 @@ describe("Campaign Progression (XP and Leveling)", () => {
   });
 
   it("should calculate XP correctly for a survivor in a lost mission", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
     const soldier = state.roster[0];
 
+    const nodeId = state.nodes.filter((n) => n.status === "Accessible")[0].id;
+    manager.selectNode(nodeId);
+
     // Lost: 10, Wounded: 20, Kills: 0. Total: 30.
     const report: MissionReport = {
-      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
+      nodeId,
       seed: 1,
       result: "Lost",
       aliensKilled: 1,
@@ -126,15 +134,18 @@ describe("Campaign Progression (XP and Leveling)", () => {
   });
 
   it("should handle multi-level promotion in a single mission", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
     const soldier = state.roster[0];
     const initialMaxHp = soldier.maxHp;
 
+    const nodeId = state.nodes.filter((n) => n.status === "Accessible")[0].id;
+    manager.selectNode(nodeId);
+
     // Jump to Level 3 (Threshold 250)
     // XP calculation: 50 (Won) + 20 (Healthy) + 20 * 10 (Kills) = 270
     const report: MissionReport = {
-      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
+      nodeId,
       seed: 1,
       result: "Won",
       aliensKilled: 20,

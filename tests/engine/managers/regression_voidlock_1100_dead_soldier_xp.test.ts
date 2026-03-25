@@ -15,7 +15,7 @@ describe("CampaignManager Regression (voidlock-1100)", () => {
 
   it("regression: dead soldiers should not receive XP", () => {
     // 1. Start a campaign in 'Hard' (Ironman) mode to ensure death is permanent/tracked.
-    manager.startNewCampaign(12345, "Hard");
+    manager.startNewCampaign(12345, "Ironman");
     const state = manager.getState();
     const soldier = state!.roster[0];
 
@@ -26,6 +26,7 @@ describe("CampaignManager Regression (voidlock-1100)", () => {
     // 3. Construct a MissionReport where this soldier has status: 'Dead' but has accumulated kills.
     const availableNodes = manager.getAvailableNodes();
     const targetNodeId = availableNodes[0].id;
+    manager.selectNode(targetNodeId);
 
     const report: MissionReport = {
       nodeId: targetNodeId,

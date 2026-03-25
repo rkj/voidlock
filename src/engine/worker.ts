@@ -23,7 +23,7 @@ function handleInit(msg: WorkerMessage & { type: "INIT" }): void {
     initialTimeScale: timeScale,
     startPaused: msg.payload.startPaused ?? false,
     mode: msg.payload.mode ?? EngineMode.Simulation,
-    initialCommandLog: msg.payload.commandLog ?? [],
+    initialCommandLog: msg.payload.initialCommandLog ?? [],
     allowTacticalPause: msg.payload.allowTacticalPause ?? true,
     targetTick: msg.payload.targetTick ?? 0,
     baseEnemyCount: msg.payload.baseEnemyCount,

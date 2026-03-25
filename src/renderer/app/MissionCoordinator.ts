@@ -110,7 +110,7 @@ export class MissionCoordinator {
     this.gameClient.init({
       seed: config.seed,
       mapGeneratorType: config.mapGeneratorType,
-      map: config.staticMapData,
+      mapData: config.staticMapData,
       fogOfWarEnabled: config.fogOfWarEnabled,
       debugOverlayEnabled: config.debugOverlayEnabled,
       agentControlEnabled: config.agentControlEnabled,
@@ -252,7 +252,7 @@ export class MissionCoordinator {
       this.gameClient.init({
         seed: config.seed,
         mapGeneratorType: config.mapGeneratorType,
-        map: config.mapData,
+        mapData: config.mapData,
         fogOfWarEnabled: config.fogOfWarEnabled,
         debugOverlayEnabled: config.debugOverlayEnabled,
         agentControlEnabled: config.agentControlEnabled,

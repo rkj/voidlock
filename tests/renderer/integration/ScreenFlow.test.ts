@@ -106,8 +106,14 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         mockCampaignState.history.push(report);
       }
     }),
+    processMissionResult: vi.fn((report) => {
+      if (mockCampaignState) {
+        mockCampaignState.history.push(report);
+      }
+    }),
     save: vi.fn(),
-    startNewCampaign: vi.fn((seed, diff, overrides) => {
+    startNewCampaign: vi.fn((configOrSeed: any, diff?: string) => {
+        const difficulty = typeof configOrSeed === "object" ? configOrSeed.difficulty || "Standard" : (diff || "Standard");
         mockCampaignState = {
             status: "Active",
             nodes: [
@@ -153,7 +159,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             unlockedArchetypes: ["scout", "heavy", "medic", "demolition"],
             rules: {
                 mode: "Preset",
-                difficulty: diff || "Standard",
+                difficulty,
                 deathRule: "Simulation",
                 allowTacticalPause: true,
                 mapGeneratorType: "DenseShip",

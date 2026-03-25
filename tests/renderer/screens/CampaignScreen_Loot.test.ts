@@ -70,7 +70,7 @@ describe("CampaignScreen Bonus Loot Pips", () => {
   });
 
   it("should render loot pips for Simulation difficulty", () => {
-    manager.startNewCampaign(12345, "simulation");
+    manager.startNewCampaign(12345, "Simulation");
     const state = manager.getState()!;
     state.nodes[0].bonusLootCount = 3;
 
@@ -93,8 +93,10 @@ describe("CampaignScreen Bonus Loot Pips", () => {
   });
 
   it("should render loot pips for Clone difficulty", () => {
-    manager.startNewCampaign(12345, "clone");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
+    // Override difficulty to Clone (recognized by CampaignScreen for loot pips)
+    state.rules.difficulty = "Clone" as any;
     state.nodes[0].bonusLootCount = 2;
 
     const screen = new CampaignScreen({
@@ -114,7 +116,7 @@ describe("CampaignScreen Bonus Loot Pips", () => {
   });
 
   it("should NOT render loot pips for Standard difficulty", () => {
-    manager.startNewCampaign(12345, "standard");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
     state.nodes[0].bonusLootCount = 3;
 
@@ -135,7 +137,7 @@ describe("CampaignScreen Bonus Loot Pips", () => {
   });
 
   it("should NOT render loot pips for Ironman difficulty", () => {
-    manager.startNewCampaign(12345, "ironman");
+    manager.startNewCampaign(12345, "Ironman");
     const state = manager.getState()!;
     state.nodes[0].bonusLootCount = 3;
 

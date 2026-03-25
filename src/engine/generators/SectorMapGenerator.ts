@@ -1,7 +1,6 @@
 import type {
   CampaignNode,
-  CampaignNodeType,
-  GameRules} from "../../shared/types";
+  CampaignNodeType} from "../../shared/types";
 import {
   MissionType,
 } from "../../shared/types";
@@ -66,10 +65,10 @@ export class SectorMapGenerator {
         const node: CampaignNode = {
           id: `node-${r}-${l}`,
           type,
-          status: r === 0 ? "Accessible" : "Locked",
+          status: r === 0 ? "Accessible" : "Hidden",
           rank: r,
           difficulty: 1 + r * (rules.difficultyScaling || 1),
-          mapSeed: prng.nextInt(),
+          mapSeed: prng.nextInt(0, 2147483647),
           connections: [],
           position: {
             x: (width / (nodeCount + 1)) * (l + 1),

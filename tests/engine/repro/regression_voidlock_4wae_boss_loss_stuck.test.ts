@@ -14,7 +14,7 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
   });
 
   it("should mark campaign as Defeat when Boss mission is lost (even in non-Ironman)", () => {
-    manager.startNewCampaign(12345, "Normal"); // Clone mode, status: Active
+    manager.startNewCampaign(12345, "Standard"); // Standard mode, status: Active
     const state = manager.getState()!;
 
     // Find the boss node
@@ -25,6 +25,10 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
       bossNode = state.nodes.find((n) => n.rank === maxRank)!;
       bossNode.type = "Boss";
     }
+
+    // Make boss node accessible and select it so reconcileMission doesn't bail
+    bossNode.status = "Accessible";
+    manager.selectNode(bossNode.id);
 
     const report: MissionReport = {
       nodeId: bossNode.id,
@@ -44,7 +48,7 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
   });
 
   it("should mark campaign as Defeat when roster is empty (all dead or wounded) and cannot afford recruitment", () => {
-    manager.startNewCampaign(12345, "Normal"); // Clone mode, starting scrap: 500
+    manager.startNewCampaign(12345, "Standard"); // Standard mode, starting scrap: 600
     const state = manager.getState()!;
 
     // Set all soldiers to Wounded and scrap to 0
@@ -55,10 +59,11 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
     state.scrap = 0;
 
     const availableNodes = manager.getAvailableNodes();
-    const targetNodeId = availableNodes[0].id;
+    const targetNode = availableNodes[0];
+    manager.selectNode(targetNode.id);
 
     const report: MissionReport = {
-      nodeId: targetNodeId,
+      nodeId: targetNode.id,
       seed: 123,
       result: "Lost", // Doesn't really matter for this test
       aliensKilled: 0,

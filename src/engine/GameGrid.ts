@@ -1,7 +1,8 @@
 import type {
   MapDefinition,
   Grid,
-  CanMoveParams} from "../shared/types";
+  CanMoveParams,
+  Door} from "../shared/types";
 import {
   CellType,
   BoundaryType,

@@ -106,6 +106,13 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             mockCampaignState.history.push(report);
         }
     }),
+    processMissionResult: vi.fn((report) => {
+        if (mockCampaignState) {
+            const node = mockCampaignState.nodes.find((n: any) => n.id === report.nodeId);
+            if (node) node.status = "Cleared";
+            mockCampaignState.history.push(report);
+        }
+    }),
     startNewCampaign: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);

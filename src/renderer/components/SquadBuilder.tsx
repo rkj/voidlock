@@ -274,7 +274,7 @@ export class SquadBuilder {
   private buildCampaignRoster(): { rosterItems: (HTMLElement | DocumentFragment)[]; recruitButton: HTMLElement | DocumentFragment | null } {
     const rosterItems: (HTMLElement | DocumentFragment)[] = [];
     const state = this.manager.getState();
-    if (!state) return { rosterItems, recruitButton };
+    if (!state) return { rosterItems, recruitButton: null };
 
     const statusWeights: Record<string, number> = { Healthy: 0, Wounded: 1, Dead: 2 };
     const sortedRoster = [...state.roster].sort((a, b) => {

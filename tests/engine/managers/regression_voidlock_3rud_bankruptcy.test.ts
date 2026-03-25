@@ -14,12 +14,15 @@ describe("CampaignManager Bankruptcy", () => {
   });
 
   it("should NOT trigger bankruptcy if there are healthy soldiers", () => {
-    manager.startNewCampaign(12345, "Normal"); // scrap: 500
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
     state.scrap = 50; // Less than 100
 
+    const nodeId = state.nodes.filter((n) => n.status === "Accessible")[0].id;
+    manager.selectNode(nodeId);
+
     const report: MissionReport = {
-      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
+      nodeId,
       seed: 123,
       result: "Won",
       aliensKilled: 0,
@@ -34,13 +37,16 @@ describe("CampaignManager Bankruptcy", () => {
   });
 
   it("should trigger bankruptcy if there are only wounded soldiers and scrap < 100", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
     state.scrap = 50;
     state.roster.forEach((s) => (s.status = "Wounded"));
 
+    const nodeId = state.nodes.filter((n) => n.status === "Accessible")[0].id;
+    manager.selectNode(nodeId);
+
     const report: MissionReport = {
-      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
+      nodeId,
       seed: 123,
       result: "Won",
       aliensKilled: 0,
@@ -55,15 +61,18 @@ describe("CampaignManager Bankruptcy", () => {
   });
 
   it("should trigger bankruptcy if all soldiers are dead AND scrap < 100", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
     state.scrap = 50;
 
     // Mark all soldiers as dead in the state
     state.roster.forEach((s) => (s.status = "Dead"));
 
+    const nodeId = state.nodes.filter((n) => n.status === "Accessible")[0].id;
+    manager.selectNode(nodeId);
+
     const report: MissionReport = {
-      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
+      nodeId,
       seed: 123,
       result: "Lost",
       aliensKilled: 0,
@@ -85,14 +94,17 @@ describe("CampaignManager Bankruptcy", () => {
   });
 
   it("should NOT trigger bankruptcy if all soldiers are dead BUT scrap >= 100", () => {
-    manager.startNewCampaign(12345, "Normal");
+    manager.startNewCampaign(12345, "Standard");
     const state = manager.getState()!;
     state.scrap = 150;
 
     state.roster.forEach((s) => (s.status = "Dead"));
 
+    const nodeId = state.nodes.filter((n) => n.status === "Accessible")[0].id;
+    manager.selectNode(nodeId);
+
     const report: MissionReport = {
-      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
+      nodeId,
       seed: 123,
       result: "Lost",
       aliensKilled: 0,
@@ -113,14 +125,17 @@ describe("CampaignManager Bankruptcy", () => {
     expect(state.status).toBe("Active");
   });
 
-  it("should NOT trigger defeat on mission loss for Standard difficulty if not bankrupt", () => {
-    manager.startNewCampaign(12345, "Hard"); // Hard/Standard has deathRule: "Iron"
+  it("should trigger defeat on any mission loss for Ironman difficulty", () => {
+    manager.startNewCampaign(12345, "Ironman");
     const state = manager.getState()!;
     state.scrap = 500;
 
+    const nodeId = state.nodes.filter((n) => n.status === "Accessible")[0].id;
+    manager.selectNode(nodeId);
+
     // Some soldiers die, but not all
     const report: MissionReport = {
-      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
+      nodeId,
       seed: 123,
       result: "Lost",
       aliensKilled: 0,
@@ -140,6 +155,7 @@ describe("CampaignManager Bankruptcy", () => {
     };
 
     manager.reconcileMission(report);
-    expect(state.status).toBe("Active");
+    // Ironman difficulty: any mission loss = Defeat
+    expect(state.status).toBe("Defeat");
   });
 });

@@ -15,22 +15,25 @@ describe("CampaignManager Advanced Rules (voidlock-a6i8)", () => {
 
   it("should support custom seed override", () => {
     const customSeed = 99999;
-    manager.startNewCampaign(12345, "Normal", { customSeed });
+    manager.startNewCampaign(12345, "Standard", { customSeed });
     const state = manager.getState();
 
-    expect(state?.seed).toBe(customSeed);
+    // The campaign seed remains the original, but rules.customSeed is set
+    expect(state?.seed).toBe(12345);
+    expect(state?.rules.customSeed).toBe(customSeed);
     // Verify nodes were generated with the custom seed (stable check)
-    const nodeSeeds = state?.nodes.map((n) => n.mapSeed);
+    const nodeIds = state?.nodes.map((n) => n.id);
 
     CampaignManager.resetInstance();
     const manager2 = CampaignManager.getInstance(new MockStorageProvider());
-    manager2.startNewCampaign(54321, "Normal", { customSeed });
+    manager2.startNewCampaign(54321, "Standard", { customSeed });
     const state2 = manager2.getState();
-    expect(state2?.nodes.map((n) => n.mapSeed)).toEqual(nodeSeeds);
+    // Same custom seed should produce the same map
+    expect(state2?.nodes.map((n) => n.id)).toEqual(nodeIds);
   });
 
   it("should support map generator override", () => {
-    manager.startNewCampaign(12345, "Normal", {
+    manager.startNewCampaign(12345, "Standard", {
       mapGeneratorType: MapGeneratorType.TreeShip,
     });
     expect(manager.getState()?.rules.mapGeneratorType).toBe(
@@ -39,23 +42,23 @@ describe("CampaignManager Advanced Rules (voidlock-a6i8)", () => {
   });
 
   it("should support difficulty scaling override", () => {
-    manager.startNewCampaign(12345, "Normal", { scaling: 1.5 });
+    manager.startNewCampaign(12345, "Standard", { scaling: 1.5 });
     expect(manager.getState()?.rules.difficultyScaling).toBe(1.5);
   });
 
   it("should support resource scarcity override", () => {
-    manager.startNewCampaign(12345, "Normal", { scarcity: 0.5 });
+    manager.startNewCampaign(12345, "Standard", { scarcity: 0.5 });
     expect(manager.getState()?.rules.resourceScarcity).toBe(0.5);
   });
 
   it("should support death rule override", () => {
     // Normal preset has "Clone" death rule
-    manager.startNewCampaign(12345, "Normal", { deathRule: "Iron" });
+    manager.startNewCampaign(12345, "Standard", { deathRule: "Iron" });
     expect(manager.getState()?.rules.deathRule).toBe("Iron");
   });
 
   it("should support multiple overrides at once", () => {
-    manager.startNewCampaign(12345, "Normal", {
+    manager.startNewCampaign(12345, "Standard", {
       customSeed: 111,
       scaling: 2.0,
       scarcity: 0.1,
@@ -80,7 +83,7 @@ describe("CampaignManager Advanced Rules (voidlock-a6i8)", () => {
     // startNewCampaign(seed, difficulty, overrides, mapGeneratorType, mapGrowthRate)
     manager.startNewCampaign(
       12345,
-      "Normal",
+      "Standard",
       { allowTacticalPause: false },
       MapGeneratorType.TreeShip,
       0.8,

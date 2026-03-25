@@ -6,22 +6,22 @@ import { MapGeneratorType } from "@src/shared/types";
 describe("SectorMapGenerator - Lane-Based", () => {
   const defaultRules: GameRules = {
     mode: "Custom",
-    difficulty: "Clone",
+    difficulty: "Standard",
     deathRule: "Clone",
     allowTacticalPause: true,
     mapGeneratorType: MapGeneratorType.DenseShip,
     difficultyScaling: 1.0,
     resourceScarcity: 1.0,
-    startingScrap: 500,
+    startingScrap: 600,
     mapGrowthRate: 1.0,
     baseEnemyCount: 3,
     enemyGrowthPerMission: 1,
     economyMode: "Open",
+    skipPrologue: false,
   };
 
   it("should have exactly 4 lanes (implicit in positioning and connectivity)", () => {
-    const generator = new SectorMapGenerator();
-    const nodes = generator.generate(12345, defaultRules);
+    const nodes = SectorMapGenerator.generate({ seed: 12345, rules: defaultRules });
 
     // We can't strictly check lanes from the node itself unless we add lane to the node,
     // but we can check vertical positioning or just the connectivity rules.
@@ -34,9 +34,8 @@ describe("SectorMapGenerator - Lane-Based", () => {
   });
 
   it("should have 3-4 nodes per intermediate rank", () => {
-    const generator = new SectorMapGenerator();
     const layers = 8;
-    const nodes = generator.generate(12345, defaultRules, { layers });
+    const nodes = SectorMapGenerator.generate({ seed: 12345, rules: defaultRules, options: { layers } });
 
     for (let r = 1; r < layers - 1; r++) {
       const rankNodes = nodes.filter((n) => n.rank === r);
@@ -46,8 +45,7 @@ describe("SectorMapGenerator - Lane-Based", () => {
   });
 
   it("should ensure no crossing lines (monotonicity)", () => {
-    const generator = new SectorMapGenerator();
-    const nodes = generator.generate(12345, defaultRules);
+    const nodes = SectorMapGenerator.generate({ seed: 12345, rules: defaultRules });
     const nodeMap = new Map<string, CampaignNode>();
     nodes.forEach((n) => nodeMap.set(n.id, n));
 
@@ -76,17 +74,19 @@ describe("SectorMapGenerator - Lane-Based", () => {
     }
   });
 
-  it("should assign Elite status to approximately 20% of nodes", () => {
-    const generator = new SectorMapGenerator();
-    const nodes = generator.generate(12345, defaultRules, { layers: 20 });
+  it("should assign node types with expected distribution (Combat, Shop, Event)", () => {
+    const nodes = SectorMapGenerator.generate({ seed: 12345, rules: defaultRules, options: { layers: 20 } });
 
     const intermediateNodes = nodes.filter((n) => n.rank > 0 && n.rank < 19);
-    const eliteNodes = intermediateNodes.filter((n) => n.type === "Elite");
+    const combatNodes = intermediateNodes.filter((n) => n.type === "Combat");
+    const shopNodes = intermediateNodes.filter((n) => n.type === "Shop");
+    const eventNodes = intermediateNodes.filter((n) => n.type === "Event");
 
-    const ratio = eliteNodes.length / intermediateNodes.length;
-    // With 20 layers and ~3.5 nodes per layer, we have ~63 nodes.
-    // 20% is ~12-13 nodes. We expect it to be reasonably close.
-    expect(ratio).toBeGreaterThan(0.05);
-    expect(ratio).toBeLessThan(0.4);
+    // Expect ~60% Combat, ~20% Shop, ~20% Event
+    const combatRatio = combatNodes.length / intermediateNodes.length;
+    expect(combatRatio).toBeGreaterThan(0.3);
+    expect(combatRatio).toBeLessThan(0.9);
+    expect(shopNodes.length).toBeGreaterThan(0);
+    expect(eventNodes.length).toBeGreaterThan(0);
   });
 });
