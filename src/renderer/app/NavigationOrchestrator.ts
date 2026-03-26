@@ -304,15 +304,6 @@ export class NavigationOrchestrator {
     const state = this.campaignManager.getState();
     Logger.info(`NavOrch: handleExternalScreenChange(campaign), history=${state?.history?.length}`);
 
-    if (state && state.history?.length === 1 && !state.rules.skipPrologue) {
-      const nextNode = state.nodes.find((n) => n.status === "Accessible");
-      Logger.info(`NavOrch: Mission 2 tutorial check, nextNode=${nextNode?.id}`);
-      if (nextNode) {
-        this.onCampaignNodeSelect(nextNode);
-        return;
-      }
-    }
-
     if (state && state.history?.length === 2 && !state.rules.skipPrologue) {
       this.tutorialManager.triggerEvent("sector_map_intro");
     }

@@ -181,7 +181,7 @@ export class MissionReconciler {
   private static advanceNode(state: CampaignState, node: CampaignNode): void {
     node.status = "Cleared";
     state.currentNodeId = node.id;
-    state.currentSector = node.rank + 2;
+    state.currentSector = node.rank + 1;
 
     // All nodes that were Accessible but NOT this one become Skipped
     state.nodes.forEach((n) => {
@@ -197,6 +197,7 @@ export class MissionReconciler {
         nextNode &&
         (nextNode.status === "Hidden" ||
           nextNode.status === "Revealed" ||
+          nextNode.status === "Locked" ||
           nextNode.status === "Accessible")
       ) {
         nextNode.status = "Accessible";

@@ -178,7 +178,10 @@ function buildCampaignTabs(
   const isMission2 = state.history?.length === 1;
 
   if (isPrologue || isMission2) {
-    return [{ id: "ready-room", label: "Asset Management Hub" }];
+    return [
+      { id: "sector-map", label: "Operational Map" },
+      { id: "ready-room", label: "Asset Management Hub" }
+    ];
   }
   return [
     { id: "sector-map", label: "Operational Map" },
