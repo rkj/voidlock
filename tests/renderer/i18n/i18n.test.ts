@@ -23,10 +23,10 @@ describe("i18n system", () => {
     setLocale("en-corporate");
     expect(getCurrentLocale()).toBe("en-corporate");
     
-    // Test with placeholder (currently same as en-corporate)
+    // Test with pl
     setLocale("pl");
     expect(getCurrentLocale()).toBe("pl");
-    expect(t(I18nKeys.menu.campaign)).toBe("Active Contracts");
+    expect(t(I18nKeys.menu.campaign)).toBe("Aktywne Kontrakty");
 
     // Test with en-standard
     setLocale("en-standard");

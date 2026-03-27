@@ -2,13 +2,14 @@ import { ConfigManager } from "../ConfigManager";
 import { I18nKey } from "./keys";
 import { enCorporate } from "./locales/en-corporate";
 import { enStandard } from "./locales/en-standard";
+import { pl } from "./locales/pl";
 
 type LocaleData = Record<string, string>;
 
 const locales: Record<string, LocaleData> = {
   "en-corporate": enCorporate,
   "en-standard": enStandard,
-  "pl": enCorporate,          // Placeholder
+  "pl": pl,
 };
 
 let currentLocaleId = "en-corporate";
