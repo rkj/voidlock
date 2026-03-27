@@ -1,6 +1,7 @@
 import { GameApp } from "./app/GameApp";
 import { Logger } from "@src/shared/Logger";
 import { createElement, Fragment } from "@src/renderer/jsx";
+import { applyLocale } from "./i18n";
 
 // Ensure JSX factory is available globally for TSX components
 (window as any).createElement = createElement;
@@ -35,6 +36,7 @@ declare global {
  * Separated from auto-start logic to allow testing without side effects.
  */
 export async function bootstrap() {
+  applyLocale();
   const app = new GameApp();
   window.GameAppInstance = app;
 

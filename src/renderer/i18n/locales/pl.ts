@@ -1,6 +1,7 @@
 import { I18nKeys } from "../keys";
 
 export const pl = {
+  [I18nKeys.menu.subtitle]: "Zasoby Terminala",
   [I18nKeys.menu.campaign]: "Aktywne Kontrakty",
   [I18nKeys.menu.custom]: "Symulowane Operacje",
   [I18nKeys.menu.engineering]: "Inżynieria Zasobów",

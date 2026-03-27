@@ -40,4 +40,25 @@ describe("i18n system", () => {
     expect(available).toContain("en-standard");
     expect(available).toContain("pl");
   });
+
+  it("should apply the locale to DOM elements", () => {
+    document.body.innerHTML = `
+      <button id="btn-menu-campaign">Old Text</button>
+      <div class="menu-subtitle">Old Subtitle</div>
+      <select id="mission-type">
+        <option value="Default">Old Default</option>
+      </select>
+    `;
+
+    setLocale("en-corporate");
+    import("@src/renderer/i18n/index").then(({ applyLocale }) => {
+      applyLocale();
+      expect(document.getElementById("btn-menu-campaign")?.textContent).toBe("Active Contracts");
+      expect(document.querySelector(".menu-subtitle")?.textContent).toBe("Terminal Assets");
+      
+      setLocale("pl");
+      applyLocale();
+      expect(document.getElementById("btn-menu-campaign")?.textContent).toBe("Aktywne Kontrakty");
+    });
+  });
 });

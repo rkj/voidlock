@@ -1,6 +1,7 @@
 import { I18nKeys } from "../keys";
 
 export const enStandard = {
+  [I18nKeys.menu.subtitle]: "Tactical Squad Combat",
   [I18nKeys.menu.campaign]: "Campaign",
   [I18nKeys.menu.custom]: "Custom Mission",
   [I18nKeys.menu.engineering]: "Engineering",

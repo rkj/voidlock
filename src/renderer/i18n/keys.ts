@@ -4,6 +4,7 @@
  */
 export const I18nKeys = {
   menu: {
+    subtitle: "menu.subtitle",
     campaign: "menu.campaign",
     custom: "menu.custom",
     engineering: "menu.engineering",

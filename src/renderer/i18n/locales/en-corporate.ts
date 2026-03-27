@@ -1,6 +1,7 @@
 import { I18nKeys } from "../keys";
 
 export const enCorporate = {
+  [I18nKeys.menu.subtitle]: "Terminal Assets",
   [I18nKeys.menu.campaign]: "Active Contracts",
   [I18nKeys.menu.custom]: "Simulated Operations",
   [I18nKeys.menu.engineering]: "Asset Engineering",
