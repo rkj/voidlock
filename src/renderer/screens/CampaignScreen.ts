@@ -422,6 +422,10 @@ export class CampaignScreen {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    const computedStyles = getComputedStyle(document.documentElement);
+    const colorPrimary = computedStyles.getPropertyValue("--color-primary").trim() || "#00FF00";
+    const colorTextDim = computedStyles.getPropertyValue("--color-text-dim").trim() || "#888888";
+
     nodes.forEach((node) => {
       node.connections.forEach((connId) => {
         const target = nodes.find((n) => n.id === connId);
@@ -435,11 +439,11 @@ export class CampaignScreen {
             ctx.setLineDash([]);
             ctx.lineWidth = 2;
           } else if (node.status === "Cleared" && target.status === "Cleared") {
-            ctx.strokeStyle = "var(--color-primary)";
+            ctx.strokeStyle = colorPrimary;
             ctx.setLineDash([]);
             ctx.lineWidth = 2;
           } else {
-            ctx.strokeStyle = "var(--color-text-dim)";
+            ctx.strokeStyle = colorTextDim;
             ctx.setLineDash([4, 4]);
             ctx.lineWidth = 1;
           }
