@@ -43,9 +43,44 @@ export class CampaignManager {
     const data = this.storage.load(STORAGE_KEY);
     if (data) {
       this.state = data as CampaignState;
+      if (this.migrateNodePositions()) {
+        this.storage.save(STORAGE_KEY, this.state);
+      }
       return true;
     }
     return false;
+  }
+
+  /**
+   * Recompute node positions to ensure left-to-right layout (rank→x, lane→y).
+   * Fixes saves created before the position swap fix.
+   * Returns true if positions were changed.
+   */
+  private migrateNodePositions(): boolean {
+    if (!this.state) return false;
+    const nodes = this.state.nodes;
+    if (nodes.length === 0) return false;
+
+    const maxRank = Math.max(...nodes.map((n) => n.rank));
+    const width = 800;
+    const height = 600;
+    const layers = maxRank + 1;
+
+    // Check if migration is needed: rank 0 node should have smallest x
+    const rank0 = nodes.find((n) => n.rank === 0);
+    const expectedX = width / (layers + 1);
+    if (rank0 && Math.abs(rank0.position.x - expectedX) < 1) return false;
+
+    for (const node of nodes) {
+      const nodesAtRank = nodes.filter((n) => n.rank === node.rank);
+      const laneIndex = nodesAtRank.indexOf(node);
+      const laneCount = nodesAtRank.length;
+      node.position = {
+        x: (width / (layers + 1)) * (node.rank + 1),
+        y: (height / (laneCount + 1)) * (laneIndex + 1),
+      };
+    }
+    return true;
   }
 
   /**
