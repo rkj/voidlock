@@ -9,6 +9,8 @@ import type { ThemeManager } from "../ThemeManager";
 import type { CloudSyncService } from "@src/services/CloudSyncService";
 import type { ModalService } from "../ui/ModalService";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 import type { AssetManager } from "../visuals/AssetManager";
 
@@ -70,21 +72,21 @@ export class SettingsScreen {
       getShortcuts: () => [
         {
           key: "Arrows",
-          label: "Navigate",
-          description: "Move selection",
-          category: "Navigation",
+          label: t(I18nKeys.common.shortcuts.navigate),
+          description: t(I18nKeys.common.shortcuts.move_selection),
+          category: t(I18nKeys.common.shortcuts.navigation),
         },
         {
           key: "Enter",
-          label: "Select",
-          description: "Activate button",
-          category: "Navigation",
+          label: t(I18nKeys.common.shortcuts.select),
+          description: t(I18nKeys.common.shortcuts.activate_button),
+          category: t(I18nKeys.common.shortcuts.navigation),
         },
         {
           key: "ESC",
-          label: "Back",
-          description: "Save and Return",
-          category: "Navigation",
+          label: t(I18nKeys.screen.settings.back),
+          description: t(I18nKeys.common.shortcuts.save_return),
+          category: t(I18nKeys.common.shortcuts.navigation),
         },
       ],
     });
@@ -133,7 +135,7 @@ export class SettingsScreen {
     this.container.appendChild(contentWrapper);
 
     const h1 = document.createElement("h1");
-    h1.textContent = "Global Settings";
+    h1.textContent = t(I18nKeys.screen.settings.title);
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     h1.style.marginBottom = "20px";
@@ -170,7 +172,7 @@ export class SettingsScreen {
     const backBtn = document.createElement("button");
     backBtn.className = "menu-button back-button";
     backBtn.setAttribute("data-focus-id", "btn-settings-back");
-    backBtn.textContent = "Save & Back";
+    backBtn.textContent = t(I18nKeys.screen.settings.back);
     backBtn.onclick = () => {
       this.onBack();
     };
@@ -183,7 +185,7 @@ export class SettingsScreen {
     styleGroup.className = "control-group";
     styleGroup.style.width = "100%";
     const styleLabel = document.createElement("label");
-    styleLabel.textContent = "Visual Style:";
+    styleLabel.textContent = t(I18nKeys.screen.settings.visual_style);
     styleGroup.appendChild(styleLabel);
 
     const stylePreview = document.createElement("div");
@@ -208,22 +210,22 @@ export class SettingsScreen {
     themeGroup.className = "control-group";
     themeGroup.style.width = "100%";
     const themeLabel = document.createElement("label");
-    themeLabel.textContent = "Environment Theme:";
+    themeLabel.textContent = t(I18nKeys.screen.settings.environment_theme);
     themeLabel.setAttribute("for", "settings-map-theme");
     themeGroup.appendChild(themeLabel);
 
     const themeSelect = document.createElement("select");
     themeSelect.id = "settings-map-theme";
     const themes = [
-      { id: "default", label: "Default (Voidlock Green)" },
-      { id: "industrial", label: "Industrial (Amber)" },
-      { id: "hive", label: "Xeno Hive (Purple)" },
+      { id: "default", label: t(I18nKeys.screen.settings.theme_default) },
+      { id: "industrial", label: t(I18nKeys.screen.settings.theme_industrial) },
+      { id: "hive", label: t(I18nKeys.screen.settings.theme_hive) },
     ];
-    themes.forEach((t) => {
+    themes.forEach((t_item) => {
       const opt = document.createElement("option");
-      opt.value = t.id;
-      opt.textContent = t.label;
-      if (t.id === global.themeId) opt.selected = true;
+      opt.value = t_item.id;
+      opt.textContent = t_item.label;
+      if (t_item.id === global.themeId) opt.selected = true;
       themeSelect.appendChild(opt);
     });
     themeSelect.addEventListener("change", () => {
@@ -239,15 +241,15 @@ export class SettingsScreen {
     phosphorGroup.className = "control-group";
     phosphorGroup.style.width = "100%";
     const phosphorLabel = document.createElement("label");
-    phosphorLabel.textContent = "Terminal Phosphor:";
+    phosphorLabel.textContent = t(I18nKeys.screen.settings.terminal_phosphor);
     phosphorLabel.setAttribute("for", "settings-phosphor-mode");
     phosphorGroup.appendChild(phosphorLabel);
 
     const phosphorSelect = document.createElement("select");
     phosphorSelect.id = "settings-phosphor-mode";
     const modes = [
-      { id: "green", label: "Green (Standard)" },
-      { id: "amber", label: "Amber (Warm)" },
+      { id: "green", label: t(I18nKeys.screen.settings.phosphor_green) },
+      { id: "amber", label: t(I18nKeys.screen.settings.phosphor_amber) },
     ];
     modes.forEach((m) => {
       const opt = document.createElement("option");
@@ -272,7 +274,7 @@ export class SettingsScreen {
 
   private renderDeveloperSection(grid: HTMLElement, global: GlobalConfig) {
     const devHeader = document.createElement("h3");
-    devHeader.textContent = "Developer Options";
+    devHeader.textContent = t(I18nKeys.screen.settings.developer_options);
     devHeader.style.marginTop = "20px";
     devHeader.style.borderBottom = "1px solid var(--color-border)";
     devHeader.style.paddingBottom = "5px";
@@ -283,7 +285,7 @@ export class SettingsScreen {
     logGroup.className = "control-group flex-row justify-between align-center";
     logGroup.style.width = "100%";
     const logLabel = document.createElement("label");
-    logLabel.textContent = "Log Level:";
+    logLabel.textContent = t(I18nKeys.screen.settings.log_level);
     logGroup.appendChild(logLabel);
 
     const logSelect = document.createElement("select");
@@ -313,7 +315,7 @@ export class SettingsScreen {
     snapshotGroup.className = "control-group flex-row justify-between align-center";
     snapshotGroup.style.width = "100%";
     const snapshotLabel = document.createElement("label");
-    snapshotLabel.textContent = "Debug Snapshots:";
+    snapshotLabel.textContent = t(I18nKeys.screen.settings.debug_snapshots);
     snapshotGroup.appendChild(snapshotLabel);
 
     const snapshotToggle = document.createElement("input");
@@ -329,7 +331,7 @@ export class SettingsScreen {
     intervalGroup.className = "control-group flex-row justify-between align-center";
     intervalGroup.style.width = "100%";
     const intervalLabel = document.createElement("label");
-    intervalLabel.textContent = "Snapshot Interval (Ticks, 0=Default):";
+    intervalLabel.textContent = t(I18nKeys.screen.settings.snapshot_interval);
     intervalGroup.appendChild(intervalLabel);
 
     const intervalInput = document.createElement("input");
@@ -351,7 +353,7 @@ export class SettingsScreen {
     overlayGroup.className = "control-group flex-row justify-between align-center";
     overlayGroup.style.width = "100%";
     const overlayLabel = document.createElement("label");
-    overlayLabel.textContent = "Debug Overlay:";
+    overlayLabel.textContent = t(I18nKeys.screen.settings.debug_overlay);
     overlayGroup.appendChild(overlayLabel);
 
     const overlayToggle = document.createElement("input");
@@ -366,7 +368,7 @@ export class SettingsScreen {
 
   private renderAccountSection(grid: HTMLElement, global: GlobalConfig) {
     const accountHeader = document.createElement("h3");
-    accountHeader.textContent = "Account & Cloud Sync";
+    accountHeader.textContent = t(I18nKeys.screen.settings.cloud_sync_header);
     accountHeader.style.marginTop = "20px";
     accountHeader.style.borderBottom = "1px solid var(--color-border)";
     accountHeader.style.paddingBottom = "5px";
@@ -382,9 +384,9 @@ export class SettingsScreen {
     syncGroup.style.width = "100%";
     const isConfigured = this.cloudSync?.isConfigured() ?? false;
     const syncLabel = document.createElement("label");
-    syncLabel.textContent = "Enable Cloud Sync:";
+    syncLabel.textContent = t(I18nKeys.screen.settings.cloud_sync_enable);
     if (!isConfigured) {
-      syncLabel.textContent += " (Not Configured)";
+      syncLabel.textContent += " " + t(I18nKeys.screen.settings.sync_not_configured);
       syncLabel.style.color = "var(--color-text-dim)";
     }
     syncGroup.appendChild(syncLabel);
@@ -411,8 +413,8 @@ export class SettingsScreen {
     if (!this.cloudSync || !isConfigured) {
       const errorMsg = document.createElement("div");
       errorMsg.textContent = !this.cloudSync
-        ? "Cloud Sync Service Unavailable"
-        : "Cloud Sync Service Unavailable (Firebase not configured)";
+        ? t(I18nKeys.screen.settings.sync_unavailable)
+        : t(I18nKeys.screen.settings.sync_unavailable_firebase);
       errorMsg.style.color = "var(--color-error)";
       errorMsg.style.fontSize = "0.8em";
       accountGroup.appendChild(errorMsg);
@@ -420,7 +422,7 @@ export class SettingsScreen {
       this.renderCloudSyncAuthUI(accountGroup);
     } else {
       const infoMsg = document.createElement("div");
-      infoMsg.textContent = "Cloud Sync is disabled. Enable it above to use online saves.";
+      infoMsg.textContent = t(I18nKeys.screen.settings.cloud_sync_disabled_msg);
       infoMsg.style.color = "var(--color-text-dim)";
       infoMsg.style.fontSize = "0.8em";
       accountGroup.appendChild(infoMsg);
@@ -448,7 +450,7 @@ export class SettingsScreen {
       userDetails.appendChild(userName);
 
       const userStatus = document.createElement("div");
-      userStatus.textContent = "✓ Cloud Sync Active";
+      userStatus.textContent = t(I18nKeys.screen.settings.cloud_sync_active);
       userStatus.style.fontSize = "0.8em";
       userStatus.style.color = "var(--color-primary)";
       userDetails.appendChild(userStatus);
@@ -459,7 +461,7 @@ export class SettingsScreen {
       signOutBtn.className = "menu-button";
       signOutBtn.style.fontSize = "0.8em";
       signOutBtn.style.padding = "5px 10px";
-      signOutBtn.textContent = "Sign Out";
+      signOutBtn.textContent = t(I18nKeys.screen.settings.sign_out);
       signOutBtn.onclick = async () => {
         if (this.cloudSync) {
           await this.cloudSync.signOut();
@@ -470,7 +472,7 @@ export class SettingsScreen {
       accountGroup.appendChild(userInfo);
     } else {
       const authDesc = document.createElement("div");
-      authDesc.textContent = "Sign in to enable cross-device synchronization and protect your saves.";
+      authDesc.textContent = t(I18nKeys.screen.settings.auth_desc);
       authDesc.style.fontSize = "0.8em";
       authDesc.style.color = "var(--color-text-dim)";
       accountGroup.appendChild(authDesc);
@@ -482,7 +484,7 @@ export class SettingsScreen {
       const googleBtn = document.createElement("button");
       googleBtn.className = "menu-button";
       googleBtn.style.flex = "1";
-      googleBtn.textContent = "Sign in with Google";
+      googleBtn.textContent = t(I18nKeys.screen.settings.sign_in_google);
       googleBtn.onclick = async () => {
         if (!this.cloudSync) return;
         try {
@@ -490,9 +492,9 @@ export class SettingsScreen {
           this.render();
         } catch (_err) {
           void this.modalService.show({
-            title: "Sign In Failed",
-            message: "Could not connect to Google. Please try again later.",
-            buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }],
+            title: t(I18nKeys.screen.settings.auth_failed_title),
+            message: t(I18nKeys.screen.settings.auth_failed_msg_google),
+            buttons: [{ label: t(I18nKeys.common.ok), isPrimary: true, onClick: (m) => m.close() }],
           });
         }
       };
@@ -501,7 +503,7 @@ export class SettingsScreen {
       const githubBtn = document.createElement("button");
       githubBtn.className = "menu-button";
       githubBtn.style.flex = "1";
-      githubBtn.textContent = "Sign in with GitHub";
+      githubBtn.textContent = t(I18nKeys.screen.settings.sign_in_github);
       githubBtn.onclick = async () => {
         if (!this.cloudSync) return;
         try {
@@ -509,9 +511,9 @@ export class SettingsScreen {
           this.render();
         } catch (_err) {
           void this.modalService.show({
-            title: "Sign In Failed",
-            message: "Could not connect to GitHub. Please try again later.",
-            buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }],
+            title: t(I18nKeys.screen.settings.auth_failed_title),
+            message: t(I18nKeys.screen.settings.auth_failed_msg_github),
+            buttons: [{ label: t(I18nKeys.common.ok), isPrimary: true, onClick: (m) => m.close() }],
           });
         }
       };
@@ -522,7 +524,7 @@ export class SettingsScreen {
 
   private renderDataManagementSection(grid: HTMLElement, global: GlobalConfig) {
     const dataHeader = document.createElement("h3");
-    dataHeader.textContent = "Data Management";
+    dataHeader.textContent = t(I18nKeys.screen.settings.data_management);
     dataHeader.style.marginTop = "20px";
     dataHeader.style.borderBottom = "1px solid var(--color-border)";
     dataHeader.style.paddingBottom = "5px";
@@ -534,7 +536,7 @@ export class SettingsScreen {
     resetGroup.style.width = "100%";
 
     const resetDesc = document.createElement("div");
-    resetDesc.textContent = "Clear all campaign progress, settings, and local data.";
+    resetDesc.textContent = t(I18nKeys.screen.settings.reset_desc);
     resetDesc.style.fontSize = "0.8em";
     resetDesc.style.color = "var(--color-text-dim)";
     resetGroup.appendChild(resetDesc);
@@ -543,16 +545,15 @@ export class SettingsScreen {
     resetBtn.className = "menu-button danger-button";
     resetBtn.style.width = "100%";
     resetBtn.style.marginTop = "10px";
-    resetBtn.textContent = "Reset All Data";
+    resetBtn.textContent = t(I18nKeys.screen.settings.reset_btn);
     resetBtn.onclick = async () => {
       const confirmed = await this.modalService.show<boolean>({
-        title: "Reset All Data",
-        message:
-          "This will permanently delete all your campaign progress, settings, and local storage. This action cannot be undone. Are you sure?",
+        title: t(I18nKeys.screen.settings.reset_confirm_title),
+        message: t(I18nKeys.screen.settings.reset_confirm_msg),
         buttons: [
-          { label: "Cancel", isCancel: true, onClick: (modal) => modal.close(false) },
+          { label: t(I18nKeys.common.cancel), isCancel: true, onClick: (modal) => modal.close(false) },
           {
-            label: "Delete Everything",
+            label: t(I18nKeys.screen.settings.reset_delete_everything),
             isPrimary: true,
             className: "menu-button danger-button",
             onClick: (modal) => modal.close(true),
@@ -573,16 +574,15 @@ export class SettingsScreen {
       cloudDeleteBtn.className = "menu-button danger-button";
       cloudDeleteBtn.style.width = "100%";
       cloudDeleteBtn.style.marginTop = "10px";
-      cloudDeleteBtn.textContent = "Delete Cloud Backups";
+      cloudDeleteBtn.textContent = t(I18nKeys.screen.settings.delete_cloud);
       cloudDeleteBtn.onclick = async () => {
         const confirmed = await this.modalService.show<boolean>({
-          title: "Delete Cloud Data",
-          message:
-            "This will permanently delete all your campaign backups from the cloud. Local data will remain. Are you sure?",
+          title: t(I18nKeys.screen.settings.cloud_delete_confirm_title),
+          message: t(I18nKeys.screen.settings.cloud_delete_confirm_msg),
           buttons: [
-            { label: "Cancel", isCancel: true, onClick: (modal) => modal.close(false) },
+            { label: t(I18nKeys.common.cancel), isCancel: true, onClick: (modal) => modal.close(false) },
             {
-              label: "Delete Cloud Data",
+              label: t(I18nKeys.screen.settings.delete_cloud),
               isPrimary: true,
               className: "menu-button danger-button",
               onClick: (modal) => modal.close(true),
@@ -593,15 +593,15 @@ export class SettingsScreen {
           try {
             await this.cloudSync.deleteCampaign(CAMPAIGN_DEFAULTS.STORAGE_KEY);
             void this.modalService.show({
-              title: "Success",
-              message: "Cloud backups have been deleted.",
-              buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }],
+              title: t(I18nKeys.screen.settings.cloud_delete_success_title),
+              message: t(I18nKeys.screen.settings.cloud_delete_success_msg),
+              buttons: [{ label: t(I18nKeys.common.ok), isPrimary: true, onClick: (m) => m.close() }],
             });
           } catch (_err) {
             void this.modalService.show({
-              title: "Error",
-              message: "Failed to delete cloud data. Please try again later.",
-              buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }],
+              title: t(I18nKeys.screen.settings.cloud_delete_error_title),
+              message: t(I18nKeys.screen.settings.cloud_delete_error_msg),
+              buttons: [{ label: t(I18nKeys.common.ok), isPrimary: true, onClick: (m) => m.close() }],
             });
           }
         }

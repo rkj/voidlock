@@ -2,6 +2,8 @@ import type { MetaManager } from "@src/renderer/campaign/MetaManager";
 import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export interface StatisticsScreenConfig {
   containerId: string;
@@ -44,15 +46,15 @@ export class StatisticsScreen {
       getShortcuts: () => [
         {
           key: "Arrows",
-          label: "Navigate",
-          description: "Move selection",
-          category: "Navigation",
+          label: t(I18nKeys.common.shortcuts.navigate),
+          description: t(I18nKeys.common.shortcuts.move_selection),
+          category: t(I18nKeys.common.shortcuts.navigation),
         },
         {
           key: "Enter",
-          label: "Select",
-          description: "Activate button",
-          category: "Navigation",
+          label: t(I18nKeys.common.shortcuts.select),
+          description: t(I18nKeys.common.shortcuts.activate_button),
+          category: t(I18nKeys.common.shortcuts.navigation),
         },
       ],
     });
@@ -95,7 +97,7 @@ export class StatisticsScreen {
     this.container.appendChild(contentWrapper);
 
     const h1 = document.createElement("h1");
-    h1.textContent = "Service Record";
+    h1.textContent = t(I18nKeys.screen.statistics.title);
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     h1.style.flexShrink = "0";
@@ -139,20 +141,20 @@ export class StatisticsScreen {
     };
 
     // Campaigns
-    statsGrid.appendChild(this.createHeader("Campaigns"));
+    statsGrid.appendChild(this.createHeader(t(I18nKeys.screen.statistics.header_campaigns)));
     statsGrid.appendChild(
-      createStatRow("Total Started", stats.totalCampaignsStarted),
+      createStatRow(t(I18nKeys.screen.statistics.stat_total_started), stats.totalCampaignsStarted),
     );
     statsGrid.appendChild(
       createStatRow(
-        "Expeditions Won",
+        t(I18nKeys.screen.statistics.stat_expeditions_won),
         stats.campaignsWon,
         "var(--color-primary)",
       ),
     );
     statsGrid.appendChild(
       createStatRow(
-        "Expeditions Lost",
+        t(I18nKeys.screen.statistics.stat_expeditions_lost),
         stats.campaignsLost,
         "var(--color-error)",
       ),
@@ -161,27 +163,27 @@ export class StatisticsScreen {
     statsGrid.appendChild(document.createElement("br"));
 
     // Combat
-    statsGrid.appendChild(this.createHeader("Combat"));
+    statsGrid.appendChild(this.createHeader(t(I18nKeys.screen.statistics.header_combat)));
     statsGrid.appendChild(
       createStatRow(
-        "Total Xeno Purged",
+        t(I18nKeys.screen.statistics.stat_total_xeno_purged),
         stats.totalKills,
         "var(--color-warning)",
       ),
     );
     statsGrid.appendChild(
       createStatRow(
-        "Total Casualties",
+        t(I18nKeys.screen.statistics.stat_total_casualties),
         stats.totalCasualties,
         "var(--color-error)",
       ),
     );
     statsGrid.appendChild(
-      createStatRow("Missions Played", stats.totalMissionsPlayed),
+      createStatRow(t(I18nKeys.screen.statistics.stat_missions_played), stats.totalMissionsPlayed),
     );
     statsGrid.appendChild(
       createStatRow(
-        "Missions Won",
+        t(I18nKeys.screen.statistics.stat_missions_won),
         stats.totalMissionsWon,
         "var(--color-primary)",
       ),
@@ -190,10 +192,10 @@ export class StatisticsScreen {
     statsGrid.appendChild(document.createElement("br"));
 
     // Economy
-    statsGrid.appendChild(this.createHeader("Economy"));
+    statsGrid.appendChild(this.createHeader(t(I18nKeys.screen.statistics.header_economy)));
     statsGrid.appendChild(
       createStatRow(
-        "Total Credits Recovered",
+        t(I18nKeys.screen.statistics.stat_total_credits_recovered),
         stats.totalScrapEarned.toLocaleString(),
         "var(--color-primary)",
       ),

@@ -8,7 +8,17 @@ import { ConfigManager } from "@src/renderer/ConfigManager";
 // Mock dependencies
 vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
-    loadGlobal: vi.fn(),
+    loadGlobal: vi.fn().mockReturnValue({
+      unitStyle: "TacticalIcons",
+      themeId: "default",
+      phosphor: "green",
+      logLevel: "INFO",
+      debugSnapshots: false,
+      debugSnapshotInterval: 0,
+      debugOverlayEnabled: false,
+      cloudSyncEnabled: false,
+      locale: "en-corporate",
+    }),
     clearCampaign: vi.fn(),
     saveGlobal: vi.fn(),
   },

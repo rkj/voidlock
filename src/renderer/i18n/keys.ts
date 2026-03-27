@@ -93,11 +93,25 @@ export const I18nKeys = {
     },
     statistics: {
       title: "screen.statistics.title",
+      header_campaigns: "screen.statistics.header_campaigns",
+      header_combat: "screen.statistics.header_combat",
+      header_economy: "screen.statistics.header_economy",
+      stat_total_started: "screen.statistics.stat_total_started",
+      stat_expeditions_won: "screen.statistics.stat_expeditions_won",
+      stat_expeditions_lost: "screen.statistics.stat_expeditions_lost",
+      stat_total_xeno_purged: "screen.statistics.stat_total_xeno_purged",
+      stat_total_casualties: "screen.statistics.stat_total_casualties",
+      stat_missions_played: "screen.statistics.stat_missions_played",
+      stat_missions_won: "screen.statistics.stat_missions_won",
+      stat_total_credits_recovered: "screen.statistics.stat_total_credits_recovered",
     },
     engineering: {
       title: "screen.engineering.title",
       unit_archetypes: "screen.engineering.unit_archetypes",
       advanced_equipment: "screen.engineering.advanced_equipment",
+      persistent_intel: "screen.engineering.persistent_intel",
+      unlock: "screen.engineering.unlock",
+      unlocked: "screen.engineering.unlocked",
     },
     equipment: {
       roster: "screen.equipment.roster",
@@ -125,6 +139,36 @@ export const I18nKeys = {
     resume: "hud.resume",
     speed: "hud.speed",
   },
+  units: {
+    archetype: {
+      assault: "units.archetype.assault",
+      medic: "units.archetype.medic",
+      scout: "units.archetype.scout",
+      heavy: "units.archetype.heavy",
+      sniper: "units.archetype.sniper",
+      demolitionist: "units.archetype.demolitionist",
+      vip: "units.archetype.vip",
+      desc: {
+        heavy: "units.archetype.desc.heavy",
+        sniper: "units.archetype.desc.sniper",
+        demolitionist: "units.archetype.desc.demolitionist",
+      },
+    },
+    item: {
+      autocannon: "units.item.autocannon",
+      stimpack: "units.item.stimpack",
+      scanner: "units.item.scanner",
+      heavy_plate: "units.item.heavy_plate",
+      flamer: "units.item.flamer",
+      desc: {
+        autocannon: "units.item.desc.autocannon",
+        stimpack: "units.item.desc.stimpack",
+        scanner: "units.item.desc.scanner",
+        heavy_plate: "units.item.desc.heavy_plate",
+        flamer: "units.item.desc.flamer",
+      },
+    },
+  },
   common: {
     back: "common.back",
     confirm: "common.confirm",
@@ -134,6 +178,14 @@ export const I18nKeys = {
     ok: "common.ok",
     success: "common.success",
     error: "common.error",
+    shortcuts: {
+      navigate: "common.shortcuts.navigate",
+      move_selection: "common.shortcuts.move_selection",
+      navigation: "common.shortcuts.navigation",
+      select: "common.shortcuts.select",
+      activate_button: "common.shortcuts.activate_button",
+      save_return: "common.shortcuts.save_return",
+    },
   },
 } as const;
 

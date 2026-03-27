@@ -7,6 +7,8 @@ import {
 } from "@src/shared/types";
 import type { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export interface EngineeringScreenConfig {
   containerId: string;
@@ -26,50 +28,44 @@ export class EngineeringScreen {
       {
         id: "heavy",
         cost: 50,
-        description: "Slow, heavily armored unit with a shotgun and hammer.",
+        description: t(I18nKeys.units.archetype.desc.heavy),
       },
       {
         id: "sniper",
         cost: 100,
-        description:
-          "Precision marksman with extreme range but slow fire rate.",
+        description: t(I18nKeys.units.archetype.desc.sniper),
       },
       {
         id: "demolitionist",
         cost: 75,
-        description:
-          "Close-quarters specialist using a flamer and high-explosives.",
+        description: t(I18nKeys.units.archetype.desc.demolitionist),
       },
     ],
     items: [
       {
         id: "autocannon",
         cost: 50,
-        description:
-          "Deployable sentry turret that provides automatic fire support.",
+        description: t(I18nKeys.units.item.desc.autocannon),
       },
       {
         id: "stimpack",
         cost: 25,
-        description: "Instant, low-cost healing injectable for emergency use.",
+        description: t(I18nKeys.units.item.desc.stimpack),
       },
       {
         id: "scanner",
         cost: 40,
-        description:
-          "Handheld device to reveal enemies and objectives through fog.",
+        description: t(I18nKeys.units.item.desc.scanner),
       },
       {
         id: "heavy_plate",
         cost: 60,
-        description:
-          "Heavy chest plating that grants significant HP at the cost of speed.",
+        description: t(I18nKeys.units.item.desc.heavy_plate),
       },
       {
         id: "flamer",
         cost: 50,
-        description:
-          "A liquid-fire projector for clearing hallways and groups of enemies.",
+        description: t(I18nKeys.units.item.desc.flamer),
       },
     ],
   };
@@ -113,15 +109,15 @@ export class EngineeringScreen {
       getShortcuts: () => [
         {
           key: "Arrows",
-          label: "Navigate",
-          description: "Move selection",
-          category: "Navigation",
+          label: t(I18nKeys.common.shortcuts.navigate),
+          description: t(I18nKeys.common.shortcuts.move_selection),
+          category: t(I18nKeys.common.shortcuts.navigation),
         },
         {
           key: "Enter",
-          label: "Select",
-          description: "Activate button",
-          category: "Navigation",
+          label: t(I18nKeys.common.shortcuts.select),
+          description: t(I18nKeys.common.shortcuts.activate_button),
+          category: t(I18nKeys.common.shortcuts.navigation),
         },
       ],
     });
@@ -171,7 +167,7 @@ export class EngineeringScreen {
     this.container.appendChild(contentWrapper);
 
     const h1 = document.createElement("h1");
-    h1.textContent = "Engineering Bay";
+    h1.textContent = t(I18nKeys.screen.engineering.title);
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     h1.style.flexShrink = "0";
@@ -186,7 +182,7 @@ export class EngineeringScreen {
     intelDisplay.style.flexShrink = "0";
     intelDisplay.style.marginBottom = "20px";
     intelDisplay.innerHTML = `
-      <span style="color: var(--color-text-dim); font-size: 0.8em;">Persistent Intel:</span>
+      <span style="color: var(--color-text-dim); font-size: 0.8em;">${t(I18nKeys.screen.engineering.persistent_intel)}</span>
       <span style="color: var(--color-accent); font-weight: bold; font-size: 1.2em;">${intel}</span>
     `;
     contentWrapper.appendChild(intelDisplay);
@@ -202,7 +198,7 @@ export class EngineeringScreen {
 
     // --- Archetypes Section ---
     const archHeader = document.createElement("h3");
-    archHeader.textContent = "Unit Archetypes";
+    archHeader.textContent = t(I18nKeys.screen.engineering.unit_archetypes);
     archHeader.style.borderBottom = "1px solid var(--color-border)";
     archHeader.style.paddingBottom = "5px";
     archHeader.style.color = "var(--color-text-dim)";
@@ -215,7 +211,7 @@ export class EngineeringScreen {
       const isUnlocked = unlockedArchetypes.includes(arch.id);
       archList.appendChild(
         this.createUnlockCard(
-          ArchetypeLibrary[arch.id]?.name || arch.id,
+          t("units.archetype." + arch.id),
           arch.description,
           { cost: arch.cost, isUnlocked, canAfford: intel >= arch.cost, onUnlock: () => this.handleUnlockArchetype(arch.id, arch.cost) },
         ),
@@ -225,7 +221,7 @@ export class EngineeringScreen {
 
     // --- Equipment Section ---
     const itemHeader = document.createElement("h3");
-    itemHeader.textContent = "Advanced Equipment";
+    itemHeader.textContent = t(I18nKeys.screen.engineering.advanced_equipment);
     itemHeader.style.marginTop = "20px";
     itemHeader.style.borderBottom = "1px solid var(--color-border)";
     itemHeader.style.paddingBottom = "5px";
@@ -237,8 +233,7 @@ export class EngineeringScreen {
 
     this.unlockables.items.forEach((item) => {
       const isUnlocked = unlockedItems.includes(item.id);
-      const name =
-        ItemLibrary[item.id]?.name || WeaponLibrary[item.id]?.name || item.id;
+      const name = t("units.item." + item.id);
       itemList.appendChild(
         this.createUnlockCard(
           name,
@@ -274,12 +269,12 @@ export class EngineeringScreen {
 
     const right = document.createElement("div");
     if (isUnlocked) {
-      right.innerHTML = `<span style="color: var(--color-success); font-weight: bold; font-size: 0.8em;">Unlocked</span>`;
+      right.innerHTML = `<span style="color: var(--color-success); font-weight: bold; font-size: 0.8em;">${t(I18nKeys.screen.engineering.unlocked)}</span>`;
     } else {
       const btn = document.createElement("button");
       btn.className = canAfford ? "primary-button" : "back-button disabled";
       btn.style.width = "120px";
-      btn.innerHTML = `<span style="font-size: 0.8em;">Unlock (${cost})</span>`;
+      btn.innerHTML = `<span style="font-size: 0.8em;">${t(I18nKeys.screen.engineering.unlock)} (${cost})</span>`;
       btn.disabled = !canAfford;
       btn.onclick = onUnlock;
       right.appendChild(btn);
