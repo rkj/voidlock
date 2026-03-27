@@ -1410,15 +1410,15 @@ label {
   width: 44px;
   height: 44px;
   border-radius: 4px;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-text-dim);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
   z-index: 10;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: var(--color-text-dim);
+  background-color: rgba(0, 0, 0, 0.9);
+  color: var(--color-text-muted);
 }
 
 .node-icon {
@@ -1442,8 +1442,8 @@ label {
 }
 
 .campaign-node.revealed {
-  opacity: 0.4;
-  border-color: var(--color-border);
+  opacity: 0.5;
+  border-color: var(--color-border-strong);
   cursor: default;
 }
 
@@ -1463,9 +1463,9 @@ label {
 }
 
 .campaign-node.skipped {
-  opacity: 0.2;
-  border-color: #444;
-  color: #666;
+  opacity: 0.4;
+  border-color: var(--color-border-strong);
+  color: var(--color-text-dim);
   filter: grayscale(1);
   cursor: default;
 }
