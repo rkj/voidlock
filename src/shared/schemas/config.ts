@@ -33,4 +33,5 @@ export const GlobalConfigSchema = z.object({
   debugSnapshotInterval: z.number().int().min(0),
   debugOverlayEnabled: z.boolean(),
   cloudSyncEnabled: z.boolean().default(false),
+  locale: z.string().default("en-corporate"),
 });

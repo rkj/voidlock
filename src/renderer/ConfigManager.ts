@@ -34,6 +34,7 @@ export interface GlobalConfig {
   debugSnapshotInterval: number;
   debugOverlayEnabled: boolean;
   cloudSyncEnabled: boolean;
+  locale: string;
 }
 
 const CUSTOM_STORAGE_KEY = "voidlock_custom_config";
@@ -77,6 +78,7 @@ export class ConfigManager {
       debugSnapshotInterval: 0,
       debugOverlayEnabled: false,
       cloudSyncEnabled: false,
+      locale: "en-corporate",
     };
 
     try {
