@@ -2,6 +2,8 @@ import { ConfigManager } from "@src/renderer/ConfigManager";
 import type { CampaignOverrides } from "@src/shared/campaign_types";
 import type { UnitStyle, MapGeneratorType } from "@src/shared/types";
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { t } from "../../i18n";
+import { I18nKeys } from "../../i18n/keys";
 
 export interface NewCampaignWizardOptions {
   onStartCampaign: (
@@ -62,7 +64,7 @@ export class NewCampaignWizard {
     content.style.padding = "40px 20px";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "New Expedition";
+    h1.textContent = t(I18nKeys.screen.campaign.wizard.title);
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     content.appendChild(h1);
@@ -86,7 +88,7 @@ export class NewCampaignWizard {
     form.appendChild(this.buildGlobalStatusGroup());
 
     const diffLabel = document.createElement("label");
-    diffLabel.textContent = "Select Difficulty";
+    diffLabel.textContent = t(I18nKeys.screen.campaign.wizard.difficulty_label);
     diffLabel.style.fontSize = "0.8em";
     diffLabel.style.color = "var(--color-text-dim)";
     diffLabel.style.marginBottom = "-10px";
@@ -100,7 +102,7 @@ export class NewCampaignWizard {
     pauseCheck.checked = true;
     const pauseLabel = document.createElement("label");
     pauseLabel.htmlFor = "campaign-tactical-pause";
-    pauseLabel.textContent = "Allow Tactical Pause (0.05x)";
+    pauseLabel.textContent = t(I18nKeys.screen.campaign.wizard.pause_allow);
     pauseLabel.style.fontSize = "0.9em";
     pauseGroup.appendChild(pauseCheck);
     pauseGroup.appendChild(pauseLabel);
@@ -114,14 +116,14 @@ export class NewCampaignWizard {
     const durationGroup = document.createElement("div");
     durationGroup.className = "flex-col gap-5";
     const durationLabel = document.createElement("label");
-    durationLabel.textContent = "Campaign Duration";
+    durationLabel.textContent = t(I18nKeys.screen.campaign.wizard.duration_label);
     durationLabel.style.fontSize = "0.8em";
     durationLabel.style.color = "var(--color-text-dim)";
     const durationSelect = document.createElement("select");
     durationSelect.id = "campaign-duration";
     durationSelect.innerHTML = `
-      <option value="0.5" selected>Long (13 Ranks - Standard)</option>
-      <option value="1.0">Short (7 Ranks - Fast Session)</option>
+      <option value="0.5" selected>${t(I18nKeys.screen.campaign.wizard.duration_long)}</option>
+      <option value="1.0">${t(I18nKeys.screen.campaign.wizard.duration_short)}</option>
     `;
     durationGroup.appendChild(durationLabel);
     durationGroup.appendChild(durationSelect);
@@ -136,7 +138,7 @@ export class NewCampaignWizard {
     skipPrologueCheck.checked = metaStats.prologueCompleted;
     const skipPrologueLabel = document.createElement("label");
     skipPrologueLabel.htmlFor = "campaign-skip-prologue";
-    skipPrologueLabel.textContent = "Skip Tutorial Prologue";
+    skipPrologueLabel.textContent = t(I18nKeys.screen.campaign.wizard.skip_prologue);
     skipPrologueLabel.style.fontSize = "0.9em";
     skipPrologueGroup.appendChild(skipPrologueCheck);
     skipPrologueGroup.appendChild(skipPrologueLabel);
@@ -152,7 +154,7 @@ export class NewCampaignWizard {
     form.appendChild(advancedWrapper);
 
     const startBtn = document.createElement("button");
-    startBtn.textContent = "Initialize Expedition";
+    startBtn.textContent = t(I18nKeys.screen.campaign.wizard.initialize_btn);
 
     return { form, pauseCheck, skipPrologueCheck, seedInput, genSelect, scalingSlider, scarcitySlider, deathSelect, startBtn } as { form: HTMLElement } & WizardFormElements;
   }
@@ -161,7 +163,7 @@ export class NewCampaignWizard {
     const globalStatusGroup = document.createElement("div");
     globalStatusGroup.className = "flex-col gap-5";
     const globalStatusLabel = document.createElement("label");
-    globalStatusLabel.textContent = "Visual Style & Theme";
+    globalStatusLabel.textContent = t(I18nKeys.screen.campaign.wizard.visual_style_label);
     globalStatusLabel.style.fontSize = "0.8em";
     globalStatusLabel.style.color = "var(--color-text-dim)";
 
@@ -191,27 +193,39 @@ export class NewCampaignWizard {
     const DIFFICULTIES = [
       {
         id: "Simulation",
-        name: "Simulation",
-        rules: ["Permadeath: Off", "Save: Manual", "Pause: Allowed"],
+        name: t(I18nKeys.screen.campaign.wizard.diff_simulation),
+        rules: [
+          t(I18nKeys.screen.campaign.wizard.rule_permadeath_off),
+          t(I18nKeys.screen.campaign.wizard.rule_save_manual),
+          t(I18nKeys.screen.campaign.wizard.rule_pause_allowed),
+        ],
       },
       {
         id: "Clone",
-        name: "Clone",
+        name: t(I18nKeys.screen.campaign.wizard.diff_clone),
         rules: [
-          "Permadeath: Partial (Cloneable)",
-          "Save: Manual",
-          "Pause: Allowed",
+          t(I18nKeys.screen.campaign.wizard.rule_permadeath_clone),
+          t(I18nKeys.screen.campaign.wizard.rule_save_manual),
+          t(I18nKeys.screen.campaign.wizard.rule_pause_allowed),
         ],
       },
       {
         id: "Standard",
-        name: "Standard",
-        rules: ["Permadeath: On", "Save: Manual", "Pause: Allowed"],
+        name: t(I18nKeys.screen.campaign.wizard.diff_standard),
+        rules: [
+          t(I18nKeys.screen.campaign.wizard.rule_permadeath_on),
+          t(I18nKeys.screen.campaign.wizard.rule_save_manual),
+          t(I18nKeys.screen.campaign.wizard.rule_pause_allowed),
+        ],
       },
       {
         id: "Ironman",
-        name: "Ironman",
-        rules: ["Permadeath: On", "Save: Auto-Delete", "Pause: Disabled"],
+        name: t(I18nKeys.screen.campaign.wizard.diff_ironman),
+        rules: [
+          t(I18nKeys.screen.campaign.wizard.rule_permadeath_on),
+          t(I18nKeys.screen.campaign.wizard.rule_save_auto),
+          t(I18nKeys.screen.campaign.wizard.rule_pause_disabled),
+        ],
       },
     ];
 
@@ -244,7 +258,7 @@ export class NewCampaignWizard {
         if (this.selectedDifficulty === "Ironman") {
           pauseCheck.checked = false;
           pauseCheck.disabled = true;
-          const tooltip = "Tactical Pause is disabled in Ironman mode.";
+          const tooltip = t(I18nKeys.screen.campaign.wizard.ironman_pause_tooltip);
           pauseCheck.title = tooltip;
           pauseLabel.title = tooltip;
           pauseLabel.style.opacity = "0.5";
@@ -274,7 +288,7 @@ export class NewCampaignWizard {
     advancedWrapper.style.borderTop = "1px solid var(--color-border)";
 
     const advancedToggle = document.createElement("button");
-    advancedToggle.textContent = this.isAdvancedShown ? "Hide Advanced Settings ▲" : "Show Advanced Settings ▼";
+    advancedToggle.textContent = this.isAdvancedShown ? t(I18nKeys.screen.campaign.wizard.advanced_hide) : t(I18nKeys.screen.campaign.wizard.advanced_show);
     advancedToggle.className = "text-button";
     advancedToggle.style.background = "none";
     advancedToggle.style.border = "none";
@@ -293,7 +307,7 @@ export class NewCampaignWizard {
     const toggleAdvanced = () => {
       this.isAdvancedShown = !this.isAdvancedShown;
       advancedContent.style.display = this.isAdvancedShown ? "flex" : "none";
-      advancedToggle.textContent = this.isAdvancedShown ? "Hide Advanced Settings ▲" : "Show Advanced Settings ▼";
+      advancedToggle.textContent = this.isAdvancedShown ? t(I18nKeys.screen.campaign.wizard.advanced_hide) : t(I18nKeys.screen.campaign.wizard.advanced_show);
     };
     advancedToggle.onclick = toggleAdvanced;
     advancedToggle.onkeydown = (e) => {
@@ -311,12 +325,12 @@ export class NewCampaignWizard {
     const seedGroup = document.createElement("div");
     seedGroup.className = "flex-col gap-5";
     const seedLabel = document.createElement("label");
-    seedLabel.textContent = "Custom Seed (Optional)";
+    seedLabel.textContent = t(I18nKeys.screen.campaign.wizard.seed_label);
     seedLabel.style.fontSize = "0.7em";
     seedLabel.style.color = "var(--color-text-dim)";
     const seedInput = document.createElement("input");
     seedInput.type = "number";
-    seedInput.placeholder = "Enter seed...";
+    seedInput.placeholder = t(I18nKeys.screen.campaign.wizard.seed_placeholder);
     seedGroup.appendChild(seedLabel);
     seedGroup.appendChild(seedInput);
     container.appendChild(seedGroup);
@@ -324,15 +338,15 @@ export class NewCampaignWizard {
     const genGroup = document.createElement("div");
     genGroup.className = "flex-col gap-5";
     const genLabel = document.createElement("label");
-    genLabel.textContent = "Force Map Generator";
+    genLabel.textContent = t(I18nKeys.screen.campaign.wizard.generator_label);
     genLabel.style.fontSize = "0.7em";
     genLabel.style.color = "var(--color-text-dim)";
     const genSelect = document.createElement("select");
     genSelect.innerHTML = `
-      <option value="">(Default for mission)</option>
-      <option value="DenseShip">Dense Ship (>90% fill)</option>
-      <option value="TreeShip">Tree Ship (No Loops)</option>
-      <option value="Procedural">Spaceship (Balanced)</option>
+      <option value="">${t(I18nKeys.screen.campaign.wizard.gen_default)}</option>
+      <option value="DenseShip">${t(I18nKeys.screen.campaign.wizard.gen_dense)}</option>
+      <option value="TreeShip">${t(I18nKeys.screen.campaign.wizard.gen_tree)}</option>
+      <option value="Procedural">${t(I18nKeys.screen.campaign.wizard.gen_procedural)}</option>
     `;
     genGroup.appendChild(genLabel);
     genGroup.appendChild(genSelect);
@@ -341,7 +355,7 @@ export class NewCampaignWizard {
     const scalingGroup = document.createElement("div");
     scalingGroup.className = "flex-col gap-5";
     const scalingLabel = document.createElement("label");
-    scalingLabel.innerHTML = `Difficulty Scaling: <span id="scaling-val">100</span>%`;
+    scalingLabel.innerHTML = `${t(I18nKeys.screen.campaign.wizard.scaling_label, { value: '<span id="scaling-val">100</span>' })}`;
     scalingLabel.style.fontSize = "0.7em";
     scalingLabel.style.color = "var(--color-text-dim)";
     const scalingSlider = document.createElement("input");
@@ -360,7 +374,7 @@ export class NewCampaignWizard {
     const scarcityGroup = document.createElement("div");
     scarcityGroup.className = "flex-col gap-5";
     const scarcityLabel = document.createElement("label");
-    scarcityLabel.innerHTML = `Resource Scarcity: <span id="scarcity-val">100</span>%`;
+    scarcityLabel.innerHTML = `${t(I18nKeys.screen.campaign.wizard.scarcity_label, { value: '<span id="scarcity-val">100</span>' })}`;
     scarcityLabel.style.fontSize = "0.7em";
     scarcityLabel.style.color = "var(--color-text-dim)";
     const scarcitySlider = document.createElement("input");
@@ -379,15 +393,15 @@ export class NewCampaignWizard {
     const deathGroup = document.createElement("div");
     deathGroup.className = "flex-col gap-5";
     const deathLabel = document.createElement("label");
-    deathLabel.textContent = "Death Rule";
+    deathLabel.textContent = t(I18nKeys.screen.campaign.wizard.death_rule_label);
     deathLabel.style.fontSize = "0.7em";
     deathLabel.style.color = "var(--color-text-dim)";
     const deathSelect = document.createElement("select");
     deathSelect.innerHTML = `
-      <option value="">(Preset Default)</option>
-      <option value="Simulation">Simulation (No Death)</option>
-      <option value="Clone">Clone (Pay to revive)</option>
-      <option value="Iron">Iron (Permanent)</option>
+      <option value="">${t(I18nKeys.screen.campaign.wizard.death_rule_default)}</option>
+      <option value="Simulation">${t(I18nKeys.screen.campaign.wizard.death_rule_simulation)}</option>
+      <option value="Clone">${t(I18nKeys.screen.campaign.wizard.death_rule_clone)}</option>
+      <option value="Iron">${t(I18nKeys.screen.campaign.wizard.death_rule_iron)}</option>
     `;
     deathGroup.appendChild(deathLabel);
     deathGroup.appendChild(deathSelect);
@@ -396,14 +410,14 @@ export class NewCampaignWizard {
     const economyGroup = document.createElement("div");
     economyGroup.className = "flex-col gap-5";
     const economyLabel = document.createElement("label");
-    economyLabel.textContent = "Economy Mode";
+    economyLabel.textContent = t(I18nKeys.screen.campaign.wizard.economy_mode_label);
     economyLabel.style.fontSize = "0.7em";
     economyLabel.style.color = "var(--color-text-dim)";
     const economySelect = document.createElement("select");
     economySelect.id = "campaign-economy-mode";
     economySelect.innerHTML = `
-      <option value="Open" selected>Open (Buy anywhere, shop discount)</option>
-      <option value="Limited">Limited (Buy only at Supply Depots)</option>
+      <option value="Open" selected>${t(I18nKeys.screen.campaign.wizard.economy_mode_open)}</option>
+      <option value="Limited">${t(I18nKeys.screen.campaign.wizard.economy_mode_limited)}</option>
     `;
     economyGroup.appendChild(economyLabel);
     economyGroup.appendChild(economySelect);
@@ -449,7 +463,7 @@ export class NewCampaignWizard {
     footer.style.boxSizing = "border-box";
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "Back to Menu";
+    backBtn.textContent = t(I18nKeys.screen.campaign.wizard.back_to_menu);
     backBtn.className = "back-button";
     backBtn.setAttribute("data-focus-id", "btn-back-to-menu");
     backBtn.style.marginTop = "0";

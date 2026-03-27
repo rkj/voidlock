@@ -1,6 +1,8 @@
 import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export class MainMenuScreen {
   private container: HTMLElement;
@@ -80,14 +82,14 @@ export class MainMenuScreen {
       getShortcuts: () => [
         {
           key: "Arrows",
-          label: "Navigate",
-          description: "Move selection",
+          label: t(I18nKeys.common.shortcuts.navigate),
+          description: t(I18nKeys.common.shortcuts.move_selection),
           category: "Navigation",
         },
         {
           key: "Enter",
-          label: "Select",
-          description: "Activate button",
+          label: t(I18nKeys.common.shortcuts.select),
+          description: t(I18nKeys.common.shortcuts.activate_button),
           category: "Navigation",
         },
       ],

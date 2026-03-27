@@ -6,6 +6,8 @@ import { NewCampaignWizard } from "./campaign/NewCampaignWizard";
 import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export interface CampaignScreenConfig {
   containerId: string;
@@ -78,17 +80,18 @@ export class CampaignScreen {
       getShortcuts: () => [
         {
           key: "Arrows",
-          label: "Navigate",
-          description: "Move selection",
+          label: t(I18nKeys.common.shortcuts.navigate),
+          description: t(I18nKeys.common.shortcuts.move_selection),
           category: "Navigation",
         },
         {
           key: "Enter",
-          label: "Select",
-          description: "Activate node/button",
+          label: t(I18nKeys.common.shortcuts.select),
+          description: t(I18nKeys.common.shortcuts.activate_button),
           category: "Navigation",
         },
       ],
+
     });
   }
 
@@ -118,8 +121,8 @@ export class CampaignScreen {
 
     if (state.status === "Victory") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
-        <h1 style="color:var(--color-primary)">CONTRACT SUCCESS</h1>
-        <button class="primary-button" id="btn-victory-summary" style="height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;">View Summary</button>
+        <h1 style="color:var(--color-primary)">${t(I18nKeys.screen.summary.contract_success)}</h1>
+        <button class="primary-button" id="btn-victory-summary" style="height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;">${t(I18nKeys.screen.summary.view_summary)}</button>
       </div>`;
       const btn = this.container.querySelector("#btn-victory-summary");
       if (btn)
@@ -131,8 +134,8 @@ export class CampaignScreen {
 
     if (state.status === "Defeat") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
-        <h1 style="color:var(--color-error)">CONTRACT TERMINATED</h1>
-        <button class="primary-button" style="background-color:var(--color-error); height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;" id="btn-defeat-summary">View Summary</button>
+        <h1 style="color:var(--color-error)">${t(I18nKeys.screen.summary.contract_terminated)}</h1>
+        <button class="primary-button" style="background-color:var(--color-error); height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;" id="btn-defeat-summary">${t(I18nKeys.screen.summary.view_summary)}</button>
       </div>`;
       const btn = this.container.querySelector("#btn-defeat-summary");
       if (btn)
@@ -167,7 +170,7 @@ export class CampaignScreen {
 
     // Terminate Contract button (Subtle, in the corner)
     const abandonBtn = document.createElement("button");
-    abandonBtn.textContent = "Terminate Contract";
+    abandonBtn.textContent = t(I18nKeys.screen.campaign.terminate_contract);
     abandonBtn.className = "text-button abandon-button";
     abandonBtn.dataset.id = "btn-abandon";
     abandonBtn.style.position = "absolute";
@@ -179,7 +182,7 @@ export class CampaignScreen {
       void (async () => {
         if (
           await this.modalService.confirm(
-            "Are you sure you want to abandon this campaign? All progress will be lost.",
+            t(I18nKeys.screen.campaign.abandon_confirm),
           )
         ) {
           this.manager.deleteSave();
@@ -263,7 +266,7 @@ export class CampaignScreen {
     nodeEl.style.top = `${node.position.y}px`;
     nodeEl.dataset.id = node.id;
     nodeEl.setAttribute("data-focus-id", `campaign-node-${node.id}`);
-    nodeEl.title = `${node.type} Operation (Diff ${node.difficulty})`;
+    nodeEl.title = t(I18nKeys.screen.campaign.node_tooltip, { type: node.type, difficulty: node.difficulty });
     nodeEl.tabIndex = (node.status === "Accessible" || isCurrent) ? 0 : -1;
 
     const icon = document.createElement("div");
@@ -307,7 +310,7 @@ export class CampaignScreen {
   private createLootPips(count: number): HTMLElement {
     const pipsContainer = document.createElement("div");
     pipsContainer.className = "pips-container flex-row justify-center";
-    pipsContainer.title = `Bonus Loot: ${count} crate${count > 1 ? "s" : ""}`;
+    pipsContainer.title = t(I18nKeys.screen.campaign.node_bonus_loot, { count, plural: count > 1 ? "s" : "" });
     pipsContainer.style.position = "absolute";
     pipsContainer.style.bottom = "-12px";
     pipsContainer.style.width = "100%";

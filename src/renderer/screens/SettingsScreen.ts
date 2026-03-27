@@ -74,19 +74,19 @@ export class SettingsScreen {
           key: "Arrows",
           label: t(I18nKeys.common.shortcuts.navigate),
           description: t(I18nKeys.common.shortcuts.move_selection),
-          category: t(I18nKeys.common.shortcuts.navigation),
+          category: "Navigation",
         },
         {
           key: "Enter",
           label: t(I18nKeys.common.shortcuts.select),
           description: t(I18nKeys.common.shortcuts.activate_button),
-          category: t(I18nKeys.common.shortcuts.navigation),
+          category: "Navigation",
         },
         {
           key: "ESC",
           label: t(I18nKeys.screen.settings.back),
           description: t(I18nKeys.common.shortcuts.save_return),
-          category: t(I18nKeys.common.shortcuts.navigation),
+          category: "Navigation",
         },
       ],
     });
@@ -445,7 +445,7 @@ export class SettingsScreen {
       userDetails.className = "flex-col";
 
       const userName = document.createElement("div");
-      userName.textContent = user.displayName || user.email || "Authenticated User";
+      userName.textContent = user.displayName || user.email || t(I18nKeys.screen.settings.authenticated_user);
       userName.style.fontWeight = "bold";
       userDetails.appendChild(userName);
 

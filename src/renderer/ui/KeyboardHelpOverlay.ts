@@ -1,6 +1,8 @@
 import type { InputContext, ShortcutInfo } from "@src/shared/types";
 import { InputPriority } from "@src/shared/types";
 import type { InputDispatcher } from "../InputDispatcher";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export class KeyboardHelpOverlay implements InputContext {
   public id = "KeyboardHelpOverlay";
@@ -52,7 +54,7 @@ export class KeyboardHelpOverlay implements InputContext {
     this.container.innerHTML = "";
 
     const title = document.createElement("h2");
-    title.textContent = "Keyboard Shortcuts";
+    title.textContent = t(I18nKeys.common.shortcuts.title);
     title.style.margin = "0";
     title.style.color = "var(--color-accent)";
     title.style.letterSpacing = "2px";
@@ -85,7 +87,8 @@ export class KeyboardHelpOverlay implements InputContext {
         section.style.marginTop = "20px";
 
         const header = document.createElement("h3");
-        header.textContent = category;
+        const categoryKey = I18nKeys.common.shortcuts.category[category.toLowerCase() as keyof typeof I18nKeys.common.shortcuts.category];
+        header.textContent = categoryKey ? t(categoryKey) : category;
         header.style.color = "var(--color-text-dim)";
         header.style.fontSize = "0.9em";
         header.style.margin = "0 0 5px 0";
@@ -146,13 +149,13 @@ export class KeyboardHelpOverlay implements InputContext {
       {
         key: "ESC",
         label: "Esc",
-        description: "Close Help Overlay",
+        description: t(I18nKeys.common.shortcuts.close_help),
         category: "Navigation",
       },
       {
         key: "?",
         label: "?",
-        description: "Close Help Overlay",
+        description: t(I18nKeys.common.shortcuts.close_help),
         category: "Navigation",
       },
     ];

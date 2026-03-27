@@ -18,8 +18,14 @@ let currentLocaleData = locales[currentLocaleId];
 /**
  * Translates a key to the current locale.
  */
-export function t(key: I18nKey): string {
-  return currentLocaleData[key] || key;
+export function t(key: I18nKey, params?: Record<string, string | number>): string {
+  let text = currentLocaleData[key] || key;
+  if (params) {
+    Object.keys(params).forEach((p) => {
+      text = text.replace(`{${p}}`, params[p].toString());
+    });
+  }
+  return text;
 }
 
 /**

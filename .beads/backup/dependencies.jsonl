@@ -474,6 +474,12 @@
 {"created_at":"2026-03-07T20:55:15Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-beznk","issue_id":"voidlock-i374n","metadata":"{}","type":"blocks"}
 {"created_at":"2026-03-26T20:55:09Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-1xhhf","issue_id":"voidlock-i59i6","metadata":"{}","type":"blocks"}
 {"created_at":"2026-03-26T20:55:09Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-tr4w5","issue_id":"voidlock-i59i6","metadata":"{}","type":"blocks"}
+{"created_at":"2026-03-27T14:11:48Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-i59i6","issue_id":"voidlock-i59i6.1","metadata":"{}","type":"parent-child"}
+{"created_at":"2026-03-27T14:11:54Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-i59i6","issue_id":"voidlock-i59i6.2","metadata":"{}","type":"parent-child"}
+{"created_at":"2026-03-27T14:11:55Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-i59i6","issue_id":"voidlock-i59i6.3","metadata":"{}","type":"parent-child"}
+{"created_at":"2026-03-27T14:11:55Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-i59i6","issue_id":"voidlock-i59i6.4","metadata":"{}","type":"parent-child"}
+{"created_at":"2026-03-27T14:11:55Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-i59i6","issue_id":"voidlock-i59i6.5","metadata":"{}","type":"parent-child"}
+{"created_at":"2026-03-27T14:11:56Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-i59i6","issue_id":"voidlock-i59i6.6","metadata":"{}","type":"parent-child"}
 {"created_at":"2026-01-03T01:58:26Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-3dp","issue_id":"voidlock-i8y","metadata":"{}","type":"blocks"}
 {"created_at":"2026-02-23T18:19:22Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-ia11n","issue_id":"voidlock-ia2hv","metadata":"{}","type":"blocks"}
 {"created_at":"2026-01-18T04:15:54Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-l8tc","issue_id":"voidlock-idde","metadata":"{}","type":"blocks"}
@@ -517,6 +523,7 @@
 {"created_at":"2026-01-05T03:59:29Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-jrh5","issue_id":"voidlock-jrh5.1","metadata":"{}","type":"parent-child"}
 {"created_at":"2026-02-21T04:45:00Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-nv135","issue_id":"voidlock-kfavd","metadata":"{}","type":"blocks"}
 {"created_at":"2026-02-18T04:56:23Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-nv135","issue_id":"voidlock-knkav","metadata":"{}","type":"blocks"}
+{"created_at":"2026-03-27T13:49:28Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-o4rbi","issue_id":"voidlock-knt8t","metadata":"{}","type":"blocks"}
 {"created_at":"2026-02-25T03:40:00Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-kqg3s","issue_id":"voidlock-kqg3s.1","metadata":"{}","type":"parent-child"}
 {"created_at":"2026-02-25T03:40:08Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-kqg3s.1","issue_id":"voidlock-kqg3s.1.1","metadata":"{}","type":"parent-child"}
 {"created_at":"2026-02-25T03:59:37Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-kqg3s.1","issue_id":"voidlock-kqg3s.1.2","metadata":"{}","type":"parent-child"}
@@ -725,3 +732,4 @@
 {"created_at":"2026-01-05T03:43:39Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-zsn4","issue_id":"voidlock-zsn4.1","metadata":"{}","type":"parent-child"}
 {"created_at":"2026-01-05T03:43:44Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-zsn4","issue_id":"voidlock-zsn4.2","metadata":"{}","type":"parent-child"}
 {"created_at":"2026-01-05T03:44:07Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-zsn4.1","issue_id":"voidlock-zsn4.2","metadata":"{}","type":"blocks"}
+{"created_at":"2026-03-27T13:49:28Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-o4rbi","issue_id":"voidlock-zzh3a","metadata":"{}","type":"blocks"}

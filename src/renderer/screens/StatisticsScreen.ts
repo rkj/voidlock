@@ -48,13 +48,13 @@ export class StatisticsScreen {
           key: "Arrows",
           label: t(I18nKeys.common.shortcuts.navigate),
           description: t(I18nKeys.common.shortcuts.move_selection),
-          category: t(I18nKeys.common.shortcuts.navigation),
+          category: "Navigation",
         },
         {
           key: "Enter",
           label: t(I18nKeys.common.shortcuts.select),
           description: t(I18nKeys.common.shortcuts.activate_button),
-          category: t(I18nKeys.common.shortcuts.navigation),
+          category: "Navigation",
         },
       ],
     });
