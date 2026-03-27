@@ -333,6 +333,7 @@ export class CampaignManager {
   }
 
   public reconcileMission(result: {
+    nodeId?: string;
     won: boolean;
     kills: number;
     elitesKilled: number;
@@ -341,7 +342,14 @@ export class CampaignManager {
     casualties: string[];
     xpGained: Map<string, number>;
   }): void {
-    if (!this.state?.currentNodeId) return;
+    if (!this.state) return;
+
+    // Use report nodeId if currentNodeId is missing (Fixes voidlock-fxlcc)
+    if (!this.state.currentNodeId && result.nodeId) {
+      this.state.currentNodeId = result.nodeId;
+    }
+
+    if (!this.state.currentNodeId) return;
 
     MissionReconciler.reconcile(this.state, result);
     

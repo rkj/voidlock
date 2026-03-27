@@ -470,6 +470,9 @@ export class NavigationOrchestrator {
   }
 
   public onCampaignNodeSelect(node: CampaignNode) {
+    // Ensure the engine's state reflects the selected node (Fixes voidlock-fxlcc)
+    this.campaignManager.selectNode(node.id);
+
     if (node.type === "Shop") {
       this.missionSetupManager.currentCampaignNode = node;
       this.setupEquipmentScreen(true);
