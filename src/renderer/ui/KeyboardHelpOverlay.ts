@@ -1,6 +1,6 @@
 import type { InputContext, ShortcutInfo } from "@src/shared/types";
 import { InputPriority } from "@src/shared/types";
-import { InputDispatcher } from "../InputDispatcher";
+import type { InputDispatcher } from "../InputDispatcher";
 
 export class KeyboardHelpOverlay implements InputContext {
   public id = "KeyboardHelpOverlay";

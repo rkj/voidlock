@@ -1,8 +1,7 @@
 import type {
   MapDefinition,
   Grid,
-  CanMoveParams,
-  Door} from "../shared/types";
+  CanMoveParams} from "../shared/types";
 import {
   CellType,
   BoundaryType,
@@ -38,26 +37,15 @@ export class GameGrid implements Grid {
     return this.graph.cells[y][x].type === CellType.Floor;
   }
 
-  canMove(params: CanMoveParams | number): boolean {
-    let fromX: number, fromY: number, toX: number, toY: number, doors: Map<string, Door> | undefined, allowClosedDoors: boolean;
-
-    if (typeof params === "number") {
-      fromX = params;
-      fromY = arguments[1];
-      toX = arguments[2];
-      toY = arguments[3];
-      doors = arguments[4];
-      allowClosedDoors = arguments[5] || false;
-    } else {
-      ({
-        fromX,
-        fromY,
-        toX,
-        toY,
-        doors,
-        allowClosedDoors = false,
-      } = params);
-    }
+  canMove(params: CanMoveParams): boolean {
+    const {
+      fromX,
+      fromY,
+      toX,
+      toY,
+      doors,
+      allowClosedDoors = false,
+    } = params;
 
     if (!this.isWalkable(fromX, fromY) || !this.isWalkable(toX, toY)) {
       return false;

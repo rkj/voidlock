@@ -1,5 +1,5 @@
 import { Icons } from "@src/renderer/Icons";
-import { ThemeManager } from "@src/renderer/ThemeManager";
+import type { ThemeManager } from "@src/renderer/ThemeManager";
 import { Logger } from "@src/shared/Logger";
 
 export class AssetManager {

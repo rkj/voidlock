@@ -2,7 +2,7 @@ import { ConfigManager } from "../ConfigManager";
 import type { GlobalConfig } from "../ConfigManager";
 import { UnitStyleSelector } from "../components/UnitStyleSelector";
 import { Logger, LogLevel } from "@src/shared/Logger";
-import { InputDispatcher } from "../InputDispatcher";
+import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
 import type { ThemeManager } from "../ThemeManager";
@@ -10,7 +10,7 @@ import type { CloudSyncService } from "@src/services/CloudSyncService";
 import type { ModalService } from "../ui/ModalService";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 
-import { AssetManager } from "../visuals/AssetManager";
+import type { AssetManager } from "../visuals/AssetManager";
 
 export interface SettingsScreenConfig {
   containerId: string;

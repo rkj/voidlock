@@ -1,5 +1,5 @@
 import { UnitStyle } from "@src/shared/types";
-import { AssetManager } from "../visuals/AssetManager";
+import type { AssetManager } from "../visuals/AssetManager";
 import type { ThemeManager } from "../ThemeManager";
 
 export class UnitStyleSelector {

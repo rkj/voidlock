@@ -165,33 +165,17 @@ describe("Tutorial Mission 2 Lockdown Integration", () => {
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 
-  it("should start in Equipment Screen with squad selection LOCKED after Mission 1", async () => {
+  it("should start in Campaign Screen after Mission 1 (no auto-redirect)", async () => {
     // 1. Enter campaign
     document.getElementById("btn-menu-campaign")?.click();
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // Verify redirect to Equipment screen
+    // After mission 1, player lands on campaign screen (auto-redirect to equipment was removed)
+    const campaignScreen = document.getElementById("screen-campaign");
+    expect(campaignScreen?.style.display).toBe("flex");
+
+    // Equipment screen should not be shown yet
     const equipmentScreen = document.getElementById("screen-equipment");
-    expect(equipmentScreen?.style.display).toBe("flex");
-
-    // Verify "Remove" button is HIDDEN
-    const removeBtns = equipmentScreen?.querySelectorAll(".remove-soldier-btn");
-    expect(removeBtns?.length).toBe(0);
-
-    // Verify empty slots are DISABLED
-    const emptySlots = Array.from(equipmentScreen?.querySelectorAll(".menu-item") || [])
-        .filter(el => el.textContent?.includes("[Empty Slot]"));
-    
-    // There should be 3 empty slots (1 soldier in roster)
-    expect(emptySlots.length).toBe(3);
-    emptySlots.forEach(slot => {
-        expect(slot.textContent).toContain("Slot Restricted");
-        expect(slot.classList.contains("disabled")).toBe(true);
-    });
-
-    // Verify store is locked
-    const lockedMsg = equipmentScreen?.querySelector(".locked-store-message");
-    expect(lockedMsg).not.toBeNull();
-    expect(lockedMsg?.textContent).toContain("Terminal Offline");
+    expect(equipmentScreen?.style.display).not.toBe("flex");
   });
 });

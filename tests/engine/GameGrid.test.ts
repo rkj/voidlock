@@ -58,45 +58,45 @@ describe("GameGrid", () => {
   });
 
   it("should allow movement between open edges", () => {
-    expect(grid.canMove(0, 0, 1, 0, new Map())).toBe(true);
-    expect(grid.canMove(1, 0, 0, 0, new Map())).toBe(true);
+    expect(grid.canMove({ fromX: 0, fromY: 0, toX: 1, toY: 0, doors: new Map() })).toBe(true);
+    expect(grid.canMove({ fromX: 1, fromY: 0, toX: 0, toY: 0, doors: new Map() })).toBe(true);
   });
 
   it("should block movement through walls", () => {
-    expect(grid.canMove(0, 0, 0, 1, new Map())).toBe(false);
+    expect(grid.canMove({ fromX: 0, fromY: 0, toX: 0, toY: 1, doors: new Map() })).toBe(false);
   });
 
   it("should block movement to void cells", () => {
-    expect(grid.canMove(1, 0, 1, 1, new Map())).toBe(false);
+    expect(grid.canMove({ fromX: 1, fromY: 0, toX: 1, toY: 1, doors: new Map() })).toBe(false);
   });
 
   describe("door movement", () => {
     it("should allow movement through an open door", () => {
       const { map, doors } = createTestMapWithDoor("Open");
       const doorGrid = new GameGrid(map);
-      expect(doorGrid.canMove(0, 0, 1, 0, doors)).toBe(true);
-      expect(doorGrid.canMove(1, 0, 0, 0, doors)).toBe(true);
+      expect(doorGrid.canMove({ fromX: 0, fromY: 0, toX: 1, toY: 0, doors })).toBe(true);
+      expect(doorGrid.canMove({ fromX: 1, fromY: 0, toX: 0, toY: 0, doors })).toBe(true);
     });
 
     it("should block movement through a closed door", () => {
       const { map, doors } = createTestMapWithDoor("Closed");
       const doorGrid = new GameGrid(map);
-      expect(doorGrid.canMove(0, 0, 1, 0, doors)).toBe(false);
-      expect(doorGrid.canMove(1, 0, 0, 0, doors)).toBe(false);
+      expect(doorGrid.canMove({ fromX: 0, fromY: 0, toX: 1, toY: 0, doors })).toBe(false);
+      expect(doorGrid.canMove({ fromX: 1, fromY: 0, toX: 0, toY: 0, doors })).toBe(false);
     });
 
     it("should block movement through a locked door", () => {
       const { map, doors } = createTestMapWithDoor("Locked");
       const doorGrid = new GameGrid(map);
-      expect(doorGrid.canMove(0, 0, 1, 0, doors)).toBe(false);
-      expect(doorGrid.canMove(1, 0, 0, 0, doors)).toBe(false);
+      expect(doorGrid.canMove({ fromX: 0, fromY: 0, toX: 1, toY: 0, doors })).toBe(false);
+      expect(doorGrid.canMove({ fromX: 1, fromY: 0, toX: 0, toY: 0, doors })).toBe(false);
     });
 
     it("should allow movement through a destroyed door", () => {
       const { map, doors } = createTestMapWithDoor("Destroyed");
       const doorGrid = new GameGrid(map);
-      expect(doorGrid.canMove(0, 0, 1, 0, doors)).toBe(true);
-      expect(doorGrid.canMove(1, 0, 0, 0, doors)).toBe(true);
+      expect(doorGrid.canMove({ fromX: 0, fromY: 0, toX: 1, toY: 0, doors })).toBe(true);
+      expect(doorGrid.canMove({ fromX: 1, fromY: 0, toX: 0, toY: 0, doors })).toBe(true);
     });
   });
 
@@ -113,7 +113,7 @@ describe("GameGrid", () => {
         walls: [{ p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } }],
       };
       const testGrid = new GameGrid(map);
-      expect(testGrid.canMove(0, 0, 1, 0, new Map())).toBe(false);
+      expect(testGrid.canMove({ fromX: 0, fromY: 0, toX: 1, toY: 0, doors: new Map() })).toBe(false);
     });
 
     it("should treat boundaries to the void as walls", () => {
@@ -129,7 +129,7 @@ describe("GameGrid", () => {
       };
       const testGrid = new GameGrid(map);
       // North of (0,0) is outside
-      expect(testGrid.canMove(0, 0, 0, -1, new Map())).toBe(false);
+      expect(testGrid.canMove({ fromX: 0, fromY: 0, toX: 0, toY: -1, doors: new Map() })).toBe(false);
     });
   });
 });

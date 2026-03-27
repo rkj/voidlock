@@ -1,7 +1,7 @@
 import type { MapDefinition} from "../shared/types";
 import { CellType, BoundaryType } from "../shared/types";
 import { Graph } from "../engine/Graph";
-import { ThemeManager } from "../renderer/ThemeManager";
+import type { ThemeManager } from "../renderer/ThemeManager";
 
 export class MapRenderer {
   private ctx: CanvasRenderingContext2D;

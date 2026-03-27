@@ -1,6 +1,6 @@
 import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import type { MetaManager } from "@src/renderer/campaign/MetaManager";
-import { InputDispatcher } from "../InputDispatcher";
+import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
 import { CampaignShellTopBar, CampaignShellFooter } from "./CampaignShellUI";

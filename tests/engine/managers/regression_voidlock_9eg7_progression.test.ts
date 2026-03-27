@@ -68,7 +68,7 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
 
     MissionReconciler.advanceCampaignWithoutMission(state, nodeA.id, 0, 0);
 
-    // currentSector should now be rank + 2 = 2
-    expect(state.currentSector).toBe(2);
+    // currentSector should now be rank + 1 = 1
+    expect(state.currentSector).toBe(1);
   });
 });

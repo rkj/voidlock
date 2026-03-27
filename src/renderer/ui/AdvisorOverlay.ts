@@ -1,8 +1,8 @@
 import type { AdvisorMessage } from "@src/renderer/controllers/TutorialManager";
 import type { GameClient } from "@src/engine/GameClient";
-import { ThemeManager } from "@src/renderer/ThemeManager";
+import type { ThemeManager } from "@src/renderer/ThemeManager";
 import { Logger } from "@src/shared/Logger";
-import { InputDispatcher } from "../InputDispatcher";
+import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import advisorStylesUrl from "@src/styles/advisor.css?url";
 

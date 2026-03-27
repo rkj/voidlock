@@ -1,6 +1,6 @@
 import type { CampaignState} from "@src/shared/campaign_types";
 import { calculateLevel } from "@src/shared/campaign_types";
-import { InputDispatcher } from "../InputDispatcher";
+import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
 

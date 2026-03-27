@@ -197,7 +197,6 @@ export class MissionReconciler {
         nextNode &&
         (nextNode.status === "Hidden" ||
           nextNode.status === "Revealed" ||
-          nextNode.status === "Locked" ||
           nextNode.status === "Accessible")
       ) {
         nextNode.status = "Accessible";

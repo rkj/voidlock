@@ -1,8 +1,8 @@
 import type { OverlayOption, Cell } from "@src/shared/types";
 import { UnitStyle } from "@src/shared/types";
 import type { Graph } from "@src/engine/Graph";
-import { ThemeManager } from "../ThemeManager";
-import { AssetManager } from "./AssetManager";
+import type { ThemeManager } from "../ThemeManager";
+import type { AssetManager } from "./AssetManager";
 
 export class SharedRendererState {
   public cellSize: number = 128;

@@ -114,7 +114,7 @@ export class AppServiceRegistry {
     this.cloudSync = saveManager.getCloudSync();
     await this.cloudSync.initialize();
 
-    await this.campaignManager.load();
+    this.campaignManager.load();
     this.modalService = new ModalService();
     this.screenManager = new ScreenManager(config.onScreenChange);
 
@@ -249,8 +249,8 @@ export class AppServiceRegistry {
       themeManager: this.themeManager,
       modalService: this.modalService,
       missionSetupManager: this.missionSetupManager,
-      squadBuilder: squadBuilder,
-      screens: screens,
+      squadBuilder,
+      screens,
       tutorialManager: this.tutorialManager,
       callbacks: {
         showMainMenu: callbacks.showMainMenu,

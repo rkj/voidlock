@@ -5,7 +5,7 @@ import {
   WeaponLibrary,
   InputPriority,
 } from "@src/shared/types";
-import { InputDispatcher } from "../InputDispatcher";
+import type { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
 
 export interface EngineeringScreenConfig {

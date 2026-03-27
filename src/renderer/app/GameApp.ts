@@ -2,12 +2,12 @@ import { InputBinder } from "./InputBinder";
 import type {
   MapGeneratorType,
   SquadSoldierConfig,
-  Unit} from "@src/shared/types";
+  Unit,
+  SquadConfig} from "@src/shared/types";
 import {
   MissionType,
   CommandType,
-  UnitState,
-  SquadConfig,
+  UnitState
 } from "@src/shared/types";
 import type {
   MissionReport,

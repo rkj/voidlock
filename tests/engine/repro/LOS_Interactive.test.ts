@@ -15,7 +15,7 @@ describe("GameGrid Door Interaction Repro", () => {
     const grid = new GameGrid(map);
 
     // 1. Verify clear path
-    expect(grid.canMove(0, 0, 1, 0)).toBe(true);
+    expect(grid.canMove({ fromX: 0, fromY: 0, toX: 1, toY: 0 })).toBe(true);
 
     // 2. Inject "Misplaced" Door
     // Door at (0,0)-(0,1) [Vertical, connecting N/S if mapped to 2D].
@@ -37,7 +37,7 @@ describe("GameGrid Door Interaction Repro", () => {
     doors.set(misDoor.id, misDoor);
 
     // 3. Check if this door blocks movement
-    const blocked = !grid.canMove(0, 0, 1, 0, doors);
+    const blocked = !grid.canMove({ fromX: 0, fromY: 0, toX: 1, toY: 0, doors });
 
     // With original code, this should be FALSE (Passable) because Logical match fails.
     // With corrected code, this should be TRUE (Blocked).

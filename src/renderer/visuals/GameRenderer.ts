@@ -14,8 +14,8 @@ import { UnitLayer } from "./UnitLayer";
 import { EffectLayer } from "./EffectLayer";
 import { OverlayLayer } from "./OverlayLayer";
 import { Graph } from "@src/engine/Graph";
-import { ThemeManager } from "../ThemeManager";
-import { AssetManager } from "./AssetManager";
+import type { ThemeManager } from "../ThemeManager";
+import type { AssetManager } from "./AssetManager";
 
 export interface GameRendererConfig {
   canvas: HTMLCanvasElement;

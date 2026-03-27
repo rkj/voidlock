@@ -11,7 +11,7 @@ import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
-import { InputDispatcher } from "../InputDispatcher";
+import type { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
 import { FocusManager } from "../utils/FocusManager";
 

@@ -65,7 +65,7 @@ export class SectorMapGenerator {
         const node: CampaignNode = {
           id: `node-${r}-${l}`,
           type,
-          status: r === 0 ? "Accessible" : "Locked",
+          status: r === 0 ? "Accessible" : "Hidden",
           rank: r,
           difficulty: 1 + r * (rules.difficultyScaling || 1),
           mapSeed: prng.nextInt(0, 2147483647),
@@ -121,27 +121,55 @@ export class SectorMapGenerator {
       const currentRank = grid[r];
       const nextRank = grid[r + 1];
 
-      for (const node of currentRank) {
-        // Guarantee at least one connection
-        const targetIndex = prng.nextInt(0, nextRank.length - 1);
-        node.connections.push(nextRank[targetIndex].id);
+      // Sort both ranks by lane position (y) to enable monotonic connections
+      const sortedCurrent = [...currentRank].sort((a, b) => a.position.y - b.position.y);
+      const sortedNext = [...nextRank].sort((a, b) => a.position.y - b.position.y);
 
-        // Optional extra connections
-        if (nextRank.length > 1 && prng.next() < 0.3) {
-          let extraTarget;
-          do {
-            extraTarget = prng.nextInt(0, nextRank.length - 1);
-          } while (node.connections.includes(nextRank[extraTarget].id));
-          node.connections.push(nextRank[extraTarget].id);
+      // Track the minimum allowed target index to prevent crossings
+      let minTargetIndex = 0;
+
+      for (const node of sortedCurrent) {
+        // Connect to a target at or below the minimum (monotonic constraint)
+        const targetIndex = prng.nextInt(minTargetIndex, sortedNext.length - 1);
+        node.connections.push(sortedNext[targetIndex].id);
+        minTargetIndex = targetIndex;
+
+        // Optional extra connection (must also be monotonic — same or higher index)
+        if (sortedNext.length > 1 && prng.next() < 0.3) {
+          const extraMin = targetIndex;
+          const extraMax = Math.min(targetIndex + 1, sortedNext.length - 1);
+          if (extraMax > extraMin || !node.connections.includes(sortedNext[extraMax].id)) {
+            const extraTarget = prng.nextInt(extraMin, extraMax);
+            if (!node.connections.includes(sortedNext[extraTarget].id)) {
+              node.connections.push(sortedNext[extraTarget].id);
+              minTargetIndex = extraTarget;
+            }
+          }
         }
       }
 
       // Ensure every node in next rank has at least one parent
-      for (const nextNode of nextRank) {
+      for (const nextNode of sortedNext) {
         const hasParent = currentRank.some((n) => n.connections.includes(nextNode.id));
         if (!hasParent) {
-          const randomParent = currentRank[prng.nextInt(0, currentRank.length - 1)];
-          randomParent.connections.push(nextNode.id);
+          // Find the closest parent by lane position to maintain monotonicity
+          const nextIndex = sortedNext.indexOf(nextNode);
+          let bestParent = sortedCurrent[0];
+          let bestDist = Infinity;
+          for (const parent of sortedCurrent) {
+            const parentMaxTarget = parent.connections
+              .map((id) => sortedNext.findIndex((n) => n.id === id))
+              .reduce((max, idx) => Math.max(max, idx), -1);
+            // Only allow connection if it doesn't create a crossing
+            if (parentMaxTarget <= nextIndex) {
+              const dist = Math.abs(parent.position.y - nextNode.position.y);
+              if (dist < bestDist) {
+                bestDist = dist;
+                bestParent = parent;
+              }
+            }
+          }
+          bestParent.connections.push(nextNode.id);
         }
       }
     }

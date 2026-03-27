@@ -1,8 +1,8 @@
-import { CampaignSoldier, CampaignState, CampaignNode, CampaignOverrides } from "@src/shared/campaign_types";
+import type { CampaignSoldier, CampaignState, CampaignNode, CampaignOverrides } from "@src/shared/campaign_types";
 import type { GameRules } from "@src/shared/campaign_types";
 import { PRNG } from "@src/shared/PRNG";
 import { MapGeneratorType } from "@src/shared/types";
-import { StorageProvider } from "../persistence/StorageProvider";
+import type { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
 import { RosterManager } from "./RosterManager";
 import { MissionReconciler } from "./MissionReconciler";
@@ -227,7 +227,7 @@ export class CampaignManager {
           skipPrologue: false,
           difficulty: "Simulation"
         };
-    } else if (d === "iron") {
+    } if (d === "iron") {
         return {
           mode: "Preset",
           deathRule: "Iron",
@@ -243,7 +243,7 @@ export class CampaignManager {
           skipPrologue: false,
           difficulty: "Ironman"
         };
-    } else if (d === "ironman" || d === "hard") {
+    } if (d === "ironman" || d === "hard") {
         return {
           mode: "Preset",
           deathRule: "Iron",
@@ -287,7 +287,7 @@ export class CampaignManager {
   public selectNode(nodeId: string): void {
     if (!this.state) return;
     const node = this.state.nodes.find(n => n.id === nodeId);
-    if (!node || node.status !== "Accessible") return;
+    if (node?.status !== "Accessible") return;
 
     this.state.currentNodeId = nodeId;
     this.save();
@@ -306,7 +306,7 @@ export class CampaignManager {
     casualties: string[];
     xpGained: Map<string, number>;
   }): void {
-    if (!this.state || !this.state.currentNodeId) return;
+    if (!this.state?.currentNodeId) return;
 
     MissionReconciler.reconcile(this.state, result);
     

@@ -1,9 +1,9 @@
 import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import type { CampaignNode, CampaignState } from "@src/shared/campaign_types";
-import { ThemeManager } from "@src/renderer/ThemeManager";
+import type { ThemeManager } from "@src/renderer/ThemeManager";
 import type { ModalService } from "../ui/ModalService";
 import { NewCampaignWizard } from "./campaign/NewCampaignWizard";
-import { InputDispatcher } from "../InputDispatcher";
+import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
 

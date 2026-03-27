@@ -17,8 +17,8 @@ import type { GameClient } from "@src/engine/GameClient";
 import type { ScreenManager } from "@src/renderer/ScreenManager";
 import type { MenuController } from "@src/renderer/MenuController";
 import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { ThemeManager } from "../ThemeManager";
-import { AssetManager } from "../visuals/AssetManager";
+import type { ThemeManager } from "../ThemeManager";
+import type { AssetManager } from "../visuals/AssetManager";
 
 import { ConfigManager } from "../ConfigManager";
 

@@ -74,7 +74,7 @@ export class RosterManager {
     }
 
     const soldier = state.roster.find((s) => s.id === soldierId);
-    if (!soldier || soldier.status !== "Dead") {
+    if (soldier?.status !== "Dead") {
       return false;
     }
 
@@ -112,7 +112,7 @@ export class RosterManager {
     }
 
     const soldier = state.roster.find((s) => s.id === soldierId);
-    if (!soldier || soldier.status !== "Wounded") {
+    if (soldier?.status !== "Wounded") {
       return false;
     }
 

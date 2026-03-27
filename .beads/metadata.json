@@ -3,5 +3,6 @@
   "backend": "dolt",
   "dolt_mode": "server",
   "dolt_database": "voidlock",
+  "dolt_server_port": 42445,
   "project_id": "6df6a75b-9925-4ea9-980a-be61cba8204b"
 }

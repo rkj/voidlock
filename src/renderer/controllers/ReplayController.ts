@@ -4,8 +4,8 @@ import { EngineMode } from "@src/shared/types";
 import { Renderer } from "@src/renderer/Renderer";
 import { Logger } from "@src/shared/Logger";
 
-import { ThemeManager } from "../ThemeManager";
-import { AssetManager } from "../visuals/AssetManager";
+import type { ThemeManager } from "../ThemeManager";
+import type { AssetManager } from "../visuals/AssetManager";
 
 export interface ReplayControllerConfig {
   gameClient: GameClient;

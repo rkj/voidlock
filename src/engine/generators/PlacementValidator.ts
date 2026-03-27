@@ -31,7 +31,7 @@ export class PlacementValidator {
     const validator = new PlacementValidator(map?.width, map?.height);
 
     const getRoomId = (pos: Vector2) => {
-      if (!map || !map.cells) return undefined;
+      if (!map?.cells) return undefined;
       return map.cells.find((c) => c.x === pos.x && c.y === pos.y)?.roomId;
     };
 

@@ -7,7 +7,7 @@ import type {
 import {
   InputPriority
 } from "@src/shared/types";
-import { InputDispatcher } from "./InputDispatcher";
+import type { InputDispatcher } from "./InputDispatcher";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { MapUtils } from "@src/shared/utils/MapUtils";
 

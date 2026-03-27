@@ -3,9 +3,9 @@ import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import type { GameClient } from "@src/engine/GameClient";
 import { UnitStyle, InputPriority } from "@src/shared/types";
 import { ReplayController } from "@src/renderer/controllers/ReplayController";
-import { InputDispatcher } from "../InputDispatcher";
-import { ThemeManager } from "../ThemeManager";
-import { AssetManager } from "../visuals/AssetManager";
+import type { InputDispatcher } from "../InputDispatcher";
+import type { ThemeManager } from "../ThemeManager";
+import type { AssetManager } from "../visuals/AssetManager";
 import { UIUtils } from "../utils/UIUtils";
 
 export interface DebriefScreenConfig {
