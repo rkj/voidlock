@@ -40,9 +40,9 @@ export class MapEntityLayer implements RenderLayer {
       const x = sp.x * cellSize;
       const y = sp.y * cellSize;
 
-      ctx.fillStyle = "rgba(0, 255, 0, 0.3)";
+      ctx.fillStyle = this.theme.getColor("--color-success-muted");
       ctx.fillRect(x, y, cellSize, cellSize);
-      ctx.strokeStyle = "rgba(0, 255, 0, 0.8)";
+      ctx.strokeStyle = this.theme.getColor("--color-primary");
       ctx.lineWidth = 2;
       ctx.strokeRect(x + 2, y + 2, cellSize - 4, cellSize - 4);
     });
@@ -135,7 +135,7 @@ export class MapEntityLayer implements RenderLayer {
 
     if (isTactical) {
       // Tactical Mode: High-contrast geometric overlay (Green Grid)
-      ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+      ctx.fillStyle = this.theme.getColor("--color-success-muted");
       ctx.fillRect(x, y, cellSize, cellSize);
       ctx.strokeStyle = this.theme.getColor("--color-success");
       ctx.lineWidth = 3;

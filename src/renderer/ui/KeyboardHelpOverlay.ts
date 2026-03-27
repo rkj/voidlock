@@ -31,7 +31,7 @@ export class KeyboardHelpOverlay implements InputContext {
     this.container.style.maxWidth = "80vw";
     this.container.style.maxHeight = "80vh";
     this.container.style.overflowY = "auto";
-    this.container.style.boxShadow = "0 0 30px rgba(0, 150, 255, 0.1)";
+    this.container.style.boxShadow = "0 0 30px rgba(var(--color-accent-rgb), 0.1)";
 
     this.backdrop.appendChild(this.container);
     document.body.appendChild(this.backdrop);
@@ -103,7 +103,7 @@ export class KeyboardHelpOverlay implements InputContext {
           keyLabel.style.color = "var(--color-primary)";
           keyLabel.style.fontWeight = "bold";
           keyLabel.style.fontFamily = "monospace";
-          keyLabel.style.backgroundColor = "rgba(0, 255, 0, 0.1)";
+          keyLabel.style.backgroundColor = "rgba(var(--color-primary-rgb), 0.1)";
           keyLabel.style.padding = "2px 6px";
           keyLabel.style.borderRadius = "4px";
           keyLabel.style.minWidth = "60px";

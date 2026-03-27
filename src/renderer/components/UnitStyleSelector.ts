@@ -223,7 +223,7 @@ export class UnitStyleSelector {
         ctx.strokeStyle = this.getColor("--color-info", "#0af");
         ctx.lineWidth = 3;
         ctx.strokeRect(x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
-        ctx.fillStyle = "rgba(0, 255, 255, 0.2)";
+        ctx.fillStyle = "rgba(var(--color-info-rgb), 0.2)";
         ctx.fillRect(x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
         break;
     }
