@@ -27,6 +27,11 @@ describe("i18n system", () => {
     setLocale("pl");
     expect(getCurrentLocale()).toBe("pl");
     expect(t(I18nKeys.menu.campaign)).toBe("Active Contracts");
+
+    // Test with en-standard
+    setLocale("en-standard");
+    expect(getCurrentLocale()).toBe("en-standard");
+    expect(t(I18nKeys.menu.campaign)).toBe("Campaign");
   });
 
   it("should return a list of available locales", () => {
