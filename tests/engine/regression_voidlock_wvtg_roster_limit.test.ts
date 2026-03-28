@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { RosterManager } from "@src/engine/campaign/RosterManager";
 import { CampaignState } from "@src/shared/campaign_types";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
+import { PRNG } from "@src/shared/PRNG";
 
 describe("RosterManager Regression: Roster Limit (voidlock-wvtg)", () => {
   let rosterManager: RosterManager;
@@ -39,12 +40,12 @@ describe("RosterManager Regression: Roster Limit (voidlock-wvtg)", () => {
   it("should allow recruitment up to MAX_ROSTER_SIZE", () => {
     // Recruit up to the limit
     for (let i = 0; i < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE; i++) {
-      RosterManager.recruitSoldier(state, "assault");
+      RosterManager.recruitSoldier(state, "assault", new PRNG(42 + state.roster.length));
     }
     expect(state.roster.length).toBe(CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE);
 
     // Try to recruit one more
-    expect(() => RosterManager.recruitSoldier(state, "assault")).toThrow(
+    expect(() => RosterManager.recruitSoldier(state, "assault", new PRNG(42 + state.roster.length))).toThrow(
       `Roster is full (max ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} soldiers).`,
     );
   });
@@ -52,7 +53,7 @@ describe("RosterManager Regression: Roster Limit (voidlock-wvtg)", () => {
   it("should not count dead soldiers differently for the limit", () => {
     // Fill roster with 11 healthy soldiers
     for (let i = 0; i < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE - 1; i++) {
-      RosterManager.recruitSoldier(state, "assault");
+      RosterManager.recruitSoldier(state, "assault", new PRNG(42 + state.roster.length));
     }
     
     // Add one dead soldier
@@ -77,7 +78,7 @@ describe("RosterManager Regression: Roster Limit (voidlock-wvtg)", () => {
     expect(state.roster.length).toBe(CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE);
 
     // Try to recruit one more
-    expect(() => RosterManager.recruitSoldier(state, "assault")).toThrow(
+    expect(() => RosterManager.recruitSoldier(state, "assault", new PRNG(42 + state.roster.length))).toThrow(
       `Roster is full (max ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} soldiers).`,
     );
   });
