@@ -423,11 +423,13 @@ export class CampaignScreen {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Resolve CSS variables for canvas (canvas doesn't support var() syntax)
+    const style = getComputedStyle(document.documentElement);
+    const colorActive = style.getPropertyValue("--color-connection-active").trim() || "#fff";
+    const colorCleared = style.getPropertyValue("--color-connection-cleared").trim() || "#0f0";
+    const colorDefault = style.getPropertyValue("--color-connection-default").trim() || "#aaa";
 
-    const computedStyles = getComputedStyle(document.documentElement);
-    const colorPrimary = computedStyles.getPropertyValue("--color-primary").trim() || "#00FF00";
-    const colorTextDim = computedStyles.getPropertyValue("--color-text-dim").trim() || "#888888";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     nodes.forEach((node) => {
       node.connections.forEach((connId) => {
@@ -438,17 +440,17 @@ export class CampaignScreen {
           ctx.lineTo(target.position.x + 20, target.position.y + 20);
 
           if (node.status === "Cleared" && target.status === "Accessible") {
-            ctx.strokeStyle = "#FFFFFF"; // High contrast for active path
+            ctx.strokeStyle = colorActive;
             ctx.setLineDash([]);
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2.5;
           } else if (node.status === "Cleared" && target.status === "Cleared") {
-            ctx.strokeStyle = colorPrimary;
+            ctx.strokeStyle = colorCleared;
             ctx.setLineDash([]);
             ctx.lineWidth = 2;
           } else {
-            ctx.strokeStyle = colorTextDim;
+            ctx.strokeStyle = colorDefault;
             ctx.setLineDash([4, 4]);
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1.5;
           }
 
           ctx.stroke();
