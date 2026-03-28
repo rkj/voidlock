@@ -99,6 +99,7 @@ export const pl = {
   [I18nKeys.screen.campaign.loot_count_plural]: "Wykryto {count} Schowki z Zasobami",
   [I18nKeys.screen.campaign.node_tooltip]: "Węzeł Siatki: {type}",
   [I18nKeys.screen.campaign.node_bonus_loot]: "Bonusowe Schowki: {count}",
+  [I18nKeys.screen.campaign.shop_alert]: "Dotarto do punktu zaopatrzenia. Przyznano +100 kredytów.",
 
   [I18nKeys.screen.campaign.wizard.title]: "Autoryzacja Ekspedycji",
   [I18nKeys.screen.campaign.wizard.difficulty_label]: "Profil Trudności:",
@@ -276,6 +277,7 @@ export const pl = {
   [I18nKeys.screen.equipment.max_reached_tooltip]: "Osiągnięto limit 2 na misję",
   [I18nKeys.screen.equipment.procurement]: "Pozyskiwanie",
   [I18nKeys.screen.equipment.personnel_losses]: "Straty w Personelu",
+  [I18nKeys.screen.equipment.error_empty_squad]: "Oddział nie może być pusty. Wybierz przynajmniej jednego żołnierza.",
 
   [I18nKeys.screen.mission_setup.title]: "Konfiguracja Operacji",
   [I18nKeys.screen.mission_setup.generator_label]: "Typ Generatora:",
@@ -333,6 +335,8 @@ export const pl = {
   [I18nKeys.hud.debug.force_win]: "Wymuś Zwycięstwo",
   [I18nKeys.hud.debug.force_lose]: "Wymuś Porażkę",
   [I18nKeys.hud.debug.copy_state]: "Kopiuj Stan Świata",
+  [I18nKeys.hud.debug.copy_state_success]: "Stan świata skopiowany do schowka.",
+  [I18nKeys.hud.debug.copy_state_error]: "Błąd kopiowania stanu świata: {error}",
 
   [I18nKeys.hud.shell.active_contract]: "Aktywny Kontrakt",
   [I18nKeys.hud.shell.operational_logs]: "Logi Operacyjne",
@@ -349,10 +353,19 @@ export const pl = {
   [I18nKeys.hud.shell.operational_map]: "Mapa Operacyjna",
   [I18nKeys.hud.shell.asset_management_hub]: "Hub Zarządzania Zasobami",
   [I18nKeys.hud.shell.procurement_hub]: "Hub Pozyskiwania",
+  [I18nKeys.hud.shell.terminal_title]: "ZDALNY TERMINAL OPERACYJNY VOIDLOCK v{version}",
+  [I18nKeys.hud.shell.operator_status]: "OPERATOR: [POŁĄCZENIE_ZABEZPIECZONE]",
   [I18nKeys.hud.shell.sync.local_only]: "Tylko Lokalnie",
   [I18nKeys.hud.shell.sync.cloud_synced]: "Zsynchronizowano z Chmurą",
   [I18nKeys.hud.shell.sync.syncing]: "Synchronizacja...",
   [I18nKeys.hud.shell.sync.status_title]: "Status Przechowywania Danych: {status}",
+
+  [I18nKeys.prologue.title]: "Projekt Voidlock: Operacja Pierwsze Światło",
+  [I18nKeys.prologue.text]: "Dowódco, obudź się. Voidlock zawodzi. Rdzeń stacji jest niestabilny, a roje przedzierają się przez dolne pokłady. \n\nTwój cel jest jasny: Odzyskaj odszyfrowany dysk z danymi z bezpiecznego terminala i ewakuuj swój oddział. Porażka nie wchodzi w grę. Przyszłość projektu zależy od tych danych.",
+
+  [I18nKeys.error.replay_invalid]: "Nieprawidłowy format pliku nagrania.",
+  [I18nKeys.error.replay_parse_failed]: "Błąd parsowania pliku nagrania.",
+  [I18nKeys.error.replay_no_data]: "Brak dostępnych danych nagrania.",
 
   [I18nKeys.common.back]: "Wstecz",
   [I18nKeys.common.confirm]: "Potwierdź",
@@ -367,6 +380,7 @@ export const pl = {
   [I18nKeys.common.cost_credits]: "{cost} CR",
   [I18nKeys.common.ok]: "OK",
   [I18nKeys.common.alert]: "Alert Systemowy",
+  [I18nKeys.common.unknown]: "Nieznany",
   [I18nKeys.common.input]: "Wejście Terminala",
   [I18nKeys.common.continue]: "Kontynuuj",
   [I18nKeys.common.dismiss]: "Zamknij",

@@ -34,6 +34,8 @@ import { AppServiceRegistry } from "./AppServiceRegistry";
 import type { Renderer } from "../Renderer";
 import { Logger } from "@src/shared/Logger";
 import type { AdvisorOverlay } from "../ui/AdvisorOverlay";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 const VERSION = pkg.version;
 
@@ -316,8 +318,8 @@ export class GameApp {
 
           this.AdvisorOverlay.showMessage({
             id: "prologue_intro",
-            title: "Project Voidlock: Operation First Light",
-            text: "Commander, wake up. The Voidlock is failing. The station's core is unstable, and the swarms are breaching the lower decks. \n\nYour objective is clear: Recover the decrypted data disk from the secure terminal and extract your squad. Failure is not an option. The future of the project depends on this data.",
+            title: t(I18nKeys.prologue.title),
+            text: t(I18nKeys.prologue.text),
             illustration: "bg_station",
             portrait: "logo_gemini",
             blocking: true
@@ -512,7 +514,7 @@ export class GameApp {
         const currentState = data.currentState;
 
         if (!replayData?.commands) {
-          void this.modalService.alert("Invalid replay file format.");
+          void this.modalService.alert(t(I18nKeys.error.replay_invalid));
           return;
         }
 
@@ -533,7 +535,7 @@ export class GameApp {
           showArgs: [report, replayData.unitStyle || this.registry.missionSetupManager.unitStyle],
         });
       } catch (_err) {
-        void this.modalService.alert("Failed to parse replay file.");
+        void this.modalService.alert(t(I18nKeys.error.replay_parse_failed));
       }
     };
     reader.readAsText(file);
@@ -574,7 +576,7 @@ export class GameApp {
       timeSpent: replayData.commands.length > 0 ? replayData.commands[replayData.commands.length - 1].t : 0,
       soldierResults: (replayData.squadConfig?.soldiers || []).map((s: SquadSoldierConfig, idx: number) => ({
         soldierId: s.id || `s-${idx}`,
-        name: s.name || s.archetypeId || "Unknown",
+        name: s.name || s.archetypeId || t(I18nKeys.common.unknown),
         tacticalNumber: s.tacticalNumber || idx + 1,
         xpBefore: 0,
         xpGained: 0,
@@ -634,14 +636,14 @@ export class GameApp {
     titleBar.className = "terminal-title-bar";
     
     const leftText = document.createElement("span");
-    leftText.textContent = `VOIDLOCK REMOTE OPS TERMINAL v${VERSION}`;
+    leftText.textContent = t(I18nKeys.hud.shell.terminal_title, { version: VERSION });
     
     const rightText = document.createElement("span");
-    rightText.textContent = "OPERATOR: [SECURE_LINK_ESTABLISHED]";
+    rightText.textContent = t(I18nKeys.hud.shell.operator_status);
     
     titleBar.appendChild(leftText);
     titleBar.appendChild(rightText);
     
-    appEl.insertBefore(titleBar, appEl.firstChild);
+    appEl.prepend(titleBar);
   }
 }

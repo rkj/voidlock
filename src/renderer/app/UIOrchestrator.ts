@@ -3,6 +3,8 @@ import type { ModalService } from "../ui/ModalService";
 import { Logger } from "@src/shared/Logger";
 import type { GameState } from "@src/shared/types";
 import { TimeUtility } from "../TimeUtility";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export interface UIOrchestratorDependencies {
   gameClient: GameClient;
@@ -94,9 +96,9 @@ export class UIOrchestrator {
     const json = JSON.stringify(state, null, 2);
     try {
       await navigator.clipboard.writeText(json);
-      Logger.info("World state copied to clipboard.");
+      Logger.info(t(I18nKeys.hud.debug.copy_state_success));
     } catch (err) {
-      Logger.error("Failed to copy world state:", err);
+      Logger.error(t(I18nKeys.hud.debug.copy_state_error, { error: String(err) }));
     }
   }
 
@@ -108,7 +110,7 @@ export class UIOrchestrator {
   public exportReplay() {
     const replay = this.deps.gameClient.getReplayData();
     if (!replay) {
-      void this.deps.modalService.alert("No replay data available.");
+      void this.deps.modalService.alert(t(I18nKeys.error.replay_no_data));
       return;
     }
 

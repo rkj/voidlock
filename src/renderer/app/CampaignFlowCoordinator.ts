@@ -12,6 +12,8 @@ import type { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import type { ScreenManager } from "@src/renderer/ScreenManager";
 import type { CampaignShell } from "@src/renderer/ui/CampaignShell";
 import type { ModalService } from "@src/renderer/ui/ModalService";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export class CampaignFlowCoordinator {
   constructor(
@@ -49,9 +51,7 @@ export class CampaignFlowCoordinator {
     ) => void,
   ) {
     if (node.type === "Shop") {
-      await this.modalService.alert(
-        "Supply Depot reached. +100 Credits granted for resupply.",
-      );
+      await this.modalService.alert(t(I18nKeys.screen.campaign.shop_alert));
       this.campaignManager.advanceCampaignWithoutMission(
         node.id,
         100,
@@ -102,9 +102,7 @@ export class CampaignFlowCoordinator {
 
   public async onResetData() {
     if (
-      await this.modalService.confirm(
-        "Are you sure? This will wipe all campaign progress and settings.",
-      )
+      await this.modalService.confirm(t(I18nKeys.screen.settings.reset_confirm_msg))
     ) {
       localStorage.clear();
       window.location.reload();

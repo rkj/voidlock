@@ -72,7 +72,7 @@ function getName(data: SoldierWidgetData): string {
   if ("name" in data && data.name) return data.name;
   if ("soldierId" in data && data.soldierId) return data.soldierId;
   if ("id" in data && data.id) return data.id;
-  return "Unknown";
+  return t(I18nKeys.common.unknown);
 }
 
 function getTacticalNumber(data: SoldierWidgetData): number | undefined {
@@ -362,7 +362,7 @@ export function RosterSoldier(props: {
         : undefined;
 
   const archetype =
-    (archId && t("units.archetype." + archId)) || archId || "Unknown";
+    (archId && t("units.archetype." + archId)) || archId || t(I18nKeys.common.unknown);
 
   const equipment = getEquipment(data);
   const rh = getItemName(equipment.rightHand);

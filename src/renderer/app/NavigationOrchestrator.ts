@@ -23,6 +23,9 @@ import { CampaignEvents } from "@src/content/CampaignEvents";
 import type { TutorialManager } from "../controllers/TutorialManager";
 import { Logger } from "@src/shared/Logger";
 
+import { I18nKeys } from "../i18n/keys";
+import { t } from "../i18n";
+
 export interface NavigationScreens {
   mainMenu: MainMenuScreen;
   campaign: CampaignScreen;
@@ -558,7 +561,7 @@ export class NavigationOrchestrator {
 
   public onLaunchMission(config: SquadConfig) {
     if (config.soldiers.filter(s => !!s).length === 0) {
-      void this.modalService.alert("Squad cannot be empty. Please select at least one soldier.");
+      void this.modalService.alert(t(I18nKeys.screen.equipment.error_empty_squad));
       return;
     }
     this.persistEquipment(config);

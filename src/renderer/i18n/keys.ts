@@ -154,6 +154,7 @@ export const I18nKeys = {
         back_to_menu: "screen.campaign.wizard.back_to_menu",
         ironman_pause_tooltip: "screen.campaign.wizard.ironman_pause_tooltip",
       },
+      shop_alert: "screen.campaign.shop_alert",
     },
     statistics: {
       title: "screen.statistics.title",
@@ -224,6 +225,7 @@ export const I18nKeys = {
       max_reached_tooltip: "screen.equipment.max_reached_tooltip",
       procurement: "screen.equipment.procurement",
       personnel_losses: "screen.equipment.personnel_losses",
+      error_empty_squad: "screen.equipment.error_empty_squad",
     },
     mission_setup: {
       title: "screen.mission_setup.title",
@@ -309,6 +311,8 @@ export const I18nKeys = {
       force_win: "hud.debug.force_win",
       force_lose: "hud.debug.force_lose",
       copy_state: "hud.debug.copy_state",
+      copy_state_success: "hud.debug.copy_state_success",
+      copy_state_error: "hud.debug.copy_state_error",
     },
     shell: {
       active_contract: "hud.shell.active_contract",
@@ -326,6 +330,8 @@ export const I18nKeys = {
       operational_map: "hud.shell.operational_map",
       asset_management_hub: "hud.shell.asset_management_hub",
       procurement_hub: "hud.shell.procurement_hub",
+      terminal_title: "hud.shell.terminal_title",
+      operator_status: "hud.shell.operator_status",
       sync: {
         local_only: "hud.shell.sync.local_only",
         cloud_synced: "hud.shell.sync.cloud_synced",
@@ -333,6 +339,15 @@ export const I18nKeys = {
         status_title: "hud.shell.sync.status_title",
       },
     },
+  },
+  prologue: {
+    title: "prologue.title",
+    text: "prologue.text",
+  },
+  error: {
+    replay_invalid: "error.replay_invalid",
+    replay_parse_failed: "error.replay_parse_failed",
+    replay_no_data: "error.replay_no_data",
   },
   units: {
     archetype: {
@@ -409,6 +424,7 @@ export const I18nKeys = {
     chance_of_danger: "common.chance_of_danger",
     new_asset: "common.new_asset",
     intel_value: "common.intel_value",
+    unknown: "common.unknown",
     shortcuts: {
       title: "common.shortcuts.title",
       close_help: "common.shortcuts.close_help",

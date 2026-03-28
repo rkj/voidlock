@@ -99,6 +99,7 @@ export const enStandard = {
   [I18nKeys.screen.campaign.loot_count_plural]: "{count} Loot Caches",
   [I18nKeys.screen.campaign.node_tooltip]: "Node: {type}",
   [I18nKeys.screen.campaign.node_bonus_loot]: "Bonus Loot: {count}",
+  [I18nKeys.screen.campaign.shop_alert]: "Supply Depot reached. +100 Credits granted for resupply.",
 
   [I18nKeys.screen.campaign.wizard.title]: "New Expedition",
   [I18nKeys.screen.campaign.wizard.difficulty_label]: "Difficulty:",
@@ -276,6 +277,7 @@ export const enStandard = {
   [I18nKeys.screen.equipment.max_reached_tooltip]: "Maximum 2 per mission reached",
   [I18nKeys.screen.equipment.procurement]: "Procurement",
   [I18nKeys.screen.equipment.personnel_losses]: "Personnel Losses",
+  [I18nKeys.screen.equipment.error_empty_squad]: "Squad cannot be empty. Please select at least one soldier.",
 
   [I18nKeys.screen.mission_setup.title]: "Operation Configuration",
   [I18nKeys.screen.mission_setup.generator_label]: "Generator Type:",
@@ -333,6 +335,8 @@ export const enStandard = {
   [I18nKeys.hud.debug.force_win]: "Force Win",
   [I18nKeys.hud.debug.force_lose]: "Force Lose",
   [I18nKeys.hud.debug.copy_state]: "Copy World State",
+  [I18nKeys.hud.debug.copy_state_success]: "World state copied to clipboard.",
+  [I18nKeys.hud.debug.copy_state_error]: "Failed to copy world state: {error}",
 
   [I18nKeys.hud.shell.active_contract]: "Active Contract",
   [I18nKeys.hud.shell.operational_logs]: "Operational Logs",
@@ -349,10 +353,19 @@ export const enStandard = {
   [I18nKeys.hud.shell.operational_map]: "Operational Map",
   [I18nKeys.hud.shell.asset_management_hub]: "Asset Management Hub",
   [I18nKeys.hud.shell.procurement_hub]: "Procurement Hub",
+  [I18nKeys.hud.shell.terminal_title]: "VOIDLOCK REMOTE OPS TERMINAL v{version}",
+  [I18nKeys.hud.shell.operator_status]: "OPERATOR: [SECURE_LINK_ESTABLISHED]",
   [I18nKeys.hud.shell.sync.local_only]: "Local Only",
   [I18nKeys.hud.shell.sync.cloud_synced]: "Cloud Synced",
   [I18nKeys.hud.shell.sync.syncing]: "Syncing...",
   [I18nKeys.hud.shell.sync.status_title]: "Data Storage Status: {status}",
+
+  [I18nKeys.prologue.title]: "Project Voidlock: Operation First Light",
+  [I18nKeys.prologue.text]: "Commander, wake up. The Voidlock is failing. The station's core is unstable, and the swarms are breaching the lower decks. \n\nYour objective is clear: Recover the decrypted data disk from the secure terminal and extract your squad. Failure is not an option. The future of the project depends on this data.",
+
+  [I18nKeys.error.replay_invalid]: "Invalid replay file format.",
+  [I18nKeys.error.replay_parse_failed]: "Failed to parse replay file.",
+  [I18nKeys.error.replay_no_data]: "No replay data available.",
 
   [I18nKeys.common.back]: "Back",
   [I18nKeys.common.confirm]: "Confirm",
@@ -367,6 +380,7 @@ export const enStandard = {
   [I18nKeys.common.cost_credits]: "{cost} CR",
   [I18nKeys.common.ok]: "OK",
   [I18nKeys.common.alert]: "Alert",
+  [I18nKeys.common.unknown]: "Unknown",
   [I18nKeys.common.input]: "Input",
   [I18nKeys.common.continue]: "Continue",
   [I18nKeys.common.dismiss]: "Dismiss",
