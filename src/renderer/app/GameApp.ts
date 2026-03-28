@@ -644,6 +644,6 @@ export class GameApp {
     titleBar.appendChild(leftText);
     titleBar.appendChild(rightText);
     
-    appEl.prepend(titleBar);
+    appEl.insertBefore(titleBar, appEl.firstChild);
   }
 }

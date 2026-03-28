@@ -30,7 +30,9 @@ vi.mock("@src/renderer/ConfigManager", () => ({
     }),
     saveGlobal: vi.fn(),
     loadCampaign: vi.fn().mockReturnValue(null),
+    loadCustom: vi.fn().mockReturnValue(null),
     saveCampaign: vi.fn(),
+    saveCustom: vi.fn(),
     clearCampaign: vi.fn(),
     getDefault: vi.fn().mockReturnValue({
         fogOfWarEnabled: true,
@@ -44,7 +46,12 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
     getStats: vi.fn().mockReturnValue({
       totalKills: 100,
       totalCampaignsStarted: 5,
+      campaignsWon: 2,
+      campaignsLost: 3,
+      totalCasualties: 10,
+      totalMissionsPlayed: 50,
       totalMissionsWon: 20,
+      totalScrapEarned: 5000,
     }),
     addChangeListener: vi.fn(),
   };

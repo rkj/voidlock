@@ -119,9 +119,15 @@ export class HUDManager {
     if (mobileActionPanel) mobileActionPanel.remove();
     if (tutorialDirective) tutorialDirective.remove();
 
-    missionScreen.insertBefore(HUDTopBar() as Node, missionBody);
-    missionScreen.insertBefore(HUDTutorialDirective() as Node, missionBody);
-    missionScreen.insertBefore(HUDSoldierPanel() as Node, missionBody);
+    if (missionBody.parentNode === missionScreen) {
+      missionScreen.insertBefore(HUDTopBar() as Node, missionBody);
+      missionScreen.insertBefore(HUDTutorialDirective() as Node, missionBody);
+      missionScreen.insertBefore(HUDSoldierPanel() as Node, missionBody);
+    } else {
+      missionScreen.prepend(HUDSoldierPanel() as Node);
+      missionScreen.prepend(HUDTutorialDirective() as Node);
+      missionScreen.prepend(HUDTopBar() as Node);
+    }
     missionBody.appendChild(HUDRightPanel() as Node);
     missionScreen.appendChild(HUDMobileActionPanel() as Node);
 
