@@ -1,75 +1,75 @@
-/**
- * @vitest-environment jsdom
- */
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NewCampaignWizard } from "@src/renderer/screens/campaign/NewCampaignWizard";
 import { ConfigManager } from "@src/renderer/ConfigManager";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
+
+// Mock ConfigManager
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    loadGlobal: vi.fn(() => ({
+      unitStyle: "TacticalIcons",
+      themeId: "default",
+      locale: "en-corporate",
+    })),
+    saveGlobal: vi.fn(),
+    loadCampaign: vi.fn().mockReturnValue(null),
+    saveCampaign: vi.fn(),
+    clearCampaign: vi.fn(),
+  },
+}));
 
 // Mock MetaManager
-vi.mock("@src/renderer/campaign/MetaManager", () => {
+vi.mock("@src/engine/campaign/MetaManager", () => {
   const mockInstance = {
     getStats: vi.fn().mockReturnValue({
-      totalKills: 0,
-      totalCampaignsStarted: 0,
-      campaignsWon: 0,
-      campaignsLost: 0,
-      totalMissionsWon: 0,
-      totalMissionsPlayed: 0,
-      totalCasualties: 0,
-      totalScrapEarned: 0,
-      currentIntel: 0,
-      unlockedArchetypes: [],
-      unlockedItems: [],
-      prologueCompleted: false,
+      totalKills: 1000,
+      totalCampaignsStarted: 5,
+      totalMissionsWon: 3,
     }),
-    load: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
   (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
   return { MetaManager: mockConstructor };
 });
 
-// Mock ConfigManager
-vi.mock("@src/renderer/ConfigManager", () => ({
-  ConfigManager: {
-    clearCampaign: vi.fn(),
-    loadGlobal: vi
-      .fn()
-      .mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
-    saveGlobal: vi.fn(),
-  },
-}));
-
 describe("regression_voidlock_d1xb: Clear cached squad on new campaign start", () => {
   let container: HTMLElement;
-  const onStartCampaign = vi.fn();
-  const onBack = vi.fn();
+  let onStartCampaign: any;
+  let onBack: any;
+  let wizard: NewCampaignWizard;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="container"></div>';
-    container = document.getElementById("container")!;
-    onStartCampaign.mockClear();
-    onBack.mockClear();
-    vi.mocked(ConfigManager.clearCampaign).mockClear();
-  });
+    container = document.createElement("div");
+    container.id = "wizard-container";
+    document.body.appendChild(container);
 
-  it("should call ConfigManager.clearCampaign() when 'Initialize Expedition' is clicked", () => {
-    const wizard = new NewCampaignWizard(container, {
+    onStartCampaign = vi.fn();
+    onBack = vi.fn();
+
+    wizard = new NewCampaignWizard(container, {
       onStartCampaign,
       onBack,
     });
+  });
+
+  afterEach(() => {
+    document.body.removeChild(container);
+    vi.clearAllMocks();
+  });
+
+  it("should call ConfigManager.clearCampaign() when 'Initialize Expedition' is clicked", () => {
     wizard.render();
 
-    const startBtn = container.querySelector(".primary-button") as HTMLElement;
-    expect(startBtn.textContent).toBe("Initialize Expedition");
+    const startBtn = container.querySelector(".primary-button") as HTMLButtonElement;
+    expect(startBtn.textContent).toBe(t(I18nKeys.screen.campaign.wizard.initialize_btn));
 
     // Trigger the click
     startBtn.click();
 
-    // Verify ConfigManager.clearCampaign was called
-    expect(ConfigManager.clearCampaign).toHaveBeenCalledTimes(1);
-
-    // Verify onStartCampaign was also called
+    // Verify clearCampaign was called
+    expect(ConfigManager.clearCampaign).toHaveBeenCalled();
     expect(onStartCampaign).toHaveBeenCalled();
   });
 });

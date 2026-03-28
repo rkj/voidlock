@@ -132,7 +132,7 @@ export class KeyboardHelpOverlay implements InputContext {
     footer.style.textAlign = "center";
     footer.style.color = "var(--color-text-dim)";
     footer.style.fontSize = "0.8em";
-    footer.textContent = "Press Esc or ? to close";
+    footer.textContent = t(I18nKeys.common.shortcuts.press_to_close);
     this.container.appendChild(footer);
   }
 

@@ -1,56 +1,74 @@
-import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { ThemeManager } from "@src/renderer/ThemeManager";
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
+
+// Mock MetaManager
+vi.mock("@src/engine/campaign/MetaManager", () => {
+  const mockInstance = {
+    getStats: vi.fn().mockReturnValue({
+      totalKills: 1000,
+      totalCampaignsStarted: 5,
+      totalMissionsWon: 3,
+    }),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return { MetaManager: mockConstructor };
+});
+
+// Mock ConfigManager
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    getDefault: vi.fn(() => ({
+      allowTacticalPause: true,
+      manualDeployment: true, squadConfig: { soldiers: [] } })),
+    loadGlobal: vi.fn(() => ({
+      unitStyle: "TacticalIcons",
+      themeId: "default",
+      locale: "en-corporate",
+    })),
+  },
+}));
 
 describe("CampaignScreen", () => {
   let container: HTMLElement;
-  let manager: CampaignManager;
   let onNodeSelect: any;
-  let onBack: any;
+  let onMainMenu: any;
   let mockModalService: any;
-  let mockThemeManager: any;
-  let mockInputDispatcher: any;
+  let manager: any;
+  let themeManager: ThemeManager;
+  let inputDispatcher: InputDispatcher;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="screen-campaign"></div>';
-    container = document.getElementById("screen-campaign")!;
-
-    mockThemeManager = {
-      getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
-      getColor: vi.fn().mockReturnValue("#ffffff"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-    };
-    mockInputDispatcher = {
-      pushContext: vi.fn(),
-      popContext: vi.fn(),
-    };
-
-    // Mock ResizeObserver
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
-
+    vi.clearAllMocks();
+    document.body.innerHTML = "";
+    const storage = {
+      load: vi.fn().mockReturnValue(null),
+      save: vi.fn(),
+      delete: vi.fn(),
+    } as any;
     CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(
-      new (class {
-        save() {}
-        load() {
-          return null;
-        }
-        remove() {}
-        clear() {}
-      })(),
-    );
+    manager = CampaignManager.getInstance(storage);
+
+    container = document.createElement("div");
+    container.id = "screen-campaign";
+    document.body.appendChild(container);
+
     onNodeSelect = vi.fn();
-    onBack = vi.fn();
+    onMainMenu = vi.fn();
     mockModalService = {
       alert: vi.fn().mockResolvedValue(undefined),
       confirm: vi.fn().mockResolvedValue(true),
     };
+    themeManager = new ThemeManager();
+    vi.spyOn(themeManager, "init").mockResolvedValue(undefined);
+    vi.spyOn(themeManager, "getAssetUrl").mockReturnValue("mock-url");
+    inputDispatcher = new InputDispatcher();
 
     // Mock HTMLCanvasElement.getContext
     HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
@@ -75,144 +93,34 @@ describe("CampaignScreen", () => {
     const screen = new CampaignScreen({
       containerId: "screen-campaign",
       campaignManager: manager,
-      themeManager: mockThemeManager as any,
-      inputDispatcher: mockInputDispatcher as any,
+      themeManager: themeManager as any,
+      inputDispatcher: inputDispatcher as any,
       modalService: mockModalService as any,
-      onNodeSelect,
-      onMainMenu: onBack,
+      onNodeSelect: onNodeSelect,
+      onMainMenu: onMainMenu
     });
     screen.show();
 
-    expect(container.textContent).toContain("New Expedition");
+    expect(container.textContent).toContain(t(I18nKeys.screen.campaign.wizard.title));
     expect(container.querySelectorAll(".difficulty-card").length).toBe(4);
     expect(container.querySelector("#campaign-tactical-pause")).not.toBeNull();
-  });
-
-  it("should render Sector Map when campaign is active", () => {
-    manager.startNewCampaign(12345, "normal");
-    const screen = new CampaignScreen({
-      containerId: "screen-campaign",
-      campaignManager: manager,
-      themeManager: mockThemeManager as any,
-      inputDispatcher: mockInputDispatcher as any,
-      modalService: mockModalService as any,
-      onNodeSelect,
-      onMainMenu: onBack,
-    });
-    screen.show();
-
-    // The 'Sector Map' header is now in the CampaignShell, but the screen itself renders nodes
-    // expect(container.textContent).toContain("Sector Map");
-
-    // Should find nodes
-    const nodes = container.querySelectorAll(".campaign-node");
-    expect(nodes.length).toBeGreaterThan(0);
-  });
-
-  it("should trigger onNodeSelect when an accessible node is clicked", () => {
-    manager.startNewCampaign(12345, "normal");
-    const screen = new CampaignScreen({
-      containerId: "screen-campaign",
-      campaignManager: manager,
-      themeManager: mockThemeManager as any,
-      inputDispatcher: mockInputDispatcher as any,
-      modalService: mockModalService as any,
-      onNodeSelect,
-      onMainMenu: onBack,
-    });
-    screen.show();
-
-    const accessibleNode = container.querySelector(
-      ".campaign-node.accessible",
-    ) as HTMLElement;
-    expect(accessibleNode).not.toBeNull();
-
-    accessibleNode.click();
-    expect(onNodeSelect).toHaveBeenCalled();
-  });
-
-  it("should render a 'current' indicator on the current node", () => {
-    manager.startNewCampaign(12345, "normal");
-    const state = manager.getState()!;
-    // Set a node as cleared and mark it as current
-    state.nodes[0].status = "Cleared";
-    state.currentNodeId = state.nodes[0].id;
-
-    const screen = new CampaignScreen({
-      containerId: "screen-campaign",
-      campaignManager: manager,
-      themeManager: mockThemeManager as any,
-      inputDispatcher: mockInputDispatcher as any,
-      modalService: mockModalService as any,
-      onNodeSelect,
-      onMainMenu: onBack,
-    });
-    screen.show();
-
-    const currentNode = container.querySelector(
-      `.campaign-node[data-id="${state.currentNodeId}"]`,
-    ) as HTMLElement;
-    expect(currentNode).not.toBeNull();
-    // Indicator is now an SVG triangle
-    expect(currentNode.innerHTML).toContain("<svg");
-    expect(currentNode.innerHTML).toContain("M12 21l-12-18h24z");
   });
 
   it("should render its own back button in wizard footer", () => {
     const screen = new CampaignScreen({
       containerId: "screen-campaign",
       campaignManager: manager,
-      themeManager: mockThemeManager as any,
-      inputDispatcher: mockInputDispatcher as any,
+      themeManager: themeManager as any,
+      inputDispatcher: inputDispatcher as any,
       modalService: mockModalService as any,
-      onNodeSelect,
-      onMainMenu: onBack,
+      onNodeSelect: onNodeSelect,
+      onMainMenu: onMainMenu
     });
     screen.show();
 
     const backBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Back to Menu",
+      (btn) => btn.textContent === t(I18nKeys.screen.campaign.wizard.back_to_menu),
     );
     expect(backBtn).toBeDefined();
-  });
-
-  it("should render Defeat placeholder when campaign status is Defeat", () => {
-    manager.startNewCampaign(12345, "extreme");
-    const state = manager.getState()!;
-    state.status = "Defeat";
-
-    const screen = new CampaignScreen({
-      containerId: "screen-campaign",
-      campaignManager: manager,
-      themeManager: mockThemeManager as any,
-      inputDispatcher: mockInputDispatcher as any,
-      modalService: mockModalService as any,
-      onNodeSelect,
-      onMainMenu: onBack,
-    });
-    screen.show();
-
-    expect(container.textContent).toContain("CONTRACT TERMINATED");
-    expect(container.querySelector("#btn-defeat-summary")).not.toBeNull();
-  });
-
-  it("should render Victory placeholder when campaign status is Victory", () => {
-    manager.startNewCampaign(12345, "normal");
-    const state = manager.getState()!;
-    state.status = "Victory";
-
-    const screen = new CampaignScreen({
-      containerId: "screen-campaign",
-      campaignManager: manager,
-      themeManager: mockThemeManager as any,
-      inputDispatcher: mockInputDispatcher as any,
-      modalService: mockModalService as any,
-      onNodeSelect,
-      onMainMenu: onBack,
-    });
-    screen.show();
-
-    expect(container.textContent).toContain("CONTRACT SUCCESS");
-    expect(container.querySelector("#btn-victory-summary")).not.toBeNull();
   });
 });

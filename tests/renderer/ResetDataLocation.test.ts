@@ -1,249 +1,144 @@
-/**
- * @vitest-environment jsdom
- */
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { GameApp } from "@src/renderer/app/GameApp";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 // Mock dependencies
-vi.mock("../../package.json", () => ({
-  default: { version: "1.0.0" },
-}));
-
 vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => ({
-    init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
-    onStateUpdate: vi.fn(),
-  queryState: vi.fn(),
+    initialize: vi.fn().mockResolvedValue(undefined),
+    start: vi.fn(),
+    onObservation: vi.fn(),
+    sendCommand: vi.fn(),
+    onMessage: vi.fn(),
+    freezeForDialog: vi.fn(),
+    unfreezeAfterDialog: vi.fn(),
     addStateUpdateListener: vi.fn(),
     removeStateUpdateListener: vi.fn(),
-    stop: vi.fn(),
     getIsPaused: vi.fn().mockReturnValue(false),
     getTargetScale: vi.fn().mockReturnValue(1.0),
-  setTimeScale: vi.fn(),
-  getTimeScale: vi.fn().mockReturnValue(1.0),
   })),
-}));
-
-vi.mock("@src/renderer/Renderer", () => ({
-  Renderer: vi.fn().mockImplementation(() => ({
-    destroy: vi.fn(),
-  })),
-}));
-
-vi.mock("@src/renderer/ThemeManager", () => {
-  const mockInstance = {
-    init: vi.fn().mockResolvedValue(undefined),
-    setTheme: vi.fn(),
-    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-    getColor: vi.fn().mockReturnValue("#000"),
-    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-    getCurrentThemeId: vi.fn().mockReturnValue("default"),
-    applyTheme: vi.fn(),
-  };
-  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
-  return {
-    ThemeManager: mockConstructor,
-  };
-});
-
-vi.mock("@src/renderer/visuals/AssetManager", () => {
-  const mockInstance = {
-    loadSprites: vi.fn(),
-    getUnitSprite: vi.fn(),
-    getEnemySprite: vi.fn(),
-    getMiscSprite: vi.fn(),
-    getIcon: vi.fn(),
-  };
-  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
-  return {
-    AssetManager: mockConstructor,
-  };
-});
-
-const mockModalService = {
-  alert: vi.fn().mockResolvedValue(undefined),
-  confirm: vi.fn().mockResolvedValue(true),
-  show: vi.fn().mockResolvedValue(true),
-};
-
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
-}));
-
-vi.mock("@src/services/firebase", () => ({
-  db: {},
-  auth: {
-    onAuthStateChanged: vi.fn((cb) => {
-      // Immediate callback with null user
-      setTimeout(() => cb(null), 0);
-      return vi.fn(); // Unsubscribe function
-    }),
-  },
-  app: {},
-  isFirebaseConfigured: false,
 }));
 
 describe("Reset Data Location", () => {
+  let app: GameApp;
   let reloadMock: any;
 
   beforeEach(async () => {
-    vi.clearAllMocks();
-    mockModalService.show.mockResolvedValue(true);
-
-    // Set up DOM to match src/index.html (relevant parts)
+    // Reset DOM
     document.body.innerHTML = `
       <div id="app">
         <div id="screen-main-menu" class="screen">
-          <button id="btn-menu-campaign">Campaign</button>
-          <button id="btn-menu-custom">Custom Mission</button>
           <button id="btn-menu-settings">Settings</button>
-          <p id="menu-version"></p>
         </div>
-
-        <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
-          <div id="campaign-shell-top-bar"></div>
-          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
-            <div id="screen-campaign" class="screen" style="display:none"></div>
-            <div id="screen-barracks" class="screen" style="display:none"></div>
-            <div id="screen-equipment" class="screen" style="display:none"></div>
-            <div id="screen-statistics" class="screen" style="display:none"></div>
-            <div id="screen-engineering" class="screen" style="display:none"></div>
-            <div id="screen-settings" class="screen" style="display:none"></div>
-            <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-          </div>
-        </div>
-
-        <div id="screen-mission-setup" class="screen" style="display:none">
-            <div id="squad-builder"></div>
-            <select id="map-generator-type"><option value="DenseShip">Dense Ship</option></select>
-            <input type="checkbox" id="toggle-fog-of-war" />
-            <input type="checkbox" id="toggle-debug-overlay" />
-            <input type="checkbox" id="toggle-los-overlay" />
-            <input type="checkbox" id="toggle-agent-control" />
-            <input type="checkbox" id="toggle-manual-deployment" />
-            <input type="checkbox" id="toggle-allow-tactical-pause" />
-            <input type="number" id="map-seed" />
-            <input type="number" id="map-width" />
-            <input type="number" id="map-height" />
-            <input type="range" id="map-spawn-points" />
-            <span id="map-spawn-points-value"></span>
-            <input type="range" id="map-starting-threat" />
-            <span id="map-starting-threat-value"></span>
-            <input type="range" id="map-base-enemies" />
-            <span id="map-base-enemies-value"></span>
-            <input type="range" id="map-enemy-growth" />
-            <span id="map-enemy-growth-value"></span>
-            <div id="setup-global-status"></div>
-            <div id="mission-setup-context"></div>
-        </div>
-        <div id="screen-mission" class="screen" style="display:none">
+        <div id="screen-settings" class="screen"></div>
+        <div id="screen-campaign" class="screen"></div>
+        <div id="screen-campaign-shell"></div>
+        <div id="screen-mission-setup" class="screen"></div>
+        <div id="screen-equipment" class="screen"></div>
+        <div id="screen-debrief" class="screen"></div>
+        <div id="screen-campaign-summary" class="screen"></div>
+        <div id="screen-statistics" class="screen"></div>
+        <div id="screen-engineering" class="screen"></div>
+        <div id="mission-body"></div>
+        <div id="screen-mission" class="screen">
             <canvas id="game-canvas"></canvas>
-            <div id="top-threat-fill"></div>
-            <div id="top-threat-value"></div>
-            <button id="btn-pause-toggle"></button>
-            <input type="range" id="game-speed" />
-            <span id="speed-value"></span>
-            <button id="btn-give-up"></button>
-            <div id="game-status"></div>
-            <div id="soldier-list"></div>
         </div>
-        <div id="screen-debrief" class="screen" style="display:none"></div>
       </div>
       <div id="modal-container"></div>
     `;
 
     // Mock window.location.reload
     reloadMock = vi.fn();
-    Object.defineProperty(window, "location", {
-      value: {
-        ...window.location,
-        reload: reloadMock,
-      },
-      configurable: true,
-      writable: true,
-    });
+    delete (window as any).location;
+    (window as any).location = { reload: reloadMock };
 
-    // Mock localStorage.clear
+    // Mock localStorage
     vi.spyOn(Storage.prototype, "clear");
 
-    // Import main.ts to initialize the app
-    vi.resetModules();
-    const { bootstrap } = await import("@src/renderer/main");
-    await bootstrap();
+    // Mock HTMLCanvasElement.getContext
+    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      strokeRect: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      fillText: vi.fn(),
+      strokeText: vi.fn(),
+      drawImage: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      setLineDash: vi.fn(),
+    });
 
-    // Trigger DOMContentLoaded
-    document.dispatchEvent(new Event("DOMContentLoaded"));
+    app = new GameApp();
+    await app.initialize();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("should NOT have Reset Data button in the Main Menu", () => {
-    const mainMenu = document.getElementById("screen-main-menu");
-    expect(mainMenu).toBeTruthy();
-
-    // Check for any button or element containing "Reset"
-    const allButtons = mainMenu?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find(
-      (btn) =>
-        btn.textContent?.toLowerCase().includes("reset") ||
-        btn.id.includes("reset"),
+    const buttons = Array.from(document.querySelectorAll("button"));
+    const resetBtn = buttons.find((btn) =>
+      btn.textContent?.toLowerCase().includes("reset"),
     );
-
-    expect(resetBtn).toBeFalsy();
+    expect(resetBtn).toBeUndefined();
   });
 
   it("should have Reset Data button in the Settings Screen and it should work", async () => {
-    // 1. Navigate to Settings
+    // 1. Go to Settings
     const settingsBtn = document.getElementById("btn-menu-settings");
-    expect(settingsBtn).toBeTruthy();
     settingsBtn?.click();
 
-    // Give some time for SettingsScreen to render
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    const settingsScreen = document.getElementById("screen-settings");
-    expect(settingsScreen).toBeTruthy();
-    expect(settingsScreen?.style.display).toBe("flex");
-
-    // 2. Look for Reset button in settings
-    const allButtons = settingsScreen?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find((btn) =>
-      btn.textContent?.toLowerCase().includes("reset"),
+    // 2. Find Reset Data button
+    const resetBtn = Array.from(document.querySelectorAll("button")).find(
+      (btn) =>
+        btn.textContent === t(I18nKeys.screen.settings.reset_btn),
     );
 
     expect(resetBtn).toBeTruthy();
-    expect(resetBtn?.textContent).toMatch(/Reset/i);
 
-    // 3. Test reset logic (Success)
-    mockModalService.show.mockResolvedValue(true);
+    // 3. Click Reset Data
+    const mockModalService = (app as any).services.modalService;
+    vi.spyOn(mockModalService, "confirm").mockResolvedValue(true);
+
     resetBtn?.click();
 
-    // Wait for async ModalService.show
+    // Small delay for async modal
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.show).toHaveBeenCalled();
+    expect(mockModalService.confirm).toHaveBeenCalled();
     expect(Storage.prototype.clear).toHaveBeenCalled();
     expect(reloadMock).toHaveBeenCalled();
   });
 
   it("should do nothing when Reset Data is clicked but cancelled", async () => {
-    // 1. Navigate to Settings
-    document.getElementById("btn-menu-settings")?.click();
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // 1. Go to Settings
+    const settingsBtn = document.getElementById("btn-menu-settings");
+    settingsBtn?.click();
 
-    const settingsScreen = document.getElementById("screen-settings");
-    const allButtons = settingsScreen?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find((btn) =>
-      btn.textContent?.toLowerCase().includes("reset"),
+    // 2. Find Reset Data button
+    const resetBtn = Array.from(document.querySelectorAll("button")).find(
+      (btn) =>
+        btn.textContent === t(I18nKeys.screen.settings.reset_btn),
     );
 
-    // 2. Test reset logic (Cancel)
-    mockModalService.show.mockResolvedValue(false);
+    // 3. Click Reset Data and Cancel
+    const mockModalService = (app as any).services.modalService;
+    vi.spyOn(mockModalService, "confirm").mockResolvedValue(false);
+
     resetBtn?.click();
 
-    // Wait for async ModalService.show
+    // Small delay for async modal
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.show).toHaveBeenCalled();
+    expect(mockModalService.confirm).toHaveBeenCalled();
     expect(Storage.prototype.clear).not.toHaveBeenCalled();
     expect(reloadMock).not.toHaveBeenCalled();
   });

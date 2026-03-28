@@ -1,6 +1,8 @@
 import { createElement, Fragment } from "@src/renderer/jsx";
 import type { CampaignTabId, CampaignShellMode } from "./CampaignShell";
 import type { CampaignState, MetaStats } from "@src/shared/campaign_types";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 interface TopBarProps {
   mode: CampaignShellMode;
@@ -30,28 +32,28 @@ export function CampaignShellTopBar({
       <div class="flex-col" style={{ flexShrink: "0" }}>
         {mode === "campaign" && (
           <Fragment>
-            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Active Contract</div>
+            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>{t(I18nKeys.hud.shell.active_contract)}</div>
             <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>
-              {state ? `Sector ${currentSector}` : "New Authorization"}
+              {state ? t(I18nKeys.hud.shell.sector, { sector: currentSector }) : t(I18nKeys.hud.shell.new_authorization)}
             </div>
           </Fragment>
         )}
         {mode === "statistics" && (
           <Fragment>
-            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Operational Logs</div>
-            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>Asset Statistics</div>
+            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>{t(I18nKeys.hud.shell.operational_logs)}</div>
+            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>{t(I18nKeys.hud.shell.asset_statistics)}</div>
           </Fragment>
         )}
         {mode === "custom" && (
           <Fragment>
-            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Simulated Operation</div>
-            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>Simulation Protocol</div>
+            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>{t(I18nKeys.hud.shell.simulated_operation)}</div>
+            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>{t(I18nKeys.hud.shell.simulation_protocol)}</div>
           </Fragment>
         )}
         {mode === "global" && (
           <Fragment>
-            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>Terminal</div>
-            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>Global Configuration</div>
+            <div style={{ fontSize: "0.7em", color: "var(--color-text-dim)", letterSpacing: "1px" }}>{t(I18nKeys.hud.shell.terminal)}</div>
+            <div style={{ fontSize: "0.9em", fontWeight: "bold", color: "var(--color-primary)" }}>{t(I18nKeys.hud.shell.global_configuration)}</div>
           </Fragment>
         )}
       </div>
@@ -59,12 +61,12 @@ export function CampaignShellTopBar({
       <div class="shell-controls-right flex-row align-center gap-20" style={{ flexShrink: "1", minWidth: "0", overflow: "visible", maxWidth: "100%" }}>
         {mode === "campaign" && state && (
           <div class="shell-resources flex-row gap-15" style={window.innerWidth < 600 ? { display: "none" } : {}}>
-            <div class="resource-item" title="Credits (Currency)">
-              <span style={{ color: "var(--color-text-dim)" }}>Credits:</span>
+            <div class="resource-item" title={t(I18nKeys.hud.credits)}>
+              <span style={{ color: "var(--color-text-dim)" }}>{t(I18nKeys.hud.credits)}</span>
               <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{scrap}</span>
             </div>
-            <div class="resource-item" title="Intel (Tech/Unlock)">
-              <span style={{ color: "var(--color-text-dim)" }}>Intel:</span>
+            <div class="resource-item" title={t(I18nKeys.hud.intel)}>
+              <span style={{ color: "var(--color-text-dim)" }}>{t(I18nKeys.hud.intel)}</span>
               <span style={{ color: "var(--color-accent)", fontWeight: "bold" }}>{intel}</span>
             </div>
           </div>
@@ -80,7 +82,7 @@ export function CampaignShellTopBar({
             style={{ margin: "0", padding: "5px 12px", height: "32px", fontSize: "0.85em", display: "flex", alignItems: "center", flexShrink: "0" }}
             onClick={onMenu}
           >
-            Main Menu
+            {t("menu.main")}
           </button>
         )}
       </div>
@@ -113,15 +115,15 @@ export function CampaignShellFooter({ metaStats, syncStatus }: FooterProps) {
     }}>
 
       <div class="flex-row gap-5" style={{ alignItems: "center", flexShrink: "0" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? "Kills:" : "Total Biological Neutralizations:"}</span>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? t(I18nKeys.hud.kills) : t(I18nKeys.hud.kills)}</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalKills.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style={{ alignItems: "center", flexShrink: "0" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? "Contracts:" : "Active Contracts:"}</span>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? t(I18nKeys.hud.contracts) : t(I18nKeys.hud.contracts)}</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalCampaignsStarted.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style={{ alignItems: "center", flexShrink: "0" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? "Wins:" : "Operations Closed:"}</span>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? t(I18nKeys.hud.wins) : t(I18nKeys.hud.wins)}</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalMissionsWon.toLocaleString()}</span>
       </div>
       
@@ -150,15 +152,15 @@ function buildTabList(
   }
   if (mode === "statistics") {
     return [
-      { id: "stats", label: "Asset Logs" },
-      { id: "engineering", label: "System Engineering" },
+      { id: "stats", label: t(I18nKeys.hud.shell.asset_logs) },
+      { id: "engineering", label: t(I18nKeys.hud.shell.system_engineering) },
     ];
   }
   if (mode === "custom") {
     return [
-      { id: "setup", label: "Protocol" },
-      { id: "stats", label: "Asset Logs" },
-      { id: "settings", label: "Terminal" },
+      { id: "setup", label: t(I18nKeys.hud.shell.protocol) },
+      { id: "stats", label: t(I18nKeys.hud.shell.asset_logs) },
+      { id: "settings", label: t(I18nKeys.hud.shell.terminal) },
     ];
   }
   return [];
@@ -179,16 +181,16 @@ function buildCampaignTabs(
 
   if (isPrologue || isMission2) {
     return [
-      { id: "sector-map", label: "Operational Map" },
-      { id: "ready-room", label: "Asset Management Hub" }
+      { id: "sector-map", label: t(I18nKeys.hud.shell.operational_map) },
+      { id: "ready-room", label: t(I18nKeys.hud.shell.asset_management_hub) }
     ];
   }
   return [
-    { id: "sector-map", label: "Operational Map" },
-    { id: "ready-room", label: isShop ? "Procurement Hub" : "Asset Management Hub" },
-    { id: "engineering", label: "System Engineering" },
-    { id: "stats", label: "Asset Logs" },
-    { id: "settings", label: "Terminal" },
+    { id: "sector-map", label: t(I18nKeys.hud.shell.operational_map) },
+    { id: "ready-room", label: isShop ? t(I18nKeys.hud.shell.procurement_hub) : t(I18nKeys.hud.shell.asset_management_hub) },
+    { id: "engineering", label: t(I18nKeys.hud.shell.system_engineering) },
+    { id: "stats", label: t(I18nKeys.hud.shell.asset_logs) },
+    { id: "settings", label: t(I18nKeys.hud.shell.terminal) },
   ];
 }
 
@@ -215,21 +217,21 @@ function renderTabs({
 
 function SyncStatusUI({ syncStatus }: { syncStatus: "synced" | "syncing" | "local-only" }) {
   let icon = "💾";
-  let text = "Local Only";
+  let text = t(I18nKeys.hud.shell.sync.local_only);
   let className = "local";
 
   if (syncStatus === "synced") {
     icon = "☁️";
-    text = "Cloud Synced";
+    text = t(I18nKeys.hud.shell.sync.cloud_synced);
     className = "synced";
   } else if (syncStatus === "syncing") {
     icon = "🔄";
-    text = "Syncing...";
+    text = t(I18nKeys.hud.shell.sync.syncing);
     className = "syncing";
   }
 
   return (
-    <div id="sync-status-indicator" class={`sync-status ${className}`} title={`Data Storage Status: ${text}`}>
+    <div id="sync-status-indicator" class={`sync-status ${className}`} title={t(I18nKeys.hud.shell.sync.status_title, { status: text })}>
       <span class="sync-icon">{icon}</span>
       <span>{text}</span>
     </div>

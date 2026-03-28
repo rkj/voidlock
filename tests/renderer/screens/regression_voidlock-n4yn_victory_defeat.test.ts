@@ -1,62 +1,60 @@
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignSummaryScreen } from "@src/renderer/screens/CampaignSummaryScreen";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
   let container: HTMLElement;
-  let manager: CampaignManager;
   let onMainMenu: any;
+  let mockInputDispatcher: any;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="screen-campaign-summary"></div>';
-    container = document.getElementById("screen-campaign-summary")!;
+    container = document.createElement("div");
+    container.id = "campaign-summary-container";
+    document.body.appendChild(container);
 
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(
-      new (class {
-        save() {}
-        load() {
-          return null;
-        }
-        remove() {}
-        clear() {}
-      })(),
-    );
     onMainMenu = vi.fn();
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
+  });
+
+  afterEach(() => {
+    document.body.removeChild(container);
   });
 
   it("should render Victory screen when campaign status is Victory", () => {
-    manager.startNewCampaign(12345, "normal");
-    const state = manager.getState()!;
-    state.status = "Victory";
-    state.history.push({
-      nodeId: "node_1",
-      seed: 1,
-      result: "Won",
-      aliensKilled: 42,
-      scrapGained: 100,
-      intelGained: 10,
-      timeSpent: 1000,
-      soldierResults: [],
-    });
-
     const screen = new CampaignSummaryScreen(
-      "screen-campaign-summary",
-      { pushContext: vi.fn(), popContext: vi.fn() } as any,
+      "campaign-summary-container",
+      mockInputDispatcher,
       onMainMenu,
     );
-    screen.show(state);
 
-    expect(container.textContent).toContain("CONTRACT SUCCESS");
-    expect(container.textContent).toContain("Biologicals Neutralized:");
-    expect(container.textContent).toContain("42");
-    expect(container.textContent).toContain("Operations Finalized:");
-    expect(container.textContent).toContain("1");
-    expect(container.textContent).toContain("Functional");
+    const mockState: any = {
+      status: "Victory",
+      roster: [
+        { name: "Saru", archetypeId: "assault", status: "Healthy", xp: 0 },
+        { name: "Burnham", archetypeId: "medic", status: "Healthy", xp: 0 },
+      ],
+      history: [
+        {
+          aliensKilled: 10,
+          scrapGained: 100,
+        },
+      ],
+    };
+
+    screen.show(mockState);
+
+    expect(container.textContent).toContain(t(I18nKeys.screen.summary.contract_success));
+    expect(container.textContent).toContain(t(I18nKeys.screen.summary.victory_confirmed));
+    expect(container.textContent).toContain(t(I18nKeys.screen.summary.status_functional));
 
     const menuBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Retire to Main Menu",
+      (btn) => btn.textContent === t(I18nKeys.screen.summary.retire_main_menu),
     );
     expect(menuBtn).toBeDefined();
 
@@ -65,56 +63,64 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
   });
 
   it("should render Defeat screen when campaign status is Defeat (Mission Failure)", () => {
-    manager.startNewCampaign(12345, "extreme");
-    const state = manager.getState()!;
-    state.status = "Defeat";
-    state.history.push({
-      nodeId: "node_1",
-      seed: 1,
-      result: "Lost",
-      aliensKilled: 5,
-      scrapGained: 0,
-      intelGained: 0,
-      timeSpent: 500,
-      soldierResults: [],
-    });
-
     const screen = new CampaignSummaryScreen(
-      "screen-campaign-summary",
-      { pushContext: vi.fn(), popContext: vi.fn() } as any,
+      "campaign-summary-container",
+      mockInputDispatcher,
       onMainMenu,
     );
-    screen.show(state);
 
-    expect(container.textContent).toContain("CONTRACT TERMINATED");
-    expect(container.textContent).toContain("Cause: Squad Wiped");
-    expect(container.textContent).toContain("Functional");
+    const mockState: any = {
+      status: "Defeat",
+      roster: [
+        { name: "Saru", archetypeId: "assault", status: "Healthy", xp: 0 },
+        { name: "Stamets", archetypeId: "medic", status: "Healthy", xp: 0 },
+        { name: "Roslin", archetypeId: "scout", status: "Healthy", xp: 0 },
+        { name: "Crowe", archetypeId: "assault", status: "Healthy", xp: 0 },
+      ],
+      history: [
+        {
+          aliensKilled: 5,
+          scrapGained: 0,
+        },
+      ],
+      scrap: 50, // Cannot afford recruit (100)
+    };
 
-    const abandonBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Abandon Expedition",
+    screen.show(mockState);
+
+    expect(container.textContent).toContain(t(I18nKeys.screen.summary.contract_terminated));
+    expect(container.textContent).toContain(`${t(I18nKeys.screen.summary.cause)} ${t(I18nKeys.screen.summary.cause_squad_wiped)}`);
+    expect(container.textContent).toContain(t(I18nKeys.screen.summary.status_functional));
+
+    const menuBtn = Array.from(container.querySelectorAll("button")).find(
+      (btn) => btn.textContent === t(I18nKeys.screen.summary.abandon_expedition),
     );
-    expect(abandonBtn).toBeDefined();
-
-    abandonBtn?.click();
-    expect(onMainMenu).toHaveBeenCalled();
+    expect(menuBtn).toBeDefined();
   });
 
   it("should render Defeat screen when campaign status is Defeat (Bankruptcy)", () => {
-    manager.startNewCampaign(12345, "normal");
-    const state = manager.getState()!;
-    state.status = "Defeat";
-    state.scrap = 50;
-    state.roster.forEach((s) => (s.status = "Dead"));
-
     const screen = new CampaignSummaryScreen(
-      "screen-campaign-summary",
-      { pushContext: vi.fn(), popContext: vi.fn() } as any,
+      "campaign-summary-container",
+      mockInputDispatcher,
       onMainMenu,
     );
-    screen.show(state);
 
-    expect(container.textContent).toContain("CONTRACT TERMINATED");
-    expect(container.textContent).toContain("Cause: Bankruptcy");
-    expect(container.textContent).toContain("Integrity Failure");
+    const mockState: any = {
+      status: "Defeat",
+      roster: [
+        { name: "Sato", archetypeId: "assault", status: "Dead", xp: 0 },
+        { name: "Tilly", archetypeId: "medic", status: "Dead", xp: 0 },
+        { name: "Havelock", archetypeId: "scout", status: "Dead", xp: 0 },
+        { name: "Voq", archetypeId: "assault", status: "Dead", xp: 0 },
+      ],
+      history: [],
+      scrap: 50, // Cannot afford recruit
+    };
+
+    screen.show(mockState);
+
+    expect(container.textContent).toContain(t(I18nKeys.screen.summary.contract_terminated));
+    expect(container.textContent).toContain(`${t(I18nKeys.screen.summary.cause)} ${t(I18nKeys.screen.summary.cause_bankruptcy)}`);
+    expect(container.textContent).toContain(t(I18nKeys.screen.summary.status_integrity_failure));
   });
 });

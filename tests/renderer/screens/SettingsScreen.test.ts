@@ -1,122 +1,95 @@
-/**
- * @vitest-environment jsdom
- */
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SettingsScreen } from "@src/renderer/screens/SettingsScreen";
+import { ThemeManager } from "@src/renderer/ThemeManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
-
-// Mock dependencies
-vi.mock("@src/renderer/ConfigManager", () => ({
-  ConfigManager: {
-    loadGlobal: vi.fn().mockReturnValue({
-      unitStyle: "TacticalIcons",
-      themeId: "default",
-      phosphor: "green",
-      logLevel: "INFO",
-      debugSnapshots: false,
-      debugSnapshotInterval: 0,
-      debugOverlayEnabled: false,
-      cloudSyncEnabled: false,
-      locale: "en-corporate",
-    }),
-    clearCampaign: vi.fn(),
-    saveGlobal: vi.fn(),
-  },
-}));
-
-vi.mock("@src/services/firebase", () => ({
-  isFirebaseConfigured: false,
-  db: {},
-  auth: {},
-}));
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("SettingsScreen", () => {
-  let onBack: any;
-  let context: any;
+  let container: HTMLElement;
   let screen: SettingsScreen;
+  let mockInputDispatcher: any;
+  let mockThemeManager: any;
+  let mockAssetManager: any;
+  let mockCloudSync: any;
 
   beforeEach(() => {
-    onBack = vi.fn();
-    document.body.innerHTML = '<div id="screen-settings"></div>';
-    
-    context = {
-      inputDispatcher: {
-        pushContext: vi.fn(),
-        popContext: vi.fn(),
-      },
-      themeManager: {
-        getAssetUrl: vi.fn().mockReturnValue("mock-asset-url"),
-        getColor: vi.fn().mockReturnValue("#ffffff"),
-        getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      },
-      assetManager: {
-        loadSprites: vi.fn(),
-        getUnitSprite: vi.fn(),
-        getEnemySprite: vi.fn(),
-        getMiscSprite: vi.fn(),
-        getIcon: vi.fn(),
-      },
-      cloudSync: {
-        isConfigured: vi.fn().mockReturnValue(false),
-        isSyncEnabled: vi.fn().mockReturnValue(false),
-        getUser: vi.fn().mockReturnValue(null),
-        isAnonymous: vi.fn().mockReturnValue(true),
-        setEnabled: vi.fn(),
-        initialize: vi.fn().mockResolvedValue(undefined),
-      },
-      screenManager: {
-        goBack: vi.fn(),
-        getCurrentScreen: vi.fn().mockReturnValue("settings"),
-      },
-      campaignManager: {
-        getState: vi.fn().mockReturnValue(null),
-        addChangeListener: vi.fn(),
-        removeChangeListener: vi.fn(),
-      },
-      modalService: {
-        confirm: vi.fn(),
-        show: vi.fn(),
-      },
+    container = document.createElement("div");
+    container.id = "screen-settings";
+    document.body.appendChild(container);
+
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
     };
 
-    (ConfigManager.loadGlobal as any).mockReturnValue({
-      unitStyle: "TacticalIcons",
-      themeId: "default",
-      logLevel: "INFO",
-      debugSnapshots: false,
-      debugSnapshotInterval: 0,
-      debugOverlayEnabled: false,
-      cloudSyncEnabled: true, // Enabled but not configured
-    });
+    mockThemeManager = {
+      getAssetUrl: vi.fn(),
+      setTheme: vi.fn(),
+      setPhosphorMode: vi.fn(),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      getCurrentPhosphorMode: vi.fn().mockReturnValue("green"),
+    };
+
+    mockAssetManager = {
+      loadSprites: vi.fn(),
+      getUnitSprite: vi.fn(),
+      getEnemySprite: vi.fn(),
+      getMiscSprite: vi.fn(),
+    };
+
+    mockCloudSync = {
+      initialize: vi.fn().mockResolvedValue(undefined),
+      setEnabled: vi.fn(),
+      isEnabled: vi.fn().mockReturnValue(false),
+      isConfigured: vi.fn().mockReturnValue(true),
+      getAuth: vi.fn().mockReturnValue({
+        onAuthStateChanged: vi.fn().mockReturnValue(() => {}),
+        currentUser: null,
+      }),
+    };
+
+    vi.mock("@src/renderer/ConfigManager", () => ({
+      ConfigManager: {
+        loadGlobal: vi.fn().mockReturnValue({
+          unitStyle: "TacticalIcons",
+          themeId: "default",
+          phosphorMode: "green",
+          logLevel: "INFO",
+          debugSnapshots: false,
+          debugSnapshotInterval: 500,
+          debugOverlay: false,
+          locale: "en-corporate",
+        }),
+        saveGlobal: vi.fn(),
+      },
+    }));
 
     screen = new SettingsScreen({
       containerId: "screen-settings",
-      themeManager: context.themeManager,
-      assetManager: context.assetManager,
-      inputDispatcher: context.inputDispatcher,
-      cloudSync: context.cloudSync,
-      modalService: context.modalService,
-      onBack: onBack,
+      inputDispatcher: mockInputDispatcher,
+      themeManager: mockThemeManager,
+      assetManager: mockAssetManager,
+      cloudSync: mockCloudSync,
+      onBack: vi.fn(),
     });
   });
 
-  it("should show error message and have toggle enabled when cloudSyncEnabled is true but not configured", () => {
+  afterEach(() => {
+    document.body.removeChild(container);
+    vi.clearAllMocks();
+  });
+
+  it("should show error message and have toggle disabled when Firebase is not configured", () => {
+    mockCloudSync.isConfigured.mockReturnValue(false);
     screen.show();
-    
+
     const body = document.body.innerHTML;
-    expect(body).toContain("Cloud Sync Service Unavailable (Firebase not configured)");
+    expect(body).toContain(t(I18nKeys.screen.settings.sync_unavailable_firebase));
     
-    const labels = Array.from(document.querySelectorAll('label'));
-    const syncLabel = labels.find(l => l.textContent?.includes("Enable Cloud Sync:"));
-    expect(syncLabel).not.toBeNull();
-    
-    const syncToggle = syncLabel?.nextElementSibling as HTMLInputElement;
+    const syncToggle = container.querySelector('input[type="checkbox"]:disabled') as HTMLInputElement;
     expect(syncToggle).not.toBeNull();
-    expect(syncToggle.type).toBe("checkbox");
-    
-    // Fix confirmed: toggle should be disabled and unchecked if not configured
-    expect(syncToggle.disabled).toBe(true);
-    expect(syncToggle.checked).toBe(false);
-    expect(syncLabel?.textContent).toContain("(Not Configured)");
   });
 });

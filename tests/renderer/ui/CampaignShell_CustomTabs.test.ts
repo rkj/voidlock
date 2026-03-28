@@ -3,6 +3,8 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignShell } from "@src/renderer/ui/CampaignShell";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("CampaignShell Custom Mode Tabs", () => {
   let container: HTMLElement;
@@ -43,8 +45,8 @@ describe("CampaignShell Custom Mode Tabs", () => {
     const buttons = Array.from(shellContainer.querySelectorAll("button"));
     const labels = buttons.map((b) => b.textContent);
 
-    expect(labels).toContain("Protocol");
-    expect(labels).toContain("Terminal");
-    expect(labels).toContain("Asset Logs");
+    expect(labels).toContain(t(I18nKeys.hud.shell.protocol));
+    expect(labels).toContain(t(I18nKeys.hud.shell.terminal));
+    expect(labels).toContain(t(I18nKeys.hud.shell.asset_logs));
   });
 });

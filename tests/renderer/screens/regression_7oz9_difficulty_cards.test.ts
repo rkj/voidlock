@@ -4,6 +4,8 @@ import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { InputDispatcher } from "@src/renderer/InputDispatcher";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 // Mock MetaManager
 vi.mock("@src/engine/campaign/MetaManager", () => {
@@ -24,11 +26,11 @@ vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
     getDefault: vi.fn(() => ({
       allowTacticalPause: true,
-      manualDeployment: true,
-    })),
+      manualDeployment: true, squadConfig: { soldiers: [] } })),
     loadGlobal: vi.fn(() => ({
       unitStyle: "TacticalIcons",
       themeId: "default",
+      locale: "en-corporate",
     })),
   },
 }));
@@ -102,10 +104,10 @@ describe("CampaignScreen Difficulty Cards", () => {
     const cards = container.querySelectorAll(".difficulty-card");
     expect(cards.length).toBe(4);
 
-    expect(container.textContent).toContain("Simulation");
-    expect(container.textContent).toContain("Clone");
-    expect(container.textContent).toContain("Standard");
-    expect(container.textContent).toContain("Ironman");
+    expect(container.textContent).toContain(t(I18nKeys.screen.campaign.wizard.diff_simulation).split(" (")[0]);
+    expect(container.textContent).toContain(t(I18nKeys.screen.campaign.wizard.diff_clone).split(" (")[0]);
+    expect(container.textContent).toContain(t(I18nKeys.screen.campaign.wizard.diff_standard).split(" (")[0]);
+    expect(container.textContent).toContain(t(I18nKeys.screen.campaign.wizard.diff_ironman).split(" (")[0]);
   });
 
   it("should update selection and tactical pause checkbox when cards are clicked", () => {

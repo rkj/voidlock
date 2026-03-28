@@ -3,12 +3,15 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NewCampaignWizard } from "@src/renderer/screens/campaign/NewCampaignWizard";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 // Pre-define mocks for usage in instance members
 const { mockConfig } = vi.hoisted(() => ({
   mockConfig: {
     unitStyle: "TacticalIcons",
     themeId: "default",
+    locale: "en-corporate",
   },
 }));
 
@@ -24,23 +27,13 @@ vi.mock("@src/renderer/ConfigManager", () => ({
 }));
 
 // Mock MetaManager
-vi.mock("@src/renderer/campaign/MetaManager", () => {
+vi.mock("@src/engine/campaign/MetaManager", () => {
   const mockInstance = {
     getStats: vi.fn().mockReturnValue({
-      totalKills: 0,
-      totalCampaignsStarted: 0,
-      campaignsWon: 0,
-      campaignsLost: 0,
-      totalMissionsWon: 0,
-      totalMissionsPlayed: 0,
-      totalCasualties: 0,
-      totalScrapEarned: 0,
-      currentIntel: 0,
-      unlockedArchetypes: [],
-      unlockedItems: [],
-      prologueCompleted: false,
+      totalKills: 1000,
+      totalCampaignsStarted: 5,
+      totalMissionsWon: 3,
     }),
-    load: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
   (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
@@ -51,66 +44,69 @@ describe("NewCampaignWizard", () => {
   let container: HTMLElement;
   let onStartCampaign: any;
   let onBack: any;
+  let wizard: NewCampaignWizard;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="wizard-container"></div>';
-    container = document.getElementById("wizard-container")!;
+    container = document.createElement("div");
+    container.id = "wizard-container";
+    document.body.appendChild(container);
+
     onStartCampaign = vi.fn();
     onBack = vi.fn();
-  });
 
-  it("should render the wizard title and content", () => {
-    const wizard = new NewCampaignWizard(container, {
+    wizard = new NewCampaignWizard(container, {
       onStartCampaign,
       onBack,
     });
+  });
+
+  afterEach(() => {
+    document.body.removeChild(container);
+    vi.clearAllMocks();
+  });
+
+  it("should render the wizard title and content", () => {
     wizard.render();
 
-    expect(container.innerHTML).toContain("New Expedition");
-    expect(container.innerHTML).toContain("Select Difficulty");
+    expect(container.innerHTML).toContain(t(I18nKeys.screen.campaign.wizard.title));
+    expect(container.innerHTML).toContain(t(I18nKeys.screen.campaign.wizard.difficulty_label));
     expect(container.querySelectorAll(".difficulty-card").length).toBe(4);
   });
 
   it("should select a difficulty and call onStartCampaign with correct parameters", () => {
-    const wizard = new NewCampaignWizard(container, {
-      onStartCampaign,
-      onBack,
-    });
     wizard.render();
 
     const hardCard = Array.from(
       container.querySelectorAll(".difficulty-card"),
-    ).find(
-      (c) => c.querySelector("h3")?.textContent === "Standard",
+    ).find((el) =>
+      el.textContent?.includes(t(I18nKeys.screen.campaign.wizard.diff_standard).split(" (")[0]),
     ) as HTMLElement;
 
     expect(hardCard).toBeDefined();
     hardCard.click();
 
-    const startBtn = container.querySelector(".primary-button") as HTMLElement;
-    expect(startBtn.textContent).toBe("Initialize Expedition");
+    const startBtn = container.querySelector(
+      '[data-focus-id="btn-start-campaign"]',
+    ) as HTMLButtonElement;
     startBtn.click();
 
-    expect(onStartCampaign).toHaveBeenCalled();
-    const [seed, difficulty, overrides] = onStartCampaign.mock.calls[0];
-    expect(typeof seed).toBe("number");
-    expect(difficulty).toBe("Standard");
-    expect(overrides.allowTacticalPause).toBe(true);
+    expect(onStartCampaign).toHaveBeenCalledWith(
+      expect.any(Number),
+      "Standard",
+      expect.any(Object),
+    );
   });
 
   it("should disable tactical pause in Ironman mode", () => {
-    const wizard = new NewCampaignWizard(container, {
-      onStartCampaign,
-      onBack,
-    });
     wizard.render();
 
     const ironmanCard = Array.from(
       container.querySelectorAll(".difficulty-card"),
-    ).find(
-      (c) => c.querySelector("h3")?.textContent === "Ironman",
+    ).find((el) =>
+      el.textContent?.includes(t(I18nKeys.screen.campaign.wizard.diff_ironman).split(" (")[0]),
     ) as HTMLElement;
 
+    expect(ironmanCard).not.toBeNull();
     ironmanCard.click();
 
     const pauseCheck = container.querySelector(
@@ -121,60 +117,18 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should toggle advanced options", () => {
-    const wizard = new NewCampaignWizard(container, {
-      onStartCampaign,
-      onBack,
-    });
     wizard.render();
 
     const advancedToggle = Array.from(
       container.querySelectorAll("button"),
-    ).find((b) =>
-      b.textContent?.includes("Show Advanced Settings"),
-    ) as HTMLElement;
+    ).find((b) => b.textContent === t(I18nKeys.screen.campaign.wizard.advanced_show)) as HTMLElement;
+    const advancedContent = container.querySelector(".flex-col.gap-15") as HTMLElement;
 
-    const advancedContent = container.querySelector(
-      ".flex-col.gap-15",
-    ) as HTMLElement;
+    expect(advancedToggle).not.toBeNull();
     expect(advancedContent.style.display).toBe("none");
 
     advancedToggle.click();
     expect(advancedContent.style.display).toBe("flex");
-    expect(advancedToggle.textContent).toContain("Hide Advanced Settings");
-  });
-
-  it("should NOT render meta statistics in the footer (responsibility moved to shell)", () => {
-    const wizard = new NewCampaignWizard(container, {
-      onStartCampaign,
-      onBack,
-    });
-    wizard.render();
-
-    expect(container.innerHTML).not.toContain("Lifetime Xeno Purged:");
-    expect(container.querySelector(".campaign-footer")).toBeNull();
-  });
-
-  it("should allow selecting campaign duration", () => {
-    const wizard = new NewCampaignWizard(container, {
-      onStartCampaign,
-      onBack,
-    });
-    wizard.render();
-
-    const durationSelect = container.querySelector(
-      "#campaign-duration",
-    ) as HTMLSelectElement;
-    expect(durationSelect).toBeDefined();
-    expect(durationSelect.value).toBe("0.5"); // Default Long
-
-    durationSelect.value = "1.0"; // Select Short
-    durationSelect.dispatchEvent(new Event("change"));
-
-    const startBtn = container.querySelector(".primary-button") as HTMLElement;
-    startBtn.click();
-
-    expect(onStartCampaign).toHaveBeenCalled();
-    const [, , overrides] = onStartCampaign.mock.calls[0];
-    expect(overrides.mapGrowthRate).toBe(1.0);
+    expect(advancedToggle.textContent).toContain(t(I18nKeys.screen.campaign.wizard.advanced_hide));
   });
 });

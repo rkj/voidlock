@@ -2,6 +2,8 @@ import type {
   CampaignEventDefinition,
   EventChoice,
 } from "../../shared/campaign_types";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 import type { ModalService, ModalInstance } from "./ModalService";
 
 export class EventModal {
@@ -52,7 +54,7 @@ export class EventModal {
 
           if (choice.cost?.scrap) {
             const span = document.createElement("span");
-            span.textContent = `Cost: ${choice.cost.scrap} Credits`;
+            span.textContent = `${t(I18nKeys.common.cost)} ${t(I18nKeys.common.cost_credits, { cost: choice.cost.scrap })}`;
             span.style.color = "var(--color-error)";
             details.appendChild(span);
           }
@@ -60,14 +62,14 @@ export class EventModal {
           if (choice.reward) {
             const rewards: string[] = [];
             if (choice.reward.scrap)
-              rewards.push(`${choice.reward.scrap} Credits`);
+              rewards.push(t(I18nKeys.common.cost_credits, { cost: choice.reward.scrap }));
             if (choice.reward.intel)
-              rewards.push(`${choice.reward.intel} Intel`);
-            if (choice.reward.recruit) rewards.push(`New Asset`);
+              rewards.push(t(I18nKeys.common.intel_value, { intel: choice.reward.intel }));
+            if (choice.reward.recruit) rewards.push(t(I18nKeys.common.new_asset));
 
             if (rewards.length > 0) {
               const span = document.createElement("span");
-              span.textContent = `Reward: ${rewards.join(", ")}`;
+              span.textContent = `${t(I18nKeys.common.reward)} ${rewards.join(", ")}`;
               span.style.color = "var(--color-primary)";
               details.appendChild(span);
             }
@@ -75,7 +77,7 @@ export class EventModal {
 
           if (choice.risk) {
             const span = document.createElement("span");
-            span.textContent = `Risk: ${Math.floor(choice.risk.chance * 100)}% Chance Of Danger`;
+            span.textContent = `${t(I18nKeys.common.risk)} ${t(I18nKeys.common.chance_of_danger, { chance: Math.floor(choice.risk.chance * 100) })}`;
             span.style.color = "var(--color-warning)";
             details.appendChild(span);
           }
@@ -119,7 +121,7 @@ export class OutcomeModal {
       zIndex: 1100,
       buttons: [
         {
-          label: "Continue",
+          label: t(I18nKeys.common.continue),
           isPrimary: true,
           onClick: (modal) => {
             modal.close();

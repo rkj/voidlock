@@ -1,155 +1,144 @@
-import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { DebriefScreen } from "@src/renderer/screens/DebriefScreen";
-import { MissionReport } from "@src/shared/campaign_types";
+import type { MissionReport } from "@src/shared/campaign_types";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
+
+// Mock ConfigManager
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    loadGlobal: vi.fn().mockReturnValue({
+      unitStyle: "TacticalIcons",
+      themeId: "default",
+      locale: "en-corporate",
+    }),
+  },
+}));
 
 describe("DebriefScreen", () => {
   let container: HTMLElement;
-  let onContinue: any;
+  let mockInputDispatcher: any;
   let mockGameClient: any;
   let mockThemeManager: any;
   let mockAssetManager: any;
-  let mockInputDispatcher: any;
   let screen: DebriefScreen;
 
-  beforeEach(() => {
-    // Mock Canvas Context
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
-      clearRect: vi.fn(),
-      fillRect: vi.fn(),
-      drawImage: vi.fn(),
-      beginPath: vi.fn(),
-      moveTo: vi.fn(),
-      lineTo: vi.fn(),
-      stroke: vi.fn(),
-      fill: vi.fn(),
-      arc: vi.fn(),
-      closePath: vi.fn(),
-      scale: vi.fn(),
-      translate: vi.fn(),
-      save: vi.fn(),
-      restore: vi.fn(),
-      setLineDash: vi.fn(),
-      measureText: vi.fn(() => ({ width: 0 })),
-      fillText: vi.fn(),
-    } as any);
+  const mockReport: MissionReport = {
+    nodeId: "node-1",
+    seed: 12345,
+    result: "Won",
+    aliensKilled: 10,
+    scrapGained: 150,
+    intelGained: 5,
+    timeSpent: 600,
+    soldierResults: [
+      {
+        soldierId: "u1",
+        name: "Sgt. Slaughter",
+        xpBefore: 0,
+        xpGained: 70,
+        kills: 5,
+        promoted: false,
+        status: "Healthy",
+      },
+    ],
+  };
 
-    document.body.innerHTML = '<div id="screen-debrief"></div>';
-    container = document.getElementById("screen-debrief")!;
-    onContinue = vi.fn();
-    mockGameClient = {
-  freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
-      addStateUpdateListener: vi.fn(),
-      removeStateUpdateListener: vi.fn(),
-      queryState: vi.fn(),
-      getIsPaused: vi.fn(() => true),
-      togglePause: vi.fn(),
-      getTargetScale: vi.fn(() => 1.0),
-      getTimeScale: vi.fn().mockReturnValue(1.0),
-      setTimeScale: vi.fn(),
-      getReplayData: vi.fn(() => ({})),
-      loadReplay: vi.fn(),
-      stop: vi.fn(),
-      resume: vi.fn(),
-    };
-    mockThemeManager = {
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#ffffff"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-    };
-    mockAssetManager = {
-      iconImages: {},
-      unitSprites: {},
-      enemySprites: {},
-      getMiscSprite: vi.fn(),
-      getIcon: vi.fn(),
-    };
+  beforeEach(() => {
+    container = document.createElement("div");
+    container.id = "screen-debrief";
+    container.innerHTML = '<canvas id="debrief-replay-canvas"></canvas>';
+    document.body.appendChild(container);
+
     mockInputDispatcher = {
       pushContext: vi.fn(),
       popContext: vi.fn(),
     };
 
+    mockGameClient = {
+      replay: vi.fn(),
+      getReplayData: vi.fn().mockReturnValue({ timeline: [] }),
+      addStateUpdateListener: vi.fn(),
+      removeStateUpdateListener: vi.fn(),
+      setTimeScale: vi.fn(),
+      loadReplay: vi.fn(),
+      getIsPaused: vi.fn().mockReturnValue(false),
+      getTargetScale: vi.fn().mockReturnValue(1.0),
+    };
+
+    mockThemeManager = {
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+    };
+
+    mockAssetManager = {};
+
+    // Mock HTMLCanvasElement.getContext
+    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      strokeRect: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      fillText: vi.fn(),
+      strokeText: vi.fn(),
+      drawImage: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      setLineDash: vi.fn(),
+    });
+
     screen = new DebriefScreen({
       containerId: "screen-debrief",
       gameClient: mockGameClient,
-      themeManager: mockThemeManager as any,
-      assetManager: mockAssetManager as any,
-      inputDispatcher: mockInputDispatcher as any,
-      onContinue: onContinue
+      themeManager: mockThemeManager,
+      assetManager: mockAssetManager,
+      inputDispatcher: mockInputDispatcher,
+      onContinue: vi.fn(),
     });
   });
 
-  it("should render success report correctly", () => {
-    const report: MissionReport = {
-      nodeId: "node_1",
-      seed: 12345,
-      result: "Won",
-      aliensKilled: 10,
-      scrapGained: 150,
-      intelGained: 5,
-      timeSpent: 600, // 10 seconds at 60fps
-      soldierResults: [
-        {
-          id: "soldier_1",
-          name: "Sgt. Slaughter",
-          xpGained: 70,
-          kills: 5,
-          leveledUp: false,
-          status: "Healthy",
-          archetypeId: "assault",
-          promoted: false,
-          xpBefore: 0,
-        },
-      ],
-    };
+  afterEach(() => {
+    document.body.removeChild(container);
+  });
 
-    screen.setReport(report);
-    screen.show();
+  it("should render success report correctly", () => {
+    screen.show(mockReport);
 
     expect(container.style.display).toBe("flex");
-    expect(container.innerHTML).toContain("OPERATION CLOSED");
-    expect(container.innerHTML).toContain("Targets Secured");
+    expect(container.innerHTML).toContain(t(I18nKeys.screen.debrief.header_success));
+    expect(container.innerHTML).toContain(t(I18nKeys.screen.debrief.subheader_success));
     expect(container.innerHTML).toContain("10"); // aliensKilled
+    expect(container.innerHTML).toContain("150"); // scrapGained
+    expect(container.innerHTML).toContain("Sgt. Slaughter");
   });
 
   it("should render failure report correctly", () => {
-    const report: MissionReport = {
-      nodeId: "node_1",
-      seed: 12345,
-      result: "Lost",
-      aliensKilled: 5,
-      scrapGained: 20,
-      intelGained: 0,
-      timeSpent: 300,
-      soldierResults: [],
-    };
+    const failReport: MissionReport = { ...mockReport, result: "Lost" };
+    screen.show(failReport);
 
-    screen.setReport(report);
-    screen.show();
-
-    expect(container.innerHTML).toContain("OPERATION CLOSED");
-    expect(container.innerHTML).toContain("Total Asset Loss");
+    expect(container.innerHTML).toContain(t(I18nKeys.screen.debrief.header_failed));
+    expect(container.innerHTML).toContain(t(I18nKeys.screen.debrief.subheader_failed));
   });
 
-  it("should call onContinue when continue button is clicked", () => {
-    const report: MissionReport = {
-      nodeId: "node_1",
-      seed: 12345,
-      result: "Won",
-      aliensKilled: 0,
-      scrapGained: 0,
-      intelGained: 0,
-      timeSpent: 0,
-      soldierResults: [],
-    };
+  it("should handle continue button click", () => {
+    const onContinue = vi.fn();
+    screen = new DebriefScreen({
+      containerId: "screen-debrief",
+      gameClient: mockGameClient,
+      themeManager: mockThemeManager,
+      assetManager: mockAssetManager,
+      inputDispatcher: mockInputDispatcher,
+      onContinue,
+    });
 
-    screen.setReport(report);
-    screen.show();
-
-    const continueBtn = container.querySelector(".debrief-button") as HTMLElement;
-    expect(continueBtn).not.toBeNull();
-    continueBtn.click();
+    screen.show(mockReport);
+    const continueBtn = container.querySelector(".debrief-button");
+    (continueBtn as HTMLButtonElement)?.click();
 
     expect(onContinue).toHaveBeenCalled();
   });

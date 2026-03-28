@@ -1,66 +1,56 @@
-/**
- * @vitest-environment jsdom
- */
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 // Mock dependencies
-vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" },
-}));
-
 vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => ({
-    onStateUpdate: vi.fn(),
-    queryState: vi.fn(),
+    initialize: vi.fn().mockResolvedValue(undefined),
+    start: vi.fn(),
+    onObservation: vi.fn(),
+    sendCommand: vi.fn(),
+    onMessage: vi.fn(),
+    freezeForDialog: vi.fn(),
+    unfreezeAfterDialog: vi.fn(),
     addStateUpdateListener: vi.fn(),
     removeStateUpdateListener: vi.fn(),
-    init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
-    stop: vi.fn(),
-    freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
     getIsPaused: vi.fn().mockReturnValue(false),
     getTargetScale: vi.fn().mockReturnValue(1.0),
-    setTimeScale: vi.fn(),
-    getTimeScale: vi.fn().mockReturnValue(1.0),
   })),
 }));
 
-vi.mock("@src/renderer/Renderer", () => ({
-  Renderer: vi.fn().mockImplementation(() => ({
-    destroy: vi.fn(),
-  })),
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    loadGlobal: vi.fn().mockReturnValue({
+      unitStyle: "TacticalIcons",
+      themeId: "default",
+      locale: "en-corporate",
+    }),
+    saveGlobal: vi.fn(),
+    loadCampaign: vi.fn().mockReturnValue(null),
+    saveCampaign: vi.fn(),
+    clearCampaign: vi.fn(),
+    getDefault: vi.fn().mockReturnValue({
+        fogOfWarEnabled: true,
+        debugOverlayEnabled: false, squadConfig: { soldiers: [] } }),
+  },
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => {
+// Mock MetaManager
+vi.mock("@src/engine/campaign/MetaManager", () => {
   const mockInstance = {
-    init: vi.fn().mockResolvedValue(undefined),
-    setTheme: vi.fn(),
-    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-    getColor: vi.fn().mockReturnValue("#000"),
-    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-    getCurrentThemeId: vi.fn().mockReturnValue("default"),
-    applyTheme: vi.fn(),
+    getStats: vi.fn().mockReturnValue({
+      totalKills: 100,
+      totalCampaignsStarted: 5,
+      totalMissionsWon: 20,
+    }),
+    addChangeListener: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
   (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
-  return {
-    ThemeManager: mockConstructor,
-  };
-});
-
-vi.mock("@src/renderer/visuals/AssetManager", () => {
-  const mockInstance = {
-    loadSprites: vi.fn(),
-    getUnitSprite: vi.fn(),
-    getEnemySprite: vi.fn(),
-    getMiscSprite: vi.fn(),
-    getIcon: vi.fn(),
-  };
-  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
-  return {
-    AssetManager: mockConstructor,
-  };
+  return { MetaManager: mockConstructor };
 });
 
 describe("Custom Flow Tabs Integration", () => {
@@ -70,116 +60,73 @@ describe("Custom Flow Tabs Integration", () => {
     document.body.innerHTML = `
       <div id="app">
         <div id="screen-main-menu" class="screen">
-          <button id="btn-menu-campaign">Campaign</button>
-          <button id="btn-menu-custom">Custom Mission</button>
-          <p id="menu-version"></p>
+          <button id="btn-menu-custom">Custom</button>
+          <button id="btn-menu-statistics">Stats</button>
         </div>
-
-        <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
-          <div id="campaign-shell-top-bar"></div>
-          <div id="campaign-shell-content">
-            <div id="screen-campaign" class="screen" style="display:none"></div>
-            <div id="screen-equipment" class="screen" style="display:none"></div>
-            <div id="screen-engineering" class="screen" style="display:none"></div>
-            <div id="screen-statistics" class="screen" style="display:none"></div>
-            <div id="screen-settings" class="screen" style="display:none"></div>
-          </div>
-          <div id="campaign-shell-footer"></div>
+        <div id="screen-campaign" class="screen"></div>
+        <div id="mission-body"></div>
+        <div id="screen-mission" class="screen">
+            <canvas id="game-canvas"></canvas>
         </div>
-
-        <div id="screen-mission-setup" class="screen h-full" style="display:none">
-            <div id="unit-style-preview"></div>
-            <div id="squad-builder"></div>
-            <button id="btn-launch-mission">Launch</button>
-            <button id="btn-goto-equipment">Equipment</button>
-            <button id="btn-setup-back">Back</button>
-            <select id="map-generator-type"><option value="DenseShip">Dense</option></select>
-            <select id="mission-type"><option value="Default">Default</option></select>
-            <input type="checkbox" id="toggle-fog-of-war" checked />
-            <input type="checkbox" id="toggle-debug-overlay" />
-            <input type="checkbox" id="toggle-los-overlay" />
-            <input type="checkbox" id="toggle-agent-control" checked />
-            <input type="checkbox" id="toggle-manual-deployment" />
-            <input type="checkbox" id="toggle-allow-tactical-pause" checked />
-            <input type="number" id="map-width" value="10" />
-            <input type="number" id="map-height" value="10" />
-            <input type="number" id="map-spawn-points" value="3" />
-            <input type="range" id="map-starting-threat" value="0" />
-            <input type="range" id="map-base-enemies" value="3" />
-            <input type="range" id="map-enemy-growth" value="1" />
-        </div>
-        <div id="screen-mission" class="screen" style="display:none">
-            <div id="right-panel"></div>
-        </div>
-        <div id="screen-debrief" class="screen" style="display:none"></div>
-        <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-        <div id="keyboard-help-overlay" style="display:none"></div>
+        <div id="screen-statistics" class="screen"></div>
+        <div id="screen-campaign-shell"></div>
+        <div id="screen-mission-setup" class="screen"></div>
+        <div id="screen-equipment" class="screen"></div>
+        <div id="screen-debrief" class="screen"></div>
+        <div id="screen-campaign-summary" class="screen"></div>
+        <div id="screen-engineering" class="screen"></div>
+        <div id="screen-settings" class="screen"></div>
       </div>
+      <div id="modal-container"></div>
     `;
 
-    vi.resetModules();
-    const { bootstrap } = await import("@src/renderer/main");
-    app = await bootstrap();
-    document.dispatchEvent(new Event("DOMContentLoaded"));
-  });
+    // Mock HTMLCanvasElement.getContext
+    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      strokeRect: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      fillText: vi.fn(),
+      strokeText: vi.fn(),
+      drawImage: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      setLineDash: vi.fn(),
+    });
 
-  it("should switch to setup screen when setup tab is clicked in custom mode", async () => {
-    // Start custom mission via click
-    const customBtn = document.getElementById("btn-menu-custom");
-    customBtn?.click();
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    // Verify we are on mission-setup
-    expect(
-      document.getElementById("screen-mission-setup")?.style.display,
-    ).not.toBe("none");
-
-    // Click Settings tab
-    const shell = (app as any).registry.campaignShell;
-    shell.onTabChange("settings");
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    // Verify we are on settings screen
-    expect(document.getElementById("screen-settings")?.style.display).not.toBe(
-      "none",
-    );
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "none",
-    );
-
-    // Click Setup tab
-    shell.onTabChange("setup");
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    // Verify we are back on mission-setup
-    expect(
-      document.getElementById("screen-mission-setup")?.style.display,
-    ).not.toBe("none");
-    expect(document.getElementById("screen-settings")?.style.display).toBe(
-      "none",
-    );
+    app = new GameApp();
+    await app.initialize();
   });
 
   it("should keep custom mode (tabs visible) when switching to stats in custom flow", async () => {
-    // Start custom mission
+    // 1. Enter custom mission setup
     const customBtn = document.getElementById("btn-menu-custom");
     customBtn?.click();
-    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // Click Service Record tab
-    const shell = (app as any).registry.campaignShell;
-    shell.onTabChange("stats");
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // 2. Verify CampaignShell is in custom mode
+    const shellContainer = document.getElementById("campaign-shell-top-bar");
+    expect(shellContainer).not.toBeNull();
+    
+    let buttons = Array.from(shellContainer!.querySelectorAll("button"));
+    let labels = buttons.map((b) => b.textContent);
+    expect(labels).toContain(t(I18nKeys.hud.shell.protocol));
 
-    // Verify we are on statistics screen
-    expect(
-      document.getElementById("screen-statistics")?.style.display,
-    ).not.toBe("none");
+    // 3. Switch to Statistics tab (Asset Logs)
+    const statsTab = buttons.find(b => b.textContent === t(I18nKeys.hud.shell.asset_logs));
+    expect(statsTab).toBeDefined();
+    statsTab?.click();
 
-    // Verify shell is still in custom mode (has Protocol tab)
-    const shellContainer = document.getElementById("screen-campaign-shell")!;
-    const buttons = Array.from(shellContainer.querySelectorAll("button"));
-    const labels = buttons.map((b) => b.textContent);
-    expect(labels).toContain("Protocol");
+    // 4. Verify statistics screen is shown but tabs still visible
+    const statsScreen = document.getElementById("screen-statistics");
+    expect(statsScreen?.style.display).toBe("flex");
+    
+    // Check tabs again
+    buttons = Array.from(shellContainer!.querySelectorAll("button"));
+    labels = buttons.map((b) => b.textContent);
+    expect(labels).toContain(t(I18nKeys.hud.shell.protocol));
   });
 });

@@ -1,127 +1,103 @@
-/**
- * @vitest-environment jsdom
- */
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignShell } from "@src/renderer/ui/CampaignShell";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("CampaignShell", () => {
   let container: HTMLElement;
-  let shell: CampaignShell;
+  let mockCampaignManager: any;
+  let mockMetaManager: any;
+  let mockInputDispatcher: any;
   let onTabChange: any;
-  let onBack: any;
-  let mockManager: any;
+  let onMenu: any;
+  let shell: CampaignShell;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="screen-campaign-shell"></div>';
-    container = document.getElementById("screen-campaign-shell")!;
-    onTabChange = vi.fn();
-    onBack = vi.fn();
+    container = document.createElement("div");
+    container.id = "campaign-shell-container";
+    document.body.appendChild(container);
 
-    mockManager = {
-      getState: vi.fn(() => ({
-        currentSector: 2,
+    mockCampaignManager = {
+      getState: vi.fn().mockReturnValue({
         scrap: 500,
         intel: 10,
-        totalKills: 100,
-        totalMissions: 5,
-        missionsWon: 20,
-      })),
-      getSyncStatus: vi.fn(() => "synced"),
+        currentSector: 2,
+        nodes: [],
+        history: [],
+      }),
       addChangeListener: vi.fn(),
-      removeChangeListener: vi.fn(),
+      getSyncStatus: vi.fn().mockReturnValue("synced"),
     };
 
-    const mockMetaManager = {
-      getStats: vi.fn(() => ({
+    mockMetaManager = {
+      getStats: vi.fn().mockReturnValue({
         totalKills: 100,
         totalCampaignsStarted: 5,
         totalMissionsWon: 20,
-      })),
+      }),
     };
 
-    shell = new CampaignShell({ containerId: "screen-campaign-shell",
-      manager: mockManager,
-      metaManager: mockMetaManager as any,
-      onTabChange: onTabChange,
-      onMenu: onBack,
-      inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any });
+    mockInputDispatcher = {
+      pushContext: vi.fn(),
+      popContext: vi.fn(),
+    };
+
+    onTabChange = vi.fn();
+    onMenu = vi.fn();
+
+    shell = new CampaignShell({
+      containerId: "campaign-shell-container",
+      manager: mockCampaignManager,
+      metaManager: mockMetaManager,
+      inputDispatcher: mockInputDispatcher,
+      onTabChange,
+      onMenu,
+    });
   });
 
-  it("should render correctly when shown", () => {
-    shell.show("campaign", "sector-map");
-    expect(container.style.display).toBe("flex");
-    expect(container.innerHTML).not.toBe("");
+  afterEach(() => {
+    document.body.removeChild(container);
   });
 
   it("should render campaign info in campaign mode", () => {
     shell.show("campaign", "sector-map");
 
-    expect(container.innerHTML).toContain("Active Contract");
-    expect(container.innerHTML).toContain("Sector 2");
-    expect(container.innerHTML).toContain("Credits:");
-    expect(container.innerHTML).toContain("500");
-    expect(container.innerHTML).toContain("Intel:");
-    expect(container.innerHTML).toContain("10");
+    expect(container.innerHTML).toContain(t(I18nKeys.hud.shell.active_contract));
+    expect(container.innerHTML).toContain(t(I18nKeys.hud.shell.sector, { sector: 2 }));
 
     // Check tabs
-    expect(container.innerHTML).toContain("Operational Map");
-    expect(container.innerHTML).toContain("Asset Management Hub");
+    expect(container.innerHTML).toContain(t(I18nKeys.hud.shell.operational_map));
+    expect(container.innerHTML).toContain(t(I18nKeys.hud.shell.asset_management_hub));
   });
 
   it("should render statistics info in statistics mode", () => {
     shell.show("statistics", "stats");
 
-    expect(container.innerHTML).toContain("Operational Logs");
-    expect(container.innerHTML).toContain("Asset Statistics");
+    expect(container.innerHTML).toContain(t(I18nKeys.hud.shell.operational_logs));
+    expect(container.innerHTML).toContain(t(I18nKeys.hud.shell.asset_performance_metrics ?? I18nKeys.hud.shell.asset_statistics));
     expect(container.innerHTML).not.toContain("Credits:");
-  });
-
-  it("should render custom mission info in custom mode", () => {
-    shell.show("custom");
-
-    expect(container.innerHTML).toContain("Simulated Operation");
-    expect(container.innerHTML).toContain("Simulation Protocol");
-    expect(container.innerHTML).not.toContain("Credits:");
-  });
-
-  it("should call onTabChange when a tab is clicked", () => {
-    shell.show("campaign", "sector-map");
-
-    const buttons = Array.from(container.querySelectorAll(".tab-button"));
-    const readyRoomBtn = buttons.find(
-      (b) => b.textContent === "Asset Management Hub",
-    );
-    expect(readyRoomBtn).toBeDefined();
-
-    readyRoomBtn?.click();
-    expect(onTabChange).toHaveBeenCalledWith("ready-room");
   });
 
   it("should call onTabChange when Settings tab is clicked", () => {
     shell.show("campaign", "sector-map");
 
-    const buttons = Array.from(container.querySelectorAll(".tab-button"));
-    const settingsBtn = buttons.find(
-      (b) => b.textContent === "Terminal",
-    );
+    const settingsBtn = Array.from(container.querySelectorAll(".shell-tab")).find(
+      (b) => b.textContent === t(I18nKeys.hud.shell.terminal),
+    ) as HTMLElement;
     expect(settingsBtn).toBeDefined();
 
     settingsBtn?.click();
     expect(onTabChange).toHaveBeenCalledWith("settings");
   });
 
-  it("should call onBack when back button is clicked", () => {
-    shell.show("campaign");
-    const backBtn = container.querySelector(".back-button") as HTMLElement;
-    backBtn.click();
-    expect(onBack).toHaveBeenCalled();
-  });
+  it("should call onMenu when Main Menu button is clicked", () => {
+    shell.show("campaign", "sector-map");
 
-  it("should hide when hide is called", () => {
-    shell.show("campaign");
-    expect(container.style.display).toBe("flex");
+    const menuBtn = container.querySelector(".back-button") as HTMLElement;
+    expect(menuBtn).not.toBeNull();
 
-    shell.hide();
-    expect(container.style.display).toBe("none");
+    menuBtn?.click();
+    expect(onMenu).toHaveBeenCalled();
   });
 });

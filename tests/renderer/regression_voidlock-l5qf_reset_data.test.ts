@@ -1,161 +1,163 @@
-/**
- * @vitest-environment jsdom
- */
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { GameApp } from "@src/renderer/app/GameApp";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
-// Mocking needed for main.ts
-vi.mock("../../package.json", () => ({
-  default: { version: "1.0.0" },
-}));
-
-const reloadMock = vi.fn();
-// @ts-ignore
-delete window.location;
-// @ts-ignore
-window.location = { reload: reloadMock };
-
-const mockModalService = {
-  show: vi.fn().mockResolvedValue(true),
-};
-
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
-}));
-
+// Mock dependencies
 vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => ({
-    onStateUpdate: vi.fn(),
-    queryState: vi.fn(),
+    initialize: vi.fn().mockResolvedValue(undefined),
+    start: vi.fn(),
+    onObservation: vi.fn(),
+    sendCommand: vi.fn(),
+    onMessage: vi.fn(),
+    freezeForDialog: vi.fn(),
+    unfreezeAfterDialog: vi.fn(),
     addStateUpdateListener: vi.fn(),
     removeStateUpdateListener: vi.fn(),
-    init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
-    stop: vi.fn(),
-    freezeForDialog: vi.fn(), unfreezeFromDialog: vi.fn(),
     getIsPaused: vi.fn().mockReturnValue(false),
     getTargetScale: vi.fn().mockReturnValue(1.0),
-    setTimeScale: vi.fn(),
-    getTimeScale: vi.fn().mockReturnValue(1.0),
   })),
 }));
 
-vi.mock("@src/renderer/Renderer", () => ({
-  Renderer: vi.fn().mockImplementation(() => ({
-    destroy: vi.fn(),
-  })),
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    loadGlobal: vi.fn().mockReturnValue({
+      unitStyle: "TacticalIcons",
+      themeId: "default",
+      locale: "en-corporate",
+    }),
+    saveGlobal: vi.fn(),
+    loadCampaign: vi.fn().mockReturnValue(null),
+    saveCampaign: vi.fn(),
+    clearCampaign: vi.fn(),
+    getDefault: vi.fn().mockReturnValue({
+        fogOfWarEnabled: true,
+        debugOverlayEnabled: false, squadConfig: { soldiers: [] } }),
+  },
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => {
+// Mock MetaManager
+vi.mock("@src/engine/campaign/MetaManager", () => {
   const mockInstance = {
-    init: vi.fn().mockResolvedValue(undefined),
-    setTheme: vi.fn(),
-    getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-    getColor: vi.fn().mockReturnValue("#000"),
-    getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-    getCurrentThemeId: vi.fn().mockReturnValue("default"),
-    applyTheme: vi.fn(),
+    getStats: vi.fn().mockReturnValue({
+      totalKills: 100,
+      totalCampaignsStarted: 5,
+      totalMissionsWon: 20,
+    }),
+    addChangeListener: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
   (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
-  return {
-    ThemeManager: mockConstructor,
-  };
-});
-
-vi.mock("@src/renderer/visuals/AssetManager", () => {
-  const mockInstance = {
-    loadSprites: vi.fn(),
-    getUnitSprite: vi.fn(),
-    getEnemySprite: vi.fn(),
-    getMiscSprite: vi.fn(),
-    getIcon: vi.fn(),
-  };
-  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
-  return {
-    AssetManager: mockConstructor,
-  };
+  return { MetaManager: mockConstructor };
 });
 
 describe("Reset Data Regression", () => {
+  let app: GameApp;
+  let reloadMock: any;
+
   beforeEach(async () => {
+    // Reset DOM
     document.body.innerHTML = `
       <div id="app">
         <div id="screen-main-menu" class="screen">
           <button id="btn-menu-settings">Settings</button>
         </div>
-        <div id="screen-campaign-shell" style="display:none">
-            <div id="campaign-shell-content">
-                <div id="screen-settings" class="screen" style="display:none">
-                    <button class="danger-button">Reset Data</button>
-                </div>
-                <div id="screen-campaign" style="display:none"></div>
-                <div id="screen-equipment" style="display:none"></div>
-                <div id="screen-statistics" style="display:none"></div>
-                <div id="screen-engineering" style="display:none"></div>
-            </div>
-            <div id="campaign-shell-top-bar"></div>
-            <div id="campaign-shell-footer"></div>
+        <div id="screen-settings" class="screen"></div>
+        <div id="screen-campaign" class="screen"></div>
+        <div id="screen-campaign-shell"></div>
+        <div id="screen-mission" class="screen">
+            <div id="mission-body"></div>
+            <canvas id="game-canvas"></canvas>
         </div>
-        <div id="screen-mission-setup" style="display:none"></div>
-        <div id="screen-mission" style="display:none"></div>
-        <div id="screen-debrief" style="display:none"></div>
-        <div id="screen-campaign-summary" style="display:none"></div>
-        <div id="keyboard-help-overlay" style="display:none"></div>
-        <div id="squad-builder" style="display:none"></div>
       </div>
+      <div id="modal-container"></div>
     `;
 
-    // Mock localStorage.clear
+    // Mock window.location.reload
+    reloadMock = vi.fn();
+    delete (window as any).location;
+    (window as any).location = { reload: reloadMock };
+
+    // Mock localStorage
     vi.spyOn(Storage.prototype, "clear");
 
-    // Import main.ts
-    vi.resetModules();
-    const { bootstrap } = await import("@src/renderer/main");
-    await bootstrap();
+    // Mock HTMLCanvasElement.getContext
+    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      strokeRect: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      fillText: vi.fn(),
+      strokeText: vi.fn(),
+      drawImage: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      setLineDash: vi.fn(),
+    });
 
-    // Trigger DOMContentLoaded
-    document.dispatchEvent(new Event("DOMContentLoaded"));
+    app = new GameApp();
+    await app.initialize();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("should clear localStorage and reload page when Reset Data is clicked and confirmed", async () => {
-    // 1. Navigate to Settings
-    document.getElementById("btn-menu-settings")?.click();
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // 1. Go to Settings
+    const settingsBtn = document.getElementById("btn-menu-settings");
+    settingsBtn?.click();
 
-    const settingsScreen = document.getElementById("screen-settings");
-    const allButtons = settingsScreen?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find((btn) =>
-      btn.textContent?.toLowerCase().includes("reset"),
+    // 2. Find Reset Data button
+    const resetBtn = Array.from(document.querySelectorAll("button")).find(
+      (btn) =>
+        btn.textContent === t(I18nKeys.screen.settings.reset_btn),
     );
     expect(resetBtn).toBeTruthy();
 
+    // 3. Click Reset Data and Confirm
+    const mockModalService = (app as any).services.modalService;
+    vi.spyOn(mockModalService, "confirm").mockResolvedValue(true);
+
     resetBtn?.click();
 
-    // Wait for async ModalService.show
+    // Small delay for async modal
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.show).toHaveBeenCalled();
+    expect(mockModalService.confirm).toHaveBeenCalled();
     expect(Storage.prototype.clear).toHaveBeenCalled();
     expect(reloadMock).toHaveBeenCalled();
   });
 
   it("should do nothing when Reset Data is clicked but cancelled", async () => {
-    mockModalService.show.mockResolvedValue(false);
-    
-    document.getElementById("btn-menu-settings")?.click();
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // 1. Go to Settings
+    const settingsBtn = document.getElementById("btn-menu-settings");
+    settingsBtn?.click();
 
-    const settingsScreen = document.getElementById("screen-settings");
-    const allButtons = settingsScreen?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find((btn) =>
-      btn.textContent?.toLowerCase().includes("reset"),
+    // 2. Find Reset Data button
+    const resetBtn = Array.from(document.querySelectorAll("button")).find(
+      (btn) =>
+        btn.textContent === t(I18nKeys.screen.settings.reset_btn),
     );
-    
+
+    // 3. Click Reset Data and Cancel
+    const mockModalService = (app as any).services.modalService;
+    vi.spyOn(mockModalService, "confirm").mockResolvedValue(false);
+
     resetBtn?.click();
+
+    // Small delay for async modal
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.show).toHaveBeenCalled();
-    // In this case, clear should NOT be called if we implementation followed it correctly
-    // Actually, the implementation should only clear if confirmed.
+    expect(mockModalService.confirm).toHaveBeenCalled();
+    expect(Storage.prototype.clear).not.toHaveBeenCalled();
+    expect(reloadMock).not.toHaveBeenCalled();
   });
 });

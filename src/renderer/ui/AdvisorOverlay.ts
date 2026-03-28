@@ -4,6 +4,8 @@ import type { ThemeManager } from "@src/renderer/ThemeManager";
 import { Logger } from "@src/shared/Logger";
 import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 import advisorStylesUrl from "@src/styles/advisor.css?url";
 
 interface QueuedMessage {
@@ -87,6 +89,7 @@ export class AdvisorOverlay {
     if (!illustrationUrl && msg.illustration?.includes(".")) illustrationUrl = `assets/${msg.illustration}`;
 
     const hasDismissBtn = msg.blocking || (!msg.duration);
+    const btnLabel = msg.blocking ? t(I18nKeys.common.continue) : t(I18nKeys.common.dismiss);
 
     messageEl.innerHTML = `
       ${msg.illustration ? `<div class="advisor-illustration"><img src="${illustrationUrl}" alt="Illustration"></div>` : ""}
@@ -96,7 +99,7 @@ export class AdvisorOverlay {
       </div>
       <div class="advisor-content">
         <div class="advisor-text">${msg.text}</div>
-        ${hasDismissBtn ? `<div class="advisor-controls"><button class="advisor-btn" data-id="dismiss">${msg.blocking ? "Continue" : "Dismiss"}</button></div>` : ""}
+        ${hasDismissBtn ? `<div class="advisor-controls"><button class="advisor-btn" data-id="dismiss">${btnLabel}</button></div>` : ""}
       </div>
     `;
     return messageEl;
@@ -129,7 +132,7 @@ export class AdvisorOverlay {
         if (e.key === "Enter" || e.key === " ") { dismiss(); return true; }
         return false;
       },
-      getShortcuts: () => [{ key: "Enter", label: "Continue", description: "Dismiss advisor message", category: "Navigation" }],
+      getShortcuts: () => [{ key: "Enter", label: t(I18nKeys.common.continue), description: "Dismiss advisor message", category: "Navigation" }],
     });
   }
 

@@ -1,5 +1,7 @@
 import { InputPriority } from "@src/shared/types";
 import { InputDispatcher } from "../InputDispatcher";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export interface ModalOptions {
   title?: string;
@@ -46,13 +48,13 @@ export class ModalService {
     this.container = container;
   }
 
-  public async alert(message: string, title: string = "Alert"): Promise<void> {
+  public async alert(message: string, title: string = t(I18nKeys.common.alert)): Promise<void> {
     return this.show({
       title,
       message,
       buttons: [
         {
-          label: "Ok",
+          label: t(I18nKeys.common.ok),
           isPrimary: true,
           onClick: (modal) => modal.close(),
         },
@@ -62,19 +64,19 @@ export class ModalService {
 
   public async confirm(
     message: string,
-    title: string = "Confirm",
+    title: string = t(I18nKeys.common.confirm),
   ): Promise<boolean> {
     return this.show({
       title,
       message,
       buttons: [
         {
-          label: "Cancel",
+          label: t(I18nKeys.common.cancel),
           isCancel: true,
           onClick: (modal) => modal.close(false),
         },
         {
-          label: "Ok",
+          label: t(I18nKeys.common.ok),
           isPrimary: true,
           onClick: (modal) => modal.close(true),
         },
@@ -85,7 +87,7 @@ export class ModalService {
   public async prompt(
     message: string,
     defaultValue: string = "",
-    title: string = "Input",
+    title: string = t(I18nKeys.common.input),
   ): Promise<string | null> {
     const input = document.createElement("input");
     input.type = "text";
@@ -104,12 +106,12 @@ export class ModalService {
       content: input,
       buttons: [
         {
-          label: "Cancel",
+          label: t(I18nKeys.common.cancel),
           isCancel: true,
           onClick: (modal) => modal.close(null),
         },
         {
-          label: "Ok",
+          label: t(I18nKeys.common.ok),
           isPrimary: true,
           onClick: (modal) => modal.close(input.value),
         },
@@ -234,14 +236,14 @@ export class ModalService {
       getShortcuts: () => [
         {
           key: "Enter",
-          label: "Confirm",
-          description: "Trigger primary action",
+          label: t(I18nKeys.common.shortcuts.confirm),
+          description: t(I18nKeys.common.shortcuts.primary_action),
           category: "Navigation",
         },
         {
           key: "ESC",
-          label: "Cancel",
-          description: "Close modal",
+          label: t(I18nKeys.common.shortcuts.cancel),
+          description: t(I18nKeys.common.shortcuts.close_modal),
           category: "Navigation",
         },
       ],
