@@ -368,7 +368,8 @@ export class CampaignManager {
   public recruitSoldier(archetypeId: string, cost: number = 100): string | null {
     if (!this.state || this.state.scrap < cost) return null;
 
-    const soldierId = RosterManager.recruitSoldier(this.state, archetypeId);
+    const prng = new PRNG(this.state.seed + this.state.roster.length);
+    const soldierId = RosterManager.recruitSoldier(this.state, archetypeId, prng);
     this.save();
     return soldierId;
   }

@@ -7,7 +7,8 @@ describe("SoldierFactory", () => {
   it("should create a soldier with default values from archetype", () => {
     const archetypeId = "assault";
     const arch = ArchetypeLibrary[archetypeId];
-    const soldier = SoldierFactory.createSoldier(archetypeId);
+    const prng = new PRNG(1);
+    const soldier = SoldierFactory.createSoldier(archetypeId, [], { prng });
 
     expect(soldier.archetypeId).toBe(archetypeId);
     expect(soldier.hp).toBe(arch.baseHp);
@@ -55,7 +56,8 @@ describe("SoldierFactory", () => {
       // ... more soldiers if needed, but RosterUtils handles the logic
     ] as any;
     
-    const soldier = SoldierFactory.createSoldier("assault", existingRoster);
+    const prng = new PRNG(1);
+    const soldier = SoldierFactory.createSoldier("assault", existingRoster, { prng });
     expect(soldier.name).not.toBe("John Doe");
   });
 

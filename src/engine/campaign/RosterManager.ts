@@ -4,6 +4,7 @@ import {
   CAMPAIGN_DEFAULTS,
 } from "../config/CampaignDefaults";
 import { SoldierFactory } from "./SoldierFactory";
+import type { PRNG } from "../../shared/PRNG";
 
 /**
  * Handles roster-related logic for the campaign.
@@ -11,11 +12,11 @@ import { SoldierFactory } from "./SoldierFactory";
 export class RosterManager {
   /**
    * Generates the initial roster of soldiers for a new campaign.
-   * @param prng Optional PRNG for random generation. (Note: Roster generation is currently deterministic by index)
+   * @param prng Optional PRNG for random generation.
    * @param unlockedArchetypes Optional list of available archetypes. Defaults to DEFAULT_ARCHETYPES.
    */
   public static generateInitialRoster(
-    _prng?: any,
+    prng: PRNG,
     unlockedArchetypes?: string[],
   ): CampaignSoldier[] {
     const archetypes = (unlockedArchetypes && unlockedArchetypes.length > 0) 
@@ -28,6 +29,7 @@ export class RosterManager {
       // Use SoldierFactory to ensure uniform generation
       const soldier = SoldierFactory.createSoldier(archId, roster, {
         id: `soldier_${i}`,
+        prng,
       });
       roster.push(soldier);
     }
@@ -40,11 +42,12 @@ export class RosterManager {
   public static recruitSoldier(
     state: CampaignState,
     archetypeId: string,
+    prng: PRNG,
     name?: string,
   ): string {
     const COST = 100;
     if (state.scrap < COST) {
-      throw new Error("Insufficient scrap to recruit soldier.");
+      throw new Error("Not enough Credits to recruit a soldier.");
     }
 
     if (state.roster.length >= CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
@@ -56,6 +59,7 @@ export class RosterManager {
     const soldierName = name ?? `Recruit ${state.roster.length + 1}`;
     const soldier = SoldierFactory.createSoldier(archetypeId, state.roster, {
       name: soldierName,
+      prng,
     });
     
     state.roster.push(soldier);

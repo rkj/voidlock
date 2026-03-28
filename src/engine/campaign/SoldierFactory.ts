@@ -28,13 +28,15 @@ export class SoldierFactory {
     }
 
     const prng = options.prng;
+    if (!options.id && !prng) {
+      throw new Error("SoldierFactory: PRNG is required for deterministic ID generation when no ID is provided.");
+    }
+
     const finalId =
       options.id ||
-      `soldier_${Date.now()}_${Math.floor(
-        prng ? prng.next() * 1000 : Math.random() * 1000,
-      )}`;
+      `soldier_${Math.floor(prng!.next() * 1000000)}`;
     const finalName =
-      options.name || RosterUtils.getRandomName(existingRoster, prng);
+      options.name || RosterUtils.getRandomName(existingRoster, prng!);
 
     return {
       id: finalId,

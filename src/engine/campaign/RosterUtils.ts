@@ -14,9 +14,11 @@ export class RosterUtils {
     const availableNames = SOLDIER_NAMES.filter((n) => !existingNames.has(n));
     const pool = availableNames.length > 0 ? availableNames : SOLDIER_NAMES;
 
-    const index = prng
-      ? Math.floor(prng.next() * pool.length)
-      : Math.floor(Math.random() * pool.length);
+    if (!prng) {
+      throw new Error("RosterUtils: PRNG is required for deterministic name generation.");
+    }
+
+    const index = Math.floor(prng.next() * pool.length);
 
     return pool[index];
   }
