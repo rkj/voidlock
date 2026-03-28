@@ -485,6 +485,9 @@
 {"created_at":"2026-01-18T04:15:54Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-l8tc","issue_id":"voidlock-idde","metadata":"{}","type":"blocks"}
 {"created_at":"2026-01-19T04:05:12Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-885i","issue_id":"voidlock-ilnd","metadata":"{}","type":"blocks"}
 {"created_at":"2026-01-18T05:06:39Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-d7hx","issue_id":"voidlock-ilnd","metadata":"{}","type":"blocks"}
+{"created_at":"2026-03-28T01:05:27Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-iq6io","issue_id":"voidlock-iq6io.1","metadata":"{}","type":"parent-child"}
+{"created_at":"2026-03-28T01:05:37Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-iq6io","issue_id":"voidlock-iq6io.2","metadata":"{}","type":"parent-child"}
+{"created_at":"2026-03-28T01:05:57Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-iq6io","issue_id":"voidlock-iq6io.3","metadata":"{}","type":"parent-child"}
 {"created_at":"2026-02-06T05:36:31Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-t484","issue_id":"voidlock-iti8","metadata":"{}","type":"blocks"}
 {"created_at":"2026-03-10T03:57:25Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-iwf1x","issue_id":"voidlock-iwf1x.1","metadata":"{}","type":"parent-child"}
 {"created_at":"2026-03-10T03:58:17Z","created_by":"Roman Kamyk","depends_on_id":"voidlock-iwf1x","issue_id":"voidlock-iwf1x.10","metadata":"{}","type":"parent-child"}

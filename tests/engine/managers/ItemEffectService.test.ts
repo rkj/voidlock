@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
-import { GameState, MissionType, EnemyType, UseItemCommand } from "@src/shared/types";
+import { GameState, MissionType, EnemyType, UseItemCommand, UnitState } from "@src/shared/types";
 import { ITEMS, DIRECTOR } from "@src/engine/config/GameConstants";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
@@ -117,6 +117,45 @@ describe("ItemEffectService", () => {
       service.handleUseItem(state, cmd);
       // ITEMS.GRENADE_DAMAGE is 100, so 10 - 100 = -90
       expect(state.units[0].hp).toBe(10 - ITEMS.GRENADE_DAMAGE);
+    });
+
+    it("should not damage dead enemies", () => {
+      state.enemies[0].state = UnitState.Dead;
+      state.enemies[0].hp = 0;
+      const cmd: UseItemCommand = {
+        type: "USE_ITEM",
+        unitIds: ["u1"],
+        itemId: "frag_grenade",
+        target: { x: 5, y: 5 },
+      };
+      service.handleUseItem(state, cmd);
+      expect(state.enemies[0].hp).toBe(0);
+    });
+
+    it("should not damage dead units", () => {
+      state.units[0].state = UnitState.Dead;
+      state.units[0].hp = 0;
+      const cmd: UseItemCommand = {
+        type: "USE_ITEM",
+        unitIds: ["u1"],
+        itemId: "frag_grenade",
+        target: { x: 2, y: 2 },
+      };
+      service.handleUseItem(state, cmd);
+      expect(state.units[0].hp).toBe(0);
+    });
+
+    it("should not damage extracted units", () => {
+      state.units[0].state = UnitState.Extracted;
+      state.units[0].hp = 100;
+      const cmd: UseItemCommand = {
+        type: "USE_ITEM",
+        unitIds: ["u1"],
+        itemId: "frag_grenade",
+        target: { x: 2, y: 2 },
+      };
+      service.handleUseItem(state, cmd);
+      expect(state.units[0].hp).toBe(100);
     });
   });
 

@@ -3,7 +3,8 @@ import type {
   UseItemCommand,
   Vector2} from "../../shared/types";
 import {
-  ItemLibrary
+  ItemLibrary,
+  UnitState
 } from "../../shared/types";
 import type { ItemEffectHandler } from "../interfaces/IDirector";
 import { ITEMS, DIRECTOR } from "../config/GameConstants";
@@ -66,12 +67,14 @@ export class ItemEffectService implements ItemEffectHandler {
     if (!targetPos) return;
 
     state.enemies.forEach((e) => {
+      if (e.state === UnitState.Dead) return;
       if (MathUtils.sameCellPosition(e.pos, targetPos)) {
         e.hp -= ITEMS.GRENADE_DAMAGE;
       }
     });
 
     state.units.forEach((u) => {
+      if (u.state === UnitState.Dead || u.state === UnitState.Extracted) return;
       if (MathUtils.sameCellPosition(u.pos, targetPos)) {
         u.hp -= ITEMS.GRENADE_DAMAGE;
       }
