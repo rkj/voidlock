@@ -54,6 +54,7 @@ export const I18nKeys = {
       visual_style: "screen.settings.visual_style",
       environment_theme: "screen.settings.environment_theme",
       terminal_phosphor: "screen.settings.terminal_phosphor",
+      language: "screen.settings.language",
       developer_options: "screen.settings.developer_options",
       log_level: "screen.settings.log_level",
       debug_snapshots: "screen.settings.debug_snapshots",

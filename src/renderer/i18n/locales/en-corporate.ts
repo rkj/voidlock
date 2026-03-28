@@ -43,6 +43,7 @@ export const enCorporate = {
   [I18nKeys.screen.settings.visual_style]: "Visual Rendering Style",
   [I18nKeys.screen.settings.environment_theme]: "Ambient Environment Theme",
   [I18nKeys.screen.settings.terminal_phosphor]: "Terminal Phosphor Color",
+  [I18nKeys.screen.settings.language]: "Terminal Language Protocol",
   [I18nKeys.screen.settings.developer_options]: "Engineering Overrides",
   [I18nKeys.screen.settings.log_level]: "Diagnostic Log Level",
   [I18nKeys.screen.settings.debug_snapshots]: "Core State Snapshots",

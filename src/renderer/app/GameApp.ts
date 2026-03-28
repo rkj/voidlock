@@ -34,7 +34,7 @@ import { AppServiceRegistry } from "./AppServiceRegistry";
 import type { Renderer } from "../Renderer";
 import { Logger } from "@src/shared/Logger";
 import type { AdvisorOverlay } from "../ui/AdvisorOverlay";
-import { t } from "../i18n";
+import { t, applyLocale } from "../i18n";
 import { I18nKeys } from "../i18n/keys";
 
 const VERSION = pkg.version;
@@ -360,6 +360,10 @@ export class GameApp {
           screen,
           !!this.registry.campaignManager.getState(),
         );
+      },
+      onLocaleChange: () => {
+        applyLocale();
+        this.registry.campaignShell.refresh();
       },
     });
 

@@ -74,6 +74,7 @@ describe("SettingsScreen", () => {
       assetManager: mockAssetManager,
       cloudSync: mockCloudSync,
       onBack: vi.fn(),
+      onLocaleChange: vi.fn(),
     });
   });
 
@@ -91,5 +92,29 @@ describe("SettingsScreen", () => {
     
     const syncToggle = container.querySelector('input[type="checkbox"]:disabled') as HTMLInputElement;
     expect(syncToggle).not.toBeNull();
+  });
+
+  it("should render locale selector and trigger onLocaleChange when changed", () => {
+    const onLocaleChange = vi.fn();
+    screen = new SettingsScreen({
+      containerId: "screen-settings",
+      inputDispatcher: mockInputDispatcher,
+      themeManager: mockThemeManager,
+      assetManager: mockAssetManager,
+      cloudSync: mockCloudSync,
+      onBack: vi.fn(),
+      onLocaleChange,
+    });
+
+    screen.show();
+
+    const langSelect = container.querySelector("#settings-language") as HTMLSelectElement;
+    expect(langSelect).not.toBeNull();
+    expect(langSelect.value).toBe("en-corporate");
+
+    langSelect.value = "pl";
+    langSelect.dispatchEvent(new Event("change"));
+
+    expect(onLocaleChange).toHaveBeenCalled();
   });
 });

@@ -9,7 +9,7 @@ import type { ThemeManager } from "../ThemeManager";
 import type { CloudSyncService } from "@src/services/CloudSyncService";
 import type { ModalService } from "../ui/ModalService";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
-import { t } from "../i18n";
+import { t, getAvailableLocales, setLocale } from "../i18n";
 import { I18nKeys } from "../i18n/keys";
 
 import type { AssetManager } from "../visuals/AssetManager";
@@ -22,6 +22,7 @@ export interface SettingsScreenConfig {
   cloudSync: CloudSyncService;
   modalService: ModalService;
   onBack: () => void;
+  onLocaleChange: () => void;
 }
 
 export class SettingsScreen {
@@ -32,6 +33,7 @@ export class SettingsScreen {
   private cloudSync: CloudSyncService;
   private modalService: ModalService;
   private onBack: () => void;
+  private onLocaleChange: () => void;
   private unitStyleSelector?: UnitStyleSelector;
   private authUnsubscribe?: () => void;
 
@@ -45,6 +47,7 @@ export class SettingsScreen {
     this.cloudSync = config.cloudSync;
     this.modalService = config.modalService;
     this.onBack = config.onBack;
+    this.onLocaleChange = config.onLocaleChange;
   }
 
   public show() {
@@ -270,6 +273,41 @@ export class SettingsScreen {
     });
     phosphorGroup.appendChild(phosphorSelect);
     grid.appendChild(phosphorGroup);
+
+    // Language Selector
+    const langGroup = document.createElement("div");
+    langGroup.className = "control-group";
+    langGroup.style.width = "100%";
+    const langLabel = document.createElement("label");
+    langLabel.textContent = t(I18nKeys.screen.settings.language);
+    langLabel.setAttribute("for", "settings-language");
+    langGroup.appendChild(langLabel);
+
+    const langSelect = document.createElement("select");
+    langSelect.id = "settings-language";
+    const availableLocales = getAvailableLocales();
+    const localeLabels: Record<string, string> = {
+      "en-corporate": "English (Corporate)",
+      "en-standard": "English (Standard)",
+      "pl": "Polski",
+    };
+
+    availableLocales.forEach((loc) => {
+      const opt = document.createElement("option");
+      opt.value = loc;
+      opt.textContent = localeLabels[loc] || loc;
+      if (loc === global.locale) opt.selected = true;
+      langSelect.appendChild(opt);
+    });
+
+    langSelect.addEventListener("change", () => {
+      const newLocale = langSelect.value;
+      setLocale(newLocale);
+      this.onLocaleChange();
+      this.render();
+    });
+    langGroup.appendChild(langSelect);
+    grid.appendChild(langGroup);
   }
 
   private renderDeveloperSection(grid: HTMLElement, global: GlobalConfig) {

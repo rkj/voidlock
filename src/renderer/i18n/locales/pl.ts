@@ -43,6 +43,7 @@ export const pl = {
   [I18nKeys.screen.settings.visual_style]: "Styl Renderowania Wizualnego",
   [I18nKeys.screen.settings.environment_theme]: "Motyw Otoczenia",
   [I18nKeys.screen.settings.terminal_phosphor]: "Kolor Luminoforu Terminala",
+  [I18nKeys.screen.settings.language]: "Język Interfejsu",
   [I18nKeys.screen.settings.developer_options]: "Opcje Programistyczne",
   [I18nKeys.screen.settings.log_level]: "Poziom Logowania Diagnostycznego",
   [I18nKeys.screen.settings.debug_snapshots]: "Migawki Stanu Rdzenia",
