@@ -17,7 +17,7 @@ import { CombatBehavior } from "../ai/behaviors/CombatBehavior";
 import { ObjectiveBehavior } from "../ai/behaviors/ObjectiveBehavior";
 import { ExplorationBehavior } from "../ai/behaviors/ExplorationBehavior";
 import { isCellDiscovered } from "../../shared/VisibilityUtils";
-import type { ItemEffectHandler } from "../interfaces/IDirector";
+import type { IDirector } from "../interfaces/IDirector";
 import type { AIContext } from "../interfaces/AIContext";
 import { Logger } from "../../shared/Logger";
 
@@ -28,7 +28,7 @@ export interface UnitAIProcessParams {
   doors: Map<string, Door>;
   prng: PRNG;
   context: AIContext;
-  director?: ItemEffectHandler;
+  director?: IDirector;
 }
 
 export class UnitAI {

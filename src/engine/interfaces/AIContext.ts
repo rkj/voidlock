@@ -4,7 +4,7 @@ import type {
   Command,
   Vector2,
 } from "../../shared/types";
-import type { ItemEffectHandler } from "./IDirector";
+import type { IDirector } from "./IDirector";
 import type { SpatialGrid } from "../../shared/utils/SpatialGrid";
 
 export interface VisibleItem {
@@ -24,7 +24,7 @@ export interface BehaviorContext {
     cmd: Command;
     state: GameState;
     isManual: boolean;
-    director?: ItemEffectHandler;
+    director?: IDirector;
   }) => Unit;
 }
 

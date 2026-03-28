@@ -11,7 +11,7 @@ import {
 } from "../../../shared/types";
 import type { BehaviorContext, ObjectiveContext, VisibleItem } from "../../interfaces/AIContext";
 import type { Behavior, BehaviorEvalParams, BehaviorResult } from "./Behavior";
-import type { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { IDirector } from "../../interfaces/IDirector";
 import {
   isCellVisible,
   isCellDiscovered,
@@ -26,7 +26,7 @@ interface ActionContext {
   unit: Unit;
   state: GameState;
   context: ObjContext;
-  director: ItemEffectHandler | undefined;
+  director: IDirector | undefined;
 }
 
 function issuePickup(

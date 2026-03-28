@@ -5,7 +5,7 @@ import {
 import type { Unit, GameState, Door, Vector2 } from "../../../shared/types";
 import type { BehaviorContext, ExplorationContext } from "../../interfaces/AIContext";
 import type { Behavior, BehaviorEvalParams, BehaviorResult } from "./Behavior";
-import type { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { IDirector } from "../../interfaces/IDirector";
 import {
   isMapFullyDiscovered,
   findClosestUndiscoveredCell,
@@ -21,7 +21,7 @@ interface ExploreParams {
   currentUnit: Unit;
   state: GameState;
   context: ExplContext;
-  director: ItemEffectHandler | undefined;
+  director: IDirector | undefined;
 }
 
 interface IssueMoveParams {
@@ -29,7 +29,7 @@ interface IssueMoveParams {
   targetCell: Vector2;
   state: GameState;
   context: ExplContext;
-  director: ItemEffectHandler | undefined;
+  director: IDirector | undefined;
 }
 
 function issueExploreMove({

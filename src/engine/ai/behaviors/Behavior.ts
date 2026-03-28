@@ -1,7 +1,7 @@
 import type { GameState, Unit, Door } from "../../../shared/types";
 import type { BehaviorContext } from "../../interfaces/AIContext";
 import type { PRNG } from "../../../shared/PRNG";
-import type { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { IDirector } from "../../interfaces/IDirector";
 
 export interface BehaviorResult {
   unit: Unit;
@@ -15,7 +15,7 @@ export interface BehaviorEvalParams<TContext extends BehaviorContext = BehaviorC
   doors: Map<string, Door>;
   prng: PRNG;
   context: TContext;
-  director?: ItemEffectHandler;
+  director?: IDirector;
 }
 
 export interface Behavior<TContext extends BehaviorContext = BehaviorContext> {

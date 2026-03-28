@@ -6,7 +6,7 @@ import {
   CommandType
 } from "../../shared/types";
 import type { Pathfinder } from "../Pathfinder";
-import type { ItemEffectHandler } from "../interfaces/IDirector";
+import type { IDirector } from "../interfaces/IDirector";
 import { UnitCommandRegistry } from "./commands/UnitCommandRegistry";
 import { MoveToHandler } from "./commands/handlers/MoveToHandler";
 import { EscortUnitHandler } from "./commands/handlers/EscortUnitHandler";
@@ -24,7 +24,7 @@ export interface ExecuteCommandParams {
   cmd: Command;
   state: GameState;
   isManual?: boolean;
-  director?: ItemEffectHandler;
+  director?: IDirector;
 }
 
 export class CommandExecutor {

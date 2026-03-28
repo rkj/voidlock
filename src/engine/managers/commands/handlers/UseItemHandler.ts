@@ -9,7 +9,7 @@ import {
   ItemLibrary
 } from "@src/shared/types";
 import type { IUnitCommandHandler, CommandExecParams } from "../IUnitCommandHandler";
-import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { IDirector } from "@src/engine/interfaces/IDirector";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import {
   MOVEMENT,
@@ -108,7 +108,7 @@ export class UseItemHandler implements IUnitCommandHandler {
     unit: Unit,
     state: GameState,
     useItemCmd: UseItemCommand,
-    director?: ItemEffectHandler,
+    director?: IDirector,
   ): Unit {
     let currentUnit = { ...unit };
     const count = state.squadInventory[useItemCmd.itemId] || 0;

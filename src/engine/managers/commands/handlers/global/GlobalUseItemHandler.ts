@@ -7,14 +7,14 @@ import {
   ItemLibrary,
 } from "@src/shared/types";
 import type { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
-import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { IDirector } from "@src/engine/interfaces/IDirector";
 import type { UnitManager } from "@src/engine/managers/UnitManager";
 
 export class GlobalUseItemHandler implements IGlobalCommandHandler {
   public type = CommandType.USE_ITEM;
 
   constructor(
-    private director: ItemEffectHandler,
+    private director: IDirector,
     private unitManager: UnitManager,
   ) {}
 

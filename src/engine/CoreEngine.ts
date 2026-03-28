@@ -93,7 +93,7 @@ export class CoreEngine {
 
     const itemEffectService = new ItemEffectService();
     this.setupDirector({ ...p, itemEffectService });
-    this.commandHandler = new CommandHandler(this.unitManager, itemEffectService);
+    this.commandHandler = new CommandHandler(this.unitManager, this.director);
 
     this.missionManager.setupMission({ state: this.state, map: p.map, enemyManager: this.enemyManager, squadConfig: p.squadConfig, nodeType: p.nodeType, lootManager: this.lootManager });
     this.setupSpawnsAndVisibility({ map: p.map, squadConfig: p.squadConfig, missionType: p.missionType, skipDeployment: p.skipDeployment });

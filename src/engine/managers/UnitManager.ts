@@ -21,7 +21,7 @@ import type { ExecuteCommandParams } from "./CommandExecutor";
 import { FormationManager } from "./FormationManager";
 import { ItemDistributionService } from "./ItemDistributionService";
 import { UnitStateManager } from "./UnitStateManager";
-import type { ItemEffectHandler } from "../interfaces/IDirector";
+import type { IDirector } from "../interfaces/IDirector";
 import type { AIContext } from "../interfaces/AIContext";
 import { isCellVisible } from "../../shared/VisibilityUtils";
 import { MathUtils } from "../../shared/utils/MathUtils";
@@ -42,7 +42,7 @@ export interface UnitUpdateParams {
   doors: Map<string, Door>;
   prng: PRNG;
   lootManager: LootManager;
-  director?: ItemEffectHandler;
+  director?: IDirector;
   realDt?: number;
 }
 
@@ -76,7 +76,7 @@ interface SingleUnitUpdateContext {
   doors: Map<string, Door>;
   prng: PRNG;
   lootManager: LootManager;
-  director: ItemEffectHandler | undefined;
+  director: IDirector | undefined;
   aiContext: AIContext;
   escortData: Map<string, { targetCell: Vector2; matchedSpeed?: number; stopEscorting?: boolean }>;
   invalidationCtx: InvalidationContext;

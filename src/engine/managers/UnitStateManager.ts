@@ -8,14 +8,14 @@ import {
 import type { CommandExecutor } from "./CommandExecutor";
 import type { StatsManager } from "./StatsManager";
 import type { LootManager } from "./LootManager";
-import type { ItemEffectHandler } from "../interfaces/IDirector";
+import type { IDirector } from "../interfaces/IDirector";
 
 export interface ProcessChannelingParams {
   unit: Unit;
   state: GameState;
   realDt: number;
   lootManager: LootManager;
-  director?: ItemEffectHandler;
+  director?: IDirector;
 }
 
 /**
@@ -34,7 +34,7 @@ export class UnitStateManager {
   public processCommandQueue(
     unit: Unit,
     state: GameState,
-    director?: ItemEffectHandler,
+    director?: IDirector,
   ): Unit {
     if (
       unit.state === UnitState.Idle &&
@@ -114,7 +114,7 @@ export class UnitStateManager {
     unit: Unit,
     state: GameState,
     lootManager: LootManager,
-    director?: ItemEffectHandler,
+    director?: IDirector,
   ): Unit {
     if (!unit.channeling) {
       return unit;
@@ -221,7 +221,7 @@ export class UnitStateManager {
   private completeUseItem(
     unit: Unit,
     state: GameState,
-    director?: ItemEffectHandler,
+    director?: IDirector,
   ): Unit {
     let currentUnit = unit;
 

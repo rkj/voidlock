@@ -9,7 +9,7 @@ import {
 } from "../../../shared/types";
 import type { BehaviorContext } from "../../interfaces/AIContext";
 import type { Behavior, BehaviorEvalParams, BehaviorResult } from "./Behavior";
-import type { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { IDirector } from "../../interfaces/IDirector";
 import { isCellVisible, isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import type { LineOfSight } from "../../LineOfSight";
@@ -27,7 +27,7 @@ interface SafetyActionParams {
   state: GameState;
   doors: Map<string, Door>;
   context: BehaviorContext;
-  director: ItemEffectHandler | undefined;
+  director: IDirector | undefined;
   threats: ThreatEntry[];
   gameGrid: GameGrid;
   los: LineOfSight;
@@ -39,7 +39,7 @@ interface IssueMoveCommandParams {
   label: string;
   state: GameState;
   context: BehaviorContext;
-  director: ItemEffectHandler | undefined;
+  director: IDirector | undefined;
 }
 
 function issueMoveCommand({ unit, target, label, state, context, director }: IssueMoveCommandParams): Unit {
@@ -185,7 +185,7 @@ interface HandleKiteWithWaypointParams {
   waypoint: { x: number; y: number };
   state: GameState;
   context: BehaviorContext;
-  director: ItemEffectHandler | undefined;
+  director: IDirector | undefined;
 }
 
 function handleKiteWithWaypoint({ unit, waypoint, state, context, director }: HandleKiteWithWaypointParams): BehaviorResult {

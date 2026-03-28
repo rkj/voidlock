@@ -6,7 +6,7 @@ import type { Unit, GameState, Door, Enemy } from "../../../shared/types";
 import type { BehaviorContext } from "../../interfaces/AIContext";
 import type { Behavior, BehaviorEvalParams, BehaviorResult } from "./Behavior";
 import type { GameGrid } from "../../GameGrid";
-import type { ItemEffectHandler } from "../../interfaces/IDirector";
+import type { IDirector } from "../../interfaces/IDirector";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { calculateTravelTimeMs } from "./BehaviorUtils";
@@ -15,7 +15,7 @@ interface ProfileHandlerParams {
   currentUnit: Unit;
   state: GameState;
   doors: Map<string, Door>;
-  director: ItemEffectHandler | undefined;
+  director: IDirector | undefined;
   primaryThreat: Enemy;
   dist: number;
   context: BehaviorContext;

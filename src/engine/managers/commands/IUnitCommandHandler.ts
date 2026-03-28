@@ -1,5 +1,5 @@
 import type { Unit, Command, GameState, CommandType } from "@src/shared/types";
-import type { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
+import type { IDirector } from "@src/engine/interfaces/IDirector";
 import type { UnitCommandRegistry } from "./UnitCommandRegistry";
 
 export interface CommandExecParams {
@@ -8,7 +8,7 @@ export interface CommandExecParams {
   state: GameState;
   isManual: boolean;
   registry: UnitCommandRegistry;
-  director?: ItemEffectHandler;
+  director?: IDirector;
 }
 
 export interface IUnitCommandHandler {
