@@ -33,15 +33,27 @@ coverage/
 *.njsproj
 *.sln
 *.sw?
-.beads/last-touched
 .trekker/
 *.png
 tests/e2e/__snapshots__
 
-# Dolt database files (added by bd init)
+# Beads runtime files (SQLite DB is per-workspace, not committed)
+.beads/beads.db
+.beads/beads.db-wal
+.beads/beads.db-shm
+.beads/dolt/
+.beads/dolt-server.*
+.beads/daemon.*
+.beads/export-state/
+.beads/backup/
+.beads/.manifest.json
+.beads/last-touched
+.beads/.local_version
+.beads/sync-state.json
+.beads/beads.left.jsonl
+.beads/beads.left.meta.json
+.beads/deletions.jsonl.migrated
+.beads/interactions.jsonl
 .dolt/
-.beads/dolt/.dolt/
-*.db
 .debugging/
-*/.dolt/
 

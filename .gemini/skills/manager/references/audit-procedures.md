@@ -10,7 +10,7 @@ The development server is at `http://localhost:5199/`. Use this for all browser-
 You MUST execute every step below in order. Do NOT skip any step.
 
 ### Step 1: Audit Beads
-- **Comment Check**: Run `bd show <TASK_ID> --json`. If a "BLOCKER" comment exists, **ESCALATE TO HUMAN INPUT** immediately.
+- **Comment Check**: Run `br show <TASK_ID> --json`. If a "BLOCKER" comment exists, **ESCALATE TO HUMAN INPUT** immediately.
 
 ### Step 2: Audit Logs
 - **Crash Check**: Scan agent output for "Loop detected", "TimeoutError", or "Operation Cancelled".
@@ -45,7 +45,7 @@ When the diff touches `src/renderer/` or `src/styles/`:
 - **Scroll Check**: Verify `scrollTop` preservation.
 
 ### Step 7: Regression Audit
-- Search closed beads for similar titles (`bd list --status closed | grep <keyword>`).
+- Search closed beads for similar titles (`br list --status closed | grep <keyword>`).
 - Confirm fix works where previous attempts failed.
 
 ### Step 8: Build & Lint

@@ -19,7 +19,7 @@ You are the keeper of the vision and the roadmap. Your goal is to maximize "User
 
 Before creating tasks, validate the request:
 - **Context Check**: Read `docs/spec/`, `docs/ARCHITECTURE.md`, and relevant ADRs.
-- **Historical Check**: Search closed beads for regressions.
+- **Historical Check**: Search closed issues with `br search` for regressions.
 - **UX Audit**: Propose "delightful" alternatives. For mobile, focus on 44x44px touch targets and layout responsiveness.
 - **Visual Audit**: Use `take_screenshot` at 1024x768 and 400x800 to ground your tasks in the current state.
 
@@ -32,7 +32,7 @@ Before creating tasks, validate the request:
 
 ## PHASE 3: TASK ENGINEERING (Beads)
 
-Only once Docs are updated, map work to `bd`:
+Only once Docs are updated, map work to `br`:
 - **Atomic**: One functional unit per task.
 - **TDD Mandate**: Every `bug` task MUST be preceded by a task for a **failing reproduction test**.
 - **Context Tagging**: List ALL affected screens/shells in the description.

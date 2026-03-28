@@ -21,7 +21,7 @@ To verify that the game's features are functional, the UI is aesthetically corre
      - Visual glitches (flickering, incorrect colors).
 1. **Report & Remediate**:
    - If any step fails or a visual glitch is found:
-     - **Create a Beads issue** (`bd create`) immediately.
+     - **Create a Beads issue** (`br create`) immediately.
      - Title: `[VUI] Title of the issue` (VUI = Visual UI).
      - Description: Implements `docs/user_stories/US_XXX.md`. Describe the mismatch/glitch. Mention the screenshot taken.
      - Priority: P2 (Standard) or P1 (Blocking).

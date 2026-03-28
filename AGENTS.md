@@ -74,22 +74,27 @@ docs/                # Specs, ADRs, guides
 ### Version Control
 
 - Uses **Jujutsu (jj)** for version control, not git.
-- Uses **Beads (bd)** for task/issue tracking.
+- Uses **Beads (`br`)** for task/issue tracking (SQLite + JSONL, no Dolt).
 
 ### Beads in jj Workspaces
 
-The canonical beads database lives in `~/voidlock/.beads/` (the main repo). jj workspaces (e.g. `~/jj-voidlock-claude/`) must **share** the main repo's Dolt server — do NOT run `bd init` independently, as that creates a separate empty database.
+`.beads/issues.jsonl` is tracked by jj, so issue state travels with commits.
+Each workspace has a local `.beads/beads.db` (SQLite cache, gitignored).
+`br` auto-imports from the JSONL when the DB is missing or stale.
 
-To configure a jj workspace to share the main beads database:
+To set up a new workspace: `br init --prefix voidlock` — the JSONL is already there via jj.
 
-1. Kill any orphaned Dolt server the workspace started: `kill $(cat .beads/dolt-server.pid)`
-2. Set `.beads/metadata.json` to point at the main server:
-   - `dolt_server_port`: read from `~/voidlock/.beads/dolt-server.port`
-   - `dolt_database`: `"voidlock"` (must match main repo's `metadata.json`)
-   - `project_id`: copy from `~/voidlock/.beads/metadata.json`
-3. Verify with `bd list --status=open` — you should see the same issues as the main repo.
+**Sync workflow:**
+- `br` auto-flushes DB → `issues.jsonl` after every mutation
+- `jj commit` captures the updated JSONL with your code changes
+- Other workspaces see it after rebasing onto your commit
+- JSONL is line-based, so non-overlapping changes merge cleanly
 
-The port may change when the main repo's Dolt server restarts. If `bd` commands fail with "database not found", re-read the port from `~/voidlock/.beads/dolt-server.port` and update `.beads/metadata.json`.
+**Multi-agent coordination:**
+- Different agents/workspaces may work in parallel on separate branches
+- Claim your issue with `br update <id> --claim` before starting work
+- Commit frequently so other workspaces can rebase and see your claims
+- If two agents claim the same issue, the later rebase will show a JSONL conflict — resolve by keeping the first claim
 
 ## Quick Start for Agents
 
@@ -100,44 +105,25 @@ The port may change when the main repo's Dolt server restarts. If `bd` commands 
 1. Run `npm run lint` after changes (TypeScript type check)
 1. Run `npx vitest run <path>` for targeted tests
 
-<!-- BEGIN BEADS INTEGRATION v:1 profile:full hash:d4f96305 -->
-## Issue Tracking with bd (beads)
+<!-- BEGIN BEADS INTEGRATION v:2 profile:full -->
+## Issue Tracking with `br` (beads_rust)
 
-**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
+**IMPORTANT**: This project uses **`br` (beads_rust)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
 
-### Why bd?
+### Why br?
 
 - Dependency-aware: Track blockers and relationships between issues
-- Git-friendly: Dolt-powered version control with native sync
-- Agent-optimized: JSON output, ready work detection, discovered-from links
+- Simple: SQLite + JSONL, no Dolt server required
+- Agent-optimized: JSON output, ready work detection
 - Prevents duplicate tracking systems and confusion
 
 ### Quick Start
 
-**Check for ready work:**
-
 ```bash
-bd ready --json
-```
-
-**Create new issues:**
-
-```bash
-bd create "Issue title" --description="Detailed context" -t bug|feature|task -p 0-4 --json
-bd create "Issue title" --description="What this issue is about" -p 1 --deps discovered-from:bd-123 --json
-```
-
-**Claim and update:**
-
-```bash
-bd update <id> --claim --json
-bd update bd-42 --priority 1 --json
-```
-
-**Complete work:**
-
-```bash
-bd close bd-42 --reason "Completed" --json
+br ready                    # Check for ready work
+br create --title="Issue title" --description="Context" --type=bug --priority=1
+br update <id> --claim      # Claim a task
+br close <id> --reason "Completed"
 ```
 
 ### Issue Types
@@ -158,57 +144,23 @@ bd close bd-42 --reason "Completed" --json
 
 ### Workflow for AI Agents
 
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task atomically**: `bd update <id> --claim`
+1. **Check ready work**: `br ready` shows unblocked issues
+2. **Claim your task**: `br update <id> --claim`
 3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue:
-   - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
-
-### Auto-Sync
-
-bd automatically syncs via Dolt:
-
-- Each write auto-commits to Dolt history
-- Use `bd dolt push`/`bd dolt pull` for remote sync
-- No manual export/import needed!
+4. **Discover new work?** Create linked issue with `br create`
+5. **Complete**: `br close <id> --reason "Done"`
 
 ### Important Rules
 
-- ✅ Use bd for ALL task tracking
-- ✅ Always use `--json` flag for programmatic use
-- ✅ Link discovered work with `discovered-from` dependencies
-- ✅ Check `bd ready` before asking "what should I work on?"
-- ❌ Do NOT create markdown TODO lists
-- ❌ Do NOT use external issue trackers
-- ❌ Do NOT duplicate tracking systems
-
-For more details, see README.md and docs/QUICKSTART.md.
+- Use `br` for ALL task tracking
+- Check `br ready` before asking "what should I work on?"
+- Do NOT create markdown TODO lists or use external issue trackers
 
 ## Landing the Plane (Session Completion)
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
-
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   bd dolt push
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
+1. **File issues for remaining work** — `br create` for anything needing follow-up
+2. **Run quality gates** (if code changed) — Tests, linters, builds
+3. **Update issue status** — Close finished work, update in-progress items
+4. **Sync beads** — `br sync --flush-only` to export DB to JSONL
 
 <!-- END BEADS INTEGRATION -->

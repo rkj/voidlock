@@ -14,22 +14,22 @@ This repo uses **jj** (Jujutsu). Do NOT use git commands. Key differences:
 - No `git add`, `git commit`, `git push`. If asked to commit, use `jj commit`.
 - Do NOT use `jj describe` — it sets the message but doesn't start a new change, easy to forget `jj new` afterward.
 
-## Issue Tracking: Beads (bd)
+## Issue Tracking: Beads (`br`)
 
-Use `bd` for all task/issue tracking. Never use TodoWrite, TaskCreate, or markdown files for tracking.
+Use `br` (beads_rust) for all task/issue tracking. Never use TodoWrite, TaskCreate, or markdown files for tracking.
 
-- `bd ready` — find available work
-- `bd create --title="..." --description="..." --type=bug --priority=1` — create issue
-- `bd update <id> --claim` — claim work
-- `bd close <id> --reason="..."` — complete work
+- `br ready` — find available work
+- `br create --title="..." --description="..." --type=bug --priority=1` — create issue
+- `br update <id> --claim` — claim work
+- `br close <id> --reason="..."` — complete work
 
 ## jj Workspace + Beads Setup
 
 This is a **jj workspace** (`jj-voidlock-claude`), not the main repo. The main repo is at `~/voidlock/`.
 
-Beads database is shared with the main repo's Dolt server. If `bd` commands fail with "database not found":
-1. Read the current port: `cat ~/voidlock/.beads/dolt-server.port`
-2. Update `.beads/metadata.json` with the correct `dolt_server_port`
+`.beads/issues.jsonl` is tracked by jj — all workspaces share it automatically.
+Each workspace has a local `.beads/beads.db` (SQLite cache, gitignored).
+If the DB is stale or missing, `br` auto-imports from the JSONL on next command.
 
 ## Code
 

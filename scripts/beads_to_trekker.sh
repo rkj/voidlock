@@ -13,7 +13,7 @@ trekker init 2>/dev/null || true
 echo "Starting migration..."
 
 i=0
-bd list --all --json --limit 0 | jq -c '.[]' | while read -r task_json; do
+br list --json | jq -c '.[]' | while read -r task_json; do
     echo parsing task $i: $task_json
     title=$(echo "$task_json" | jq -r '.title')
     desc=$(echo "$task_json" | jq -r '.description // ""')
