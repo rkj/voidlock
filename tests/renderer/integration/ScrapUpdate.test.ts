@@ -86,6 +86,7 @@ let changeListeners: Set<() => void> = new Set();
 vi.mock("@src/renderer/campaign/CampaignManager", () => {
   const mockInstance = {
     getState: vi.fn(() => mockCampaignState),
+    selectNode: vi.fn(),
     getStorage: vi.fn().mockReturnValue({
         getCloudSync: vi.fn().mockReturnValue({
             initialize: vi.fn().mockResolvedValue(undefined),

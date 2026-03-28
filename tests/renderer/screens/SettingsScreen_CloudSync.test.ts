@@ -8,7 +8,7 @@ import { ConfigManager } from "@src/renderer/ConfigManager";
 // Mock dependencies
 vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
-    loadGlobal: vi.fn(),
+    loadGlobal: vi.fn().mockReturnValue({ locale: "en-corporate" }),
     clearCampaign: vi.fn(),
     saveGlobal: vi.fn(),
   },

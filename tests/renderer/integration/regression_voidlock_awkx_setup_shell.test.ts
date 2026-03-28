@@ -78,6 +78,7 @@ let currentCampaignState: any = null;
 vi.mock("@src/renderer/campaign/CampaignManager", () => {
   const mockInstance = {
     getState: vi.fn(() => currentCampaignState),
+    selectNode: vi.fn(),
     load: vi.fn(),
     addChangeListener: vi.fn(),
     removeChangeListener: vi.fn(),

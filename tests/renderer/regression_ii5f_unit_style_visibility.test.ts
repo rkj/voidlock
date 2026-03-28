@@ -10,7 +10,7 @@ vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
     loadCampaign: vi.fn(),
     saveCampaign: vi.fn(),
-    loadGlobal: vi.fn(),
+    loadGlobal: vi.fn().mockReturnValue({ locale: "en-corporate" }),
     clearCampaign: vi.fn().mockReturnValue({
       unitStyle: "Sprites",
     }),

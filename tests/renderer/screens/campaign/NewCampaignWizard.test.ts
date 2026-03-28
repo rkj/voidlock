@@ -5,10 +5,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NewCampaignWizard } from "@src/renderer/screens/campaign/NewCampaignWizard";
 
 // Pre-define mocks for usage in instance members
-const mockConfig = {
-  unitStyle: "TacticalIcons",
-  themeId: "default",
-};
+const { mockConfig } = vi.hoisted(() => ({
+  mockConfig: {
+    unitStyle: "TacticalIcons",
+    themeId: "default",
+  },
+}));
 
 // Mock ConfigManager
 vi.mock("@src/renderer/ConfigManager", () => ({

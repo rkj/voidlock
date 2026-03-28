@@ -65,6 +65,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
 vi.mock("@src/renderer/campaign/CampaignManager", () => {
   const mockInstance = {
     getState: vi.fn(() => currentCampaignState),
+    selectNode: vi.fn(),
     getStorage: vi.fn().mockReturnValue({
         getCloudSync: vi.fn().mockReturnValue({
             initialize: vi.fn().mockResolvedValue(undefined),

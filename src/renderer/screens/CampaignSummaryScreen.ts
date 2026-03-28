@@ -3,6 +3,8 @@ import { calculateLevel } from "@src/shared/campaign_types";
 import type { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export class CampaignSummaryScreen {
   private container: HTMLElement;
@@ -40,14 +42,14 @@ export class CampaignSummaryScreen {
       getShortcuts: () => [
         {
           key: "Arrows",
-          label: "Navigate",
-          description: "Move selection",
+          label: t(I18nKeys.common.shortcuts.navigate),
+          description: t(I18nKeys.common.shortcuts.move_selection),
           category: "Navigation",
         },
         {
           key: "Enter",
-          label: "Select",
-          description: "Activate button",
+          label: t(I18nKeys.common.shortcuts.select),
+          description: t(I18nKeys.common.shortcuts.activate_button),
           category: "Navigation",
         },
       ],
@@ -88,13 +90,13 @@ export class CampaignSummaryScreen {
     const header = document.createElement("h1");
     header.className = "summary-header";
     header.style.margin = "0";
-    header.textContent = isVictory ? "CONTRACT SUCCESS" : "CONTRACT TERMINATED";
+    header.textContent = isVictory ? t(I18nKeys.screen.summary.contract_success) : t(I18nKeys.screen.summary.contract_terminated);
     headerContainer.appendChild(header);
 
     const subHeader = document.createElement("h2");
     subHeader.className = "summary-subheader";
     subHeader.style.margin = "0";
-    subHeader.textContent = isVictory ? "Victory Confirmed" : "Operational Failure";
+    subHeader.textContent = isVictory ? t(I18nKeys.screen.summary.victory_confirmed) : t(I18nKeys.screen.summary.operational_failure);
     headerContainer.appendChild(subHeader);
     
     this.container.appendChild(headerContainer);
@@ -108,7 +110,7 @@ export class CampaignSummaryScreen {
     scrollContent.appendChild(content);
 
     // Left: Stats
-    const statsPanel = this.createPanel("Operational Statistics");
+    const statsPanel = this.createPanel(t(I18nKeys.screen.summary.operational_statistics));
     const totalKills = this.state.history.reduce(
       (sum, r) => sum + r.aliensKilled,
       0,
@@ -122,15 +124,15 @@ export class CampaignSummaryScreen {
     statsPanel.innerHTML += `
       <div class="flex-col gap-20">
         <div class="summary-stat-row">
-          <span>Biologicals Neutralized:</span>
+          <span>${t(I18nKeys.screen.summary.biologicals_neutralized)}</span>
           <span style="color:var(--color-primary); font-weight:bold;">${totalKills}</span>
         </div>
         <div class="summary-stat-row">
-          <span>Operations Finalized:</span>
+          <span>${t(I18nKeys.screen.summary.operations_finalized)}</span>
           <span style="color:var(--color-accent); font-weight:bold;">${totalMissions}</span>
         </div>
         <div class="summary-stat-row">
-          <span>Total Credits Recovered:</span>
+          <span>${t(I18nKeys.screen.summary.total_credits_recovered)}</span>
           <span style="color:var(--color-warning); font-weight:bold;">${totalScrap}</span>
         </div>
         ${
@@ -138,7 +140,7 @@ export class CampaignSummaryScreen {
             ? `
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--color-border-strong);">
             <div style="color: var(--color-text-dim); font-size: 0.9em; letter-spacing: 1px;">
-              Cause: <span style="color: var(--color-danger); font-weight: bold; letter-spacing: 2px;">${this.getCauseOfDeath()}</span>
+              ${t(I18nKeys.screen.summary.cause)} <span style="color: var(--color-danger); font-weight: bold; letter-spacing: 2px;">${this.getCauseOfDeath()}</span>
             </div>
           </div>
         `
@@ -150,7 +152,7 @@ export class CampaignSummaryScreen {
 
     // Right: Survivors (if Victory) or Roster Status
     const rosterPanel = this.createPanel(
-      isVictory ? "Retrieved Assets" : "Termination Roster Status",
+      isVictory ? t(I18nKeys.screen.summary.retrieved_assets) : t(I18nKeys.screen.summary.termination_roster),
     );
     const rosterList = document.createElement("div");
     rosterList.className = "summary-roster-list";
@@ -166,12 +168,12 @@ export class CampaignSummaryScreen {
             ? "var(--color-warning)"
             : "var(--color-danger)";
 
-      const statusDisplay = s.status === "Healthy" ? "Functional" : (s.status === "Wounded" ? "Damaged" : "Integrity Failure");
+      const statusDisplay = s.status === "Healthy" ? t(I18nKeys.screen.summary.status_functional) : (s.status === "Wounded" ? t(I18nKeys.screen.summary.status_damaged) : t(I18nKeys.screen.summary.status_integrity_failure));
 
       row.innerHTML = `
         <div class="flex-col">
           <div style="font-weight:bold; letter-spacing: 1px;">${s.name}</div>
-          <div style="font-size: 0.8em; color: var(--color-text-dim);">${s.archetypeId} - Lvl ${calculateLevel(s.xp)}</div>
+          <div style="font-size: 0.8em; color: var(--color-text-dim);">${t("units.archetype." + s.archetypeId)} - Lvl ${calculateLevel(s.xp)}</div>
         </div>
         <div style="color: ${statusColor}; font-weight: bold; font-size: 0.9em; border: 1px solid ${statusColor}; padding: 2px 10px; border-radius: 2px;">
           ${statusDisplay}
@@ -193,7 +195,7 @@ export class CampaignSummaryScreen {
     footer.style.marginTop = "0"; // Override CSS margin-top
 
     const btn = document.createElement("button");
-    btn.textContent = isVictory ? "Retire to Main Menu" : "Abandon Expedition";
+    btn.textContent = isVictory ? t(I18nKeys.screen.summary.retire_main_menu) : t(I18nKeys.screen.summary.abandon_expedition);
     btn.className = `summary-button ${isVictory ? "primary-button" : "danger-button"}`;
     btn.style.margin = "0";
 
@@ -216,13 +218,13 @@ export class CampaignSummaryScreen {
   }
 
   private getCauseOfDeath(): string {
-    if (!this.state) return "Unknown";
+    if (!this.state) return t(I18nKeys.screen.summary.cause_unknown);
     const aliveCount = this.state.roster.filter(
       (s) => s.status !== "Dead",
     ).length;
     const canAffordRecruit = this.state.scrap >= 100;
 
-    if (aliveCount === 0 && !canAffordRecruit) return "Bankruptcy";
-    return "Squad Wiped";
+    if (aliveCount === 0 && !canAffordRecruit) return t(I18nKeys.screen.summary.cause_bankruptcy);
+    return t(I18nKeys.screen.summary.cause_squad_wiped);
   }
 }

@@ -7,6 +7,8 @@ import type { InputDispatcher } from "../InputDispatcher";
 import type { ThemeManager } from "../ThemeManager";
 import type { AssetManager } from "../visuals/AssetManager";
 import { UIUtils } from "../utils/UIUtils";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export interface DebriefScreenConfig {
   containerId: string;
@@ -121,14 +123,14 @@ export class DebriefScreen {
       getShortcuts: () => [
         {
           key: "Arrows",
-          label: "Navigate",
-          description: "Move selection",
+          label: t(I18nKeys.common.shortcuts.navigate),
+          description: t(I18nKeys.common.shortcuts.move_selection),
           category: "Navigation",
         },
         {
           key: "Enter",
-          label: "Select",
-          description: "Activate button",
+          label: t(I18nKeys.common.shortcuts.select),
+          description: t(I18nKeys.common.shortcuts.activate_button),
           category: "Navigation",
         },
       ],
@@ -154,7 +156,7 @@ export class DebriefScreen {
   private updatePlaybackUI() {
     if (this.playbackBtn) {
       const isPaused = this.replayController.getIsPaused();
-      this.playbackBtn.textContent = isPaused ? "Play" : "Pause";
+      this.playbackBtn.textContent = isPaused ? t(I18nKeys.screen.debrief.play) : t(I18nKeys.screen.debrief.pause);
     }
 
     const currentSpeed = this.replayController.getTargetScale();
@@ -191,14 +193,14 @@ export class DebriefScreen {
     headerSection.className = "flex-col flex-shrink-0";
     
     const header = document.createElement("h1");
-    header.textContent = isWon ? "OPERATION CLOSED — Targets Secured" : "OPERATION CLOSED — Total Asset Loss";
+    header.textContent = isWon ? t(I18nKeys.screen.debrief.header_success) : t(I18nKeys.screen.debrief.header_failed);
     header.className = `debrief-header ${isWon ? "success" : "failed"}`;
     headerSection.appendChild(header);
 
     const subHeader = document.createElement("div");
     subHeader.textContent = isWon
-      ? "All operational objectives finalized."
-      : "Roster wiped or contract prematurely terminated.";
+      ? t(I18nKeys.screen.debrief.subheader_success)
+      : t(I18nKeys.screen.debrief.subheader_failed);
     subHeader.className = "debrief-subheader";
     headerSection.appendChild(subHeader);
     summary.appendChild(headerSection);
@@ -209,23 +211,23 @@ export class DebriefScreen {
     summary.appendChild(scrollContent);
 
     // Stats
-    const statsPanel = this.createPanel("Operational Statistics");
+    const statsPanel = this.createPanel(t(I18nKeys.screen.summary.operational_statistics));
     statsPanel.innerHTML += `
       <div class="debrief-stat-row">
-        <span>Biologicals Neutralized:</span>
+        <span>${t(I18nKeys.screen.debrief.biologicals_neutralized)}</span>
         <span style="color:var(--color-hive); font-weight:bold;">${this.report.aliensKilled}</span>
       </div>
       <div class="debrief-stat-row">
-        <span>Operational Time:</span>
+        <span>${t(I18nKeys.screen.debrief.operational_time)}</span>
         <span style="color:var(--color-accent); font-weight:bold;">${(this.report.timeSpent / 1000).toFixed(1)}s</span>
       </div>
       <div class="debrief-resource-section">
         <div class="debrief-resource-row">
-          <span>Credits Recovered:</span>
+          <span>${t(I18nKeys.screen.debrief.credits_recovered)}</span>
           <span style="color:var(--color-primary); font-weight:bold;">+${this.report.scrapGained}</span>
         </div>
         <div class="debrief-resource-row">
-          <span>Intel Gathered:</span>
+          <span>${t(I18nKeys.screen.debrief.intel_gathered)}</span>
           <span style="color:var(--color-accent); font-weight:bold;">+${this.report.intelGained}</span>
         </div>
       </div>
@@ -233,7 +235,7 @@ export class DebriefScreen {
     scrollContent.appendChild(statsPanel);
 
     // Squad
-    const squadPanel = this.createPanel("Asset Integrity Report");
+    const squadPanel = this.createPanel(t(I18nKeys.screen.debrief.asset_integrity_report));
     this.report.soldierResults.forEach((res) => {
       const soldierRow = SoldierWidget.render(res, { context: "debrief" });
       squadPanel.appendChild(soldierRow);
@@ -245,7 +247,7 @@ export class DebriefScreen {
     footer.className = "debrief-footer flex-shrink-0";
 
     const continueBtn = document.createElement("button");
-    continueBtn.textContent = "Return to Operational Terminal";
+    continueBtn.textContent = t(I18nKeys.screen.debrief.return);
     continueBtn.className = "debrief-button";
 
     continueBtn.addEventListener("click", () => this.onContinue());
@@ -254,7 +256,7 @@ export class DebriefScreen {
     if (this.report.nodeId === "custom" && this.onReplay) {
       const replayFn = this.onReplay;
       const replayBtn = document.createElement("button");
-      replayBtn.textContent = "Analyze Tactical Feed";
+      replayBtn.textContent = t(I18nKeys.screen.debrief.analyze);
       replayBtn.className = "debrief-button";
       replayBtn.addEventListener("click", () => replayFn());
       footer.appendChild(replayBtn);
@@ -263,7 +265,7 @@ export class DebriefScreen {
     if (this.onExport) {
       const exportFn = this.onExport;
       const exportBtn = document.createElement("button");
-      exportBtn.textContent = "Export Recording";
+      exportBtn.textContent = t(I18nKeys.screen.debrief.export);
       exportBtn.className = "debrief-button secondary";
       exportBtn.addEventListener("click", () => exportFn());
       footer.appendChild(exportBtn);
@@ -299,11 +301,11 @@ export class DebriefScreen {
 
     const loopBtn = document.createElement("button");
     loopBtn.className = "replay-btn";
-    loopBtn.textContent = "Loop: Off";
+    loopBtn.textContent = t(I18nKeys.screen.debrief.loop_off);
     loopBtn.addEventListener("click", () => {
       const isLooping = loopBtn.classList.toggle("active");
       this.replayController.setLooping(isLooping);
-      loopBtn.textContent = isLooping ? "Loop: On" : "Loop: Off";
+      loopBtn.textContent = isLooping ? t(I18nKeys.screen.debrief.loop_on) : t(I18nKeys.screen.debrief.loop_off);
     });
     controls.appendChild(loopBtn);
 

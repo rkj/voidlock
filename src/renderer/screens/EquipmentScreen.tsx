@@ -14,6 +14,8 @@ import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 import type { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
 import { FocusManager } from "../utils/FocusManager";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 import type { ModalService } from "@src/renderer/ui/ModalService";
 
@@ -178,9 +180,9 @@ export class EquipmentScreen {
       container: this.container,
       handleKeyDown: (e) => this.handleKeyDown(e),
       getShortcuts: () => [
-        { key: "Arrows", label: "Arrows", description: "Navigate UI", category: "Navigation" },
-        { key: "Enter", label: "Enter", description: "Select / Equip", category: "Navigation" },
-        { key: "ESC", label: "Esc", description: "Back to Setup", category: "Navigation" },
+        { key: "Arrows", label: t(I18nKeys.common.shortcuts.navigation), description: "Navigate UI", category: "Navigation" },
+        { key: "Enter", label: t(I18nKeys.common.shortcuts.select), description: "Equip", category: "Navigation" },
+        { key: "ESC", label: t(I18nKeys.common.back), description: "Back", category: "Navigation" },
       ],
     });
   }
@@ -271,10 +273,10 @@ export class EquipmentScreen {
 
   private getRightPanelTitle(): string {
     const isSlotEmpty = !this.config.soldiers[this.selectedSoldierIndex];
-    if (this.recruitMode) return "Procurement";
-    if (this.reviveMode) return "Integral Restoration";
-    if (isSlotEmpty) return "Asset Reserve";
-    return "Logistics & Supplies";
+    if (this.recruitMode) return t(I18nKeys.screen.equipment.procurement);
+    if (this.reviveMode) return t(I18nKeys.screen.equipment.integral_restoration);
+    if (isSlotEmpty) return t(I18nKeys.screen.equipment.asset_reserve);
+    return t(I18nKeys.screen.equipment.logistics_supplies);
   }
 
   private buildUI() {
@@ -287,14 +289,14 @@ export class EquipmentScreen {
       <Fragment>
         <div class="flex-row flex-grow p-10 gap-10 equipment-main-content" style={{ overflow: "hidden", minHeight: "0" }}>
           <div class="panel soldier-list-panel" style={{ width: "260px" }}>
-            <h2 class="panel-title" style={{ flexShrink: "0" }}>Asset Roster</h2>
+            <h2 class="panel-title" style={{ flexShrink: "0" }}>{t(I18nKeys.screen.equipment.roster)}</h2>
             <div class="scroll-content" style={{ padding: "10px" }}>
               {this.renderSoldierListItems()}
             </div>
           </div>
 
           <div class="panel soldier-equipment-panel" style={{ flexGrow: "1" }}>
-            <h2 class="panel-title" style={{ flexShrink: "0" }}>Asset Loadout</h2>
+            <h2 class="panel-title" style={{ flexShrink: "0" }}>{t(I18nKeys.screen.equipment.loadout)}</h2>
             <div class="scroll-content" style={{ padding: "10px" }}>
               {this.inspector.renderDetails()}
             </div>
@@ -317,7 +319,7 @@ export class EquipmentScreen {
               style={{ margin: "0", height: "32px", padding: "0 15px", fontSize: "0.9em", display: "flex", alignItems: "center" }}
               onClick={() => this.onBack(this.config)}
             >
-              {this.isShop ? "Exit Hub" : "Back"}
+              {this.isShop ? t(I18nKeys.screen.equipment.exit_hub) : t(I18nKeys.common.back)}
             </button>
           )}
           {canLaunch && (
@@ -337,10 +339,10 @@ export class EquipmentScreen {
               }}
               data-focus-id="btn-launch-mission"
               disabled={activeSoldiers === 0}
-              title={activeSoldiers === 0 ? "Assign at least one asset to authorize operation" : ""}
+              title={activeSoldiers === 0 ? t(I18nKeys.screen.equipment.assign_asset_tooltip) : ""}
               onClick={() => this.onLaunch?.(this.config)}
             >
-              Authorize Operation
+              {t(I18nKeys.screen.equipment.authorize_operation)}
             </button>
           )}
         </div>
@@ -372,7 +374,7 @@ export class EquipmentScreen {
               class="remove-soldier-btn slot-remove"
               data-focus-id={`remove-soldier-${i}`}
               tabindex="-1"
-              title="De-allocate from Roster"
+              title={t(I18nKeys.screen.equipment.deallocate_roster)}
               onClick={(e: Event) => {
                 e.stopPropagation();
                 this.config.soldiers.splice(i, 1);
@@ -417,10 +419,10 @@ export class EquipmentScreen {
             }}
           >
             <div style={{ fontWeight: "bold", color: this.selectedSoldierIndex === i ? "var(--color-primary)" : "var(--color-text-dim)", fontSize: "0.9em" }}>
-              {i + 1}. [Empty Slot]
+              {i + 1}. {t(I18nKeys.screen.equipment.empty_slot)}
             </div>
             <div style={{ fontSize: "0.75em", color: "var(--color-text-muted)", marginTop: "2px" }}>
-              {this.isSquadSelectionLocked ? "Slot Restricted" : "Click to Allocate Asset"}
+              {this.isSquadSelectionLocked ? t(I18nKeys.screen.equipment.slot_restricted) : t(I18nKeys.screen.equipment.click_to_allocate)}
             </div>
           </div>
         );
@@ -468,8 +470,8 @@ export class EquipmentScreen {
               if (first) first.focus();
             }}
           >
-            <div class="btn-label">Acquire New Asset</div>
-            <div class="btn-sub">Cost: 100 Credits</div>
+            <div class="btn-label">{t(I18nKeys.screen.equipment.acquire_new)}</div>
+            <div class="btn-sub">{t(I18nKeys.common.cost_credits, { cost: 100 })}</div>
           </button>
         </div>
       );
@@ -514,7 +516,7 @@ export class EquipmentScreen {
         const canAfford = state.scrap >= cost;
         items.push(
             <div class="flex-col gap-10" style={{ marginTop: "20px", borderTop: "1px solid var(--color-border)", paddingTop: "10px" }}>
-                <h3 class="stat-label" style={{ color: "var(--color-danger)", margin: "0" }}>Personnel Losses</h3>
+                <h3 class="stat-label" style={{ color: "var(--color-danger)", margin: "0" }}>{t(I18nKeys.screen.equipment.personnel_losses)}</h3>
                 <button 
                     class="menu-button w-full revive-button" 
                     disabled={!canAfford}
@@ -524,8 +526,8 @@ export class EquipmentScreen {
                         this.render();
                     }}
                 >
-                    <div class="btn-label">Restore Lost Assets</div>
-                    <div class="btn-sub">Cost: {cost} Credits</div>
+                    <div class="btn-label">{t(I18nKeys.screen.equipment.restore_lost)}</div>
+                    <div class="btn-sub">{t(I18nKeys.common.cost_credits, { cost })}</div>
                 </button>
             </div>
         );
@@ -535,8 +537,8 @@ export class EquipmentScreen {
       return (
         <div class="flex-col align-center justify-center h-full" style={{ color: "var(--color-text-dim)", padding: "20px", textAlign: "center" }}>
           <div style={{ fontSize: "2em", marginBottom: "10px" }}>📋</div>
-          <div>No healthy assets available in roster.</div>
-          <div style={{ fontSize: "0.8em", marginTop: "10px" }}>Acquire a new asset in the center panel.</div>
+          <div>{t(I18nKeys.screen.equipment.no_assets)}</div>
+          <div style={{ fontSize: "0.8em", marginTop: "10px" }}>{t(I18nKeys.screen.equipment.acquire_msg)}</div>
         </div>
       );
     }
@@ -599,7 +601,7 @@ export class EquipmentScreen {
     const cost = 250;
 
     if (deadSoldiers.length === 0) {
-      return <div style={{ textAlign: "center", color: "var(--color-text-dim)", marginTop: "20px" }}>No deceased personnel available for revival.</div>;
+      return <div style={{ textAlign: "center", color: "var(--color-text-dim)", marginTop: "20px" }}>{t(I18nKeys.screen.equipment.no_deceased_msg)}</div>;
     }
 
     return deadSoldiers.map((soldier) => {
@@ -673,8 +675,8 @@ export class EquipmentScreen {
       items.push(
         <div class="locked-store-message" style={{ color: "var(--color-danger)", padding: "20px", textAlign: "center", border: "1px solid var(--color-danger)", borderRadius: "4px", marginBottom: "20px" }}>
           <div style={{ fontSize: "1.5em", marginBottom: "10px" }}>🔒</div>
-          <div style={{ fontWeight: "bold", marginBottom: "5px" }}>Terminal Offline</div>
-          <div style={{ fontSize: "0.8em", opacity: "0.8" }}>Maintenance diagnostics in progress. Standard equipment loadouts only.</div>
+          <div style={{ fontWeight: "bold", marginBottom: "5px" }}>{t(I18nKeys.screen.equipment.terminal_offline)}</div>
+          <div style={{ fontSize: "0.8em", opacity: "0.8" }}>{t(I18nKeys.screen.equipment.terminal_offline_desc)}</div>
         </div>
       );
     }
@@ -687,7 +689,7 @@ export class EquipmentScreen {
 
     items.push(
       <h3 style={{ color: "var(--color-primary)", borderBottom: "1px solid var(--color-border)", paddingBottom: "8px", margin: "20px 0 12px 0", fontSize: "1em", letterSpacing: "1px" }}>
-        Global Supplies
+        {t(I18nKeys.screen.equipment.global_supplies)}
       </h3>
     );
 
@@ -699,11 +701,11 @@ export class EquipmentScreen {
     Object.values(ItemLibrary).filter((i) => i.action && isUnlocked(i.id)).forEach((item) => {
       const count = this.config.inventory?.[item.id] || 0;
       items.push(
-        <div class="flex-row justify-between align-center card w-full" style={{ marginBottom: "4px", padding: "6px 10px", gap: "8px" }} title={`${item.name}\n${item.description || ""}`}>
+        <div class="flex-row justify-between align-center card w-full" style={{ marginBottom: "4px", padding: "6px 10px", gap: "8px" }} title={`${t("units.item." + item.id)}\n${t("units.item.desc." + item.id) || ""}`}>
           <div class="flex-col" style={{ flexGrow: "1" }}>
             <div class="supply-item-header" style={{ fontWeight: "bold", fontSize: "0.85em", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-              <span>{item.name}</span>
-              <span style={{ color: "var(--color-primary)", fontSize: "0.8em", opacity: "0.8" }}>{state ? `${item.cost  } CR` : "Free"}</span>
+              <span>{t("units.item." + item.id)}</span>
+              <span style={{ color: "var(--color-primary)", fontSize: "0.8em", opacity: "0.8" }}>{state ? t(I18nKeys.common.cost_credits, { cost: item.cost }) : "Free"}</span>
             </div>
           </div>
           <div class="flex-row align-center gap-10">
@@ -723,7 +725,7 @@ export class EquipmentScreen {
               data-focus-id={`supply-plus-${item.id}`}
               style={{ padding: "2px 8px" }}
               disabled={count >= 2}
-              title={count >= 2 ? "Maximum 2 per mission reached" : ""}
+              title={count >= 2 ? t(I18nKeys.screen.equipment.max_reached_tooltip) : ""}
               onClick={() => {
                 const current = this.config.inventory?.[item.id] || 0;
                 if (current < 2) {
