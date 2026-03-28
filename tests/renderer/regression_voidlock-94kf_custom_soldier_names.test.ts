@@ -6,6 +6,8 @@ import { MissionSetupManager } from "@src/renderer/app/MissionSetupManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { ArchetypeLibrary } from "@src/shared/types/units";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("Regression voidlock-94kf: Custom Soldier Names", () => {
   let context: any;
@@ -119,7 +121,7 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
     // Should contain the name
     expect(text).toContain("Kyle Hicks");
     // Should contain the archetype name
-    expect(text).toContain("Assault");
+    expect(text).toContain(t(I18nKeys.units.archetype.assault));
 
     // Now check an archetype template (no custom name)
     const templateContainer = SoldierWidget.render(arch, {
@@ -127,15 +129,15 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
     });
 
     const templateText = templateContainer.textContent || "";
-    // It should contain "Assault" (from getName)
-    expect(templateText).toContain("Assault");
+    // It should contain archetype name (from getName)
+    expect(templateText).toContain(t(I18nKeys.units.archetype.assault));
 
-    // It should NOT contain "Assault" a second time in the subtitle area
+    // It should NOT contain it a second time in the subtitle area
     // In our implementation, we removed it from subTitle if it matches name.
-    // The previous implementation would have "Assault" in displayName AND in the subtitle.
+    // The previous implementation would have it in displayName AND in the subtitle.
 
-    // Let's count occurrences of "Assault"
-    const count = (templateText.match(/Assault/g) || []).length;
+    // Let's count occurrences of the archetype name
+    const count = (templateText.match(new RegExp(t(I18nKeys.units.archetype.assault), "g")) || []).length;
     expect(count).toBe(1);
   });
 });

@@ -28,10 +28,16 @@ vi.mock("@src/renderer/ConfigManager", () => ({
       unitStyle: "TacticalIcons",
       themeId: "default",
       locale: "en-corporate",
+      logLevel: "INFO",
+      debugSnapshotInterval: 100,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
     }),
     saveGlobal: vi.fn(),
     loadCampaign: vi.fn().mockReturnValue(null),
+    loadCustom: vi.fn().mockReturnValue(null),
     saveCampaign: vi.fn(),
+    saveCustom: vi.fn(),
     clearCampaign: vi.fn(),
     getDefault: vi.fn().mockReturnValue({
         fogOfWarEnabled: true,
@@ -45,7 +51,12 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
     getStats: vi.fn().mockReturnValue({
       totalKills: 100,
       totalCampaignsStarted: 5,
-      totalMissionsWon: 20,
+      campaignsWon: 3,
+      campaignsLost: 2,
+      totalCasualties: 2,
+      totalMissionsPlayed: 10,
+      totalMissionsWon: 3,
+      totalScrapEarned: 1000,
     }),
     addChangeListener: vi.fn(),
   };
@@ -68,6 +79,12 @@ describe("Reset Data Regression", () => {
         <div id="screen-settings" class="screen"></div>
         <div id="screen-campaign" class="screen"></div>
         <div id="screen-campaign-shell"></div>
+        <div id="screen-debrief" class="screen"></div>
+        <div id="screen-equipment" class="screen"></div>
+        <div id="screen-mission-setup" class="screen"></div>
+        <div id="screen-engineering" class="screen"></div>
+        <div id="screen-campaign-summary" class="screen"></div>
+        <div id="screen-statistics" class="screen"></div>
         <div id="screen-mission" class="screen">
             <div id="mission-body"></div>
             <canvas id="game-canvas"></canvas>
@@ -107,7 +124,7 @@ describe("Reset Data Regression", () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should clear localStorage and reload page when Reset Data is clicked and confirmed", async () => {
@@ -123,15 +140,15 @@ describe("Reset Data Regression", () => {
     expect(resetBtn).toBeTruthy();
 
     // 3. Click Reset Data and Confirm
-    const mockModalService = (app as any).services.modalService;
-    vi.spyOn(mockModalService, "confirm").mockResolvedValue(true);
+    const mockModalService = (app as any).registry.modalService;
+    vi.spyOn(mockModalService, "show").mockResolvedValue(true);
 
     resetBtn?.click();
 
     // Small delay for async modal
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.confirm).toHaveBeenCalled();
+    expect(mockModalService.show).toHaveBeenCalled();
     expect(Storage.prototype.clear).toHaveBeenCalled();
     expect(reloadMock).toHaveBeenCalled();
   });
@@ -148,15 +165,15 @@ describe("Reset Data Regression", () => {
     );
 
     // 3. Click Reset Data and Cancel
-    const mockModalService = (app as any).services.modalService;
-    vi.spyOn(mockModalService, "confirm").mockResolvedValue(false);
+    const mockModalService = (app as any).registry.modalService;
+    vi.spyOn(mockModalService, "show").mockResolvedValue(false);
 
     resetBtn?.click();
 
     // Small delay for async modal
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.confirm).toHaveBeenCalled();
+    expect(mockModalService.show).toHaveBeenCalled();
     expect(Storage.prototype.clear).not.toHaveBeenCalled();
     expect(reloadMock).not.toHaveBeenCalled();
   });

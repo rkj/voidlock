@@ -512,37 +512,42 @@ export class GameApp {
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;
-      try {
-        const data = JSON.parse(content);
-        const replayData = data.replayData || data;
-        const currentState = data.currentState;
-
-        if (!replayData?.commands) {
-          void this.modalService.alert(t(I18nKeys.error.replay_invalid));
-          return;
-        }
-
-        this.gameClient.loadReplay(replayData);
-        const report: MissionReport = currentState
-          ? this.buildReportFromState(currentState)
-          : this.buildReportFromReplay(replayData);
-
-        if (replayData.themeId) {
-          this.registry.themeManager.setTheme(replayData.themeId);
-        }
-
-        this.registry.navigationOrchestrator.switchScreenWithArgs({
-          id: "debrief",
-          isCampaign: false,
-          updateHash: true,
-          force: false,
-          showArgs: [report, replayData.unitStyle || this.registry.missionSetupManager.unitStyle],
-        });
-      } catch (_err) {
-        void this.modalService.alert(t(I18nKeys.error.replay_parse_failed));
-      }
+      this.handleReplayImport(content);
     };
     reader.readAsText(file);
+  }
+
+  /** @internal - For tests and internal use */
+  public handleReplayImport(content: string) {
+    try {
+      const data = JSON.parse(content);
+      const replayData = data.replayData || data;
+      const currentState = data.currentState;
+
+      if (!replayData?.commands) {
+        void this.modalService.alert(t(I18nKeys.error.replay_invalid));
+        return;
+      }
+
+      this.gameClient.loadReplay(replayData);
+      const report: MissionReport = currentState
+        ? this.buildReportFromState(currentState)
+        : this.buildReportFromReplay(replayData);
+
+      if (replayData.themeId) {
+        this.registry.themeManager.setTheme(replayData.themeId);
+      }
+
+      this.registry.navigationOrchestrator.switchScreenWithArgs({
+        id: "debrief",
+        isCampaign: false,
+        updateHash: true,
+        force: false,
+        showArgs: [report, replayData.unitStyle || this.registry.missionSetupManager.unitStyle],
+      });
+    } catch (_err) {
+      void this.modalService.alert(t(I18nKeys.error.replay_parse_failed));
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

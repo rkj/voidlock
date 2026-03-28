@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 import { ConfigManager } from "@src/renderer/ConfigManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { t } from "@src/renderer/i18n";
 import { I18nKeys } from "@src/renderer/i18n/keys";
 
@@ -9,14 +10,20 @@ import { I18nKeys } from "@src/renderer/i18n/keys";
 vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => ({
     initialize: vi.fn().mockResolvedValue(undefined),
+    init: vi.fn(),
     start: vi.fn(),
     onObservation: vi.fn(),
     sendCommand: vi.fn(),
     onMessage: vi.fn(),
-    freezeForDialog: vi.fn(),
-    unfreezeAfterDialog: vi.fn(),
+    onStateUpdate: vi.fn(),
     addStateUpdateListener: vi.fn(),
     removeStateUpdateListener: vi.fn(),
+    getReplayData: vi.fn().mockReturnValue({ commands: [] }),
+    loadReplay: vi.fn(),
+    stop: vi.fn(),
+    setTimeScale: vi.fn(),
+    freezeForDialog: vi.fn(),
+    unfreezeAfterDialog: vi.fn(),
     getIsPaused: vi.fn().mockReturnValue(false),
     getTargetScale: vi.fn().mockReturnValue(1.0),
   })),
@@ -28,15 +35,16 @@ const { mocks } = vi.hoisted(() => ({
       scrap: 500,
       intel: 10,
       currentSector: 1,
+      status: "Active",
       history: [],
       nodes: [
-        { id: "node-boss", type: "Boss", status: "Accessible", missionType: "Default", pos: { x: 0, y: 0 }, connections: [] }
+        { id: "node-boss", type: "Boss", status: "Accessible", missionType: "Default", pos: { x: 0, y: 0 }, position: { x: 100, y: 100 }, connections: [], mapSeed: 123, rank: 5 }
       ],
       currentNodeId: null,
       roster: [
         { id: "u1", name: "Alpha", archetypeId: "assault", hp: 100, maxHp: 100, kills: 0, xp: 0, status: "Healthy", equipment: {} }
       ],
-      rules: { economyMode: "Open", deathRule: "Reinforced" },
+      rules: { economyMode: "Open", deathRule: "Reinforced", mapGrowthRate: 1.0 },
       unlockedArchetypes: ["assault"],
       unlockedItems: [],
     }
@@ -49,14 +57,36 @@ vi.mock("@src/renderer/ConfigManager", () => ({
       unitStyle: "TacticalIcons",
       themeId: "default",
       locale: "en-corporate",
+      logLevel: "INFO",
+      debugSnapshotInterval: 100,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
     }),
     saveGlobal: vi.fn(),
     loadCampaign: vi.fn().mockReturnValue(mocks.mockCampaignState),
+    loadCustom: vi.fn().mockReturnValue({
+      squadConfig: {
+        soldiers: mocks.mockCampaignState.roster,
+        inventory: {},
+      }
+    }),
     saveCampaign: vi.fn(),
+    saveCustom: vi.fn(),
     clearCampaign: vi.fn(),
     getDefault: vi.fn().mockReturnValue({
         fogOfWarEnabled: true,
-        debugOverlayEnabled: false, squadConfig: { soldiers: [] } }),
+        debugOverlayEnabled: false, 
+        squadConfig: { soldiers: [] },
+        mapWidth: 20,
+        mapHeight: 20,
+        spawnPointCount: 1,
+        lastSeed: 1,
+        mapGeneratorType: "DenseShip",
+        missionType: "Default",
+        allowTacticalPause: true,
+        manualDeployment: false,
+        agentControlEnabled: false,
+    }),
   },
 }));
 
@@ -66,13 +96,42 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
     getStats: vi.fn().mockReturnValue({
       totalKills: 100,
       totalCampaignsStarted: 5,
-      totalMissionsWon: 20,
+      campaignsWon: 3,
+      campaignsLost: 2,
+      totalCasualties: 2,
+      totalMissionsPlayed: 10,
+      totalMissionsWon: 3,
+      totalScrapEarned: 1000,
     }),
     addChangeListener: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
   (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
   return { MetaManager: mockConstructor };
+});
+
+vi.mock("@src/renderer/campaign/CampaignManager", () => {
+  const mockInstance = {
+    getState: vi.fn().mockImplementation(() => mocks.mockCampaignState),
+    load: vi.fn().mockReturnValue(true),
+    save: vi.fn(),
+    resetInstance: vi.fn(),
+    advanceCampaign: vi.fn(),
+    advanceCampaignWithoutMission: vi.fn(),
+    processMissionResult: vi.fn(),
+    reconcileMission: vi.fn(),
+    deleteSave: vi.fn(),
+    addChangeListener: vi.fn(),
+    removeChangeListener: vi.fn(),
+    selectNode: vi.fn(),
+    getSyncStatus: vi.fn().mockReturnValue("local-only"),
+  };
+  return {
+    CampaignManager: {
+      getInstance: vi.fn().mockReturnValue(mockInstance),
+      resetInstance: vi.fn(),
+    }
+  };
 });
 
 describe("Campaign End Integration", () => {
@@ -84,18 +143,19 @@ describe("Campaign End Integration", () => {
         <div id="screen-main-menu" class="screen">
           <button id="btn-menu-campaign">Campaign</button>
         </div>
-        <div id="screen-campaign" class="screen">
-            <div id="campaign-shell-top-bar"></div>
-            <div id="campaign-shell-footer"></div>
-        </div>
-        <div id="screen-equipment" class="screen"></div>
+        <div id="screen-campaign" class="screen"></div>
+        <div id="screen-campaign-shell"></div>
         <div id="screen-debrief" class="screen">
             <canvas id="debrief-replay-canvas"></canvas>
         </div>
+        <div id="screen-equipment" class="screen"></div>
+        <div id="screen-mission-setup" class="screen"></div>
+        <div id="screen-statistics" class="screen"></div>
+        <div id="screen-engineering" class="screen"></div>
+        <div id="screen-settings" class="screen"></div>
         <div id="screen-campaign-summary" class="screen"></div>
-        <div id="screen-campaign-shell"></div>
+        <div id="mission-body"></div>
         <div id="screen-mission" class="screen">
-            <div id="mission-body"></div>
             <canvas id="game-canvas"></canvas>
         </div>
       </div>
@@ -131,10 +191,10 @@ describe("Campaign End Integration", () => {
 
     // 2. Select Boss node and launch
     const bossNode = mocks.mockCampaignState.nodes.find((n: any) => n.type === "Boss");
-    (app as any).onCampaignNodeSelect(bossNode);
+    app.registry.navigationOrchestrator.onCampaignNodeSelect(bossNode!);
     
     // Simulate mission launch
-    (app as any).onLaunchMission({ soldiers: mocks.mockCampaignState.roster });
+    app.registry.navigationOrchestrator.onLaunchMission({ soldiers: mocks.mockCampaignState.roster } as any);
 
     // 3. Win the mission
     const report: any = { 
@@ -145,10 +205,14 @@ describe("Campaign End Integration", () => {
         soldierResults: [],
         timeSpent: 120000
     };
-    (app as any).onMissionComplete(report);
+    
+    // Set status to Victory
+    mocks.mockCampaignState.status = "Victory";
+    
+    app.registry.missionRunner.onMissionComplete(report);
 
-    // 4. Continue from debrief
-    (app as any).onDebriefContinue();
+    // 4. Continue from debrief (calling the callback directly)
+    (app as any).debriefScreen.onContinue();
 
     // 5. Verify Campaign Summary Screen (Victory) is shown
     const summaryScreen = document.getElementById("screen-campaign-summary");

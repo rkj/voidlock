@@ -12,6 +12,7 @@ vi.mock("@src/engine/GameClient", () => ({
     onObservation: vi.fn(),
     sendCommand: vi.fn(),
     onMessage: vi.fn(),
+    addStateUpdateListener: vi.fn(),
     freezeForDialog: vi.fn(),
     unfreezeAfterDialog: vi.fn(),
   })),
@@ -26,8 +27,15 @@ vi.mock("@src/renderer/ConfigManager", () => ({
     }),
     saveGlobal: vi.fn(),
     loadCampaign: vi.fn().mockReturnValue(null),
+    loadCustom: vi.fn().mockReturnValue(null),
     saveCampaign: vi.fn(),
+    saveCustom: vi.fn(),
     clearCampaign: vi.fn(),
+    getDefault: vi.fn().mockReturnValue({
+      fogOfWarEnabled: true,
+      debugOverlayEnabled: false,
+      squadConfig: { soldiers: [] },
+    }),
   },
 }));
 
@@ -57,13 +65,22 @@ describe("StatisticsScreen Integration", () => {
   beforeEach(async () => {
     document.body.innerHTML = `
       <div id="app">
-        <div id="screen-main" class="screen">
+        <div id="screen-main-menu" class="screen">
           <button id="btn-menu-statistics">Stats</button>
         </div>
         <div id="screen-statistics" class="screen"></div>
         <div id="screen-campaign" class="screen"></div>
+        <div id="screen-campaign-shell"></div>
+        <div id="screen-debrief" class="screen"></div>
+        <div id="screen-equipment" class="screen"></div>
+        <div id="screen-mission-setup" class="screen"></div>
+        <div id="screen-engineering" class="screen"></div>
+        <div id="screen-settings" class="screen"></div>
+        <div id="screen-campaign-summary" class="screen"></div>
         <div id="mission-body"></div>
-        <div id="screen-mission"></div>
+        <div id="screen-mission" class="screen">
+            <canvas id="game-canvas"></canvas>
+        </div>
       </div>
       <div id="modal-container"></div>
     `;

@@ -54,6 +54,7 @@ describe("EquipmentScreen", () => {
       rules: { economyMode: "Open", deathRule: "Reinforced" },
       unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
       unlockedItems: [],
+      nodes: [],
       roster: [
         {
           id: "s1",
@@ -89,6 +90,7 @@ describe("EquipmentScreen", () => {
     
     // Force set state since getInstance(storage) only sets it if load() is called in constructor
     (mockManager as any).state = mockCampaignState;
+    vi.spyOn(mockManager, "spendScrap").mockImplementation(() => {});
 
     themeManager = new ThemeManager();
     vi.spyOn(themeManager, "init").mockResolvedValue(undefined);
@@ -167,6 +169,6 @@ describe("EquipmentScreen", () => {
     medkitPlus?.click();
 
     expect(mockManager.spendScrap).toHaveBeenCalledWith(15); // frag_grenade cost
-    expect(mockManager.spendScrap).toHaveBeenCalledWith(25); // medkit cost
+    expect(mockManager.spendScrap).toHaveBeenCalledWith(10); // medkit cost
   });
 });

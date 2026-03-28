@@ -10,18 +10,22 @@ import { I18nKeys } from "@src/renderer/i18n/keys";
 vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => ({
     initialize: vi.fn().mockResolvedValue(undefined),
+    init: vi.fn(),
     start: vi.fn(),
     onObservation: vi.fn(),
     sendCommand: vi.fn(),
     onMessage: vi.fn(),
-    freezeForDialog: vi.fn(),
-    unfreezeAfterDialog: vi.fn(),
+    onStateUpdate: vi.fn(),
     addStateUpdateListener: vi.fn(),
     removeStateUpdateListener: vi.fn(),
-    onStateUpdate: vi.fn(),
+    getReplayData: vi.fn().mockReturnValue({ commands: [] }),
+    loadReplay: vi.fn(),
+    stop: vi.fn(),
+    setTimeScale: vi.fn(),
+    freezeForDialog: vi.fn(),
+    unfreezeAfterDialog: vi.fn(),
     getIsPaused: vi.fn().mockReturnValue(false),
     getTargetScale: vi.fn().mockReturnValue(1.0),
-    init: vi.fn().mockResolvedValue(undefined),
   })),
 }));
 
@@ -31,15 +35,16 @@ const { mocks } = vi.hoisted(() => ({
       scrap: 500,
       intel: 10,
       currentSector: 1,
+      status: "Active",
       history: [],
       nodes: [
-        { id: "n1", type: "Combat", status: "Accessible", missionType: "Default", pos: { x: 0, y: 0 }, connections: [] }
+        { id: "n1", type: "Combat", status: "Accessible", missionType: "Default", pos: { x: 0, y: 0 }, position: { x: 100, y: 100 }, connections: [], mapSeed: 123, rank: 1 }
       ],
       currentNodeId: "n1",
       roster: [
         { id: "u1", name: "Alpha", archetypeId: "assault", hp: 100, maxHp: 100, kills: 0, xp: 0, status: "Healthy", equipment: {} }
       ],
-      rules: { economyMode: "Open", deathRule: "Reinforced" },
+      rules: { economyMode: "Open", deathRule: "Reinforced", mapGrowthRate: 1.0 },
       unlockedArchetypes: ["assault"],
       unlockedItems: [],
     },
@@ -75,11 +80,14 @@ vi.mock("@src/renderer/ConfigManager", () => ({
       debugSnapshotInterval: 500,
       debugOverlay: false,
       locale: "en-corporate",
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
     }),
     saveGlobal: vi.fn(),
-    loadCampaign: vi.fn().mockReturnValue(mocks.mockGameConfig),
-    loadCustom: vi.fn().mockReturnValue(null),
+    loadCampaign: vi.fn().mockReturnValue(mocks.mockCampaignState),
+    loadCustom: vi.fn().mockReturnValue(mocks.mockGameConfig),
     saveCampaign: vi.fn(),
+    saveCustom: vi.fn(),
     clearCampaign: vi.fn(),
     getDefault: vi.fn().mockReturnValue(mocks.mockGameConfig),
   },
@@ -91,7 +99,12 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
     getStats: vi.fn().mockReturnValue({
       totalKills: 100,
       totalCampaignsStarted: 5,
-      totalMissionsWon: 20,
+      campaignsWon: 3,
+      campaignsLost: 2,
+      totalCasualties: 2,
+      totalMissionsPlayed: 10,
+      totalMissionsWon: 3,
+      totalScrapEarned: 1000,
     }),
     addChangeListener: vi.fn(),
   };
@@ -100,12 +113,35 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
   return { MetaManager: mockConstructor };
 });
 
+vi.mock("@src/renderer/campaign/CampaignManager", () => {
+  const mockInstance = {
+    getState: vi.fn().mockImplementation(() => mocks.mockCampaignState),
+    load: vi.fn().mockReturnValue(true),
+    save: vi.fn(),
+    resetInstance: vi.fn(),
+    advanceCampaign: vi.fn(),
+    advanceCampaignWithoutMission: vi.fn(),
+    processMissionResult: vi.fn(),
+    reconcileMission: vi.fn(),
+    deleteSave: vi.fn(),
+    addChangeListener: vi.fn(),
+    removeChangeListener: vi.fn(),
+    selectNode: vi.fn(),
+    assignEquipment: vi.fn(),
+    getSyncStatus: vi.fn().mockReturnValue("local-only"),
+  };
+  return {
+    CampaignManager: {
+      getInstance: vi.fn().mockReturnValue(mockInstance),
+      resetInstance: vi.fn(),
+    }
+  };
+});
+
 describe("Screen Flow Integration", () => {
   let app: GameApp;
 
   beforeEach(async () => {
-    CampaignManager.resetInstance();
-    
     document.body.innerHTML = `
       <div id="app">
         <div id="screen-main-menu" class="screen">
@@ -115,60 +151,8 @@ describe("Screen Flow Integration", () => {
           <button id="btn-menu-settings">Settings</button>
           <button id="btn-menu-engineering">Eng</button>
         </div>
-        <div id="screen-campaign" class="screen">
-            <div id="campaign-shell-top-bar"></div>
-            <div id="campaign-shell-footer"></div>
-        </div>
-        <div id="screen-mission-setup" class="screen">
-            <h1 id="mission-setup-title"></h1>
-            <label for="map-generator-type"></label>
-            <select id="map-generator-type">
-                <option value="DenseShip"></option>
-                <option value="TreeShip"></option>
-                <option value="Procedural"></option>
-                <option value="Static"></option>
-            </select>
-            <label for="mission-type"></label>
-            <select id="mission-type">
-                <option value="Default"></option>
-                <option value="RecoverIntel"></option>
-                <option value="ExtractArtifacts"></option>
-                <option value="DestroyHive"></option>
-                <option value="EscortVIP"></option>
-            </select>
-            <div class="control-group">
-                <label></label>
-                <label><input type="checkbox" id="toggle-fog-of-war"></label>
-                <label><input type="checkbox" id="toggle-debug-overlay"></label>
-                <label><input type="checkbox" id="toggle-los-overlay"></label>
-                <label><input type="checkbox" id="toggle-agent-control"></label>
-                <label><input type="checkbox" id="toggle-manual-deployment"></label>
-                <label><input type="checkbox" id="toggle-allow-tactical-pause"></label>
-            </div>
-            <input type="number" id="map-width">
-            <input type="number" id="map-height">
-            <input type="number" id="map-spawn-points">
-            <span id="map-spawn-points-value"></span>
-            <input type="range" id="map-starting-threat">
-            <span id="map-starting-threat-value"></span>
-            <input type="range" id="map-base-enemies">
-            <span id="map-base-enemies-value"></span>
-            <input type="range" id="map-enemy-growth">
-            <span id="map-enemy-growth-value"></span>
-            
-            <div id="static-map-controls">
-                <textarea id="static-map-json"></textarea>
-                <button id="load-static-map"></button>
-                <input type="file" id="upload-static-map">
-            </div>
-            <textarea id="ascii-map-input"></textarea>
-            <button id="convert-ascii-to-map"></button>
-            <input type="file" id="import-replay">
-
-            <button id="btn-goto-equipment"></button>
-            <button id="btn-start-mission"></button>
-            <button id="btn-setup-back"></button>
-        </div>
+        <div id="screen-campaign" class="screen"></div>
+        <div id="screen-mission-setup" class="screen"></div>
         <div id="screen-equipment" class="screen"></div>
         <div id="screen-debrief" class="screen">
             <canvas id="debrief-replay-canvas"></canvas>
@@ -206,6 +190,7 @@ describe("Screen Flow Integration", () => {
       setLineDash: vi.fn(),
     });
 
+    CampaignManager.resetInstance();
     app = new GameApp();
     await app.initialize();
   });
@@ -217,17 +202,14 @@ describe("Screen Flow Integration", () => {
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
 
     // 2. Campaign -> Equipment
-    // In this integration test, we simulate clicking a node which should trigger equipment screen
-    (app as any).registry.navigationOrchestrator.onCampaignNodeSelect({ id: "n1", type: "Combat" });
+    app.registry.navigationOrchestrator.onCampaignNodeSelect({ id: "n1", type: "Combat", status: "Accessible", missionType: "Default", pos: { x: 0, y: 0 }, position: { x: 100, y: 100 }, connections: [], mapSeed: 123, rank: 1 });
     expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
 
     // 3. Equipment -> Mission
-    // Simulate mission launch
-    (app as any).registry.navigationOrchestrator.onLaunchMission({ soldiers: mocks.mockCampaignState.roster });
+    app.registry.navigationOrchestrator.onLaunchMission({ soldiers: mocks.mockCampaignState.roster, inventory: {} });
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
 
     // 4. Mission -> Win -> Debrief
-    // Simulate mission win
     const report: any = { 
         nodeId: "n1",
         result: "Won", 
@@ -236,11 +218,11 @@ describe("Screen Flow Integration", () => {
         soldierResults: [],
         timeSpent: 120000
     };
-    (app as any).onMissionComplete(report);
+    app.registry.missionRunner.onMissionComplete(report);
     expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
 
     // 5. Debrief -> Campaign
-    (app as any).onDebriefContinue();
+    (app as any).debriefScreen.onContinue();
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
   });
 
@@ -249,14 +231,8 @@ describe("Screen Flow Integration", () => {
     const campaignBtn = document.getElementById("btn-menu-campaign");
     campaignBtn?.click();
 
-    // Check tabs are visible
-    // expect(document.querySelector(".tab-button")).not.toBeNull();
-
     // 2. Campaign -> Equipment
-    (app as any).registry.navigationOrchestrator.onCampaignNodeSelect({ id: "n1", type: "Combat" });
+    app.registry.navigationOrchestrator.onCampaignNodeSelect({ id: "n1", type: "Combat", status: "Accessible", missionType: "Default", pos: { x: 0, y: 0 }, position: { x: 100, y: 100 }, connections: [], mapSeed: 123, rank: 1 });
     expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
-
-    // Check tabs are STILL visible
-    // expect(document.querySelector(".tab-button")).not.toBeNull();
   });
 });

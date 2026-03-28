@@ -3,6 +3,8 @@ import { InputDispatcher } from "@src/renderer/InputDispatcher";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { SquadConfig } from "@src/shared/types";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("EquipmentScreen Stats and Tooltips", () => {
   let mockInputDispatcher: any;
@@ -135,11 +137,11 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     ) as HTMLElement;
 
     expect(pulseRifle).toBeDefined();
-    expect(pulseRifle.title).toContain("Pulse Rifle");
-    expect(pulseRifle.title).toContain("Versatile assault rifle");
-    expect(pulseRifle.title).toContain("Damage: 20");
-    expect(pulseRifle.title).toContain("Range: 10");
-    expect(pulseRifle.title).toContain("Terminal Feed Delay: 1.7/s");
+    expect(pulseRifle.title).toContain(t(I18nKeys.units.item.pulse_rifle));
+    expect(pulseRifle.title).toContain(t(I18nKeys.units.item.desc.pulse_rifle));
+    expect(pulseRifle.title).toContain(`${t(I18nKeys.hud.stat.damage)}: 20`);
+    expect(pulseRifle.title).toContain(`${t(I18nKeys.hud.stat.range)}: 10`);
+    expect(pulseRifle.title).toContain(`${t(I18nKeys.hud.stat.rate)}: 1.7/s`);
   });
 
   it("should have tooltips for global supply items", () => {
@@ -164,7 +166,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
 
     expect(supplyRows.length).toBeGreaterThan(0);
     const medkitRow = supplyRows[0];
-    expect(medkitRow.title).toContain("Medkit");
-    expect(medkitRow.title).toContain("Portable medical supplies");
+    expect(medkitRow.title).toContain(t(I18nKeys.units.item.medkit));
+    expect(medkitRow.title).toContain(t(I18nKeys.units.item.desc.medkit));
   });
 });

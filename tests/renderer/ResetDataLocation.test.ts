@@ -21,6 +21,50 @@ vi.mock("@src/engine/GameClient", () => ({
   })),
 }));
 
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    loadGlobal: vi.fn().mockReturnValue({
+      unitStyle: "TacticalIcons",
+      themeId: "default",
+      locale: "en-corporate",
+      logLevel: "INFO",
+      debugSnapshotInterval: 100,
+      debugOverlayEnabled: false,
+      fogOfWarEnabled: true,
+    }),
+    saveGlobal: vi.fn(),
+    loadCampaign: vi.fn().mockReturnValue(null),
+    loadCustom: vi.fn().mockReturnValue(null),
+    saveCampaign: vi.fn(),
+    saveCustom: vi.fn(),
+    clearCampaign: vi.fn(),
+    getDefault: vi.fn().mockReturnValue({
+      fogOfWarEnabled: true,
+      debugOverlayEnabled: false,
+      squadConfig: { soldiers: [] },
+    }),
+  },
+}));
+
+vi.mock("@src/engine/campaign/MetaManager", () => {
+  const mockInstance = {
+    getStats: vi.fn().mockReturnValue({
+      totalKills: 0,
+      totalCampaignsStarted: 0,
+      campaignsWon: 0,
+      campaignsLost: 0,
+      totalCasualties: 0,
+      totalMissionsPlayed: 0,
+      totalMissionsWon: 0,
+      totalScrapEarned: 0,
+    }),
+    addChangeListener: vi.fn(),
+  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  return { MetaManager: mockConstructor };
+});
+
 describe("Reset Data Location", () => {
   let app: GameApp;
   let reloadMock: any;
@@ -80,7 +124,7 @@ describe("Reset Data Location", () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should NOT have Reset Data button in the Main Menu", () => {
@@ -105,15 +149,15 @@ describe("Reset Data Location", () => {
     expect(resetBtn).toBeTruthy();
 
     // 3. Click Reset Data
-    const mockModalService = (app as any).services.modalService;
-    vi.spyOn(mockModalService, "confirm").mockResolvedValue(true);
+    const mockModalService = (app as any).registry.modalService;
+    vi.spyOn(mockModalService, "show").mockResolvedValue(true);
 
     resetBtn?.click();
 
     // Small delay for async modal
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.confirm).toHaveBeenCalled();
+    expect(mockModalService.show).toHaveBeenCalled();
     expect(Storage.prototype.clear).toHaveBeenCalled();
     expect(reloadMock).toHaveBeenCalled();
   });
@@ -130,15 +174,15 @@ describe("Reset Data Location", () => {
     );
 
     // 3. Click Reset Data and Cancel
-    const mockModalService = (app as any).services.modalService;
-    vi.spyOn(mockModalService, "confirm").mockResolvedValue(false);
+    const mockModalService = (app as any).registry.modalService;
+    vi.spyOn(mockModalService, "show").mockResolvedValue(false);
 
     resetBtn?.click();
 
     // Small delay for async modal
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.confirm).toHaveBeenCalled();
+    expect(mockModalService.show).toHaveBeenCalled();
     expect(Storage.prototype.clear).not.toHaveBeenCalled();
     expect(reloadMock).not.toHaveBeenCalled();
   });

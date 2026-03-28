@@ -266,7 +266,10 @@ export class MissionSetupManager {
     this.currentSeed = (isCampaign && this.currentCampaignNode)
       ? this.currentCampaignNode.mapSeed
       : config.lastSeed;
-    this.currentSquad = config.squadConfig;
+    
+    if (config.squadConfig) {
+      this.currentSquad = config.squadConfig;
+    }
   }
 
   private applyDefaultValues(global: { debugSnapshotInterval: number }, isCampaign: boolean) {
