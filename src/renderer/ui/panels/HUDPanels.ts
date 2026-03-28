@@ -8,6 +8,8 @@ import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { MapUtils } from "@src/shared/utils/MapUtils";
 import type { UIBinder } from "@src/renderer/ui/UIBinder";
+import { t } from "../../i18n";
+import { I18nKeys } from "../../i18n/keys";
 
 /**
  * Deployed from HUDManager as part of ADR 0052.
@@ -38,13 +40,13 @@ export class DeploymentPanel {
       deploymentDiv.className = "deployment-summary";
 
       const title = document.createElement("h2");
-      title.textContent = "Asset Deployment Phase";
+      title.textContent = t(I18nKeys.hud.deployment_phase);
       title.className = "deployment-title";
       deploymentDiv.appendChild(title);
 
       const desc = document.createElement("p");
       // Standard Title Case: prepositions and articles are lowercase unless first/last
-      desc.textContent = "Tactically Place Your Assets on Highlighted Tiles. Drag Units to Move Them.";
+      desc.textContent = t(I18nKeys.hud.deployment_desc);
       desc.className = "deployment-desc";
       deploymentDiv.appendChild(desc);
 
@@ -55,7 +57,7 @@ export class DeploymentPanel {
       const autoFillBtn = document.createElement("button");
       autoFillBtn.id = "btn-autofill-deployment";
       autoFillBtn.dataset.focusId = "btn-autofill-deployment";
-      autoFillBtn.textContent = "Auto-Fill Spawns";
+      autoFillBtn.textContent = t(I18nKeys.hud.auto_fill);
       autoFillBtn.className = "menu-button";
       autoFillBtn.style.width = "100%";
       autoFillBtn.style.marginBottom = "10px";
@@ -74,7 +76,7 @@ export class DeploymentPanel {
       const startBtn = document.createElement("button");
       startBtn.id = "btn-start-mission";
       startBtn.dataset.focusId = "btn-start-mission";
-      startBtn.textContent = "Start Mission";
+      startBtn.textContent = t(I18nKeys.hud.start_mission);
       startBtn.className = "primary-button";
       startBtn.style.width = "100%";
       startBtn.style.marginBottom = "20px";
@@ -93,11 +95,11 @@ export class DeploymentPanel {
       controlsDiv = document.createElement("div");
       controlsDiv.className = "mission-controls mobile-only";
       controlsDiv.innerHTML = `
-        <h3 class="game-over-panel-title">Operation Controls</h3>
+        <h3 class="game-over-panel-title">${t(I18nKeys.hud.operation_controls)}</h3>
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
-          <label style="margin-top:0;">Terminal Speed: <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
+          <label style="margin-top:0;">${t(I18nKeys.hud.terminal_speed)} <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
           <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.targetTimeScale" data-bind-transform="speedSlider" data-bind-min="settings.allowTacticalPause|minSpeedValue">
-          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Operation</button>
+          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">${t(I18nKeys.hud.abort_operation)}</button>
         </div>
       `;
       const abortBtn = controlsDiv.querySelector(".mobile-abort-button") as HTMLButtonElement;
@@ -151,7 +153,7 @@ export class DeploymentPanel {
 
         const statusSpan = item.querySelector(".roster-item-details span:last-child") as HTMLElement;
         if (statusSpan) {
-          statusSpan.textContent = isPlaced ? "Deployed" : "Pending";
+          statusSpan.textContent = isPlaced ? t(I18nKeys.hud.deployed) : t(I18nKeys.hud.pending);
           statusSpan.style.color = isPlaced ? "var(--color-success)" : "var(--color-warning)";
         }
       });
@@ -203,11 +205,11 @@ export class CommandMenuPanel {
       controlsDiv = document.createElement("div");
       controlsDiv.className = "mission-controls mobile-only";
       controlsDiv.innerHTML = `
-        <h3 class="game-over-panel-title">Mission Controls</h3>
+        <h3 class="game-over-panel-title">${t(I18nKeys.hud.mission_controls)}</h3>
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
-          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
+          <label style="margin-top:0;">${t(I18nKeys.hud.game_speed)} <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
           <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.targetTimeScale" data-bind-transform="speedSlider" data-bind-min="settings.allowTacticalPause|minSpeedValue">
-          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Operation</button>
+          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">${t(I18nKeys.hud.abort_operation)}</button>
         </div>
       `;
       const abortBtn = controlsDiv.querySelector(".mobile-abort-button") as HTMLButtonElement;
@@ -257,7 +259,7 @@ export class ObjectivesPanel {
     if (!objectivesDiv) {
       objectivesDiv = document.createElement("div");
       objectivesDiv.className = "objectives-status";
-      objectivesDiv.innerHTML = "<h3>Recovery Targets</h3><div class='obj-list'></div>";
+      objectivesDiv.innerHTML = `<h3>${t(I18nKeys.hud.objectives_title)}</h3><div class='obj-list'></div>`;
       container.appendChild(objectivesDiv);
     }
     const list = objectivesDiv.querySelector(".obj-list") as HTMLElement;
@@ -286,7 +288,7 @@ export class ObjectivesPanel {
         id: obj.id || `obj-${idx}`,
         icon: isCompleted ? "✔" : isFailed ? "✘" : "○",
         color: isCompleted ? "var(--color-success)" : isFailed ? "var(--color-danger)" : "var(--color-text-muted)",
-        text: `${obj.kind}${obj.targetCell && showCoords ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}`,
+        text: `${obj.kind ? t("mission.type." + obj.kind.toLowerCase()) : ""}${obj.targetCell && showCoords ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}`,
         state: obj.state,
       });
     });
@@ -301,7 +303,7 @@ export class ObjectivesPanel {
         id: "extraction",
         icon: extractedCount > 0 ? "✔" : "○",
         color: extractedCount > 0 ? "var(--color-success)" : "var(--color-text-muted)",
-        text: `Retrieval (${extractedCount}/${totalUnits})${locStr}`,
+        text: `${t(I18nKeys.hud.extraction_label)} (${extractedCount}/${totalUnits})${locStr}`,
         state: isCompleted ? "Completed" : "Pending",
       });
     }
@@ -336,13 +338,13 @@ export class EnemyIntelPanel {
     this.lastHash = hash;
 
     if (visibleEnemies.length === 0) {
-      intelDiv.innerHTML = "<h3>Hostile Contact Intel</h3><p class='intel-empty'>No Hostiles Detected.</p>";
+      intelDiv.innerHTML = `<h3>${t(I18nKeys.hud.intel_title)}</h3><p class='intel-empty'>${t(I18nKeys.hud.no_hostiles)}</p>`;
       return;
     }
     const groups: { [type: string]: number } = {};
     visibleEnemies.forEach((e) => { groups[e.type] = (groups[e.type] || 0) + 1; });
     const types = Object.keys(groups).sort();
-      intelDiv.innerHTML = `<h3>Hostile Contact Intel</h3>${  types.map(type => {
+      intelDiv.innerHTML = `<h3>${t(I18nKeys.hud.intel_title)}</h3>${  types.map(type => {
         const e = visibleEnemies.find(en => en.type === type);
         if (!e) return "";
         const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
@@ -350,11 +352,11 @@ export class EnemyIntelPanel {
           <div class="intel-box" data-type="${type}">
             <div class="intel-header"><strong class="intel-title">${type} x${groups[type]}</strong></div>
             <div class="intel-stats">
-              ${StatDisplay.render(Icons.Speed, e.speed, "Operational Speed")}
-              ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
-              ${StatDisplay.render(Icons.Damage, e.damage, "Damage")}
-              ${StatDisplay.render(Icons.Rate, fireRateVal, "Terminal Feed Delay (Shots/sec)")}
-              ${StatDisplay.render(Icons.Range, e.attackRange, "Range")}
+              ${StatDisplay.render(Icons.Speed, e.speed, t(I18nKeys.hud.stat.speed))}
+              ${StatDisplay.render(Icons.Accuracy, e.accuracy, t(I18nKeys.hud.stat.accuracy))}
+              ${StatDisplay.render(Icons.Damage, e.damage, t(I18nKeys.hud.stat.damage))}
+              ${StatDisplay.render(Icons.Rate, fireRateVal, t(I18nKeys.hud.stat.rate))}
+              ${StatDisplay.render(Icons.Range, e.attackRange, t(I18nKeys.hud.stat.range))}
             </div>
           </div>
         `;
@@ -418,14 +420,14 @@ export class GameOverPanel {
     const summaryDiv = document.createElement("div");
     summaryDiv.className = `game-over-summary${  state.status === "Won" ? "" : " lost"}`;
     summaryDiv.innerHTML = `
-      <h2 class="game-over-title">${state.status === "Won" ? "OPERATION CLOSED — Targets Secured" : "OPERATION CLOSED — Total Asset Loss"}</h2>
-      <div class="game-over-objectives"><h3 class="game-over-panel-title">Recovery Targets</h3>${this.callbacks.objectivesPanel.renderObjectivesList(state)}</div>
+      <h2 class="game-over-title">${state.status === "Won" ? t(I18nKeys.screen.debrief.header_success) : t(I18nKeys.screen.debrief.header_failed)}</h2>
+      <div class="game-over-objectives"><h3 class="game-over-panel-title">${t(I18nKeys.hud.objectives_title)}</h3>${this.callbacks.objectivesPanel.renderObjectivesList(state)}</div>
       <div class="game-over-stats">
-        <p><strong>Operational Time:</strong> ${(state.t / 1000).toFixed(1)}s</p>
-        <p><strong>Hostiles Neutralized:</strong> ${state.stats.aliensKilled}</p>
-        <p><strong>Asset Write-offs:</strong> ${state.stats.casualties}</p>
+        <p><strong>${t(I18nKeys.hud.operational_time)}</strong> ${(state.t / 1000).toFixed(1)}s</p>
+        <p><strong>${t(I18nKeys.hud.hostiles_neutralized)}</strong> ${state.stats.aliensKilled}</p>
+        <p><strong>${t(I18nKeys.hud.casualties)}</strong> ${state.stats.casualties}</p>
       </div>
-      <button class="game-over-btn">Back to Menu</button>
+      <button class="game-over-btn">${t(I18nKeys.hud.back_to_menu)}</button>
     `;
     summaryDiv.querySelector(".game-over-btn")?.addEventListener("click", () => this.callbacks.onAbortMission());
     container.appendChild(summaryDiv);

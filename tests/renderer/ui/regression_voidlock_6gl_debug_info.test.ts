@@ -1,34 +1,21 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
-import { GameState, MissionType } from "@src/shared/types";
+import { MissionType } from "@src/shared/types";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
   let hud: HUDManager;
-  let mockMenuController: any;
-  let mockState: GameState;
+  let mockState: any;
 
   beforeEach(() => {
-    document.body.innerHTML = `
-      <div id="game-status"></div>
-      <div id="version-display"></div>
-      <div id="menu-version"></div>
-      <div id="top-threat-fill"></div>
-      <div id="top-threat-value"></div>
-      <div id="right-panel"></div>
-      <div id="soldier-list"></div>
-    `;
-
-    mockMenuController = {
-      getRenderableState: vi.fn(() => ({
-        title: "ACTIONS",
-        options: [],
-      })),
-    };
+    document.body.innerHTML =
+      '<div id="screen-mission"><div id="mission-body"></div></div>';
 
     hud = new HUDManager({
-      menuController: mockMenuController,
-      tutorialManager: { getCurrentStepId: () => null } as any,
+      menuController: { getRenderableState: () => ({ title: "Debug", options: [] }) } as any,
+      tutorialManager: null,
       onUnitClick: vi.fn(),
       onAbortMission: vi.fn(),
       onMenuInput: vi.fn(),
@@ -36,7 +23,7 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
       onForceWin: vi.fn(),
       onForceLose: vi.fn(),
       onStartMission: vi.fn(),
-      onDeployUnit: vi.fn()
+      onDeployUnit: vi.fn(),
     });
 
     mockState = {
@@ -45,7 +32,6 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
       missionType: MissionType.EscortVIP,
       status: "Playing",
       settings: {
-        mode: "Simulation" as any,
         debugOverlayEnabled: true,
         debugSnapshots: false,
         losOverlayEnabled: false,
@@ -62,7 +48,7 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
         casualties: 0,
         scrapGained: 0,
       },
-      map: { width: 32, height: 24, cells: [] },
+      map: { width: 32, height: 24, cells: [], generatorName: "Unknown" },
       units: [],
       enemies: [],
       visibleCells: [],
@@ -81,8 +67,11 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
     expect(debugDiv).not.toBeNull();
 
     const text = debugDiv?.textContent || "";
-    expect(text).toContain("Map: UnknownGenerator (98765)");
-    expect(text).toContain("Size: 32x24");
-    expect(text).toContain("Mission: EscortVIP");
+    // Note: t() returns different strings based on locale, but since we are in test environment 
+    // it usually defaults to en-corporate or en-standard.
+    // We use t() in expectations to match whatever the current locale is.
+    expect(text).toContain(`${t(I18nKeys.hud.debug.map)} UnknownGenerator (98765)`);
+    expect(text).toContain(`${t(I18nKeys.hud.debug.size)} 32x24`);
+    expect(text).toContain(`${t(I18nKeys.hud.debug.mission)} EscortVIP`);
   });
 });

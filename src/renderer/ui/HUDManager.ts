@@ -4,6 +4,8 @@ import { TimeUtility } from "@src/renderer/TimeUtility";
 import { UIBinder } from "@src/renderer/ui/UIBinder";
 import { HUDTopBar, HUDSoldierPanel, HUDRightPanel, HUDMobileActionPanel, HUDTutorialDirective } from "@src/renderer/ui/HUD";
 import { FocusManager } from "@src/renderer/utils/FocusManager";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 import {
   DeploymentPanel,
@@ -123,6 +125,22 @@ export class HUDManager {
     missionBody.appendChild(HUDRightPanel() as Node);
     missionScreen.appendChild(HUDMobileActionPanel() as Node);
 
+    // Attach event listeners
+    document.getElementById("btn-toggle-squad")?.addEventListener("click", () => {
+      const panel = document.getElementById("soldier-panel");
+      if (panel) panel.classList.toggle("active");
+    });
+    document.getElementById("btn-toggle-right")?.addEventListener("click", () => {
+      const panel = document.getElementById("right-panel");
+      if (panel) panel.classList.toggle("active");
+    });
+    document.getElementById("btn-pause-toggle")?.addEventListener("click", () => {
+      if (this.currentState) this.menuController.handleMenuInput("p", this.currentState);
+    });
+    document.getElementById("btn-give-up")?.addEventListener("click", () => {
+      this.onAbortMission();
+    });
+
     // Initial scan
     this.binder.initialize(document.body);
   }
@@ -180,7 +198,7 @@ export class HUDManager {
       return isPrologue && !hasContact ? "tutorial-dimmed" : "";
     });
 
-    this.binder.registerTransformer("pauseText", (isPaused) => (isPaused as boolean) ? "▶ Play" : "|| Pause");
+    this.binder.registerTransformer("pauseText", (isPaused) => (isPaused as boolean) ? t(I18nKeys.hud.resume) : t(I18nKeys.hud.pause));
 
     const tutorial = this.tutorialManager;
     this.binder.registerTransformer("tutorialStepId", () => {
@@ -305,17 +323,17 @@ export class HUDManager {
       if (debugDiv.dataset.renderedKey !== debugKey) {
         debugDiv.dataset.renderedKey = debugKey;
         debugDiv.innerHTML = `
-          <h3>Debug Tools</h3>
+          <h3>${t(I18nKeys.hud.debug.title)}</h3>
           <div class="debug-info-grid">
-            <span><strong>Map:</strong> ${genDisplay} (${state.seed})</span>
-            <span><strong>Size:</strong> ${state.map ? `${state.map.width}x${state.map.height}` : "Unknown"}</span>
-            <span><strong>Mission:</strong> ${state.missionType}</span>
+            <span><strong>${t(I18nKeys.hud.debug.map)}</strong> ${genDisplay} (${state.seed})</span>
+            <span><strong>${t(I18nKeys.hud.debug.size)}</strong> ${state.map ? `${state.map.width}x${state.map.height}` : "Unknown"}</span>
+            <span><strong>${t(I18nKeys.hud.debug.mission)}</strong> ${state.missionType}</span>
           </div>
           <div class="debug-actions-row">
-            <button id="btn-force-win" class="debug-btn-win">Force Win</button>
-            <button id="btn-force-lose" class="debug-btn-lose">Force Lose</button>
+            <button id="btn-force-win" class="debug-btn-win">${t(I18nKeys.hud.debug.force_win)}</button>
+            <button id="btn-force-lose" class="debug-btn-lose">${t(I18nKeys.hud.debug.force_lose)}</button>
           </div>
-          <button id="btn-copy-world-state" class="debug-btn-copy">Copy World State</button>
+          <button id="btn-copy-world-state" class="debug-btn-copy">${t(I18nKeys.hud.debug.copy_state)}</button>
         `;
         document.getElementById("btn-copy-world-state")?.addEventListener("click", () => this.onCopyWorldState());
         document.getElementById("btn-force-win")?.addEventListener("click", () => this.onForceWin());

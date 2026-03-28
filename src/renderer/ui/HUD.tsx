@@ -1,4 +1,6 @@
 import { createElement } from "@src/renderer/jsx";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export function HUDTutorialDirective() {
   return (
@@ -11,14 +13,14 @@ export function HUDTutorialDirective() {
 export function HUDTopBar() {
   return (
     <div id="top-bar" class="top-bar">
-      <button id="btn-toggle-squad" class="drawer-toggle">Roster</button>
+      <button id="btn-toggle-squad" class="drawer-toggle">{t(I18nKeys.hud.roster)}</button>
       <div id="game-status">
-        Time: <span class="time-value" data-bind-text="t" data-bind-transform="toSeconds">0.0</span>s
+        {t(I18nKeys.hud.time)} <span class="time-value" data-bind-text="t" data-bind-transform="toSeconds">0.0</span>s
       </div>
       
       <div
         id="top-threat-container"
-        data-bind-visibility="stats"
+        data-bind-display="status"
         data-bind-transform="threatVisibility"
         data-bind-class="missionType|threatDimmed"
         style={{
@@ -39,7 +41,7 @@ export function HUDTopBar() {
             letterSpacing: "1px"
           }}
         >
-          Swarm Activity Index
+          {t(I18nKeys.hud.threat_index)}
         </span>
         <div id="top-threat-bar" class="threat-bar">
           {/* Robust Flex-based Dividers every 10% */}
@@ -85,12 +87,12 @@ export function HUDTopBar() {
         </span>
       </div>
 
-      <button id="btn-toggle-right" class="drawer-toggle">Targets</button>
+      <button id="btn-toggle-right" class="drawer-toggle">{t(I18nKeys.hud.targets)}</button>
 
       {/* Speed Control */}
       <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility" data-bind-class="missionType|speedDimmed">
         <button id="btn-pause-toggle" data-bind-text="settings.isPaused" data-bind-transform="pauseText">|| Pause</button>
-        <label for="game-speed">Speed</label>
+        <label for="game-speed">{t(I18nKeys.hud.speed)}</label>
         <input
           type="range"
           id="game-speed"
@@ -116,7 +118,7 @@ export function HUDTopBar() {
           marginLeft: "10px"
         }}
       >
-        Abort Operation
+        {t(I18nKeys.hud.abort_operation)}
       </button>
     </div>
   );
