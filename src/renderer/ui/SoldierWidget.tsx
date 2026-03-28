@@ -20,6 +20,8 @@ import { Icons } from "@src/renderer/Icons";
 import { StatDisplayComponent } from "@src/renderer/ui/StatDisplay";
 import { UnitUtils } from "@src/shared/utils/UnitUtils";
 import { SPEED_NORMALIZATION_CONST } from "@src/shared/constants";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export type SoldierWidgetData =
   | CampaignSoldier
@@ -79,16 +81,17 @@ function getTacticalNumber(data: SoldierWidgetData): number | undefined {
 }
 
 function getStatus(data: SoldierWidgetData): string {
-  const status = "status" in data && data.status
-    ? data.status
+  const status: string = "status" in data && data.status
+    ? String(data.status)
     : "state" in data && data.state
-      ? data.state
+      ? String(data.state)
       : "Healthy";
   
-  if (status === "Healthy") return "Functional";
-  if (status === "Wounded") return "Damaged";
-  if (status === "Dead") return "Integrity Failure";
-  if (status === "Extracted") return "Retrieved";
+  if (status === "Healthy" || status === UnitState.Idle) return t(I18nKeys.units.status.functional);
+  if (status === "Wounded") return t(I18nKeys.units.status.damaged);
+  if (status === "Dead" || status === UnitState.Dead) return t(I18nKeys.units.status.integrity_failure);
+  if (status === "Extracted" || status === UnitState.Extracted) return t(I18nKeys.units.status.retrieved);
+  
   return status;
 }
 
@@ -102,23 +105,22 @@ function getLevel(data: SoldierWidgetData): number {
 }
 
 function getItemName(id?: string): string {
-  if (!id) return "Empty";
+  if (!id) return t(I18nKeys.units.empty_weapon);
   const item = WeaponLibrary[id] || ItemLibrary[id];
-  return item ? item.name : id;
+  return item ? t("units.item." + item.id) : id;
 }
 
 function getStatusColor(status: string): string {
-  switch (status) {
-    case "Functional":
-    case "Retrieved":
+  if (status === t(I18nKeys.units.status.functional) || status === t(I18nKeys.units.status.retrieved)) {
       return "var(--color-primary)";
-    case "Damaged":
-      return "var(--color-warning)";
-    case "Integrity Failure":
-      return "var(--color-danger)";
-    default:
-      return "var(--color-text)";
   }
+  if (status === t(I18nKeys.units.status.damaged)) {
+      return "var(--color-warning)";
+  }
+  if (status === t(I18nKeys.units.status.integrity_failure)) {
+      return "var(--color-danger)";
+  }
+  return "var(--color-text)";
 }
 
 function getWeaponStats(unit: Unit, weaponId?: string): WeaponHUDStats | null {
@@ -186,7 +188,7 @@ export function TacticalSoldier(props: {
           <StatDisplayComponent
             icon={Icons.Speed}
             value={unit.stats.speed}
-            title="Operational Speed"
+            title={t(I18nKeys.hud.stat.speed)}
           />
         </span>
       </div>
@@ -201,26 +203,26 @@ export function TacticalSoldier(props: {
                 <StatDisplayComponent
                   icon={Icons.Damage}
                   value={lhStats.damage}
-                  title="Damage"
+                  title={t(I18nKeys.hud.stat.damage)}
                 />
                 <StatDisplayComponent
                   icon={Icons.Accuracy}
                   value={lhStats.accuracy}
-                  title="Accuracy"
+                  title={t(I18nKeys.hud.stat.accuracy)}
                 />
                 <StatDisplayComponent
                   icon={Icons.Rate}
                   value={lhStats.fireRate}
-                  title="Terminal Feed Delay (Shots/sec)"
+                  title={t(I18nKeys.hud.stat.rate)}
                 />
                 <StatDisplayComponent
                   icon={Icons.Range}
                   value={lhStats.range}
-                  title="Range"
+                  title={t(I18nKeys.hud.stat.range)}
                 />
               </Fragment>
             ) : (
-              <span class="weapon-empty">Empty</span>
+              <span class="weapon-empty">{t(I18nKeys.units.empty_weapon)}</span>
             )}
           </span>
         </div>
@@ -234,26 +236,26 @@ export function TacticalSoldier(props: {
                 <StatDisplayComponent
                   icon={Icons.Damage}
                   value={rhStats.damage}
-                  title="Damage"
+                  title={t(I18nKeys.hud.stat.damage)}
                 />
                 <StatDisplayComponent
                   icon={Icons.Accuracy}
                   value={rhStats.accuracy}
-                  title="Accuracy"
+                  title={t(I18nKeys.hud.stat.accuracy)}
                 />
                 <StatDisplayComponent
                   icon={Icons.Rate}
                   value={rhStats.fireRate}
-                  title="Terminal Feed Delay (Shots/sec)"
+                  title={t(I18nKeys.hud.stat.rate)}
                 />
                 <StatDisplayComponent
                   icon={Icons.Range}
                   value={rhStats.range}
-                  title="Range"
+                  title={t(I18nKeys.hud.stat.range)}
                 />
               </Fragment>
             ) : (
-              <span class="weapon-empty">Empty</span>
+              <span class="weapon-empty">{t(I18nKeys.units.empty_weapon)}</span>
             )}
           </span>
         </div>
@@ -294,7 +296,7 @@ export function DebriefSoldier(props: {
     <Fragment>
       <div class="flex-row justify-between align-center">
         <span class="soldier-name-lvl">
-          {displayName} <span class="soldier-lvl">Lvl {currentLevel}</span>
+          {displayName} <span class="soldier-lvl">{t(I18nKeys.units.lvl, { level: currentLevel })}</span>
         </span>
         <span
           class="soldier-status-badge"
@@ -307,10 +309,10 @@ export function DebriefSoldier(props: {
       <div class="debrief-xp-container">
         <div class="flex-row justify-between xp-text">
           <span>
-            XP: {res.xpBefore} (+{res.xpGained})
+            {t(I18nKeys.units.xp_gained, { xp: res.xpBefore, xpGained: res.xpGained })}
           </span>
           <span>
-            {xpAfter} / {nextLevelThreshold}
+            {t(I18nKeys.units.xp_progress, { xpAfter, nextLevelThreshold })}
           </span>
         </div>
         <div class="debrief-xp-bar">
@@ -327,14 +329,14 @@ export function DebriefSoldier(props: {
 
       <div class="flex-row gap-20 debrief-stats-summary">
         <span>
-          Hostiles Neutralized: <span class="highlight-text">{res.kills}</span>
+          {t(I18nKeys.screen.debrief.biologicals_neutralized)} <span class="highlight-text">{res.kills}</span>
         </span>
         {res.promoted && (
-          <span class="promo-text">Level Up! (Lvl {res.newLevel})</span>
+          <span class="promo-text">{t(I18nKeys.units.level_up)} ({t(I18nKeys.units.lvl, { level: res.newLevel || currentLevel + 1 })})</span>
         )}
         {res.status === "Wounded" && res.recoveryTime && (
           <span class="recovery-text">
-            Recovery: {res.recoveryTime} Missions
+            {t(I18nKeys.units.recovery_missions, { missions: res.recoveryTime })}
           </span>
         )}
       </div>
@@ -360,7 +362,7 @@ export function RosterSoldier(props: {
         : undefined;
 
   const archetype =
-    (archId && ArchetypeLibrary[archId]?.name) || archId || "Unknown";
+    (archId && t("units.archetype." + archId)) || archId || "Unknown";
 
   const equipment = getEquipment(data);
   const rh = getItemName(equipment.rightHand);
@@ -381,7 +383,7 @@ export function RosterSoldier(props: {
         </strong>
         <div class="roster-item-meta">
           {options.price && <span class="roster-price">{options.price}</span>}
-          <span class="badge">Lvl {level}</span>
+          <span class="badge">{t(I18nKeys.units.lvl, { level })}</span>
         </div>
       </div>
       <div class="roster-item-details">
@@ -391,7 +393,7 @@ export function RosterSoldier(props: {
         <span style={{ color: statusColor }}>{status}</span>
       </div>
       <div class="roster-item-stats">
-        HP: {hp}/{maxHp} | XP: {xp}
+        {t(I18nKeys.units.hp_xp_stat, { hp, maxHp, xp })}
       </div>
     </Fragment>
   );
@@ -414,8 +416,10 @@ export function SquadBuilderSoldier(props: {
 
   const status = getStatus(data);
   const effectiveStats = UnitUtils.calculateEffectiveStats(data as CampaignSoldier | SquadSoldierConfig);
+  
+  const archName = arch ? t("units.archetype." + arch.id) : "";
   const name = getName(data);
-  const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
+  const subTitle = archName && archName !== name ? `${archName} ` : "";
 
   return (
     <Fragment>
@@ -426,33 +430,33 @@ export function SquadBuilderSoldier(props: {
         )}
       </div>
       <div class="squad-builder-card-subtitle">
-        {subTitle}Lvl {level} | Status: {status}
+        {subTitle}{t(I18nKeys.units.lvl, { level })} | {t(I18nKeys.units.status_label, { status })}
       </div>
       <div class="squad-builder-card-stats">
         <StatDisplayComponent
           icon={Icons.Speed}
           value={effectiveStats.speed}
-          title="Speed"
+          title={t(I18nKeys.hud.stat.speed)}
         />
         <StatDisplayComponent
           icon={Icons.Accuracy}
           value={effectiveStats.accuracy}
-          title="Accuracy"
+          title={t(I18nKeys.hud.stat.accuracy)}
         />
         <StatDisplayComponent
           icon={Icons.Damage}
           value={effectiveStats.damage}
-          title="Damage"
+          title={t(I18nKeys.hud.stat.damage)}
         />
         <StatDisplayComponent
           icon={Icons.Rate}
           value={effectiveStats.fireRateDisplay}
-          title="Shots per Second"
+          title={t(I18nKeys.hud.stat.shots_per_sec)}
         />
         <StatDisplayComponent
           icon={Icons.Range}
           value={effectiveStats.attackRange}
-          title="Range"
+          title={t(I18nKeys.hud.stat.range)}
         />
       </div>
     </Fragment>
@@ -512,6 +516,7 @@ export class SoldierWidget {
     container: HTMLElement;
   }): HTMLElement | DocumentFragment | undefined {
     const { data, options, displayName, level, rawStatus, container } = params;
+    const status = getStatus(data);
     switch (options.context) {
       case "tactical":
         return (<TacticalSoldier unit={data as Unit} displayName={displayName} options={options} />) as HTMLElement;

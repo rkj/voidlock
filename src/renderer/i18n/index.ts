@@ -22,7 +22,8 @@ export function t(key: I18nKey, params?: Record<string, string | number>): strin
   let text = currentLocaleData[key] || key;
   if (params) {
     Object.keys(params).forEach((p) => {
-      text = text.replace(`{${p}}`, params[p].toString());
+      const val = params[p];
+      text = text.replace(`{${p}}`, val !== undefined && val !== null ? String(val) : "");
     });
   }
   return text;

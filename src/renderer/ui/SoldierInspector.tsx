@@ -15,6 +15,8 @@ import { Icons } from "@src/renderer/Icons";
 import { StatDisplayComponent } from "@src/renderer/ui/StatDisplay";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 import { SPEED_NORMALIZATION_CONST } from "@src/shared/constants";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 import type { ModalService } from "@src/renderer/ui/ModalService";
 
@@ -105,39 +107,39 @@ export class SoldierInspector {
       <div class="inspector-details-content flex-col align-center gap-20">
         {this.isDead() && (
           <div class="w-full dead-warning">
-            Asset Integrity Failure - Loadout Locked
+            {t(I18nKeys.screen.inspector.integrity_failure)}
           </div>
         )}
         {this.isLocked && (
           <div class="w-full dead-warning">
-            Terminal Offline - Modifications Locked
+            {t(I18nKeys.screen.inspector.terminal_offline)}
           </div>
         )}
 
         {rosterSoldier && this.renderRosterSoldierInfo(rosterSoldier, state)}
 
         <div class="w-full stat-box soldier-attributes-panel">
-          <h3 class="stat-label inspector-panel-title">Asset Integrity Profile</h3>
+          <h3 class="stat-label inspector-panel-title">{t(I18nKeys.screen.inspector.integrity_profile)}</h3>
           <div class="flex-row gap-20 inspector-stats-grid">
-            <StatDisplayComponent icon={Icons.Health} value={sStats.hp} title="Max Integrity" iconSize="14px" />
-            <StatDisplayComponent icon={Icons.Speed} value={sStats.speed} title="Operational Speed" iconSize="14px" />
-            <StatDisplayComponent icon={Icons.Accuracy} value={sStats.accuracy} title="Base Targeting Efficiency" iconSize="14px" />
+            <StatDisplayComponent icon={Icons.Health} value={sStats.hp} title={t(I18nKeys.screen.inspector.max_integrity)} iconSize="14px" />
+            <StatDisplayComponent icon={Icons.Speed} value={sStats.speed} title={t(I18nKeys.hud.stat.speed)} iconSize="14px" />
+            <StatDisplayComponent icon={Icons.Accuracy} value={sStats.accuracy} title={t(I18nKeys.screen.inspector.targeting_efficiency)} iconSize="14px" />
           </div>
         </div>
 
         <div class="w-full stat-box weapon-performance-panel">
-          <h3 class="stat-label inspector-panel-title-alt">Equipment Performance</h3>
+          <h3 class="stat-label inspector-panel-title-alt">{t(I18nKeys.screen.inspector.equipment_performance)}</h3>
           <div class="w-full">
-            <WeaponBlock stats={rw} label="Primary (RH)" />
-            <WeaponBlock stats={lw} label="Secondary (LH)" />
+            <WeaponBlock stats={rw} label={t(I18nKeys.screen.inspector.primary_rh)} />
+            <WeaponBlock stats={lw} label={t(I18nKeys.screen.inspector.secondary_lh)} />
           </div>
         </div>
 
         <div class="inspector-slots-grid">
-          {this.createSlotComponent("Right Hand", equip.rightHand, (id) => this.handleSlotChange("rightHand", id), false)}
-          {this.createSlotComponent("Left Hand", equip.leftHand, (id) => this.handleSlotChange("leftHand", id), false)}
-          {this.createSlotComponent("Body", equip.body, (id) => this.handleSlotChange("body", id))}
-          {this.createSlotComponent("Feet", equip.feet, (id) => this.handleSlotChange("feet", id))}
+          {this.createSlotComponent(t(I18nKeys.screen.inspector.primary_rh), equip.rightHand, (id) => this.handleSlotChange("rightHand", id), false)}
+          {this.createSlotComponent(t(I18nKeys.screen.inspector.secondary_lh), equip.leftHand, (id) => this.handleSlotChange("leftHand", id), false)}
+          {this.createSlotComponent(t(I18nKeys.screen.inspector.slot_body), equip.body, (id) => this.handleSlotChange("body", id))}
+          {this.createSlotComponent(t(I18nKeys.screen.inspector.slot_feet), equip.feet, (id) => this.handleSlotChange("feet", id))}
         </div>
       </div>
     ) as HTMLElement;
@@ -149,7 +151,7 @@ export class SoldierInspector {
       <div class="inspector-empty-wrapper flex-col gap-20 align-center h-full">
         <div class="inspector-placeholder flex-col align-center justify-center">
           <div class="placeholder-icon">👤</div>
-          <div>Select a Slot to Manage Squad</div>
+          <div>{t(I18nKeys.screen.inspector.select_slot_msg)}</div>
         </div>
         {state && !this.isLocked && (
           <div class="inspector-recruit-options flex-col gap-10 w-full">
@@ -159,8 +161,8 @@ export class SoldierInspector {
                 data-focus-id="recruit-btn-large"
                 onClick={() => this.handleRecruit()}
               >
-                <div class="btn-label">Acquire New Asset</div>
-                <div class="btn-sub">Cost: 100 Credits</div>
+                <div class="btn-label">{t(I18nKeys.screen.equipment.acquire_new)}</div>
+                <div class="btn-sub">{t(I18nKeys.common.cost_credits, { cost: 100 })}</div>
               </button>
             )}
             <button
@@ -169,8 +171,8 @@ export class SoldierInspector {
               disabled={state.scrap < 250}
               onClick={() => this.handleRevive()}
             >
-              <div class="btn-label">Restore Lost Asset</div>
-              <div class="btn-sub">Cost: 250 Credits</div>
+              <div class="btn-label">{t(I18nKeys.screen.equipment.restore_lost)}</div>
+              <div class="btn-sub">{t(I18nKeys.common.cost_credits, { cost: 250 })}</div>
             </button>
           </div>
         )}
@@ -189,19 +191,19 @@ export class SoldierInspector {
             <div class="flex-col">
               <h3 style={{ margin: "0", fontSize: "1.2em", color: "var(--color-accent)" }}>{rosterSoldier.name}</h3>
               <div style={{ fontSize: "0.8em", color: "var(--color-text-muted)" }}>
-                Rank {rosterSoldier.level} {ArchetypeLibrary[rosterSoldier.archetypeId]?.name || ""}
+                {t(I18nKeys.units.lvl, { level: rosterSoldier.level })} {t("units.archetype." + rosterSoldier.archetypeId)}
               </div>
             </div>
             <button
               class="icon-button"
-              title="Rename Asset"
+              title={t(I18nKeys.screen.inspector.rename_asset)}
               style={{ padding: "4px 8px", fontSize: "1em", margin: "0" }}
               onClick={() => {
                 void (async () => {
                   const newName = await this.modalService.prompt(
-                    "Enter new designation for this asset:",
+                    t(I18nKeys.screen.inspector.rename_prompt),
                     rosterSoldier.name,
-                    "Rename Asset",
+                    t(I18nKeys.screen.inspector.rename_asset),
                   );
                   if (newName && newName.trim() !== "" && newName !== rosterSoldier.name) {
                     this.manager.renameSoldier(rosterSoldier.id, newName.trim());
@@ -236,8 +238,8 @@ export class SoldierInspector {
                 this.onUpdate();
               }}
             >
-              <div class="btn-label">Restore Asset Integrity</div>
-              <div class="btn-sub">Cost: 50 Credits</div>
+              <div class="btn-label">{t(I18nKeys.screen.inspector.restore_integrity)}</div>
+              <div class="btn-sub">{t(I18nKeys.common.cost_credits, { cost: 50 })}</div>
             </button>
           </div>
         )}
@@ -260,25 +262,25 @@ export class SoldierInspector {
 
     const categories = [
       {
-        title: "Primary Weapons",
+        title: t(I18nKeys.screen.inspector.primary_weapons),
         items: Object.values(WeaponLibrary).filter((w) => w.type === "Ranged" && isUnlocked(w.id)),
         slot: "rightHand" as keyof EquipmentState,
         onSelect: (w: Weapon | Item) => this.handleSlotChange("rightHand", w.id)
       },
       {
-        title: "Secondary Weapons",
+        title: t(I18nKeys.screen.inspector.secondary_weapons),
         items: Object.values(WeaponLibrary).filter((w) => w.type === "Melee" && isUnlocked(w.id)),
         slot: "leftHand" as keyof EquipmentState,
         onSelect: (w: Weapon | Item) => this.handleSlotChange("leftHand", w.id)
       },
       {
-        title: "Armor",
+        title: t(I18nKeys.screen.inspector.armor),
         items: Object.values(ItemLibrary).filter((i) => (i.id.includes("recon") || i.id.includes("plate")) && isUnlocked(i.id)),
         slot: "body" as keyof EquipmentState,
         onSelect: (i: Weapon | Item) => this.handleSlotChange("body", i.id)
       },
       {
-        title: "Footwear",
+        title: t(I18nKeys.screen.inspector.footwear),
         items: Object.values(ItemLibrary).filter((i) => i.id.includes("boots") && isUnlocked(i.id)),
         slot: "feet" as keyof EquipmentState,
         onSelect: (i: Weapon | Item) => this.handleSlotChange("feet", i.id)
@@ -333,7 +335,7 @@ export class SoldierInspector {
         <div class="slot-title">{label}</div>
         {item ? (
           <Fragment>
-            <div class="slot-item-name">{item.name}</div>
+            <div class="slot-item-name">{t("units.item." + item.id)}</div>
             {allowRemove && (
               <div
                 class="slot-remove-btn"
@@ -437,11 +439,11 @@ export class SoldierInspector {
   }
 
   private getStatusDisplay(status: string): string {
-    if (status === "Healthy") return "Functional";
-    if (status === "Wounded") return "Damaged";
-    if (status === "Dead") return "Integrity Failure";
-    if (status === "Extracted") return "Retrieved";
-    return status;
+    if (status === "Healthy") return t(I18nKeys.units.status.functional);
+    if (status === "Wounded") return t(I18nKeys.units.status.damaged);
+    if (status === "Dead") return t(I18nKeys.units.status.integrity_failure);
+    if (status === "Extracted") return t(I18nKeys.units.status.retrieved);
+    return String(status);
   }
 
   private tryPurchaseItem(newItemId: string): boolean {
@@ -497,15 +499,15 @@ export class SoldierInspector {
 }
 
 function WeaponBlock({ stats, label }: { stats: WeaponStats | null; label: string }) {
-  if (!stats) return <div class="weapon-block-empty">{label}: [No Equipment]</div>;
+  if (!stats) return <div class="weapon-block-empty">{label}: [{t(I18nKeys.units.empty_weapon)}]</div>;
   return (
     <div class="weapon-block">
       <div class="weapon-block-title">{label}: {stats.name}</div>
       <div class="weapon-block-stats">
-        <StatDisplayComponent icon={Icons.Damage} value={stats.damage} title="Damage per hit" />
-        <StatDisplayComponent icon={Icons.Rate} value={stats.fireRate} title="Terminal Feed Delay (Shots/sec)" />
-        <StatDisplayComponent icon={Icons.Range} value={stats.range} title="Effective Range (m)" />
-        <StatDisplayComponent icon={Icons.Accuracy} value={(stats.accuracy >= 0 ? "+" : "") + stats.accuracy} title="Weapon Accuracy Modifier" />
+        <StatDisplayComponent icon={Icons.Damage} value={stats.damage} title={t(I18nKeys.screen.inspector.damage_per_hit)} />
+        <StatDisplayComponent icon={Icons.Rate} value={stats.fireRate} title={t(I18nKeys.hud.stat.rate)} />
+        <StatDisplayComponent icon={Icons.Range} value={stats.range} title={t(I18nKeys.hud.stat.range)} />
+        <StatDisplayComponent icon={Icons.Accuracy} value={(stats.accuracy >= 0 ? "+" : "") + stats.accuracy} title={t(I18nKeys.screen.inspector.weapon_accuracy_mod)} />
       </div>
     </div>
   );
@@ -518,12 +520,12 @@ function buildWeaponStats(item: Weapon): { html: HTMLElement | DocumentFragment;
   return {
     html: (
       <Fragment>
-        <StatDisplayComponent icon={Icons.Damage} value={item.damage || 0} title="Damage" />
-        <StatDisplayComponent icon={Icons.Rate} value={fireRateStr} title="Terminal Feed Delay (Shots/sec)" />
-        <StatDisplayComponent icon={Icons.Range} value={item.range || 0} title="Range" />
+        <StatDisplayComponent icon={Icons.Damage} value={item.damage || 0} title={t(I18nKeys.hud.stat.damage)} />
+        <StatDisplayComponent icon={Icons.Rate} value={fireRateStr} title={t(I18nKeys.hud.stat.rate)} />
+        <StatDisplayComponent icon={Icons.Range} value={item.range || 0} title={t(I18nKeys.hud.stat.range)} />
       </Fragment>
     ) as unknown as DocumentFragment,
-    text: `Damage: ${item.damage}\nRange: ${item.range}\nTerminal Feed Delay: ${fireRateStr}/s\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`,
+    text: `${t(I18nKeys.hud.stat.damage)}: ${item.damage}\n${t(I18nKeys.hud.stat.range)}: ${item.range}\n${t(I18nKeys.hud.stat.rate)}: ${fireRateStr}/s\n${t(I18nKeys.hud.stat.accuracy)}: ${acc > 0 ? "+" : ""}${acc}%`,
   };
 }
 
@@ -531,16 +533,16 @@ function buildItemStats(item: Item): { html: HTMLElement | DocumentFragment; tex
   const bonuses: (HTMLElement | DocumentFragment)[] = [];
   const textBonuses: string[] = [];
   if (item.hpBonus) {
-    bonuses.push(<StatDisplayComponent icon={Icons.Health} value={item.hpBonus} title="HP" /> as HTMLElement);
-    textBonuses.push(`HP: ${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
+    bonuses.push(<StatDisplayComponent icon={Icons.Health} value={item.hpBonus} title={t(I18nKeys.screen.inspector.max_integrity)} /> as HTMLElement);
+    textBonuses.push(`${t(I18nKeys.screen.inspector.max_integrity)}: ${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
   }
   if (item.speedBonus) {
-    bonuses.push(<StatDisplayComponent icon={Icons.Speed} value={item.speedBonus} title="Operational Speed" /> as HTMLElement);
-    textBonuses.push(`Operational Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus}`);
+    bonuses.push(<StatDisplayComponent icon={Icons.Speed} value={item.speedBonus} title={t(I18nKeys.hud.stat.speed)} /> as HTMLElement);
+    textBonuses.push(`${t(I18nKeys.hud.stat.speed)}: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus}`);
   }
   if (item.accuracyBonus) {
-    bonuses.push(<StatDisplayComponent icon={Icons.Accuracy} value={item.accuracyBonus} title="Accuracy" /> as HTMLElement);
-    textBonuses.push(`Accuracy: ${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`);
+    bonuses.push(<StatDisplayComponent icon={Icons.Accuracy} value={item.accuracyBonus} title={t(I18nKeys.hud.stat.accuracy)} /> as HTMLElement);
+    textBonuses.push(`${t(I18nKeys.hud.stat.accuracy)}: ${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`);
   }
   return {
     html: (<Fragment>{...bonuses}</Fragment>) as unknown as DocumentFragment,
@@ -589,13 +591,13 @@ function ArmoryItem({
     ? buildWeaponStats(item as Weapon)
     : buildItemStats(item);
 
-  const priceText = isOwned || isCurrentlyEquipped ? "Owned" : `${cost} Credits`;
+  const priceText = isOwned || isCurrentlyEquipped ? t(I18nKeys.screen.inspector.owned) : t(I18nKeys.common.cost_credits, { cost });
   const priceClass = isOwned || isCurrentlyEquipped ? "price-owned" : "price-cost";
 
   return (
     <div
       class={`menu-item clickable armory-item ${isCurrentlyEquipped ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
-      title={`${item.name}\n${item.description || ""}${fullStats ? `\n\n${  fullStats}` : ""}`}
+      title={`${t("units.item." + item.id)}\n${t("units.item.desc." + item.id) || ""}${fullStats ? `\n\n${  fullStats}` : ""}`}
       data-focus-id={`armory-item-${item.id}`}
       tabindex="0"
       onClick={() => !isDisabled && onSelect()}
@@ -608,7 +610,7 @@ function ArmoryItem({
     >
       <div class="armory-item-content" style={{ width: "100%" }}>
         <div class="armory-item-header" style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
-          <span>{item.name}</span>
+          <span>{t("units.item." + item.id)}</span>
           <span class={priceClass}>{priceText}</span>
         </div>
         <div class="armory-item-stats">

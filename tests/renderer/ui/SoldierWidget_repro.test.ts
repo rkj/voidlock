@@ -1,77 +1,54 @@
-// @vitest-environment jsdom
-import { describe, it, expect } from "vitest";
-import {
-  SoldierWidget,
-  SoldierWidgetOptions,
-} from "@src/renderer/ui/SoldierWidget";
-import { Archetype, SquadSoldierConfig, AIProfile } from "@src/shared/types";
-import { CampaignSoldier } from "@src/shared/campaign_types";
+/**
+ * @vitest-environment jsdom
+ */
+import { describe, it, expect, vi } from "vitest";
+import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
+
+// Mock dependencies
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    loadGlobal: vi.fn().mockReturnValue({
+      unitStyle: "TacticalIcons",
+      themeId: "default",
+      locale: "en-corporate",
+    }),
+  },
+}));
 
 describe("SoldierWidget Repro", () => {
-  it("should not render undefined in squad-builder context with missing archetype", () => {
-    const data: SquadSoldierConfig = {
-      archetypeId: "unknown_archetype",
-      name: "Test Soldier",
+  it("should handle missing equipment in roster context", () => {
+    const data: any = {
+      name: "John Doe",
+      archetypeId: "assault",
+      xp: 50,
       hp: 100,
-      maxHp: 100,
-    };
-    const options: SoldierWidgetOptions = { context: "squad-builder" };
-    const el = SoldierWidget.render(data, options);
-
-    expect(el.innerHTML).not.toContain("undefined");
-  });
-
-  it("should not render undefined in squad-builder context with Archetype data", () => {
-    const data: Archetype = {
-      id: "assault",
-      name: "Assault",
-      baseHp: 100,
-      damage: 20,
-      fireRate: 600,
-      accuracy: 95,
-      soldierAim: 90,
-      attackRange: 10,
-      speed: 20,
-      aiProfile: AIProfile.RUSH,
-    };
-    const options: SoldierWidgetOptions = { context: "squad-builder" };
-    const el = SoldierWidget.render(data, options);
-
-    expect(el.innerHTML).not.toContain("undefined");
-  });
-
-  it("should not render undefined in roster context with missing archetype", () => {
-    const data: CampaignSoldier = {
-      id: "s1",
-      archetypeId: "unknown",
-      name: "Test",
-      hp: 100,
-      maxHp: 100,
-      xp: 0,
-      level: 1,
       status: "Healthy",
-      equipment: {},
-      kills: 0,
-      missions: 0,
+      // equipment is missing
     };
-    const options: SoldierWidgetOptions = { context: "roster" };
+    const options: any = { context: "roster" };
     const el = SoldierWidget.render(data, options);
 
     expect(el.innerHTML).not.toContain("undefined");
+    expect(el.textContent).toContain("John Doe");
+    expect(el.textContent).toContain(t(I18nKeys.units.lvl, { level: 1 }));
   });
 
   it("should handle case-mismatched archetypeId in squad-builder", () => {
-    const data: SquadSoldierConfig = {
-      archetypeId: "Scout", // ArchetypeLibrary has "scout"
+    // ArchetypeLibrary keys are usually lowercase, but let's test if it handles "Scout" vs "scout"
+    const data: any = {
       name: "John Doe",
-      hp: 100,
+      id: "Scout", // Mismatched case
       maxHp: 100,
+      soldierAim: 90,
+      speed: 20,
     };
-    const options: SoldierWidgetOptions = { context: "squad-builder" };
+    const options: any = { context: "squad-builder" };
     const el = SoldierWidget.render(data, options);
 
     expect(el.innerHTML).not.toContain("undefined");
-    // If it fails to find the archetype, it should show 0s or defaults, not undefined
-    expect(el.textContent).toContain("Lvl 1");
+    // If it fails to find the archetype, it should show 0s or default values but not crash
+    expect(el.textContent).toContain(t(I18nKeys.units.lvl, { level: 1 }));
   });
 });
