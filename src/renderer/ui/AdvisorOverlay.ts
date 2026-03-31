@@ -132,7 +132,12 @@ export class AdvisorOverlay {
         if (e.key === "Enter" || e.key === " ") { dismiss(); return true; }
         return false;
       },
-      getShortcuts: () => [{ key: "Enter", label: t(I18nKeys.common.continue), description: "Dismiss advisor message", category: "Navigation" }],
+      getShortcuts: () => [{
+        key: "Enter",
+        label: t(I18nKeys.common.continue),
+        description: t(I18nKeys.common.shortcuts.close_modal),
+        category: "Navigation"
+      }],
     });
   }
 

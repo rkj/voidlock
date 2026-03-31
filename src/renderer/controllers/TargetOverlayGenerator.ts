@@ -13,6 +13,8 @@ import {
 import type { RoomDiscoveryManager } from "./RoomDiscoveryManager";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export type OverlayType =
   | "CELL"
@@ -64,7 +66,7 @@ export class TargetOverlayGenerator {
     let itemCounter = 0;
     gameState.objectives.forEach((obj) => {
       if (obj.state === "Pending" && obj.visible && obj.targetCell) {
-        options.push({ key: this.getRoomKey(itemCounter), label: `Collect ${this.getObjectiveLabel(obj)}`, pos: obj.targetCell, id: obj.id });
+        options.push({ key: this.getRoomKey(itemCounter), label: t(I18nKeys.menu.label_collect_objective, { name: this.getObjectiveLabel(obj) }), pos: obj.targetCell, id: obj.id });
         itemCounter++;
       }
     });
@@ -74,7 +76,7 @@ export class TargetOverlayGenerator {
         if (isCellDiscovered(gameState, cell.x, cell.y)) {
           const item = ItemLibrary[loot.itemId] || WeaponLibrary[loot.itemId];
           const itemName = item?.name || loot.itemId;
-          options.push({ key: this.getRoomKey(itemCounter), label: `Pickup ${itemName}`, pos: cell, id: loot.id });
+          options.push({ key: this.getRoomKey(itemCounter), label: t(I18nKeys.menu.label_pickup_item, { name: itemName }), pos: cell, id: loot.id });
           itemCounter++;
         }
       });
@@ -115,7 +117,7 @@ export class TargetOverlayGenerator {
         if (b.type === BoundaryType.Open || b.type === BoundaryType.Door) connections++;
       });
       if (connections === 1 || connections >= 3) {
-        options.push({ key: this.getRoomKey(intersectionCounter), label: connections === 1 ? "Dead End" : `Intersection`, pos: { x: cell.x, y: cell.y } });
+        options.push({ key: this.getRoomKey(intersectionCounter), label: connections === 1 ? t(I18nKeys.menu.label_dead_end) : t(I18nKeys.menu.label_intersection), pos: { x: cell.x, y: cell.y } });
         intersectionCounter++;
       }
     });
@@ -156,7 +158,7 @@ export class TargetOverlayGenerator {
     });
     sortedPositions.forEach((posKey) => {
       const [x, y] = posKey.split(",").map(Number);
-      options.push({ key: this.getRoomKey(placementCounter), label: `Place Mine`, pos: { x, y } });
+      options.push({ key: this.getRoomKey(placementCounter), label: t(I18nKeys.menu.label_place_mine), pos: { x, y } });
       placementCounter++;
     });
     return options;
@@ -170,14 +172,14 @@ export class TargetOverlayGenerator {
       const center = discovery.getRoomCenter(roomId);
       if (!center) return;
       const key = this.getRoomKey(index);
-      options.push({ key, label: `Room ${key}`, pos: center });
+      options.push({ key, label: t(I18nKeys.menu.label_room_name, { name: key }), pos: center });
     });
 
     let poiCounter = discovery.roomOrder.length;
     if (gameState.map.extraction) {
       const ext = gameState.map.extraction;
       if (isCellDiscovered(gameState, ext.x, ext.y)) {
-        options.push({ key: this.getRoomKey(poiCounter), label: "Extraction", pos: ext });
+        options.push({ key: this.getRoomKey(poiCounter), label: t(I18nKeys.menu.label_extraction), pos: ext });
         poiCounter++;
       }
     }
@@ -195,11 +197,11 @@ export class TargetOverlayGenerator {
 
   private static getObjectiveLabel(obj: Objective): string {
     const id = obj.id.toLowerCase();
-    if (id.includes("artifact")) return "Artifact";
-    if (id.includes("intel")) return "Intel";
-    if (id.includes("hive")) return "Xeno Hive";
-    if (id.includes("escort")) return "Extraction";
-    return obj.kind === "Recover" ? "Objective" : obj.kind;
+    if (id.includes("artifact")) return t(I18nKeys.menu.label_artifact);
+    if (id.includes("intel")) return t(I18nKeys.menu.label_intel);
+    if (id.includes("hive")) return t(I18nKeys.menu.label_xeno_hive);
+    if (id.includes("escort")) return t(I18nKeys.menu.label_extraction);
+    return obj.kind === "Recover" ? t(I18nKeys.menu.label_objective) : obj.kind;
   }
 
   private static getRoomKey(index: number): string {
