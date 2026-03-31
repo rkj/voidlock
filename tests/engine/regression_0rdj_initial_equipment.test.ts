@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { StorageProvider } from "@src/engine/persistence/StorageProvider";
 
 class MockStorage implements StorageProvider {
@@ -20,12 +22,12 @@ class MockStorage implements StorageProvider {
 
 describe("CampaignManager Regression: Initial Roster Equipment", () => {
   beforeEach(() => {
-    CampaignManager.resetInstance();
+    
   });
 
   it("should populate initial roster with default equipment", () => {
     const storage = new MockStorage();
-    const manager = CampaignManager.getInstance(storage);
+    const manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
     manager.startNewCampaign(123, "normal");
 
     const state = manager.getState();

@@ -46,33 +46,26 @@ export function setLocale(localeId: string): void {
 
 /**
  * Applies the current locale to static elements in the DOM.
- * Targeted at src/index.html elements.
+ * Scans for [data-i18n] attributes and updates textContent.
  */
 export function applyLocale(): void {
-  const elements = [
-    { selector: ".menu-subtitle", key: I18nKeys.menu.subtitle },
-    { id: "btn-menu-campaign", key: I18nKeys.menu.campaign },
-    { id: "btn-menu-custom", key: I18nKeys.menu.custom },
-    { id: "btn-menu-engineering", key: I18nKeys.menu.engineering },
-    { id: "btn-menu-statistics", key: I18nKeys.menu.statistics },
-    { id: "btn-menu-settings", key: I18nKeys.menu.settings },
-    { selector: ".menu-import-label", key: I18nKeys.menu.import },
-    { id: "mission-setup-title", key: I18nKeys.mission.setup.title },
-    { selector: 'label[for="mission-type"]', key: I18nKeys.mission.type.label },
-  ];
-
-  elements.forEach(({ id, selector, key }) => {
-    const el = id ? document.getElementById(id) : document.querySelector(selector!);
-    if (el) {
+  // 1. Standard text elements
+  const elements = document.querySelectorAll("[data-i18n]");
+  elements.forEach((el) => {
+    const key = el.getAttribute("data-i18n") as I18nKey;
+    if (key) {
       el.textContent = t(key);
     }
   });
 
-  // Update mission type options
+  // 2. Select options often need special handling if they don't have data-i18n on the options themselves,
+  // but we prefer putting data-i18n directly on the <option> elements in src/index.html.
+  // The following manual update is kept for backward compatibility with existing JS-driven selects
+  // until they are migrated to data-i18n.
   const missionTypeSelect = document.getElementById(
     "mission-type",
   ) as HTMLSelectElement;
-  if (missionTypeSelect) {
+  if (missionTypeSelect && !missionTypeSelect.querySelector("option[data-i18n]")) {
     const options = missionTypeSelect.options;
     for (let i = 0; i < options.length; i++) {
       const opt = options[i];

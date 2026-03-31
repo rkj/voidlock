@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MissionReconciler } from "@src/engine/campaign/MissionReconciler";
 import { MissionReport } from "@src/shared/campaign_types";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
@@ -10,9 +11,9 @@ describe("CampaignManager", () => {
   let storage: MockStorageProvider;
 
   beforeEach(() => {
-    CampaignManager.resetInstance();
+    
     storage = new MockStorageProvider();
-    manager = CampaignManager.getInstance(storage);
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
   });
 
   it("should start a new campaign with correct initial state", () => {
@@ -57,8 +58,8 @@ describe("CampaignManager", () => {
     const originalState = JSON.parse(JSON.stringify(manager.getState()));
 
     // Create a new instance with the same storage
-    CampaignManager.resetInstance();
-    const newManager = CampaignManager.getInstance(storage);
+    
+    const newManager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
     const success = await newManager.load();
 
     expect(success).toBe(true);
@@ -219,9 +220,11 @@ describe("CampaignManager", () => {
     expect(manager.getState()?.status).toBe("Victory");
   });
 
-  it("should throw error if getInstance called without storage on first time", () => {
-    CampaignManager.resetInstance();
-    expect(() => CampaignManager.getInstance()).toThrow();
+  it("should initialize correctly via constructor", () => {
+    const metaStorage = new MockStorageProvider();
+    const metaManager = new MetaManager(metaStorage);
+    const campaignManager = new CampaignManager(storage, metaManager);
+    expect(campaignManager).toBeDefined();
   });
 
   describe("Roster Management", () => {

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "../../../src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { EventManager } from "../../../src/engine/campaign/EventManager";
 import { MissionReconciler } from "../../../src/engine/campaign/MissionReconciler";
 import { MockStorageProvider } from "../../../src/engine/persistence/MockStorageProvider";
@@ -14,8 +15,8 @@ describe("Campaign Events", () => {
 
   beforeEach(() => {
     storage = new MockStorageProvider();
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(storage);
+    
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
     manager.startNewCampaign(12345, "Simulation");
     eventManager = new EventManager();
     // EventManager expects reconciler as instance with advanceCampaignWithoutMission method

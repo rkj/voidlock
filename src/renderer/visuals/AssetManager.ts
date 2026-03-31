@@ -3,7 +3,7 @@ import type { ThemeManager } from "@src/renderer/ThemeManager";
 import { Logger } from "@src/shared/Logger";
 
 export class AssetManager {
-  private static instance: AssetManager;
+  
   public iconImages: Record<string, HTMLImageElement> = {};
   public unitSprites: Record<string, HTMLImageElement> = {};
   public enemySprites: Record<string, HTMLImageElement> = {};
@@ -33,23 +33,6 @@ export class AssetManager {
     spawn: "spawn_point",
     waypoint: "waypoint",
   };
-
-  /**
-   * @deprecated Use constructor injection via AppServiceRegistry.
-   */
-  public static getInstance(): AssetManager {
-    if (!AssetManager.instance) {
-      throw new Error("AssetManager: instance not initialized. Use constructor injection.");
-    }
-    return AssetManager.instance;
-  }
-
-  /**
-   * For testing purposes only.
-   */
-  public static setInstance(instance: AssetManager) {
-    AssetManager.instance = instance;
-  }
 
   private loadIcons() {
     Object.entries(Icons).forEach(([key, src]) => {

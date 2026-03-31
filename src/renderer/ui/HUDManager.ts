@@ -1,4 +1,5 @@
 import type { GameState, Unit } from "@src/shared/types";
+import { MissionType } from "@src/shared/types";
 import type { MenuController } from "@src/renderer/MenuController";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { UIBinder } from "@src/renderer/ui/UIBinder";
@@ -320,7 +321,7 @@ export class HUDManager {
         debugDiv.className = "debug-controls";
         container.appendChild(debugDiv);
       }
-      const generatorName = state.map?.generatorName || "Unknown";
+      const generatorName = state.map?.generatorName || t(I18nKeys.common.unknown);
       const genDisplay = generatorName.endsWith("Generator")
         ? generatorName
         : `${generatorName}Generator`;
@@ -328,12 +329,15 @@ export class HUDManager {
       const debugKey = `${state.seed}-${state.map?.width}x${state.map?.height}-${state.missionType}`;
       if (debugDiv.dataset.renderedKey !== debugKey) {
         debugDiv.dataset.renderedKey = debugKey;
+        
+        const missionTypeDisplay = this.getLocalizedMissionType(state.missionType);
+
         debugDiv.innerHTML = `
           <h3>${t(I18nKeys.hud.debug.title)}</h3>
           <div class="debug-info-grid">
             <span><strong>${t(I18nKeys.hud.debug.map)}</strong> ${genDisplay} (${state.seed})</span>
-            <span><strong>${t(I18nKeys.hud.debug.size)}</strong> ${state.map ? `${state.map.width}x${state.map.height}` : "Unknown"}</span>
-            <span><strong>${t(I18nKeys.hud.debug.mission)}</strong> ${state.missionType}</span>
+            <span><strong>${t(I18nKeys.hud.debug.size)}</strong> ${state.map ? `${state.map.width}x${state.map.height}` : t(I18nKeys.common.unknown)}</span>
+            <span><strong>${t(I18nKeys.hud.debug.mission)}</strong> ${missionTypeDisplay}</span>
           </div>
           <div class="debug-actions-row">
             <button id="btn-force-win" class="debug-btn-win">${t(I18nKeys.hud.debug.force_win)}</button>
@@ -347,6 +351,18 @@ export class HUDManager {
       }
     } else if (debugDiv) {
       debugDiv.remove();
+    }
+  }
+
+  private getLocalizedMissionType(type: MissionType): string {
+    switch (type) {
+      case MissionType.Default: return t(I18nKeys.mission.type.default);
+      case MissionType.RecoverIntel: return t(I18nKeys.mission.type.recover_intel);
+      case MissionType.ExtractArtifacts: return t(I18nKeys.mission.type.extract_artifacts);
+      case MissionType.DestroyHive: return t(I18nKeys.mission.type.destroy_hive);
+      case MissionType.EscortVIP: return t(I18nKeys.mission.type.escort_vip);
+      case MissionType.Prologue: return t(I18nKeys.mission.type.prologue);
+      default: return String(type);
     }
   }
 }

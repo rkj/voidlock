@@ -104,7 +104,7 @@ export function HUDTopBar() {
           data-bind-transform="speedSlider"
           data-bind-min="settings.allowTacticalPause|minSpeedValue"
           style={{ width: "80px", margin: "0" }}
-          title="Game Speed (0.1x to 10.0x)"
+          title={t(I18nKeys.hud.speed_tooltip, { min: "0.1", max: "10.0" })}
         />
         <span id="speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span>
       </div>

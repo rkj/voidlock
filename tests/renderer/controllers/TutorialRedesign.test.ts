@@ -3,6 +3,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { TutorialManager } from "../../../src/renderer/controllers/TutorialManager";
+import { setLocale } from "../../../src/renderer/i18n";
 import { GameState, MissionType, CommandType, UnitState, EnemyType } from "../../../src/shared/types";
 
 import { Director } from "../../../src/engine/Director";
@@ -17,6 +18,7 @@ describe("Tutorial Redesign Regression Suite (ADR 0058)", () => {
   let selectedUnitId: string | null = null;
 
   beforeEach(() => {
+    setLocale("en-corporate");
     gameClient = {
       addStateUpdateListener: vi.fn(),
       removeStateUpdateListener: vi.fn(),

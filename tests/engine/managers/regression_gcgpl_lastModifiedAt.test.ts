@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "@src/engine/campaign/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("Regression: lastModifiedAt (voidlock-gcgpl)", () => {
@@ -8,8 +9,8 @@ describe("Regression: lastModifiedAt (voidlock-gcgpl)", () => {
 
   beforeEach(() => {
     mockStorage = new MockStorageProvider();
-    CampaignManager.resetInstance();
-    campaignManager = CampaignManager.getInstance(mockStorage);
+    
+    campaignManager = new CampaignManager(mockStorage, new MetaManager(new MockStorageProvider()));
   });
 
   it("should set lastModifiedAt when starting a new campaign", () => {

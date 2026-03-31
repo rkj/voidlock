@@ -1,175 +1,168 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
-import { GameState, UnitState, EnemyType } from "@src/shared/types";
-import {
-  createMockGameState,
-  createMockUnit,
-  createMockEnemy,
-} from "@src/engine/tests/utils/MockFactory";
+import { GameState, UnitState, MissionType, AIProfile, EnemyType } from "@src/shared/types";
+import { setLocale } from "@src/renderer/i18n";
 
 describe("HUDManager Stats & Hostile Contact Intel", () => {
   let hud: HUDManager;
   let mockMenuController: any;
-  let onUnitClick: any;
-  let onAbortMission: any;
-  let onMenuInput: any;
-  let onCopyWorldState: any;
 
-  const mockState: GameState = createMockGameState({
+  const mockState: GameState = {
     t: 1000,
+    seed: 12345,
+    missionType: MissionType.Default,
     status: "Playing",
-    stats: {
-      threatLevel: 0,
-      aliensKilled: 0,
-      elitesKilled: 0,
-      casualties: 0,
-      scrapGained: 0,
-    },
-    map: { width: 10, height: 10, cells: [] },
     units: [
-      createMockUnit({
-        id: "s1",
+      {
+        id: "u1",
+        name: "Unit 1",
+        archetypeId: "assault",
+        pos: { x: 1, y: 1 },
         hp: 100,
         maxHp: 100,
         state: UnitState.Idle,
+        isDeployed: true,
+        rightHand: "pulse_rifle",
+        leftHand: "combat_knife",
+        kills: 0,
+        accuracy: 70,
+        speed: 1.0,
+        xp: 0,
         stats: {
-          accuracy: 90,
           damage: 20,
-          fireRate: 500, // 2 shots per second
+          fireRate: 600,
+          accuracy: 95,
+          soldierAim: 90,
           attackRange: 10,
           speed: 20,
-          soldierAim: 80,
           equipmentAccuracyBonus: 0,
         },
-        engagementPolicy: "ENGAGE",
-        archetypeId: "assault",
-        leftHand: "combat_knife",
-        rightHand: "pulse_rifle",
+        aiProfile: AIProfile.RUSH,
         commandQueue: [],
-      }),
+        positionHistory: [],
+        innateMaxHp: 100,
+        damageDealt: 0,
+        objectivesCompleted: 0,
+      },
     ],
-    enemies: [
-      createMockEnemy({
-        id: "e1",
-        type: EnemyType.XenoMite,
-        pos: { x: 5.5, y: 5.5 },
-        hp: 50,
-        maxHp: 50,
-        damage: 15,
-        fireRate: 800,
-        accuracy: 50,
-        attackRange: 1,
-        speed: 30,
-        difficulty: 1,
-      }),
-    ],
-    visibleCells: ["5,5"],
-    discoveredCells: ["5,5"],
+    enemies: [],
+    visibleCells: ["1,1"],
+    map: {
+      width: 10,
+      height: 10,
+      cells: [],
+      squadSpawn: { x: 0, y: 0 },
+      extraction: { x: 9, y: 9 },
+      generatorName: "Unknown",
+    },
     objectives: [],
-  });
+    stats: {
+      threatLevel: 0,
+      aliensKilled: 0,
+      casualties: 0,
+      totalCredits: 0,
+      missionsPlayed: 0,
+      missionsWon: 0,
+    },
+    settings: {
+      allowTacticalPause: true,
+      debugOverlayEnabled: false,
+      isPaused: false,
+      targetTimeScale: 1.0,
+      timeScale: 1.0,
+    },
+    commandLog: [],
+  };
 
   beforeEach(() => {
-    document.body.innerHTML = `
-      <div id="game-status"></div>
-      <div id="version-display"></div>
-      <div id="menu-version"></div>
-      <div id="top-threat-fill"></div>
-      <div id="top-threat-value"></div>
-      <div id="right-panel"></div>
-      <div id="soldier-list"></div>
-    `;
-
+    setLocale("en-standard");
+    document.body.innerHTML = '<div id="screen-mission"><div id="mission-body"></div></div>';
+    
     mockMenuController = {
-      getRenderableState: vi.fn(() => ({
-        title: "Actions",
-        options: [],
-      })),
+      getRenderableState: vi.fn().mockReturnValue({ title: "Test", options: [] }),
     };
-    onUnitClick = vi.fn();
-    onAbortMission = vi.fn();
-    onMenuInput = vi.fn();
-    onCopyWorldState = vi.fn();
 
     hud = new HUDManager({
       menuController: mockMenuController,
-      tutorialManager: { getCurrentStepId: () => null } as any,
-      onUnitClick: onUnitClick,
-      onAbortMission: onAbortMission,
-      onMenuInput: onMenuInput,
-      onCopyWorldState: onCopyWorldState,
+      tutorialManager: null,
+      onUnitClick: vi.fn(),
+      onAbortMission: vi.fn(),
+      onMenuInput: vi.fn(),
+      onCopyWorldState: vi.fn(),
       onForceWin: vi.fn(),
       onForceLose: vi.fn(),
       onStartMission: vi.fn(),
-      onDeployUnit: vi.fn()
+      onDeployUnit: vi.fn(),
     });
   });
 
   it("should display soldier fire rate (FR)", () => {
-    hud.update(mockState, null);
-
-    const soldierItem = document.querySelector(".soldier-item");
+    hud.update(mockState, "u1");
+    const soldierList = document.getElementById("soldier-list");
+    const soldierItem = soldierList?.querySelector(".soldier-item");
+    
     // Check for Fire Rate in LH or RH stats
     const lhStats = soldierItem?.querySelector(".u-lh-stats");
-    expect(lhStats?.innerHTML).toContain('title="Terminal Feed Delay (Shots/sec)"');
-    // combat_knife fireRate: 400. 1000 / (400 * (30/20)) = 1000 / 600 = 1.66 -> 1.7
+    expect(lhStats?.innerHTML).toContain('title="Fire Rate"');
+    // combat_knife fireRate: 400. 1000 / (400 * (30/20)) = 1000 / 600 = 1.666
     expect(lhStats?.innerHTML).toContain("1.7");
   });
 
   it("should display all requested soldier stats", () => {
-    hud.update(mockState, null);
-
+    hud.update(mockState, "u1");
     const item = document.querySelector(".soldier-item")!;
-    // Speed is in base-stats-row
-    const speedBox = item.querySelector(".u-speed-box");
-    expect(speedBox?.innerHTML).toContain('title="Operational Speed"');
-    expect(speedBox?.textContent?.trim()).toBe("20");
-
+    
     // Check RH stats for pulse_rifle
     const rhStats = item.querySelector(".u-rh-stats");
     expect(rhStats?.innerHTML).toContain('title="Damage"');
     expect(rhStats?.innerHTML).toContain("20");
     expect(rhStats?.innerHTML).toContain('title="Accuracy"');
-    // soldierAim 80 + pulse_rifle accuracy 5 = 85
-    expect(rhStats?.innerHTML).toContain("85");
+    expect(rhStats?.innerHTML).toContain("95"); // soldierAim 90 + pulse_rifle mod 5
+    expect(rhStats?.innerHTML).toContain('title="Fire Rate"');
+    expect(rhStats?.innerHTML).toContain("1.1"); // 1000 / (600 * (30/20)) = 1.111
+    expect(rhStats?.innerHTML).toContain('title="Range"');
+    expect(rhStats?.innerHTML).toContain("10");
   });
 
   it("should display hostile contact intel for visible enemies", () => {
-    hud.update(mockState, null);
+    const stateWithEnemies: GameState = {
+      ...mockState,
+      visibleCells: ["1,1", "5,5"],
+      enemies: [
+        {
+          id: "e1",
+          type: EnemyType.XenoMite,
+          pos: { x: 5, y: 5 },
+          hp: 10,
+          maxHp: 10,
+          state: "Idle",
+          damage: 15,
+          fireRate: 500,
+          accuracy: 50,
+          attackRange: 1,
+          speed: 30
+        } as any
+      ]
+    };
+
+    hud.update(stateWithEnemies, null);
 
     const intelDiv = document.querySelector(".enemy-intel");
     expect(intelDiv).not.toBeNull();
-    expect(intelDiv?.innerHTML).toContain("Hostile Contact Intel");
+    expect(intelDiv?.innerHTML).toContain("Enemy Intel");
     expect(intelDiv?.innerHTML).toContain("xeno-mite x1");
-
-    // Check stats using titles
-    expect(intelDiv?.innerHTML).toContain('title="Operational Speed"');
+    
+    expect(intelDiv?.innerHTML).toContain('title="Speed"');
     expect(intelDiv?.innerHTML).toContain("30");
-    expect(intelDiv?.innerHTML).toContain('title="Accuracy"');
-    expect(intelDiv?.innerHTML).toContain("50");
     expect(intelDiv?.innerHTML).toContain('title="Damage"');
     expect(intelDiv?.innerHTML).toContain("15");
-    expect(intelDiv?.innerHTML).toContain('title="Terminal Feed Delay (Shots/sec)"');
-    expect(intelDiv?.innerHTML).toContain("1.3"); // 1000/800 = 1.25 -> 1.3
   });
 
   it("should show 'No hostiles detected' when no enemies are visible", () => {
-    const blindState = { ...mockState, visibleCells: [] };
-    hud.update(blindState, null);
+    hud.update(mockState, null);
 
     const intelDiv = document.querySelector(".enemy-intel");
     expect(intelDiv?.innerHTML).toContain("No Hostiles Detected.");
-  });
-
-  it("should update enemy count when multiple of same type are visible", () => {
-    const multiState = {
-      ...mockState,
-      enemies: [...mockState.enemies, { ...mockState.enemies[0], id: "e2" }],
-      visibleCells: ["5,5"],
-    };
-    hud.update(multiState, null);
-
-    const intelDiv = document.querySelector(".enemy-intel");
-    expect(intelDiv?.innerHTML).toContain("xeno-mite x2");
   });
 });

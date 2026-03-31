@@ -1,3 +1,6 @@
+import { t } from "./i18n";
+import { I18nKeys } from "./i18n/keys";
+
 /**
  * Utility for time-related UI conversions.
  */
@@ -25,10 +28,12 @@ export class TimeUtility {
    * Formats a speed scale for display in the UI.
    */
   public static formatSpeed(scale: number, isPaused: boolean): string {
+    const scaleStr = `${scale.toFixed(1)}x`;
     if (isPaused) {
-      if (scale === 0) return "0.0x (Paused)";
-      return `0.1x (Active Pause)`;
+      if (scale === 0) return t(I18nKeys.hud.paused_label, { scale: "0.0" });
+      return t(I18nKeys.hud.active_pause_label, { scale: "0.1" });
     }
-    return `${scale.toFixed(1)}x`;
+    return scaleStr;
   }
 }
+

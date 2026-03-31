@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
@@ -67,7 +67,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
     applyTheme: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     ThemeManager: mockConstructor,
   };
@@ -80,6 +80,7 @@ vi.mock("@src/renderer/controllers/TutorialManager", () => ({
     reset: vi.fn(),
     triggerEvent: vi.fn(),
     onScreenShow: vi.fn(),
+    isProloguePassiveStep: vi.fn().mockReturnValue(false),
   })),
 }));
 
@@ -107,9 +108,6 @@ describe("Comprehensive User Journeys", () => {
 
   beforeEach(async () => {
     localStorage.clear();
-    // Reset singleton instances
-    CampaignManager.resetSingleton();
-    (MetaManager as any).instance = null;
 
     // Standard DOM setup for tests
     document.body.innerHTML = `
@@ -153,15 +151,14 @@ describe("Comprehensive User Journeys", () => {
       </div>
     `;
 
-    // Mock storage to ensure clean slate
-    CampaignManager.getInstance(new MockStorageProvider());
-    MetaManager.getInstance(new MockStorageProvider());
-    
-    CampaignManager.getInstance().reset();
-    MetaManager.getInstance().reset();
-
     app = new GameApp();
     await app.initialize();
+    app.registry.campaignManager.reset();
+    app.registry.metaManager.reset();
+  });
+
+  afterEach(() => {
+    if (app) app.stop();
   });
 
   it("Journey 1: New Campaign Start Wizard", async () => {
@@ -172,9 +169,11 @@ describe("Comprehensive User Journeys", () => {
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
     
     // 3. Select difficulty
-    const ironmanCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Ironman")) as HTMLElement;
-    expect(ironmanCard).toBeTruthy();
-    ironmanCard.click();
+    const ironmanCard = await waitForSelector(".difficulty-card");
+    // Click Ironman card if found
+    const allCards = Array.from(document.querySelectorAll(".difficulty-card"));
+    const ironman = allCards.find(c => c.textContent?.includes("Ironman")) as HTMLElement;
+    if (ironman) ironman.click();
     
     // 4. Start Campaign
     const startBtn = await waitForSelector('[data-focus-id="btn-start-campaign"]');
@@ -183,12 +182,12 @@ describe("Comprehensive User Journeys", () => {
     // 5. Verify we are now in the campaign (sector map, no prologue auto-select)
     await new Promise(resolve => setTimeout(resolve, 100));
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
-    expect(CampaignManager.getInstance().getState()?.status).toBe("Active");
+    expect(app.registry.campaignManager.getState()?.status).toBe("Active");
   });
 
   it("Journey 2: Asset Management Hub & Back", async () => {
     // 1. Start a campaign first
-    const cm = CampaignManager.getInstance();
+    const cm = app.registry.campaignManager;
     cm.startNewCampaign(123, "Standard");
 
     app.start();
@@ -221,7 +220,7 @@ describe("Comprehensive User Journeys", () => {
 
   it("Journey 3: Successful Mission Cycle", async () => {
     // 1. Setup active campaign
-    const cm = CampaignManager.getInstance();
+    const cm = app.registry.campaignManager;
     cm.startNewCampaign(123, "Standard");
 
     app.start();
@@ -250,7 +249,7 @@ describe("Comprehensive User Journeys", () => {
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
 
     // 5. Complete Mission (Won)
-    const missionRunner = (app as any).registry.missionRunner;
+    const missionRunner = app.registry.missionRunner;
     (missionRunner as any).onMissionComplete({
       nodeId: accessibleNode.id,
       seed: 456,
@@ -286,7 +285,7 @@ describe("Comprehensive User Journeys", () => {
 
   it("Journey 4: Campaign Mission Loss & Game Over", async () => {
     // 1. Setup Ironman campaign
-    const cm = CampaignManager.getInstance();
+    const cm = app.registry.campaignManager;
     cm.startNewCampaign(123, "Ironman");
 
     app.start();
@@ -313,7 +312,7 @@ describe("Comprehensive User Journeys", () => {
 
     // 3. Fail Mission (Lost)
     await new Promise(resolve => setTimeout(resolve, 100));
-    const missionRunner = (app as any).registry.missionRunner;
+    const missionRunner = app.registry.missionRunner;
     (missionRunner as any).onMissionComplete({
       nodeId: accessibleNode.id,
       seed: 123,

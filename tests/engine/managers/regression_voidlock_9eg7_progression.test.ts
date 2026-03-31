@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MissionReconciler } from "@src/engine/campaign/MissionReconciler";
 import { MissionReport } from "@src/shared/campaign_types";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
@@ -9,9 +10,9 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
   let storage: MockStorageProvider;
 
   beforeEach(() => {
-    CampaignManager.resetInstance();
+    
     storage = new MockStorageProvider();
-    manager = CampaignManager.getInstance(storage);
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
   });
 
   it("should mark sibling nodes as Skipped when a node is cleared", () => {

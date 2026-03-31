@@ -701,7 +701,7 @@ export class EquipmentScreen {
     Object.values(ItemLibrary).filter((i) => i.action && isUnlocked(i.id)).forEach((item) => {
       const count = this.config.inventory?.[item.id] || 0;
       items.push(
-        <div class="flex-row justify-between align-center card w-full" style={{ marginBottom: "4px", padding: "6px 10px", gap: "8px" }} title={`${t("units.item." + item.id)}\n${t("units.item.desc." + item.id) || ""}`}>
+        <div class="flex-row justify-between align-center card item-card w-full" data-id={item.id} style={{ marginBottom: "4px", padding: "6px 10px", gap: "8px" }} title={`${t("units.item." + item.id)}\n${t("units.item.desc." + item.id) || ""}`}>
           <div class="flex-col" style={{ flexGrow: "1" }}>
             <div class="supply-item-header" style={{ fontWeight: "bold", fontSize: "0.85em", width: "100%", display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
               <span>{t("units.item." + item.id)}</span>

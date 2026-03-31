@@ -2,7 +2,8 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { GameStatus, UnitState } from "@src/shared/types";
 
@@ -66,7 +67,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
     applyTheme: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     ThemeManager: mockConstructor,
   };
@@ -77,10 +78,6 @@ describe("E2E Campaign Failure Modes", () => {
   let cm: CampaignManager;
 
   beforeEach(async () => {
-    // Reset singleton with storage
-    (CampaignManager as any).instance = null;
-    cm = CampaignManager.getInstance(new MockStorageProvider());
-
     // Set up minimal DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
@@ -145,9 +142,12 @@ describe("E2E Campaign Failure Modes", () => {
       disconnect: vi.fn(),
     }));
 
+    localStorage.clear();
+
     app = new GameApp();
     await app.initialize();
     app.start();
+    cm = app.registry.campaignManager;
   });
 
   afterEach(() => {

@@ -2,6 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("CampaignScreen Bonus Loot Pips", () => {
   let container: HTMLElement;
@@ -23,8 +25,8 @@ describe("CampaignScreen Bonus Loot Pips", () => {
       disconnect: vi.fn(),
     }));
 
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(
+    
+    manager = new CampaignManager(
       new (class {
         save() {}
         load() {
@@ -33,6 +35,7 @@ describe("CampaignScreen Bonus Loot Pips", () => {
         remove() {}
         clear() {}
       })(),
+      new MetaManager(new MockStorageProvider())
     );
     onNodeSelect = vi.fn();
     onBack = vi.fn();
@@ -75,6 +78,7 @@ describe("CampaignScreen Bonus Loot Pips", () => {
     state.nodes[0].bonusLootCount = 3;
 
     const screen = new CampaignScreen({
+      metaManager: new MetaManager(new MockStorageProvider()),
       containerId: "screen-campaign",
       campaignManager: manager,
       themeManager: mockTheme as any,
@@ -100,6 +104,7 @@ describe("CampaignScreen Bonus Loot Pips", () => {
     state.nodes[0].bonusLootCount = 2;
 
     const screen = new CampaignScreen({
+      metaManager: new MetaManager(new MockStorageProvider()),
       containerId: "screen-campaign",
       campaignManager: manager,
       themeManager: mockTheme as any,
@@ -121,6 +126,7 @@ describe("CampaignScreen Bonus Loot Pips", () => {
     state.nodes[0].bonusLootCount = 3;
 
     const screen = new CampaignScreen({
+      metaManager: new MetaManager(new MockStorageProvider()),
       containerId: "screen-campaign",
       campaignManager: manager,
       themeManager: mockTheme as any,
@@ -142,6 +148,7 @@ describe("CampaignScreen Bonus Loot Pips", () => {
     state.nodes[0].bonusLootCount = 3;
 
     const screen = new CampaignScreen({
+      metaManager: new MetaManager(new MockStorageProvider()),
       containerId: "screen-campaign",
       campaignManager: manager,
       themeManager: mockTheme as any,

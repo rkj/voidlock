@@ -6,6 +6,7 @@ import { MenuController } from "../MenuController";
 import { HUDManager } from "../ui/HUDManager";
 import { InputManager } from "../InputManager";
 import { InputDispatcher } from "../InputDispatcher";
+import { TooltipManager } from "../ui/TooltipManager";
 import { ModalService } from "../ui/ModalService";
 import type { CampaignTabId } from "../ui/CampaignShell";
 import { CampaignShell } from "../ui/CampaignShell";
@@ -74,6 +75,7 @@ export class AppServiceRegistry {
   public hudManager!: HUDManager;
   public inputManager!: InputManager;
   public inputDispatcher!: InputDispatcher;
+  public tooltipManager!: TooltipManager;
   public modalService!: ModalService;
   public campaignShell!: CampaignShell;
   public cloudSync!: CloudSyncService;
@@ -89,6 +91,7 @@ export class AppServiceRegistry {
 
   public destroy() {
     if (this.inputDispatcher) this.inputDispatcher.destroy();
+    if (this.tooltipManager) this.tooltipManager.destroy();
     if (this.missionRunner) this.missionRunner.stop();
   }
 
@@ -107,15 +110,16 @@ export class AppServiceRegistry {
     
     const saveManager = new SaveManager();
     saveManager.getCloudSync().setEnabled(globalConfig.cloudSyncEnabled);
-    this.campaignManager = CampaignManager.getInstance(saveManager);
-    this.metaManager = MetaManager.getInstance(new LocalStorageProvider());
+    this.metaManager = new MetaManager(new LocalStorageProvider());
+    this.campaignManager = new CampaignManager(saveManager, this.metaManager);
 
     // Initialize cloudSync from SaveManager
     this.cloudSync = saveManager.getCloudSync();
     await this.cloudSync.initialize();
 
     this.campaignManager.load();
-    this.modalService = new ModalService();
+    this.tooltipManager = new TooltipManager();
+    this.modalService = new ModalService(this.inputDispatcher);
     this.screenManager = new ScreenManager(config.onScreenChange);
 
     this.campaignShell = new CampaignShell({

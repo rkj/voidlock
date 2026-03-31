@@ -1,3 +1,5 @@
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 /**
  * @vitest-environment jsdom
  */
@@ -53,7 +55,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
     applyTheme: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     ThemeManager: mockConstructor,
   };
@@ -68,7 +70,7 @@ vi.mock("@src/renderer/visuals/AssetManager", () => {
     getIcon: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     AssetManager: mockConstructor,
   };
@@ -162,7 +164,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     }),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     CampaignManager: mockConstructor,
   };
@@ -315,7 +317,7 @@ describe("MissionSetupManager - Quick Revive & Recruit (voidlock-dp5x)", () => {
       
       // Verification
       const { CampaignManager } = await import("@src/renderer/campaign/CampaignManager");
-      const managerInstance = CampaignManager.getInstance();
+      const managerInstance = new CampaignManager(new MockStorageProvider(), new MetaManager(new MockStorageProvider()));
       expect(managerInstance.reviveSoldier).toHaveBeenCalledWith("s1");
     });
 
@@ -353,7 +355,7 @@ describe("MissionSetupManager - Quick Revive & Recruit (voidlock-dp5x)", () => {
       scoutCard.click();
       
       const { CampaignManager } = await import("@src/renderer/campaign/CampaignManager");
-      const manager = CampaignManager.getInstance();
+      const manager = new CampaignManager(new MockStorageProvider(), new MetaManager(new MockStorageProvider()));
       expect(manager.recruitSoldier).toHaveBeenCalled();
     });
   });

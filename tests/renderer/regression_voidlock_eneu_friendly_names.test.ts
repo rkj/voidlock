@@ -43,7 +43,7 @@ describe("Regression: voidlock-eneu - Friendly Weapon Names in Soldier List", ()
     };
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,

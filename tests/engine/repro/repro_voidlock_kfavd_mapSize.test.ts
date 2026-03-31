@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { calculateMapSize, calculateSpawnPoints } from "@src/shared/campaign_types";
-import { CampaignManager } from "@src/engine/campaign/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("repro_voidlock_kfavd_mapSize", () => {
@@ -8,9 +9,9 @@ describe("repro_voidlock_kfavd_mapSize", () => {
   let storage: MockStorageProvider;
 
   beforeEach(() => {
-    CampaignManager.resetInstance();
+    
     storage = new MockStorageProvider();
-    manager = CampaignManager.getInstance(storage);
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
   });
 
   it("should calculate map size correctly based on Rank (0-indexed rank)", () => {

@@ -12,25 +12,18 @@ import { MetaManager } from "./MetaManager";
 const STORAGE_KEY = "voidlock_campaign_state";
 
 export class CampaignManager {
-  private static instance: CampaignManager | null = null;
+  private metaManager: MetaManager;
   private state: CampaignState | null = null;
   private storage: StorageProvider;
   private listeners: Set<() => void> = new Set();
 
-  private constructor(storage: StorageProvider) {
+  public constructor(storage: StorageProvider, metaManager: MetaManager) {
+    this.metaManager = metaManager;
     this.storage = storage;
     this.load();
   }
 
-  public static getInstance(storage?: StorageProvider): CampaignManager {
-    if (!CampaignManager.instance) {
-      if (!storage) {
-        throw new Error("CampaignManager: StorageProvider required for initialization");
-      }
-      CampaignManager.instance = new CampaignManager(storage);
-    }
-    return CampaignManager.instance;
-  }
+  
 
   public getState(): CampaignState | null {
     return this.state;
@@ -128,13 +121,7 @@ export class CampaignManager {
   /**
    * Reset the singleton instance (useful for tests).
    */
-  public static resetInstance(): void {
-    CampaignManager.instance = null;
-  }
-
-  public static resetSingleton(): void {
-    CampaignManager.instance = null;
-  }
+  
 
   /**
    * Resets the campaign state, effectively deleting the current campaign.
@@ -186,7 +173,7 @@ export class CampaignManager {
     const rules = this.getRulesForDifficulty(difficulty);
 
     // Incorporate global meta-unlocks
-    const metaManager = MetaManager.getInstance(this.storage);
+    const metaManager = this.metaManager;
     const metaStats = metaManager.getStats();
     
     // Default skipPrologue from metaStats
@@ -354,7 +341,7 @@ export class CampaignManager {
     MissionReconciler.reconcile(this.state, result);
     
     // Record globally
-    MetaManager.getInstance(this.storage).recordMissionResult({
+    this.metaManager.recordMissionResult({
       kills: result.kills,
       casualties: result.casualties ? result.casualties.length : 0,
       won: result.won,

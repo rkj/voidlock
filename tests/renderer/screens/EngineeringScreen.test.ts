@@ -35,9 +35,9 @@ describe("EngineeringScreen", () => {
     container = document.getElementById("screen-engineering")!;
     onUpdate = vi.fn();
 
-    MetaManager.resetInstance();
+    
     // Initialize MetaManager with a mock storage
-    MetaManager.getInstance(
+    const metaManager = new MetaManager(
       new (class {
         save() {}
         load() {
@@ -50,9 +50,17 @@ describe("EngineeringScreen", () => {
   });
 
   it("should render correctly with default intel and unlockables", () => {
+    const metaManager = new MetaManager(new (class {
+        save() {}
+        load() {
+          return null;
+        }
+        remove() {}
+        clear() {}
+      })());
     const screen = new EngineeringScreen({
       containerId: "screen-engineering",
-      metaManager: MetaManager.getInstance(),
+      metaManager: metaManager,
       inputDispatcher: { pushContext: vi.fn(), popContext: vi.fn() } as any,
       onUpdate,
     });
@@ -79,7 +87,27 @@ describe("EngineeringScreen", () => {
   });
 
   it("should allow unlocking an archetype when intel is sufficient", () => {
-    const meta = MetaManager.getInstance();
+    const mockStorage = new (class {
+        data: any = { 
+            totalKills: 0, 
+            totalCasualties: 0, 
+            totalMissionsPlayed: 0, 
+            totalMissionsWon: 0, 
+            totalScrapEarned: 0, 
+            currentIntel: 0, 
+            unlockedArchetypes: [], 
+            unlockedItems: [],
+            totalCampaignsStarted: 0,
+            campaignsWon: 0,
+            campaignsLost: 0,
+            prologueCompleted: false
+        };
+        save(key: string, val: any) { this.data = val; }
+        load() { return this.data; }
+        remove() {}
+        clear() {}
+      })();
+    const meta = new MetaManager(mockStorage);
     // Give enough intel for heavy archetype (cost 50)
     meta.recordMissionResult({
       kills: 0,

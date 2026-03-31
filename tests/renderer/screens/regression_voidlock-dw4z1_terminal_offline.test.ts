@@ -48,7 +48,7 @@ describe("Regression voidlock-dw4z1: Terminal Offline text truncated", () => {
 
   it("should have Terminal Offline message at the TOP of the Logistics & Supplies panel", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,

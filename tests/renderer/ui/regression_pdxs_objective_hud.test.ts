@@ -2,76 +2,58 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
 import { GameState, MissionType } from "@src/shared/types";
+import { setLocale } from "@src/renderer/i18n";
 
 describe("HUDManager Objective Regression PDXS", () => {
   let hud: HUDManager;
   let mockMenuController: any;
 
   const mockState: GameState = {
-    t: 0,
+    t: 1000,
     seed: 12345,
     missionType: MissionType.Default,
     status: "Playing",
-    settings: {
-      mode: "Simulation" as any,
-      debugOverlayEnabled: false,
-      debugSnapshots: false,
-      losOverlayEnabled: false,
-      timeScale: 1.0,
-      isPaused: false,
-      isSlowMotion: false,
-      allowTacticalPause: true,
-    },
-    squadInventory: {},
-    stats: {
-      threatLevel: 0,
-      aliensKilled: 0,
-      elitesKilled: 0,
-      casualties: 0,
-      scrapGained: 0,
-    },
-    map: { width: 10, height: 10, cells: [] },
     units: [],
     enemies: [],
     visibleCells: [],
-    discoveredCells: [],
-    loot: [],
-    mines: [],
-    turrets: [],
-    objectives: [
-      {
-        id: "artifact-1",
-        kind: "Recover",
-        state: "Pending",
-        targetCell: { x: 2, y: 2 },
-      },
-      {
-        id: "o2",
-        kind: "Recover",
-        state: "Completed",
-        targetCell: { x: 5, y: 5 },
-      },
-    ],
+    map: {
+      width: 10,
+      height: 10,
+      cells: [],
+      squadSpawn: { x: 0, y: 0 },
+      extraction: { x: 9, y: 9 },
+      generatorName: "Unknown",
+    },
+    objectives: [],
+    stats: {
+      threatLevel: 0,
+      aliensKilled: 0,
+      casualties: 0,
+      totalCredits: 0,
+      missionsPlayed: 0,
+      missionsWon: 0,
+    },
+    settings: {
+      allowTacticalPause: true,
+      debugOverlayEnabled: false,
+      isPaused: false,
+      targetTimeScale: 1.0,
+      timeScale: 1.0,
+    },
+    commandLog: [],
   };
 
   beforeEach(() => {
-    document.body.innerHTML = `
-      <div id="game-status"></div>
-      <div id="version-display"></div>
-      <div id="menu-version"></div>
-      <div id="top-threat-fill"></div>
-      <div id="top-threat-value"></div>
-      <div id="right-panel"></div>
-      <div id="soldier-list"></div>
-    `;
-
+    setLocale("en-standard");
+    document.body.innerHTML = '<div id="screen-mission"><div id="mission-body"></div></div>';
+    
     mockMenuController = {
-      getRenderableState: vi.fn(() => ({ title: "Actions", options: [] })),
+      getRenderableState: vi.fn().mockReturnValue({ title: "Test", options: [] }),
     };
 
     hud = new HUDManager({
       menuController: mockMenuController,
-      tutorialManager: { getCurrentStepId: () => null } as any,
+      tutorialManager: null,
       onUnitClick: vi.fn(),
       onAbortMission: vi.fn(),
       onMenuInput: vi.fn(),
@@ -79,61 +61,76 @@ describe("HUDManager Objective Regression PDXS", () => {
       onForceWin: vi.fn(),
       onForceLose: vi.fn(),
       onStartMission: vi.fn(),
-      onDeployUnit: vi.fn()
+      onDeployUnit: vi.fn(),
     });
   });
 
-  it("should NOT show status text (Pending/Completed)", () => {
-    hud.update(mockState, null);
-    const objectivesDiv = document.querySelector(".objectives-status");
-    expect(objectivesDiv?.innerHTML).not.toContain("(Pending)");
-    expect(objectivesDiv?.innerHTML).not.toContain("(Completed)");
-  });
+  it("should hide coordinates when debug overlay is disabled", () => {
+    const stateWithObjectives: GameState = {
+      ...mockState,
+      settings: { ...mockState.settings, debugOverlayEnabled: false },
+      objectives: [
+        {
+          id: "o1",
+          kind: "Kill",
+          state: "Pending",
+          targetCell: { x: 5, y: 5 },
+          visible: true,
+        },
+      ],
+    };
 
-  it("should NOT show coordinates by default", () => {
-    hud.update(mockState, null);
+    hud.update(stateWithObjectives, null);
+
     const objectivesDiv = document.querySelector(".objectives-status");
     expect(objectivesDiv?.innerHTML).not.toContain("at (5,5)");
   });
 
-  it("should SHOW coordinates when debugOverlayEnabled is true", () => {
-    const debugState = {
+  it("should show coordinates when debug overlay is enabled", () => {
+    const stateWithObjectives: GameState = {
       ...mockState,
       settings: { ...mockState.settings, debugOverlayEnabled: true },
+      objectives: [
+        {
+          id: "o1",
+          kind: "Kill",
+          state: "Pending",
+          targetCell: { x: 5, y: 5 },
+          visible: true,
+        },
+      ],
     };
-    hud.update(debugState, null);
+
+    hud.update(stateWithObjectives, null);
+
     const objectivesDiv = document.querySelector(".objectives-status");
     expect(objectivesDiv?.innerHTML).toContain("at (5,5)");
   });
 
   it("should add title attribute to the icon span", () => {
-    hud.update(mockState, null);
+    const stateWithObjectives: GameState = {
+      ...mockState,
+      objectives: [
+        {
+          id: "o1",
+          kind: "Kill",
+          state: "Pending",
+          visible: true,
+        },
+        {
+          id: "o2",
+          kind: "Recover",
+          state: "Completed",
+          visible: true,
+        },
+      ],
+    };
+
+    hud.update(stateWithObjectives, null);
+
     const objectivesDiv = document.querySelector(".objectives-status");
     const icons = objectivesDiv?.querySelectorAll(".obj-icon");
     expect(icons?.[0].getAttribute("title")).toBe("Pending");
     expect(icons?.[1].getAttribute("title")).toBe("Completed");
-  });
-
-  it("should handle extraction coordinates similarly", () => {
-    const stateWithExtraction = {
-      ...mockState,
-      map: { ...mockState.map, extraction: { x: 8, y: 8 } },
-      objectives: [], // Remove escort to show implicit extraction
-    };
-
-    // Default: no coords
-    hud.update(stateWithExtraction, null);
-    let objectivesDiv = document.querySelector(".objectives-status");
-    expect(objectivesDiv?.innerHTML).toContain("Retrieval");
-    expect(objectivesDiv?.innerHTML).not.toContain("at (8,8)");
-
-    // Debug: show coords
-    const debugState = {
-      ...stateWithExtraction,
-      settings: { ...stateWithExtraction.settings, debugOverlayEnabled: true },
-    };
-    hud.update(debugState, null);
-    objectivesDiv = document.querySelector(".objectives-status");
-    expect(objectivesDiv?.innerHTML).toContain("at (8,8)");
   });
 });

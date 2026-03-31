@@ -96,7 +96,7 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
     addChangeListener: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return { MetaManager: mockConstructor };
 });
 
@@ -104,7 +104,7 @@ describe("Regression voidlock-14fv: Campaign Mission Setup Reload", () => {
   let app: GameApp;
 
   beforeEach(async () => {
-    CampaignManager.resetInstance();
+    
     
     document.body.innerHTML = `
       <div id="app">

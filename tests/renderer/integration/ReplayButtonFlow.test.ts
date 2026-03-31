@@ -61,7 +61,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
     applyTheme: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     ThemeManager: mockConstructor,
   };
@@ -76,7 +76,7 @@ vi.mock("@src/renderer/visuals/AssetManager", () => {
     getIcon: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     AssetManager: mockConstructor,
   };
@@ -104,7 +104,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     startNewCampaign: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     CampaignManager: mockConstructor,
   };

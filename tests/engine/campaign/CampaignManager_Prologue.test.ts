@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { CampaignManager } from "../../../src/engine/campaign/CampaignManager";
-import { MetaManager } from "../../../src/engine/campaign/MetaManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "../../../src/engine/persistence/MockStorageProvider";
 
 describe("CampaignManager Prologue Integration", () => {
@@ -10,10 +10,8 @@ describe("CampaignManager Prologue Integration", () => {
 
   beforeEach(() => {
     storage = new MockStorageProvider();
-    CampaignManager.resetInstance();
-    MetaManager.resetInstance();
-    manager = CampaignManager.getInstance(storage);
-    metaManager = MetaManager.getInstance(storage);
+    metaManager = new MetaManager(storage);
+    manager = new CampaignManager(storage, metaManager);
   });
 
   it("should set skipPrologue based on MetaStats.prologueCompleted", () => {
@@ -26,8 +24,7 @@ describe("CampaignManager Prologue Integration", () => {
     metaManager.recordPrologueCompleted();
 
     // 3. New campaign should default to true
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(storage);
+    manager = new CampaignManager(storage, metaManager);
     manager.startNewCampaign(67890, "Standard");
     state = manager.getState();
     expect(state?.rules.skipPrologue).toBe(true);

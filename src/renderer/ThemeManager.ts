@@ -2,22 +2,12 @@ import type { ThemeConfig } from "@src/shared/types";
 import { Logger } from "@src/shared/Logger";
 
 export class ThemeManager {
-  private static instance: ThemeManager;
+  
   private colorCache: Map<string, string> = new Map();
   private assets: Record<string, string> = {};
 
   public constructor() {
     // Listen for theme changes if needed in the future
-  }
-
-  /**
-   * @deprecated Use constructor injection via AppServiceRegistry.
-   */
-  public static getInstance(): ThemeManager {
-    if (!ThemeManager.instance) {
-      ThemeManager.instance = new ThemeManager();
-    }
-    return ThemeManager.instance;
   }
 
   /**

@@ -1,42 +1,38 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
-const projectRoot = process.cwd();
-
-function getFiles(dir: string): string[] {
-  let results: string[] = [];
-  const list = fs.readdirSync(dir);
-  list.forEach(file => {
-    file = path.resolve(dir, file);
-    const stat = fs.statSync(file);
-    if (stat && stat.isDirectory()) {
-      results = results.concat(getFiles(file));
-    } else if (file.endsWith('.test.ts') || file.endsWith('.test.tsx')) {
-      results.push(file);
-    }
+function walk(dir, callback) {
+  fs.readdirSync(dir).forEach(f => {
+    let dirPath = path.join(dir, f);
+    let isDirectory = fs.statSync(dirPath).isDirectory();
+    isDirectory ? walk(dirPath, callback) : callback(path.join(dir, f));
   });
-  return results;
-}
+};
 
-const allTestFiles = getFiles(path.join(projectRoot, 'tests/renderer'));
+walk('tests', (filePath) => {
+  if (filePath.endsWith('.test.ts') || filePath.endsWith('.test.tsx')) {
+    let content = fs.readFileSync(filePath, 'utf8');
+    let updated = content;
+    
+    // 1. Fix new MetaManager() without arguments
+    updated = updated.replace(/new MetaManager\(\)/g, 'new MetaManager(new MockStorageProvider())');
+    
+    // 2. Add metaManager to CampaignScreen constructor if missing
+    if (updated.includes('new CampaignScreen({') && !updated.includes('metaManager:')) {
+        console.log('Adding metaManager to CampaignScreen in ' + filePath);
+        updated = updated.replace(/new CampaignScreen\(\{/, 'new CampaignScreen({\n      metaManager: new MetaManager(new MockStorageProvider()),');
+    }
 
-allTestFiles.forEach(filePath => {
-  let content = fs.readFileSync(filePath, 'utf8');
-  let changed = false;
+    // 3. Fix the double-parentheses issue again just in case
+    updated = updated.replace(/new MetaManager\(new MockStorageProvider\(\)\)\);/g, 'new MetaManager(new MockStorageProvider()));');
+    
+    // 4. Fix new CampaignManager(storage, new MetaManager(new MockStorageProvider())).reset() -> it needs storage too
+    // This is for the reset() calls I saw in FullCampaignFlow.test.ts
+    updated = updated.replace(/new MetaManager\(\)\.reset\(\)/g, 'new MetaManager(new MockStorageProvider()).reset()');
 
-  // Fix currentCampaignState ReferenceError
-  if (content.includes('currentCampaignState =') && !content.includes('let currentCampaignState')) {
-      // Find where describe starts
-      const describeMatch = content.match(/describe\(/);
-      if (describeMatch) {
-          const insertPos = describeMatch.index!;
-          content = content.slice(0, insertPos) + "let currentCampaignState: any = null;\n" + content.slice(insertPos);
-          changed = true;
-      }
-  }
-
-  if (changed) {
-    fs.writeFileSync(filePath, content);
-    console.log(`Updated: ${filePath}`);
+    if (updated !== content) {
+      console.log('Polishing v7 ' + filePath);
+      fs.writeFileSync(filePath, updated);
+    }
   }
 });

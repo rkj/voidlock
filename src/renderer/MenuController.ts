@@ -25,6 +25,8 @@ import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { Logger } from "@src/shared/Logger";
 import type { TutorialManager } from "./controllers/TutorialManager";
+import { t } from "./i18n";
+import { I18nKeys } from "./i18n/keys";
 
 export interface RenderableMenuState {
   title: string;
@@ -151,7 +153,7 @@ export class MenuController {
       } else {
         option = config.options.find((o) => o.key.toString() === key);
         if (option && !this.isActionAllowedInTutorial(option)) {
-          Logger.warn(`Tutorial: Option ${option.label} is currently blocked.`);
+          Logger.warn(`Tutorial: Option ${t(option.labelKey)} is currently blocked.`);
           return;
         }
       }
@@ -205,7 +207,7 @@ export class MenuController {
           ) {
             this.executePendingCommand(this.selection.pendingUnitIds);
           } else {
-            this.transitionTo("UNIT_SELECT", "Selected Location");
+            this.transitionTo("UNIT_SELECT", t(I18nKeys.menu.select_location));
           }
       }
     } else {
@@ -250,20 +252,20 @@ export class MenuController {
 
     if (option) {
       if (option.type === "TRANSITION") {
-        this.transitionTo(option.nextState || "ACTION_SELECT", option.label);
+        this.transitionTo(option.nextState || "ACTION_SELECT", t(option.labelKey));
       } else if (option.type === "ACTION" && option.commandType) {
         this.selection.pendingAction = option.commandType;
         if (option.commandType === CommandType.SET_ENGAGEMENT) {
-          this.selection.pendingLabel = "Policy Change";
-          this.transitionTo("MODE_SELECT", option.label);
+          this.selection.pendingLabel = t(I18nKeys.menu.label_policy_change);
+          this.transitionTo("MODE_SELECT", t(option.labelKey));
         } else if (option.commandType === CommandType.USE_ITEM) {
-          this.transitionTo("ITEM_SELECT", option.label);
+          this.transitionTo("ITEM_SELECT", t(option.labelKey));
         } else if (option.commandType === CommandType.PICKUP) {
-          this.selection.pendingLabel = "Picking Up";
-          this.transitionTo("TARGET_SELECT", option.label);
+          this.selection.pendingLabel = t(I18nKeys.menu.label_picking_up);
+          this.transitionTo("TARGET_SELECT", t(option.labelKey));
         } else if (option.commandType === CommandType.EXTRACT) {
-          this.selection.pendingLabel = "Extracting";
-          this.transitionTo("UNIT_SELECT", option.label);
+          this.selection.pendingLabel = t(I18nKeys.menu.label_extracting);
+          this.transitionTo("UNIT_SELECT", t(option.labelKey));
         }
       }
     }
@@ -280,16 +282,16 @@ export class MenuController {
         this.selection.pendingAction = option.commandType;
         if (option.nextState) {
           if (option.nextState === "TARGET_SELECT" || option.nextState === "UNIT_SELECT") {
-            this.selection.pendingLabel = option.label;
+            this.selection.pendingLabel = t(option.labelKey);
           }
-          this.transitionTo(option.nextState, option.label);
+          this.transitionTo(option.nextState, t(option.labelKey));
         } else {
           // Direct execution (e.g. Stop)
-          this.selection.pendingLabel = option.label;
+          this.selection.pendingLabel = t(option.labelKey);
           if (this.selection.pendingUnitIds) {
             this.executePendingCommand(this.selection.pendingUnitIds);
           } else {
-            this.transitionTo("UNIT_SELECT", option.label);
+            this.transitionTo("UNIT_SELECT", t(option.labelKey));
           }
         }
       }
@@ -313,21 +315,21 @@ export class MenuController {
       this.selection.pendingItemId = itemId;
 
       if (item?.action === "Heal") {
-        this.selection.pendingLabel = "Healing";
+        this.selection.pendingLabel = t(I18nKeys.menu.label_healing);
         // Convention: Pick TARGET first
         this.transitionTo("UNIT_SELECT", item.name);
       } else if (item?.action === "Grenade") {
-        this.selection.pendingLabel = "Throwing Grenade";
+        this.selection.pendingLabel = t(I18nKeys.menu.label_throwing_grenade);
         this.transitionTo("TARGET_SELECT", item.name);
       } else if (item?.action === "Scanner") {
-        this.selection.pendingLabel = "Scanning";
+        this.selection.pendingLabel = t(I18nKeys.menu.label_scanning);
         this.transitionTo("TARGET_SELECT", item.name);
       } else if (item?.action === "Mine") {
-        this.selection.pendingLabel = "Placing Mine";
+        this.selection.pendingLabel = t(I18nKeys.menu.label_placing_mine);
         // Sequence: Item -> Unit -> Target
         this.transitionTo("UNIT_SELECT", item.name);
       } else if (item?.action === "Sentry") {
-        this.selection.pendingLabel = "Deploying Sentry";
+        this.selection.pendingLabel = t(I18nKeys.menu.label_deploying_sentry);
         // Sequence: Item -> Unit -> Target
         this.transitionTo("UNIT_SELECT", item.name);
       }
@@ -339,7 +341,7 @@ export class MenuController {
     const option = config.options.find((o) => o.key.toString() === key);
     if (option?.type === "MODE") {
       this.selection.pendingMode = option.modeValue || null;
-      this.transitionTo(option.nextState || "UNIT_SELECT", option.label);
+      this.transitionTo(option.nextState || "UNIT_SELECT", t(option.labelKey));
     } else if (option?.type === "BACK") {
       this.goBack();
     }
@@ -443,11 +445,11 @@ export class MenuController {
     const config = MENU_CONFIG[this.stateMachine.state];
     const breadcrumbs = [...this.stateMachine.breadcrumbs];
     if (this.selection.isShiftHeld && breadcrumbs.length > 0) {
-      breadcrumbs[breadcrumbs.length - 1] += " (QUEUE)";
+      breadcrumbs[breadcrumbs.length - 1] += t(I18nKeys.menu.queue_suffix);
     }
 
     const result: RenderableMenuState = {
-      title: config.title,
+      title: t(config.titleKey),
       options: [],
       breadcrumbs,
     };
@@ -466,18 +468,18 @@ export class MenuController {
     ) {
       result.options = config.options.map((opt) => ({
         key: opt.key.toString(),
-        label: opt.key === 0 ? "0. Back" : `${opt.key}. ${opt.label}`,
+        label: opt.key === 0 ? `0. ${t(opt.labelKey)}` : `${opt.key}. ${t(opt.labelKey)}`,
         isBack: opt.key === 0,
         disabled: this.isOptionDisabled(opt, gameState),
         dataAttributes: { index: opt.key.toString() },
       }));
 
       if (this.stateMachine.state === "ACTION_SELECT") {
-        result.footer = "(Select Action)";
+        result.footer = t(I18nKeys.menu.footer_select_action);
       } else if (this.stateMachine.state === "ORDERS_SELECT") {
-        result.footer = "(Select Order)";
+        result.footer = t(I18nKeys.menu.footer_select_order);
       } else {
-        result.footer = "(Q/ESC to Go Back)";
+        result.footer = t(I18nKeys.menu.footer_back_hint);
       }
     } else if (this.stateMachine.state === "ITEM_SELECT") {
       const items = Object.entries(gameState.squadInventory).filter(
@@ -507,11 +509,11 @@ export class MenuController {
       });
       result.options.push({
         key: "0",
-        label: "0. Back",
+        label: `0. ${t(I18nKeys.menu.back)}`,
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(Select Item, Q/ESC to Back)";
+      result.footer = t(I18nKeys.menu.footer_select_item);
     } else if (this.stateMachine.state === "TARGET_SELECT") {
       const options = this.overlayOptions;
       if (
@@ -519,7 +521,7 @@ export class MenuController {
         this.selection.pendingAction !== CommandType.MOVE_TO &&
         this.selection.pendingAction !== CommandType.USE_ITEM
       ) {
-        result.error = "No POIs Available.";
+        result.error = t(I18nKeys.menu.error_no_poi);
       } else {
         result.options = options.map((opt) => ({
           key: opt.key,
@@ -529,11 +531,11 @@ export class MenuController {
       }
       result.options.push({
         key: "0",
-        label: "0. Back",
+        label: `0. ${t(I18nKeys.menu.back)}`,
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(Click Map or Press 1-9, Q/ESC to Back)";
+      result.footer = t(I18nKeys.menu.footer_select_target);
     } else if (this.stateMachine.state === "UNIT_SELECT") {
       let activeUnits = gameState.units.filter(
         (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
@@ -581,7 +583,7 @@ export class MenuController {
 
         result.options.push({
           key: allUnitsKey.toString(),
-          label: `${allUnitsKey}. All Units`,
+          label: `${allUnitsKey}. ${t(I18nKeys.menu.all_units)}`,
           disabled,
           dataAttributes: { index: allUnitsKey.toString(), "unit-id": "ALL" },
         });
@@ -589,11 +591,11 @@ export class MenuController {
 
       result.options.push({
         key: "0",
-        label: "0. Back",
+        label: `0. ${t(I18nKeys.menu.back)}`,
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(Press 1-9 or Q/ESC)";
+      result.footer = t(I18nKeys.menu.footer_select_unit);
     }
 
     return result;

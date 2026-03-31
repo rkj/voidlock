@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("CampaignManager Regression NE16", () => {
@@ -7,9 +8,9 @@ describe("CampaignManager Regression NE16", () => {
   let storage: MockStorageProvider;
 
   beforeEach(() => {
-    CampaignManager.resetInstance();
+    
     storage = new MockStorageProvider();
-    manager = CampaignManager.getInstance(storage);
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
   });
 
   it("should allow overriding tactical pause when starting a new campaign", () => {
@@ -20,8 +21,8 @@ describe("CampaignManager Regression NE16", () => {
     expect(state?.rules.difficulty).toBe("Ironman");
     expect(state?.rules.allowTacticalPause).toBe(true);
 
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(storage);
+    
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
 
     // Standard normally has allowTacticalPause: true
     manager.startNewCampaign(67890, "Standard", false);

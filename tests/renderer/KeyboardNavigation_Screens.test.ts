@@ -8,6 +8,7 @@ import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { InputDispatcher } from "@src/renderer/InputDispatcher";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { SquadConfig } from "@src/shared/types";
 
@@ -63,10 +64,11 @@ describe("Screen Keyboard Navigation Integration", () => {
   });
 
   it("CampaignScreen should push and pop input context", () => {
-    const manager = CampaignManager.getInstance(new MockStorageProvider());
+    const manager = new CampaignManager(new MockStorageProvider(), new MetaManager(new MockStorageProvider()));
     manager.startNewCampaign(12345, "Standard");
 
     const screen = new CampaignScreen({
+      metaManager: new MetaManager(new MockStorageProvider()),
       containerId: "screen-campaign",
       campaignManager: manager,
       themeManager: { getAssetUrl: vi.fn(), getColor: vi.fn() } as any,
@@ -91,7 +93,7 @@ describe("Screen Keyboard Navigation Integration", () => {
   });
 
   it("EquipmentScreen should push and pop input context", () => {
-    const manager = CampaignManager.getInstance(new MockStorageProvider());
+    const manager = new CampaignManager(new MockStorageProvider(), new MetaManager(new MockStorageProvider()));
     manager.startNewCampaign(12345, "Standard");
 
     const initialConfig: SquadConfig = {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "@src/engine/campaign/CampaignManager";
-import { MetaManager } from "@src/engine/campaign/MetaManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MissionReconciler } from "@src/engine/campaign/MissionReconciler";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
@@ -11,10 +11,8 @@ describe("CampaignManager Unlocks", () => {
 
   beforeEach(() => {
     storage = new MockStorageProvider();
-    CampaignManager.resetInstance();
-    MetaManager.resetInstance();
-    campaignManager = CampaignManager.getInstance(storage);
-    metaManager = MetaManager.getInstance(storage);
+    metaManager = new MetaManager(storage);
+    campaignManager = new CampaignManager(storage, metaManager);
   });
 
   it("should unlock archetypes in MetaManager via intel spending", () => {

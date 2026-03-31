@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { MetaManager } from "@src/engine/campaign/MetaManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { MissionType, UnitState, GameState } from "@src/shared/types";
 
@@ -65,7 +65,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
     applyTheme: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     ThemeManager: mockConstructor,
   };
@@ -78,6 +78,7 @@ vi.mock("@src/renderer/controllers/TutorialManager", () => ({
     reset: vi.fn(),
     triggerEvent: vi.fn(),
     onScreenShow: vi.fn(),
+    isProloguePassiveStep: vi.fn().mockReturnValue(false),
   })),
 }));
 
@@ -105,9 +106,6 @@ describe("Full Campaign Flow Integration", () => {
 
   beforeEach(async () => {
     localStorage.clear();
-    // Reset singleton instances
-    (CampaignManager as any).instance = null;
-    (MetaManager as any).instance = null;
 
     // Standard DOM setup for tests
     document.body.innerHTML = `
@@ -163,20 +161,10 @@ describe("Full Campaign Flow Integration", () => {
       </div>
     `;
 
-    localStorage.clear();
-    // Reset singleton instances
-    (CampaignManager as any).instance = null;
-    (MetaManager as any).instance = null;
-
-    // Mock storage to ensure clean slate
-    CampaignManager.getInstance(new MockStorageProvider());
-    MetaManager.getInstance(new MockStorageProvider());
-    
-    CampaignManager.getInstance().reset();
-    MetaManager.getInstance().reset();
-
     app = new GameApp();
     await app.initialize();
+    app.registry.campaignManager.reset();
+    app.registry.metaManager.reset();
   });
 
   afterEach(() => {
@@ -186,8 +174,8 @@ describe("Full Campaign Flow Integration", () => {
   it(
     "should complete a full campaign flow with roster validation",
     async () => {
-      const cm = CampaignManager.getInstance();
-      const registry = (app as any).registry;
+      const cm = app.registry.campaignManager;
+      const registry = app.registry;
 
       // 1. Start Standard Campaign
       document.getElementById("btn-menu-campaign")?.click();

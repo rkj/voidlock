@@ -82,7 +82,7 @@ export function CampaignShellTopBar({
             style={{ margin: "0", padding: "5px 12px", height: "32px", fontSize: "0.85em", display: "flex", alignItems: "center", flexShrink: "0" }}
             onClick={onMenu}
           >
-            {t("menu.main")}
+            {t(I18nKeys.menu.main)}
           </button>
         )}
       </div>
@@ -96,8 +96,6 @@ interface FooterProps {
 }
 
 export function CampaignShellFooter({ metaStats, syncStatus }: FooterProps) {
-  const isMobile = window.innerWidth < 600;
-
   return (
     <div id="campaign-shell-footer" class="campaign-footer flex-row align-center gap-20" style={{
       background: "rgba(0, 0, 0, 0.6)",
@@ -115,15 +113,15 @@ export function CampaignShellFooter({ metaStats, syncStatus }: FooterProps) {
     }}>
 
       <div class="flex-row gap-5" style={{ alignItems: "center", flexShrink: "0" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? t(I18nKeys.hud.kills) : t(I18nKeys.hud.kills)}</span>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{t(I18nKeys.hud.kills)}</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalKills.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style={{ alignItems: "center", flexShrink: "0" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? t(I18nKeys.hud.contracts) : t(I18nKeys.hud.contracts)}</span>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{t(I18nKeys.hud.contracts)}</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalCampaignsStarted.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style={{ alignItems: "center", flexShrink: "0" }}>
-        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{isMobile ? t(I18nKeys.hud.wins) : t(I18nKeys.hud.wins)}</span>
+        <span style={{ letterSpacing: "1px", opacity: "0.7" }}>{t(I18nKeys.hud.wins)}</span>
         <span style={{ color: "var(--color-primary)", fontWeight: "bold" }}>{metaStats.totalMissionsWon.toLocaleString()}</span>
       </div>
       

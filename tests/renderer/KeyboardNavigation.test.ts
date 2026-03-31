@@ -8,7 +8,7 @@ describe("Keyboard Navigation", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
     // Reset singleton
-    const dispatcher = InputDispatcher.getInstance();
+    const dispatcher = new InputDispatcher();
     // @ts-ignore
     dispatcher.contextStack = [];
     // @ts-ignore
@@ -122,7 +122,7 @@ describe("Keyboard Navigation", () => {
     const first = document.getElementById("first")!;
     const last = document.getElementById("last")!;
 
-    const dispatcher = InputDispatcher.getInstance();
+    const dispatcher = new InputDispatcher();
     dispatcher.pushContext({
       id: "test",
       priority: InputPriority.UI,

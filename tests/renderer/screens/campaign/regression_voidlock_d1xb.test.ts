@@ -30,7 +30,7 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
     }),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return { MetaManager: mockConstructor };
 });
 
@@ -49,6 +49,7 @@ describe("regression_voidlock_d1xb: Clear cached squad on new campaign start", (
     onBack = vi.fn();
 
     wizard = new NewCampaignWizard(container, {
+      metaStats: { prologueCompleted: false } as any,
       onStartCampaign,
       onBack,
     });

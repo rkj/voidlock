@@ -4,6 +4,7 @@
 import { describe, it, expect } from "vitest";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { ArchetypeLibrary, WeaponLibrary } from "@src/shared/types";
@@ -11,7 +12,7 @@ import { ArchetypeLibrary, WeaponLibrary } from "@src/shared/types";
 describe("SoldierInspector - Fire Rate Calculation Regression", () => {
   it("should calculate fire rate using SPEED_NORMALIZATION_CONST (30), not 10", () => {
     const storage = new MockStorageProvider();
-    const manager = CampaignManager.getInstance(storage);
+    const manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
     const modalService = new ModalService();
     
     const inspector = new SoldierInspector({

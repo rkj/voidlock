@@ -286,16 +286,17 @@ export class SettingsScreen {
     const langSelect = document.createElement("select");
     langSelect.id = "settings-language";
     const availableLocales = getAvailableLocales();
-    const localeLabels: Record<string, string> = {
-      "en-corporate": "English (Corporate)",
-      "en-standard": "English (Standard)",
-      "pl": "Polski",
+    const localeKeys: Record<string, string> = {
+      "en-corporate": I18nKeys.screen.settings.lang_en_corporate,
+      "en-standard": I18nKeys.screen.settings.lang_en_standard,
+      "pl": I18nKeys.screen.settings.lang_pl,
     };
 
     availableLocales.forEach((loc) => {
       const opt = document.createElement("option");
       opt.value = loc;
-      opt.textContent = localeLabels[loc] || loc;
+      const key = localeKeys[loc] as any;
+      opt.textContent = key ? t(key) : loc;
       if (loc === global.locale) opt.selected = true;
       langSelect.appendChild(opt);
     });

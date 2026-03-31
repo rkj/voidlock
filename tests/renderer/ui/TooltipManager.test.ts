@@ -6,16 +6,12 @@ import { TooltipManager } from "@src/renderer/ui/TooltipManager";
 
 describe("TooltipManager", () => {
   let container: HTMLDivElement;
+  let manager: TooltipManager | null = null;
 
   beforeEach(() => {
     vi.useFakeTimers();
     document.body.innerHTML = "";
     document.body.classList.remove("mobile-touch");
-
-    // Clear any existing instance
-    if ((TooltipManager as any).instance) {
-      (TooltipManager as any).instance.destroy();
-    }
 
     container = document.createElement("div");
     container.innerHTML = `
@@ -27,12 +23,16 @@ describe("TooltipManager", () => {
   });
 
   afterEach(() => {
+    if (manager) {
+      manager.destroy();
+      manager = null;
+    }
     vi.useRealTimers();
   });
 
   it("should show tooltip on click if mobile-touch is active", () => {
     document.body.classList.add("mobile-touch");
-    const manager = TooltipManager.getInstance();
+    manager = new TooltipManager();
     const target = document.getElementById("target1")!;
 
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -44,7 +44,7 @@ describe("TooltipManager", () => {
   });
 
   it("should not show tooltip on click if mobile-touch is not active", () => {
-    const manager = TooltipManager.getInstance();
+    manager = new TooltipManager();
     const target = document.getElementById("target1")!;
 
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
@@ -55,7 +55,7 @@ describe("TooltipManager", () => {
 
   it("should toggle tooltip off when clicking the same target again", () => {
     document.body.classList.add("mobile-touch");
-    const manager = TooltipManager.getInstance();
+    manager = new TooltipManager();
     const target = document.getElementById("target1")!;
 
     // First click: show
@@ -72,7 +72,7 @@ describe("TooltipManager", () => {
 
   it("should switch tooltip when clicking another target", () => {
     document.body.classList.add("mobile-touch");
-    const manager = TooltipManager.getInstance();
+    manager = new TooltipManager();
     const target1 = document.getElementById("target1")!;
     const target2 = document.getElementById("target2")!;
 
@@ -94,7 +94,7 @@ describe("TooltipManager", () => {
 
   it("should dismiss tooltip when clicking outside", () => {
     document.body.classList.add("mobile-touch");
-    const manager = TooltipManager.getInstance();
+    manager = new TooltipManager();
     const target = document.getElementById("target1")!;
     const outside = document.getElementById("no-tooltip")!;
 
@@ -109,7 +109,7 @@ describe("TooltipManager", () => {
   });
 
   it("should handle touchstart events", () => {
-    const manager = TooltipManager.getInstance();
+    manager = new TooltipManager();
     const target = document.getElementById("target1")!;
 
     target.dispatchEvent(new TouchEvent("touchstart", { bubbles: true }));

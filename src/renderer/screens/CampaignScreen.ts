@@ -12,6 +12,7 @@ import { I18nKeys } from "../i18n/keys";
 export interface CampaignScreenConfig {
   containerId: string;
   campaignManager: CampaignManager;
+  metaManager: import("@src/renderer/campaign/MetaManager").MetaManager;
   themeManager: ThemeManager;
   inputDispatcher: InputDispatcher;
   modalService: ModalService;
@@ -24,6 +25,7 @@ export interface CampaignScreenConfig {
 export class CampaignScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
+  private metaManager: import("@src/renderer/campaign/MetaManager").MetaManager;
   private themeManager: ThemeManager;
   private inputDispatcher: InputDispatcher;
   private modalService: ModalService;
@@ -37,6 +39,7 @@ export class CampaignScreen {
     const {
       containerId,
       campaignManager,
+      metaManager,
       themeManager,
       inputDispatcher,
       modalService,
@@ -50,6 +53,7 @@ export class CampaignScreen {
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = campaignManager;
+    this.metaManager = metaManager;
     this.themeManager = themeManager;
     this.inputDispatcher = inputDispatcher;
     this.modalService = modalService;
@@ -195,6 +199,7 @@ export class CampaignScreen {
 
   private renderNoCampaign() {
     this.wizard = new NewCampaignWizard(this.container, {
+      metaStats: this.metaManager.getStats(),
       onStartCampaign: (seed, difficulty, overrides) => {
         this.manager.startNewCampaign({ seed, difficulty, overrides });
         if (this.onCampaignStart) this.onCampaignStart();

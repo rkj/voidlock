@@ -1,7 +1,7 @@
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import type { CampaignOverrides } from "@src/shared/campaign_types";
-import type { UnitStyle, MapGeneratorType } from "@src/shared/types";
-import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { UnitStyle, MapGeneratorType } from "@src/shared/types";
+import type { MetaStats } from "@src/shared/campaign_types";
 import { t } from "../../i18n";
 import { I18nKeys } from "../../i18n/keys";
 
@@ -12,6 +12,7 @@ export interface NewCampaignWizardOptions {
     overrides: CampaignOverrides,
   ) => void;
   onBack: () => void;
+  metaStats: MetaStats;
 }
 
 interface WizardFormElements {
@@ -58,7 +59,7 @@ export class NewCampaignWizard {
     scrollContainer.className = "flex-grow w-full overflow-y-auto";
 
     const content = document.createElement("div");
-    content.className = "flex-col align-center gap-20";
+    content.className = "flex-col align-center gap-20 wizard-content";
     content.style.maxWidth = "800px";
     content.style.margin = "0 auto";
     content.style.padding = "40px 20px";
@@ -134,7 +135,7 @@ export class NewCampaignWizard {
     const skipPrologueCheck = document.createElement("input");
     skipPrologueCheck.type = "checkbox";
     skipPrologueCheck.id = "campaign-skip-prologue";
-    const metaStats = MetaManager.getInstance().getStats();
+    const metaStats = this.options.metaStats;
     skipPrologueCheck.checked = metaStats.prologueCompleted;
     const skipPrologueLabel = document.createElement("label");
     skipPrologueLabel.htmlFor = "campaign-skip-prologue";
@@ -175,13 +176,21 @@ export class NewCampaignWizard {
     globalStatusContainer.style.padding = "8px 12px";
     globalStatusContainer.style.border = "1px solid var(--color-border)";
 
-    const themeLabelStr = ConfigManager.loadGlobal().themeId || "default";
-    const themeName = themeLabelStr.charAt(0).toUpperCase() + themeLabelStr.slice(1);
+    const themeId = ConfigManager.loadGlobal().themeId || "default";
+    const themeKey = themeId === "industrial" ? I18nKeys.screen.settings.theme_industrial 
+                   : themeId === "hive" ? I18nKeys.screen.settings.theme_hive 
+                   : I18nKeys.screen.settings.theme_default;
+    const themeName = t(themeKey as any);
+
+    const styleKey = this.selectedUnitStyle === UnitStyle.Sprites ? I18nKeys.screen.settings.unit_style_sprites 
+                    : I18nKeys.screen.settings.unit_style_tactical;
+    const styleName = t(styleKey as any);
+
     const statusText = document.createElement("div");
     statusText.className = "global-status-text";
     statusText.style.fontSize = "0.9em";
     statusText.style.color = "var(--color-text-dim)";
-    statusText.textContent = `${this.selectedUnitStyle} | ${themeName}`;
+    statusText.textContent = `${styleName} | ${themeName}`;
 
     globalStatusContainer.appendChild(statusText);
     globalStatusGroup.appendChild(globalStatusLabel);

@@ -99,7 +99,7 @@ describe("EquipmentScreen Economics", () => {
 
   it("should not charge for items already in roster", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -130,7 +130,7 @@ describe("EquipmentScreen Economics", () => {
 
   it("should charge for new items", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -160,7 +160,7 @@ describe("EquipmentScreen Economics", () => {
   it("should prevent equipping items that cannot be afforded", () => {
     mockState.scrap = 5; // Cannot afford Pistol (10)
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -190,7 +190,7 @@ describe("EquipmentScreen Economics", () => {
 
   it("should update Scrap display after purchase", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -226,7 +226,7 @@ describe("EquipmentScreen Economics", () => {
 
   it("should not charge for unequipping", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -256,7 +256,7 @@ describe("EquipmentScreen Economics", () => {
 
   it("should allow re-equipping original roster items for free", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -296,7 +296,7 @@ describe("EquipmentScreen Economics", () => {
 
   it("should show Owned for items in roster", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,

@@ -13,7 +13,7 @@ describe("voidlock-tgdk: Asset Registration", () => {
       getColor: vi.fn(),
     };
     assetManager = new AssetManager(mockTheme as any);
-    AssetManager.setInstance(assetManager);
+    // AssetManager.setInstance(assetManager);
   });
 
   it("should have LootStar and ObjectiveDisk registered in Icons", () => {

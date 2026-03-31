@@ -2,7 +2,8 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import {
   UnitState,
@@ -76,7 +77,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
     applyTheme: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     ThemeManager: mockConstructor,
   };
@@ -114,8 +115,8 @@ describe("E2E Campaign Happy Path", () => {
 
   beforeEach(async () => {
     storage = new MockStorageProvider();
-    CampaignManager.resetInstance();
-    CampaignManager.getInstance(storage);
+    
+    new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
 
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
@@ -259,7 +260,7 @@ describe("E2E Campaign Happy Path", () => {
   };
 
   it("should play through a full Standard campaign to victory", async () => {
-    const cm = CampaignManager.getInstance();
+    const cm = app.registry.campaignManager;
 
     // 1. Start Standard Campaign
     document.getElementById("btn-menu-campaign")?.click();

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "../../../src/engine/managers/CampaignManager";
-import { MetaManager } from "../../../src/engine/managers/MetaManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "../../../src/engine/persistence/MockStorageProvider";
 
 describe("MetaManager", () => {
@@ -8,12 +8,12 @@ describe("MetaManager", () => {
 
   beforeEach(() => {
     storage = new MockStorageProvider();
-    CampaignManager.resetInstance();
-    MetaManager.resetInstance();
+    
+    
   });
 
   it("tracks global stats via recordMissionResult", () => {
-    const meta = MetaManager.getInstance(storage);
+    const meta = new MetaManager(storage);
 
     // Simulate a mission win
     meta.recordMissionResult({
@@ -48,8 +48,8 @@ describe("MetaManager", () => {
   });
 
   it("records mission stats through CampaignManager.reconcileMission", () => {
-    const meta = MetaManager.getInstance(storage);
-    const campaign = CampaignManager.getInstance(storage);
+    const meta = new MetaManager(storage);
+    const campaign = new CampaignManager(storage, meta);
 
     campaign.startNewCampaign(123, "Simulation");
     const state = campaign.getState()!;
@@ -73,7 +73,7 @@ describe("MetaManager", () => {
   });
 
   it("records campaign victory via recordCampaignResult", () => {
-    const meta = MetaManager.getInstance(storage);
+    const meta = new MetaManager(storage);
 
     meta.recordCampaignResult(true);
 
@@ -82,7 +82,7 @@ describe("MetaManager", () => {
   });
 
   it("records campaign defeat via recordCampaignResult", () => {
-    const meta = MetaManager.getInstance(storage);
+    const meta = new MetaManager(storage);
 
     meta.recordCampaignResult(false);
 
@@ -91,7 +91,7 @@ describe("MetaManager", () => {
   });
 
   it("tracks campaign starts via recordCampaignStarted", () => {
-    const meta = MetaManager.getInstance(storage);
+    const meta = new MetaManager(storage);
 
     meta.recordCampaignStarted();
     expect(meta.getStats().totalCampaignsStarted).toBe(1);
@@ -101,7 +101,7 @@ describe("MetaManager", () => {
   });
 
   it("unlocks archetypes and items", () => {
-    const meta = MetaManager.getInstance(storage);
+    const meta = new MetaManager(storage);
 
     // Earn intel first
     meta.recordMissionResult({ kills: 0, casualties: 0, won: true, scrapGained: 0, intelGained: 200 });

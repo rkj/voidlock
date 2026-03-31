@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { MapGeneratorType } from "@src/shared/types";
 
@@ -8,9 +9,9 @@ describe("CampaignManager Advanced Rules (voidlock-a6i8)", () => {
   let storage: MockStorageProvider;
 
   beforeEach(() => {
-    CampaignManager.resetInstance();
+    
     storage = new MockStorageProvider();
-    manager = CampaignManager.getInstance(storage);
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
   });
 
   it("should support custom seed override", () => {
@@ -24,8 +25,8 @@ describe("CampaignManager Advanced Rules (voidlock-a6i8)", () => {
     // Verify nodes were generated with the custom seed (stable check)
     const nodeIds = state?.nodes.map((n) => n.id);
 
-    CampaignManager.resetInstance();
-    const manager2 = CampaignManager.getInstance(new MockStorageProvider());
+    
+    const manager2 = new CampaignManager(new MockStorageProvider(), new MetaManager(new MockStorageProvider()));
     manager2.startNewCampaign(54321, "Standard", { customSeed });
     const state2 = manager2.getState();
     // Same custom seed should produce the same map

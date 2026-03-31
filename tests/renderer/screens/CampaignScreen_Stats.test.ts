@@ -31,15 +31,15 @@ describe("CampaignScreen - Global Stats", () => {
     }));
 
     storage = new MockStorageProvider();
-    MetaManager.resetInstance();
-    MetaManager.getInstance(storage);
+    
+    new MetaManager(storage);
 
     // Initialize stats
-    const meta = MetaManager.getInstance();
+    const meta = new MetaManager(new MockStorageProvider());
     meta.recordCampaignStarted();
     meta.recordMissionResult(10, 2, true, 100);
 
-    manager = CampaignManager.getInstance(storage);
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
     modalService = new ModalService();
     themeManager = new ThemeManager();
     vi.spyOn(themeManager, "init").mockResolvedValue(undefined);
@@ -65,6 +65,7 @@ describe("CampaignScreen - Global Stats", () => {
     });
 
     screen = new CampaignScreen({
+      metaManager: new MetaManager(new MockStorageProvider()),
       containerId: "screen-campaign",
       campaignManager: manager,
       themeManager: themeManager as any,

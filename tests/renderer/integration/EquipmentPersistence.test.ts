@@ -1,4 +1,6 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 /**
  * @vitest-environment jsdom
  */
@@ -56,7 +58,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
     applyTheme: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     ThemeManager: mockConstructor,
   };
@@ -143,7 +145,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     }),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return {
     CampaignManager: mockConstructor,
   };
@@ -219,7 +221,7 @@ describe("Equipment Persistence Integration", () => {
 
   it("should call campaignManager.assignEquipment when equipment is saved in campaign mode", async () => {
     const { CampaignManager } = await import("@src/renderer/campaign/CampaignManager");
-    const manager = CampaignManager.getInstance();
+    const manager = new CampaignManager(new MockStorageProvider(), new MetaManager(new MockStorageProvider()));
 
     // 1. Start Campaign
     document.getElementById("btn-menu-campaign")?.click();

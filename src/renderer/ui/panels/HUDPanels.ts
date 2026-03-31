@@ -269,12 +269,21 @@ export class ObjectivesPanel {
       if (hash !== this.lastHash) {
         list.innerHTML = data.map((d) => `
           <p class="obj-row" data-obj-id="${d.id}">
-            <span class="obj-icon" style="color:${d.color};" title="${d.state}">${d.icon}</span>
+            <span class="obj-icon" style="color:${d.color};" title="${this.getLocalizedObjectiveState(d.state)}">${d.icon}</span>
             <span class="obj-text">${d.text}</span>
           </p>
         `).join("");
         this.lastHash = hash;
       }
+    }
+  }
+
+  private getLocalizedObjectiveState(state: string): string {
+    switch (state) {
+      case "Completed": return t(I18nKeys.hud.objective_completed);
+      case "Failed": return t(I18nKeys.hud.objective_failed);
+      case "Pending": return t(I18nKeys.hud.objective_pending);
+      default: return state;
     }
   }
 
@@ -314,7 +323,7 @@ export class ObjectivesPanel {
     const data = this.getObjectivesData(state);
     return data.map((d) => `
       <p class="obj-row">
-        <span class="obj-icon" style="color:${d.color};" title="${d.state}">${d.icon}</span>
+        <span class="obj-icon" style="color:${d.color};" title="${this.getLocalizedObjectiveState(d.state)}">${d.icon}</span>
         ${d.text}
       </p>
     `).join("");

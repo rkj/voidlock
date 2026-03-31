@@ -54,7 +54,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
 
   it("should display compact stats for weapons in the armory", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -86,7 +86,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
 
   it("should display compact stats for items (armor/boots) in the armory", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -116,7 +116,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
 
   it("should have tooltips with descriptions and full stats for armory items", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -146,7 +146,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
 
   it("should have tooltips for global supply items", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,

@@ -2,6 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { InputDispatcher } from "@src/renderer/InputDispatcher";
 import { t } from "@src/renderer/i18n";
@@ -17,7 +19,7 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
     }),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return { MetaManager: mockConstructor };
 });
 
@@ -52,8 +54,8 @@ describe("CampaignScreen Difficulty Cards", () => {
       save: vi.fn(),
       delete: vi.fn(),
     } as any;
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(storage);
+    
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
 
     container = document.createElement("div");
     container.id = "screen-campaign";
@@ -91,6 +93,7 @@ describe("CampaignScreen Difficulty Cards", () => {
 
   it("should render 4 difficulty cards", () => {
     const screen = new CampaignScreen({
+      metaManager: new MetaManager(new MockStorageProvider()),
       containerId: "screen-campaign",
       campaignManager: manager,
       themeManager: themeManager as any,
@@ -112,6 +115,7 @@ describe("CampaignScreen Difficulty Cards", () => {
 
   it("should update selection and tactical pause checkbox when cards are clicked", () => {
     const screen = new CampaignScreen({
+      metaManager: new MetaManager(new MockStorageProvider()),
       containerId: "screen-campaign",
       campaignManager: manager,
       themeManager: themeManager as any,

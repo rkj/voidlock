@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
 import { GameState, UnitState, MissionType, AIProfile } from "@src/shared/types";
-import { t } from "@src/renderer/i18n";
+import { t, setLocale } from "@src/renderer/i18n";
 import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("HUDManager", () => {
@@ -82,6 +82,7 @@ describe("HUDManager", () => {
   };
 
   beforeEach(() => {
+    setLocale("en-standard");
     document.body.innerHTML = '<div id="screen-mission"><div id="mission-body"></div></div>';
     
     mockMenuController = {
@@ -203,8 +204,8 @@ describe("HUDManager", () => {
     expect(objectivesDiv?.innerHTML).not.toContain("at (5,5)");
 
     const icons = objectivesDiv?.querySelectorAll(".obj-icon");
-    expect(icons?.[0].getAttribute("title")).toBe("Pending");
-    expect(icons?.[1].getAttribute("title")).toBe("Completed");
+    expect(icons?.[0].getAttribute("title")).toBe(t(I18nKeys.hud.objective_pending));
+    expect(icons?.[1].getAttribute("title")).toBe(t(I18nKeys.hud.objective_completed));
   });
 
   it("should render debug tools when debug overlay is enabled", () => {
@@ -236,7 +237,7 @@ describe("HUDManager", () => {
     const debugDiv = document.querySelector(".debug-controls");
     // "TreeShip" should be displayed as "TreeShipGenerator"
     expect(debugDiv?.innerHTML).toContain("TreeShipGenerator (9999)");
-    expect(debugDiv?.innerHTML).toContain(`${t(I18nKeys.hud.debug.mission)}</strong> Default`);
+    expect(debugDiv?.innerHTML).toContain(`${t(I18nKeys.hud.debug.mission)}</strong> ${t(I18nKeys.mission.type.default)}`);
   });
 
   it("should call onCopyWorldState when the copy button is clicked", () => {

@@ -1,6 +1,8 @@
 import type { GameClient } from "@src/engine/GameClient";
 import type { GameState} from "@src/shared/types";
 import { MissionType } from "@src/shared/types";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 import type { ScreenId } from "@src/renderer/ScreenManager";
 import { Logger } from "@src/shared/Logger";
 import { MathUtils } from "@src/shared/utils/MathUtils";
@@ -21,37 +23,32 @@ export interface AdvisorMessage {
   text: string;
   title?: string;
   illustration?: string;
-  portrait?: string; // default 'mother'
-  duration?: number; // ms, if 0 or undefined, requires dismissal
-  blocking?: boolean; // pauses game
-}
-
-export type TutorialCondition = (state: GameState, manager: TutorialManager) => boolean;
-
-export interface TutorialManagerConfig {
-  gameClient: GameClient;
-  campaignManager: CampaignManager;
-  menuController: any;
-  onMessage: (msg: AdvisorMessage, onDismiss?: () => void) => void;
-  getRenderer: () => Renderer | null;
+  portrait?: string;
+  duration?: number;
+  blocking?: boolean;
 }
 
 export interface TutorialStep {
   id: string;
   directive: string;
   directiveMobile?: string;
-  condition: TutorialCondition;
+  highlightTarget?: { selector?: string; cell?: { x: number; y: number } };
+  dynamicHighlight?: (state: GameState, menuState: string, selection: any) => { selector?: string; cell?: { x: number; y: number } } | null;
+  condition: (state: GameState, manager: TutorialManager) => boolean;
   message?: AdvisorMessage;
-  highlightTarget?: {
-    selector?: string;
-    cell?: Vector2;
-  };
-  dynamicHighlight?: (state: GameState, menuState: string, selection: { pendingAction?: unknown; pendingItemId?: unknown; pendingTargetId?: unknown; pendingMode?: unknown }) => { selector?: string; cell?: Vector2 } | null;
+  onEnter?: (manager: TutorialManager, state: GameState) => void;
+  onComplete?: (manager: TutorialManager, state: GameState) => void;
   inputGate?: {
     allowedActions: string[];
   };
-  onEnter?: (manager: TutorialManager, state: GameState) => void;
-  onComplete?: (manager: TutorialManager, state: GameState) => void;
+}
+
+export interface TutorialManagerConfig {
+  gameClient: GameClient;
+  campaignManager: CampaignManager;
+  menuController: TutorialMenuController;
+  onMessage: (msg: AdvisorMessage, onDismiss?: () => void) => void;
+  getRenderer: () => Renderer | null;
 }
 
 export class TutorialManager {
@@ -60,20 +57,19 @@ export class TutorialManager {
   private menuController: TutorialMenuController;
   private onMessage: (msg: AdvisorMessage, onDismiss?: () => void) => void;
   private getRenderer: () => Renderer | null;
+
   private isActive: boolean = false;
-  private completedSteps: Set<string> = new Set();
   private isPrologueActive: boolean = false;
   private currentStepIndex: number = -1;
-  public isBlockingMessageActive: boolean = false;
+  private completedSteps: Set<string> = new Set();
+  private isBlockingMessageActive: boolean = false;
 
-  private highlightedElement: HTMLElement | null = null;
   private highlightedElementSelector: string | null = null;
-  private highlightedCell: Vector2 | null = null;
+  private highlightedElement: HTMLElement | null = null;
+  private highlightedCell: { x: number; y: number } | null = null;
   private cellHighlightEl: HTMLElement | null = null;
 
   private initialPositions: Map<string, Vector2> = new Map();
-
-  // State tracking
   private hasMoved: boolean = false;
   private lastRescueCount: number = 0;
   private uiTourStartTick: number = -1;
@@ -84,13 +80,13 @@ export class TutorialManager {
   private prologueSteps: TutorialStep[] = [
     {
       id: "observe",
-      directive: "ASSET DEPLOYMENT INITIALIZED. Observe asset autonomous exploration.",
+      directive: t(I18nKeys.tutorial.prologue.step_observe_directive),
       highlightTarget: { selector: ".soldier-card" },
       condition: (state, manager) => manager.checkUnitMovedFromStart(state),
       message: {
         id: "start",
-        title: "OPERATOR NOTICE: Operation First Light",
-        text: "Operator, deployment sequence complete. Your assigned biological assets have standing orders to explore and secure the deck. Observe their progress on the tactical feed. Manual intervention is currently restricted.",
+        title: t(I18nKeys.tutorial.prologue.step_observe_title),
+        text: t(I18nKeys.tutorial.prologue.step_observe_text),
         illustration: "bg_station",
         portrait: "logo_gemini",
         blocking: true,
@@ -102,8 +98,8 @@ export class TutorialManager {
     },
     {
       id: "ui_tour",
-      directive: "Tactical feed overview: Asset telemetry (Left), Command Terminal (Right), Recovery Targets (Below).",
-      directiveMobile: "Interface Overview: Tap 'Roster' for asset telemetry. Tap 'Targets' for recovery info.",
+      directive: t(I18nKeys.tutorial.prologue.step_ui_tour_directive),
+      directiveMobile: t(I18nKeys.tutorial.prologue.step_ui_tour_directive_mobile),
       condition: (state, manager) => manager.checkUITourComplete(state),
       onEnter: (manager, state) => {
           manager.startUITourTimer(state);
@@ -112,25 +108,25 @@ export class TutorialManager {
     },
     {
       id: "pause",
-      directive: "Press [Space] to pause the operation and plan your strategy.",
-      directiveMobile: "Tap 'Pause' to freeze the feed while you issue orders.",
+      directive: t(I18nKeys.tutorial.prologue.step_pause_directive),
+      directiveMobile: t(I18nKeys.tutorial.prologue.step_pause_directive_mobile),
       condition: (state, manager) => manager.checkPauseToggled(state),
       inputGate: { allowedActions: ["TOGGLE_PAUSE"] }
     },
     {
       id: "doors",
-      directive: "Structural boundaries (Doors) cycle automatically on asset proximity.",
+      directive: t(I18nKeys.tutorial.prologue.step_doors_directive),
       condition: (state, manager) => manager.checkDoorOpened(state),
       inputGate: { allowedActions: [] }
     },
     {
       id: "combat",
-      directive: "HOSTILE CONTACT. Assets engaging per standard ROE.",
+      directive: t(I18nKeys.tutorial.prologue.step_combat_directive),
       condition: (state, manager) => manager.checkEnemyTookDamage(state),
       message: {
         id: "enemy_sighted",
-        title: "ALERT: Biological Contact",
-        text: "Hostile biological contact detected. Assets will engage automatically when targets enter weapon range. Threat Index indicates swarm activity levels in this sector.",
+        title: t(I18nKeys.tutorial.prologue.step_combat_title),
+        text: t(I18nKeys.tutorial.prologue.step_combat_text),
         portrait: "logo_gemini",
         blocking: true,
       },
@@ -141,14 +137,14 @@ export class TutorialManager {
     },
     {
       id: "engagement_ignore",
-      directive: "Test Remote Intervention: Press [2] Engagement > [2] Ignore.",
-      directiveMobile: "Test Remote Intervention: Tap 'Engagement' > 'Ignore'.",
+      directive: t(I18nKeys.tutorial.prologue.step_engagement_ignore_directive),
+      directiveMobile: t(I18nKeys.tutorial.prologue.step_engagement_ignore_directive_mobile),
       highlightTarget: { selector: "#command-menu" },
       condition: (state, manager) => manager.checkEngagementIgnore(state),
       message: {
         id: "first_command",
-        title: "TUTORIAL: Remote Intervention",
-        text: "Operator intervention is now authorized. Available commands are listed in the terminal. Note: manual overrides may affect unit efficiency ratings.",
+        title: t(I18nKeys.tutorial.prologue.step_engagement_ignore_title),
+        text: t(I18nKeys.tutorial.prologue.step_engagement_ignore_text),
         portrait: "logo_gemini",
         blocking: true,
       },
@@ -156,21 +152,21 @@ export class TutorialManager {
     },
     {
       id: "engagement_engage",
-      directive: "Weapon lockout active. Press [2] > [1] to re-authorize engagement.",
-      directiveMobile: "Weapon lockout active. Tap 'Engagement' > 'Engage' to resume ROE.",
+      directive: t(I18nKeys.tutorial.prologue.step_engagement_engage_directive),
+      directiveMobile: t(I18nKeys.tutorial.prologue.step_engagement_engage_directive_mobile),
       highlightTarget: { selector: "#command-menu" },
       condition: (state, manager) => manager.checkEngagementEngage(state) && manager.checkEnemyDied(state),
       inputGate: { allowedActions: ["SET_ENGAGEMENT", "SELECT_UNIT"] }
     },
     {
       id: "move",
-      directive: "Redirect asset to recovery target: Press [1] Orders > [1] Move To Room > Select COMPARTMENT > Confirm.",
-      directiveMobile: "Redirect asset: Tap 'Orders' > 'Move To Room' > Select COMPARTMENT > Confirm.",
+      directive: t(I18nKeys.tutorial.prologue.step_move_directive),
+      directiveMobile: t(I18nKeys.tutorial.prologue.step_move_directive_mobile),
       condition: (state, manager) => manager.checkReachedObjectiveRoom(state),
       message: {
         id: "objective_sighted",
-        title: "NOTICE: Recovery Target Located",
-        text: "The recovery target is located in an adjacent compartment. Use the terminal to redirect assets. Compartment designators are visible in navigation mode.",
+        title: t(I18nKeys.tutorial.prologue.step_move_title),
+        text: t(I18nKeys.tutorial.prologue.step_move_text),
         portrait: "logo_gemini",
         blocking: true,
       },
@@ -190,8 +186,8 @@ export class TutorialManager {
     },
     {
       id: "pickup",
-      directive: "Initiate collection: Press [4] Pickup > Select DATA DISK.",
-      directiveMobile: "Initiate collection: Tap 'Pickup' > Select DATA DISK.",
+      directive: t(I18nKeys.tutorial.prologue.step_pickup_directive),
+      directiveMobile: t(I18nKeys.tutorial.prologue.step_pickup_directive_mobile),
       highlightTarget: { cell: { x: 3, y: 2 } },
       condition: (state, manager) => manager.checkObjectiveCollected(state),
       dynamicHighlight: (state, menuState) => {
@@ -207,14 +203,14 @@ export class TutorialManager {
     },
     {
       id: "extract",
-      directive: "Operation successful. Press [5] Extract to initiate retrieval sequence.",
-      directiveMobile: "Operation successful. Tap 'Extract' to initiate retrieval sequence.",
+      directive: t(I18nKeys.tutorial.prologue.step_extract_directive),
+      directiveMobile: t(I18nKeys.tutorial.prologue.step_extract_directive_mobile),
       highlightTarget: { cell: { x: 5, y: 1 } },
       condition: (state) => state.status === "Won",
       message: {
         id: "objective_completed",
-        title: "NOTICE: Recovery Successful",
-        text: "Target secured. All assets must reach the retrieval point to close the operation. Reminder: abandoned assets are written off at full replacement cost.",
+        title: t(I18nKeys.tutorial.prologue.step_extract_title),
+        text: t(I18nKeys.tutorial.prologue.step_extract_text),
         portrait: "logo_gemini",
         blocking: true,
       },
@@ -443,7 +439,7 @@ export class TutorialManager {
             this.lastRescueCount = currentRescues;
             this.onMessage({
                 id: `prologue_rescue_${currentRescues}`,
-                text: "EMERGENCY PROTOCOL: Asset integrity stabilized. Automated medical intervention complete. Budget adjustment pending.",
+                text: t(I18nKeys.tutorial.prologue.rescue_text),
                 portrait: "logo_gemini",
                 duration: 4000,
             });
@@ -702,8 +698,8 @@ export class TutorialManager {
       
       this.onMessage({
         id: "ready_room_intro",
-        title: "Asset Management Hub",
-        text: "Unit retrieval complete. Welcome to the local management hub. \n\nReview current asset integrity and authorize loadout adjustments. Note: Armory access is currently restricted during mandatory post-operation diagnostics. Deployed roster has been auto-populated with surviving biological assets. \n\nInitiate launch sequence when roster status is confirmed.",
+        title: t(I18nKeys.tutorial.events.ready_room_title),
+        text: t(I18nKeys.tutorial.events.ready_room_text),
         portrait: "logo_gemini",
         blocking: true,
       });
@@ -717,8 +713,8 @@ export class TutorialManager {
       
       this.onMessage({
         id: "sector_map_intro",
-        title: "CONTRACT OPERATIONS: Sector Map",
-        text: "The derelict is divided into operational sectors. Navigate through nodes to secure high-value core technology. \n\nCombat nodes [Crossed Swords] indicate confirmed hostile biological presence and salvage opportunities. Logistics hubs [Shop] facilitate procurement and asset replacement. Event nodes [?] indicate unscheduled operational variables. \n\nPlan your path carefully. Every transition must be authorized via the terminal.",
+        title: t(I18nKeys.tutorial.events.sector_map_title),
+        text: t(I18nKeys.tutorial.events.sector_map_text),
         portrait: "logo_gemini",
         blocking: true,
       });
@@ -732,8 +728,8 @@ export class TutorialManager {
       
       this.onMessage({
         id: "squad_selection_intro",
-        title: "Asset Roster Allocation",
-        text: "Manual roster allocation is now authorized. You may now assign specific biological assets to the operational squad based on contract requirements. \n\nUse the retrieval terminal to assign personnel from the reserve pool. Ensure balanced utility to minimize asset write-offs during high-intensity contact.",
+        title: t(I18nKeys.tutorial.events.squad_selection_title),
+        text: t(I18nKeys.tutorial.events.squad_selection_text),
         portrait: "logo_gemini",
         blocking: true,
       });

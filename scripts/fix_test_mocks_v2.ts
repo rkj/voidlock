@@ -9,14 +9,23 @@ function walk(dir, callback) {
   });
 };
 
-const pattern = /\(typeof mockInputDispatcher !== 'undefined' \? mockInputDispatcher : InputDispatcher\.getInstance\(\)\)/g;
+const patterns = [
+  /\(mockConstructor as any\)\.getInstance = vi\.fn\(\)\.mockReturnValue\(mockInstance\);/g,
+  /getInstance: vi\.fn\(\)\.mockReturnValue\(mockInstance\),/g,
+  /vi\.spyOn\(InputDispatcher\.getInstance\(\), "[^"]+"\)\.mockImplementation\(\(\) => \{\}\);/g,
+];
 
 walk('tests', (filePath) => {
   if (filePath.endsWith('.test.ts')) {
     let content = fs.readFileSync(filePath, 'utf8');
-    if (content.match(pattern)) {
-      console.log('Patching ' + filePath);
-      let updated = content.replace(pattern, 'mockInputDispatcher');
+    let updated = content;
+    
+    for (const p of patterns) {
+      updated = updated.replace(p, '');
+    }
+    
+    if (updated !== content) {
+      console.log('Cleaning up mocks in ' + filePath);
       fs.writeFileSync(filePath, updated);
     }
   }

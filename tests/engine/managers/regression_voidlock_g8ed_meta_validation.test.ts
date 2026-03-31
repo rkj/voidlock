@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { MetaManager } from "@src/engine/managers/MetaManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("MetaManager Validation (voidlock-g8ed)", () => {
@@ -9,13 +9,13 @@ describe("MetaManager Validation (voidlock-g8ed)", () => {
 
   beforeEach(() => {
     storage = new MockStorageProvider();
-    MetaManager.resetInstance();
+    
   });
 
   it("should handle corrupted meta stats in storage", () => {
     storage.save(STORAGE_KEY, { totalKills: "lots" });
 
-    manager = MetaManager.getInstance(storage);
+    manager = new MetaManager(storage);
     const stats = manager.getStats();
 
     expect(typeof stats.totalKills).toBe("number");
@@ -26,7 +26,7 @@ describe("MetaManager Validation (voidlock-g8ed)", () => {
   it("should handle missing fields in meta stats", () => {
     storage.save(STORAGE_KEY, { totalKills: 100 });
 
-    manager = MetaManager.getInstance(storage);
+    manager = new MetaManager(storage);
     const stats = manager.getStats();
 
     expect(stats.totalKills).toBe(100);

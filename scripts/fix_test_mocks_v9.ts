@@ -1,47 +1,59 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
-const projectRoot = process.cwd();
-
-function getFiles(dir: string): string[] {
-  let results: string[] = [];
-  const list = fs.readdirSync(dir);
-  list.forEach(file => {
-    file = path.resolve(dir, file);
-    const stat = fs.statSync(file);
-    if (stat && stat.isDirectory()) {
-      results = results.concat(getFiles(file));
-    } else if (file.endsWith('.test.ts') || file.endsWith('.test.tsx')) {
-      results.push(file);
-    }
+function walk(dir, callback) {
+  fs.readdirSync(dir).forEach(f => {
+    let dirPath = path.join(dir, f);
+    let isDirectory = fs.statSync(dirPath).isDirectory();
+    isDirectory ? walk(dirPath, callback) : callback(path.join(dir, f));
   });
-  return results;
-}
+};
 
-const allTestFiles = getFiles(path.join(projectRoot, 'tests/renderer'));
+walk('tests', (filePath) => {
+  if (filePath.endsWith('.test.ts') || filePath.endsWith('.test.tsx')) {
+    let content = fs.readFileSync(filePath, 'utf8');
+    let lines = content.split('\n');
+    let newLines: string[] = [];
+    let seenCampaignManager = false;
+    let seenMetaManager = false;
+    let seenMockStorageProvider = false;
+    
+    for (let line of lines) {
+        if (line.includes('import { CampaignManager } from "@src/renderer/campaign/CampaignManager";') || 
+            line.includes('import { CampaignManager } from "@src/engine/managers/CampaignManager";')) {
+            if (seenCampaignManager) continue;
+            seenCampaignManager = true;
+            newLines.push('import { CampaignManager } from "@src/renderer/campaign/CampaignManager";');
+        } else if (line.includes('import { MetaManager } from "@src/renderer/campaign/MetaManager";') || 
+                   line.includes('import { MetaManager } from "@src/engine/campaign/MetaManager";')) {
+            if (seenMetaManager) continue;
+            seenMetaManager = true;
+            newLines.push('import { MetaManager } from "@src/renderer/campaign/MetaManager";');
+        } else if (line.includes('import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";')) {
+            if (seenMockStorageProvider) continue;
+            seenMockStorageProvider = true;
+            newLines.push(line);
+        } else if (line.trim() === 'import { CampaignManager }') {
+            // Broken import line from previous script
+            continue;
+        } else if (line.trim() === 'import { MetaManager }') {
+            // Broken import line from previous script
+            continue;
+        } else {
+            newLines.push(line);
+        }
+    }
+    
+    let updated = newLines.join('\n');
+    
+    // Fix the broken from lines again if they exist
+    updated = updated.replace(/from "@src\/engine\/managers\/CampaignManager";/g, '');
+    updated = updated.replace(/from "@src\/renderer\/campaign\/CampaignManager";/g, '');
+    updated = updated.replace(/from "@src\/engine\/campaign\/CampaignManager";/g, '');
 
-allTestFiles.forEach(filePath => {
-  let content = fs.readFileSync(filePath, 'utf8');
-  let changed = false;
-
-  // Replace AssetManager.getInstance() with a mock if it's being used in tests that don't mock the constructor
-  if (content.includes('AssetManager.getInstance()')) {
-      // If AssetManager is not already mocked as a constructor, we might need to fix it
-      // But for now, let's just make sure getInstance() returns something sensible if we can't easily fix the constructor mock
-      
-      // Check if we already have a mockAssetManager defined
-      if (content.includes('const mockAssetManager =')) {
-          content = content.replace(/AssetManager\.getInstance\(\)/g, 'mockAssetManager');
-          changed = true;
-      } else if (content.includes('let assetManager: any;')) {
-          // It's likely assigned in beforeEach
-          content = content.replace(/AssetManager\.getInstance\(\)/g, 'mockAssetManager');
-          changed = true;
-      }
-  }
-
-  if (changed) {
-    fs.writeFileSync(filePath, content);
-    console.log(`Updated getInstance in: ${filePath}`);
+    if (updated !== content) {
+      console.log('Polishing v9 ' + filePath);
+      fs.writeFileSync(filePath, updated);
+    }
   }
 });

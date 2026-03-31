@@ -106,7 +106,7 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
     addChangeListener: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return { MetaManager: mockConstructor };
 });
 
@@ -126,12 +126,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     selectNode: vi.fn(),
     getSyncStatus: vi.fn().mockReturnValue("local-only"),
   };
-  return {
-    CampaignManager: {
-      getInstance: vi.fn().mockReturnValue(mockInstance),
-      resetInstance: vi.fn(),
-    }
-  };
+  const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
+  return { CampaignManager: mockConstructor };
 });
 
 describe("Campaign Map Generator Integration", () => {
@@ -178,7 +174,7 @@ describe("Campaign Map Generator Integration", () => {
       setLineDash: vi.fn(),
     });
 
-    CampaignManager.resetInstance();
+    
     app = new GameApp();
     await app.initialize();
   });

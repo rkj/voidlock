@@ -54,7 +54,7 @@ describe("EquipmentScreen Squad Size Verification", () => {
     };
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -78,7 +78,7 @@ describe("EquipmentScreen Squad Size Verification", () => {
     };
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -127,7 +127,7 @@ describe("EquipmentScreen Squad Size Verification", () => {
     };
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,

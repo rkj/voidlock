@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "@src/engine/campaign/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { calculateMapSize } from "@src/shared/campaign_types";
 
@@ -9,8 +10,8 @@ describe("Campaign Map Size Progression (voidlock-kfavd)", () => {
 
   beforeEach(() => {
     storage = new MockStorageProvider();
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(storage);
+    
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
   });
 
   it("should have 6x6 map size at Rank 1 (rank index 0)", () => {

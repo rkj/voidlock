@@ -92,9 +92,9 @@ export class AdvisorOverlay {
     const btnLabel = msg.blocking ? t(I18nKeys.common.continue) : t(I18nKeys.common.dismiss);
 
     messageEl.innerHTML = `
-      ${msg.illustration ? `<div class="advisor-illustration"><img src="${illustrationUrl}" alt="Illustration"></div>` : ""}
+      ${msg.illustration ? `<div class="advisor-illustration"><img src="${illustrationUrl}" alt="${t(I18nKeys.common.illustration)}"></div>` : ""}
       <div class="advisor-header">
-        <div class="advisor-portrait"><img src="${portraitUrl}" alt="Advisor"></div>
+        <div class="advisor-portrait"><img src="${portraitUrl}" alt="${t(I18nKeys.common.advisor)}"></div>
         ${msg.title ? `<div class="advisor-title">${msg.title}</div>` : ""}
       </div>
       <div class="advisor-content">

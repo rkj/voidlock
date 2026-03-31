@@ -10,7 +10,6 @@ const STORAGE_KEY = CAMPAIGN_DEFAULTS.META_STORAGE_KEY;
  * Manages global statistics tracked across all campaigns.
  */
 export class MetaManager {
-  private static instance: MetaManager | null = null;
   private storage: StorageProvider;
   private stats: MetaStats;
 
@@ -20,28 +19,6 @@ export class MetaManager {
   public constructor(storage: StorageProvider) {
     this.storage = storage;
     this.stats = this.loadInitialStats();
-  }
-
-  /**
-   * @deprecated Use constructor injection via AppServiceRegistry.
-   */
-  public static getInstance(storage?: StorageProvider): MetaManager {
-    if (!MetaManager.instance) {
-      if (!storage) {
-        throw new Error(
-          "MetaManager: StorageProvider required for first initialization.",
-        );
-      }
-      MetaManager.instance = new MetaManager(storage);
-    }
-    return MetaManager.instance;
-  }
-
-  /**
-   * Reset the singleton instance (useful for tests).
-   */
-  public static resetInstance(): void {
-    MetaManager.instance = null;
   }
 
   private loadInitialStats(): MetaStats {

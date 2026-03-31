@@ -1,10 +1,10 @@
 export class TooltipManager {
-  private static instance: TooltipManager | undefined;
+  
   private activeTooltip: HTMLElement | null = null;
   private activeTarget: HTMLElement | null = null;
   private lastInteractionTime: number = 0;
 
-  private constructor() {
+  constructor() {
     this.handleClick = this.handleClick.bind(this);
     this.handleTouchStart = this.handleTouchStart.bind(this);
     document.addEventListener("click", this.handleClick);
@@ -24,13 +24,10 @@ export class TooltipManager {
   public destroy() {
     document.removeEventListener("click", this.handleClick);
     document.removeEventListener("touchstart", this.handleTouchStart);
-    TooltipManager.instance = undefined;
+    
   }
 
-  public static getInstance(): TooltipManager {
-    TooltipManager.instance ??= new TooltipManager();
-    return TooltipManager.instance;
-  }
+  
 
   private handleInteraction(e: Event) {
     const now = Date.now();

@@ -1,14 +1,15 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("Scrap Scaling Regression (voidlock-s78u)", () => {
   let manager: CampaignManager;
 
   beforeEach(() => {
-    CampaignManager.resetInstance();
+    
     const storage = new MockStorageProvider();
-    manager = CampaignManager.getInstance(storage);
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
   });
 
   it("should start with 1000 scrap on Simulation difficulty", () => {

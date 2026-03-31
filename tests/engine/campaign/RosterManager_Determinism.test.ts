@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SoldierFactory } from "../../../src/engine/campaign/SoldierFactory";
 import { RosterManager } from "../../../src/engine/campaign/RosterManager";
-import { CampaignManager } from "../../../src/engine/campaign/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { PRNG } from "../../../src/shared/PRNG";
 import type { CampaignState } from "../../../src/shared/campaign_types";
 import { MapGeneratorType } from "../../../src/shared/types";
@@ -42,12 +44,12 @@ describe("RosterManager and SoldierFactory Determinism", () => {
       remove: vi.fn(),
     };
 
-    const manager1 = CampaignManager.getInstance(mockStorage1 as any);
+    const manager1 = new CampaignManager(mockStorage1 as any, new MetaManager(new MockStorageProvider()));
     manager1.startNewCampaign(12345, "Standard");
     
     // Reset instance for the second manager
-    CampaignManager.resetInstance();
-    const manager2 = CampaignManager.getInstance(mockStorage2 as any);
+    
+    const manager2 = new CampaignManager(mockStorage2 as any, new MetaManager(new MockStorageProvider()));
     manager2.startNewCampaign(12345, "Standard");
 
     vi.setSystemTime(new Date("2026-03-28T10:00:00Z"));

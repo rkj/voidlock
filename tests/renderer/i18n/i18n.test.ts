@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, beforeEach } from "vitest";
-import { t, setLocale, getCurrentLocale, getAvailableLocales } from "@src/renderer/i18n/index";
+import { t, setLocale, getCurrentLocale, getAvailableLocales, applyLocale } from "@src/renderer/i18n/index";
 import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("i18n system", () => {
@@ -16,7 +16,7 @@ describe("i18n system", () => {
   });
 
   it("should return the key itself if no translation is found", () => {
-    expect(t("non.existent.key")).toBe("non.existent.key");
+    expect(t("non.existent.key" as any)).toBe("non.existent.key");
   });
 
   it("should allow changing the locale", () => {
@@ -26,7 +26,7 @@ describe("i18n system", () => {
     // Test with pl
     setLocale("pl");
     expect(getCurrentLocale()).toBe("pl");
-    expect(t(I18nKeys.menu.campaign)).toBe("Aktywne Kontrakty");
+    expect(t(I18nKeys.menu.campaign)).toBe("Kampania");
 
     // Test with en-standard
     setLocale("en-standard");
@@ -41,24 +41,42 @@ describe("i18n system", () => {
     expect(available).toContain("pl");
   });
 
-  it("should apply the locale to DOM elements", () => {
+  it("should apply the locale to DOM elements with data-i18n", () => {
     document.body.innerHTML = `
-      <button id="btn-menu-campaign">Old Text</button>
-      <div class="menu-subtitle">Old Subtitle</div>
+      <div data-i18n="menu.subtitle">Old Subtitle</div>
+      <button data-i18n="menu.campaign">Old Button</button>
+    `;
+
+    setLocale("en-corporate");
+    applyLocale();
+    expect(document.querySelector("[data-i18n='menu.subtitle']")?.textContent).toBe("Terminal Assets");
+    expect(document.querySelector("[data-i18n='menu.campaign']")?.textContent).toBe("Active Contracts");
+
+    setLocale("pl");
+    applyLocale();
+    expect(document.querySelector("[data-i18n='menu.subtitle']")?.textContent).toBe("Taktyczna Walka Drużynowa");
+    expect(document.querySelector("[data-i18n='menu.campaign']")?.textContent).toBe("Kampania");
+  });
+
+  it("should apply the locale to DOM elements (legacy compatibility)", () => {
+    document.body.innerHTML = `
+      <button id="btn-menu-campaign" data-i18n="menu.campaign">Old Text</button>
+      <div class="menu-subtitle" data-i18n="menu.subtitle">Old Subtitle</div>
       <select id="mission-type">
         <option value="Default">Old Default</option>
       </select>
     `;
 
     setLocale("en-corporate");
-    import("@src/renderer/i18n/index").then(({ applyLocale }) => {
-      applyLocale();
-      expect(document.getElementById("btn-menu-campaign")?.textContent).toBe("Active Contracts");
-      expect(document.querySelector(".menu-subtitle")?.textContent).toBe("Terminal Assets");
-      
-      setLocale("pl");
-      applyLocale();
-      expect(document.getElementById("btn-menu-campaign")?.textContent).toBe("Aktywne Kontrakty");
-    });
+    applyLocale();
+    expect(document.getElementById("btn-menu-campaign")?.textContent).toBe("Active Contracts");
+    expect(document.querySelector(".menu-subtitle")?.textContent).toBe("Terminal Assets");
+    
+    // Test select options manual update (fallback logic)
+    expect(document.querySelector("#mission-type option[value='Default']")?.textContent).toBe("Standard Protocol");
+
+    setLocale("pl");
+    applyLocale();
+    expect(document.getElementById("btn-menu-campaign")?.textContent).toBe("Kampania");
   });
 });

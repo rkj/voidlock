@@ -57,7 +57,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
     applyTheme: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return { ThemeManager: mockConstructor };
 });
 
@@ -70,7 +70,7 @@ vi.mock("@src/renderer/visuals/AssetManager", () => {
     getIcon: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return { AssetManager: mockConstructor };
 });
 
@@ -152,7 +152,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     }),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return { CampaignManager: mockConstructor };
 });
 
@@ -175,7 +175,7 @@ vi.mock("@src/renderer/campaign/MetaManager", () => {
     load: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return { MetaManager: mockConstructor };
 });
 

@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { MapGeneratorType, MissionType } from "@src/shared/types";
 import { ModalService } from "@src/renderer/ui/ModalService";
@@ -21,8 +22,8 @@ describe("EquipmentScreen Isolation", () => {
     container = document.getElementById("screen-equipment")!;
     
     const storage = new MockStorageProvider();
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(storage);
+    
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
     
     // Start a campaign with some scrap and a dead soldier
     manager.startNewCampaign(123, "Clone");
@@ -32,8 +33,8 @@ describe("EquipmentScreen Isolation", () => {
     manager.save();
 
     // Mock InputDispatcher
-    vi.spyOn(InputDispatcher.getInstance(), "pushContext").mockImplementation(() => {});
-    vi.spyOn(InputDispatcher.getInstance(), "popContext").mockImplementation(() => {});
+    
+    
   });
 
   it("should spend campaign scrap when in campaign mode", () => {
@@ -52,7 +53,7 @@ describe("EquipmentScreen Isolation", () => {
     };
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: manager,
       modalService: new ModalService() as any,
@@ -92,7 +93,7 @@ describe("EquipmentScreen Isolation", () => {
     };
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: manager,
       modalService: new ModalService() as any,
@@ -124,7 +125,7 @@ describe("EquipmentScreen Isolation", () => {
     };
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: manager,
       modalService: new ModalService() as any,

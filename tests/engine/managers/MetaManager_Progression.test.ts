@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { MetaManager } from "@src/engine/campaign/MetaManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("MetaManager Progression", () => {
@@ -8,8 +8,8 @@ describe("MetaManager Progression", () => {
 
   beforeEach(() => {
     storage = new MockStorageProvider();
-    MetaManager.resetInstance();
-    metaManager = MetaManager.getInstance(storage);
+    
+    metaManager = new MetaManager(storage);
   });
 
   it("should initialize with default values", () => {
@@ -56,8 +56,8 @@ describe("MetaManager Progression", () => {
     metaManager.recordMissionResult({ kills: 0, casualties: 0, won: true, scrapGained: 0, intelGained: 100 });
     metaManager.unlockArchetype("heavy", 50);
 
-    MetaManager.resetInstance();
-    const newMetaManager = MetaManager.getInstance(storage);
+    
+    const newMetaManager = new MetaManager(storage);
 
     expect(newMetaManager.getStats().unlockedArchetypes).toContain("heavy");
     expect(newMetaManager.getStats().currentIntel).toBe(50);

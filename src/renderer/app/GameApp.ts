@@ -29,7 +29,6 @@ import { SettingsScreen } from "../screens/SettingsScreen";
 import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { SquadBuilder } from "../components/SquadBuilder";
 import { GlobalShortcuts } from "../GlobalShortcuts";
-import { TooltipManager } from "../ui/TooltipManager";
 import { AppServiceRegistry } from "./AppServiceRegistry";
 import type { Renderer } from "../Renderer";
 import { Logger } from "@src/shared/Logger";
@@ -206,8 +205,7 @@ export class GameApp {
     );
     globalShortcuts.init();
 
-    TooltipManager.getInstance();
-
+    
     this.registry.missionSetupManager.loadAndApplyConfig(false);
     const mvEl = document.getElementById("menu-version");
     if (mvEl) mvEl.textContent = `v${VERSION}`;
@@ -238,6 +236,7 @@ export class GameApp {
     this.campaignScreen = new CampaignScreen({
       containerId: "screen-campaign",
       campaignManager: this.registry.campaignManager,
+      metaManager: this.registry.metaManager,
       themeManager: this.registry.themeManager,
       inputDispatcher: this.registry.inputDispatcher,
       modalService: this.registry.modalService,

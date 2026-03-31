@@ -2,6 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { t } from "@src/renderer/i18n";
 import { I18nKeys } from "@src/renderer/i18n/keys";
@@ -81,14 +83,17 @@ describe("EquipmentScreen", () => {
       ],
     };
 
-    CampaignManager.resetInstance();
-    mockManager = CampaignManager.getInstance({
-      load: vi.fn().mockReturnValue(mockCampaignState),
-      save: vi.fn(),
-      delete: vi.fn(),
-    } as any);
     
-    // Force set state since getInstance(storage) only sets it if load() is called in constructor
+    mockManager = new CampaignManager(
+      {
+        load: vi.fn().mockReturnValue(mockCampaignState),
+        save: vi.fn(),
+        delete: vi.fn(),
+      } as any,
+      new MetaManager(new MockStorageProvider())
+    );
+    
+    // Force set state since constructor load() might not be enough for some test expectations
     (mockManager as any).state = mockCampaignState;
     vi.spyOn(mockManager, "spendScrap").mockImplementation(() => {});
 

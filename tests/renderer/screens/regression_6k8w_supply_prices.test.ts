@@ -1,71 +1,62 @@
-import { InputDispatcher } from "@src/renderer/InputDispatcher";
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
-import { SquadConfig } from "@src/shared/types";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
+import { ThemeManager } from "@src/renderer/ThemeManager";
+import { setLocale } from "@src/renderer/i18n";
 
 describe("Regression 6k8w: Supply Prices", () => {
-  let mockInputDispatcher: any;
-  let container: HTMLElement;
-  let initialConfig: SquadConfig;
   let mockManager: any;
+  let themeManager: any;
+  let mockModalService: any;
+  let mockInputDispatcher: any;
 
   beforeEach(() => {
+    setLocale("en-standard");
+    document.body.innerHTML = '<div id="screen-equipment"></div>';
+    
+    mockManager = new CampaignManager(
+      new MockStorageProvider(),
+      new MetaManager(new MockStorageProvider())
+    );
+    mockManager.startNewCampaign({ seed: 123, difficulty: "Standard" });
+    
+    themeManager = {
+      getAssetUrl: vi.fn().mockReturnValue("test.png"),
+    };
+    mockModalService = {
+      show: vi.fn(),
+    };
     mockInputDispatcher = {
       pushContext: vi.fn(),
       popContext: vi.fn(),
     };
-    document.body.innerHTML = '<div id="screen-equipment"></div>';
-    container = document.getElementById("screen-equipment")!;
-
-    initialConfig = {
-      soldiers: [{ archetypeId: "assault" }],
-      inventory: {},
-    };
-
-    mockManager = {
-      getState: vi.fn().mockReturnValue({ scrap: 1000, intel: 0, roster: [] }),
-      addChangeListener: vi.fn(),
-      removeChangeListener: vi.fn(),
-    };
   });
 
   it("should show supply prices in the UI row, not just in title", () => {
-    const mockModalService = {
-      alert: vi.fn().mockResolvedValue(undefined),
-      confirm: vi.fn().mockResolvedValue(true),
-      show: vi.fn().mockResolvedValue(undefined),
-    };
-
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
-      currentSquad: initialConfig,
+      currentSquad: { 
+        unitIds: ["u1"], 
+        soldiers: [{ id: "u1", name: "Test", archetypeId: "assault", hp: 100, maxHp: 100, soldierAim: 90, rightHand: "pulse_rifle" }], 
+        inventory: {} 
+      } as any,
       onBack: vi.fn(),
-      onUpdate: // onBack
-      vi.fn(),
-      onLaunch: // onUpdate
-      undefined,
-      isShop: false,
-      isCampaign: true
+      onLaunch: vi.fn(),
+      isShop: true,
+      isCampaign: true,
     });
+
     screen.show();
-
-    // Find Frag Grenade row
-    const supplyItems = Array.from(container.querySelectorAll(".card"));
-    const grenadeRow = supplyItems.find((el) =>
-      el.textContent?.includes("Frag Grenade"),
-    ) as HTMLElement;
-
-    expect(grenadeRow).toBeDefined();
-
-    // CURRENT BEHAVIOR (to be changed):
-    // Cost is in title, but NOT in textContent
-    // expect(grenadeRow!.title).toContain("Cost: 15 CR");
-    // expect(grenadeRow!.textContent).not.toContain("15 CR");
-
+    
+    const grenadeRow = document.querySelector(".item-card[data-id='frag_grenade']");
+    expect(grenadeRow).not.toBeNull();
+    
     // NEW EXPECTED BEHAVIOR:
     expect(grenadeRow!.textContent).toContain("15 CR");
     expect(grenadeRow!.title).not.toContain("Cost:");

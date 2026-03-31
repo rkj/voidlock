@@ -48,7 +48,7 @@ describe("Regression: Shop Node Label", () => {
 
   it("should show 'Leave Shop' label on back button when isShop is true", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -71,7 +71,7 @@ describe("Regression: Shop Node Label", () => {
 
   it("should show 'Back' label on back button when isShop is false", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,

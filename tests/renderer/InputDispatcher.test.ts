@@ -9,7 +9,7 @@ describe("InputDispatcher", () => {
   beforeEach(() => {
     // Reset singleton or state if necessary.
     // Since it's a singleton, we might need a way to clear contexts.
-    dispatcher = InputDispatcher.getInstance();
+    dispatcher = new InputDispatcher();
     // @ts-ignore - access private for testing
     dispatcher.contextStack = [];
     // @ts-ignore

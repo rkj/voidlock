@@ -70,7 +70,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
 
   it("should prevent equipping items on a dead soldier", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -99,7 +99,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
 
   it("should prevent removing items from a dead soldier", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,
@@ -134,7 +134,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
 
   it("should display a DECEASED warning for dead soldiers", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: mockManager,
       modalService: mockModalService as any,

@@ -38,7 +38,7 @@ export class ModalService {
     instance: ModalInstance;
   } | null = null;
 
-  constructor() {
+  constructor(private inputDispatcher: InputDispatcher) {
     let container = document.getElementById("modal-container");
     if (!container) {
       container = document.createElement("div");
@@ -184,7 +184,7 @@ export class ModalService {
     const instance: ModalInstance = {
       close: (value?: unknown) => {
         if (this.activeModal?.element === modal) {
-          InputDispatcher.getInstance().popContext("ModalService");
+          this.inputDispatcher.popContext("ModalService");
           this.container.removeChild(backdrop);
           const currentResolve = this.activeModal.resolve;
           this.activeModal = null;
@@ -227,7 +227,7 @@ export class ModalService {
     this.container.appendChild(backdrop);
     this.activeModal = { options, element: modal, backdrop, resolve, instance };
 
-    InputDispatcher.getInstance().pushContext({
+    this.inputDispatcher.pushContext({
       id: "ModalService",
       priority: InputPriority.System,
       trapsFocus: true,

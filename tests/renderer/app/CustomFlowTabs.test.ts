@@ -56,7 +56,7 @@ vi.mock("@src/engine/campaign/MetaManager", () => {
     addChangeListener: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  (mockConstructor as any).getInstance = vi.fn().mockReturnValue(mockInstance);
+  
   return { MetaManager: mockConstructor };
 });
 

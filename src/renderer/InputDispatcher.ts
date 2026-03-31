@@ -1,13 +1,12 @@
 import type { InputContext, ShortcutInfo } from "@src/shared/types";
 
 export class InputDispatcher {
-  private static instance: InputDispatcher;
+  
   private contextStack: InputContext[] = [];
   private focusStack: HTMLElement[] = [];
   private nextOrder: number = 0;
 
   public constructor() {
-    InputDispatcher.instance = this;
     if ((window as any).__INPUT_DISPATCHER_INSTANCE__) {
       (window as any).__INPUT_DISPATCHER_INSTANCE__.destroy();
     }
@@ -61,16 +60,6 @@ export class InputDispatcher {
     window.removeEventListener("wheel", this.handleWheelBound);
     this.contextStack = [];
     this.focusStack = [];
-  }
-
-  /**
-   * @deprecated Use constructor injection via AppServiceRegistry.
-   */
-  public static getInstance(): InputDispatcher {
-    if (!InputDispatcher.instance) {
-      InputDispatcher.instance = new InputDispatcher();
-    }
-    return InputDispatcher.instance;
   }
 
   public pushContext(context: InputContext) {

@@ -1,48 +1,33 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
-const projectRoot = process.cwd();
+const filesToFix = [
+    'tests/renderer/integration/E2E_CampaignLoss.test.ts',
+    'tests/renderer/integration/FullCampaignFlow.test.ts',
+    'tests/renderer/integration/UserJourneys.test.ts'
+];
 
-function getFiles(dir: string): string[] {
-  let results: string[] = [];
-  const list = fs.readdirSync(dir);
-  list.forEach(file => {
-    file = path.resolve(dir, file);
-    const stat = fs.statSync(file);
-    if (stat && stat.isDirectory()) {
-      results = results.concat(getFiles(file));
-    } else if (file.endsWith('.test.ts') || file.endsWith('.test.tsx')) {
-      results.push(file);
+for (const filePath of filesToFix) {
+    if (!fs.existsSync(filePath)) continue;
+    
+    let content = fs.readFileSync(filePath, 'utf8');
+    let updated = content;
+    
+    // Replace new CampaignManager(...) with app.registry.campaignManager
+    updated = updated.replace(/const cm = new CampaignManager\([^)]+\);/g, 'const cm = app.registry.campaignManager;');
+    updated = updated.replace(/const cm = new CampaignManager\([^)]+\)/g, 'const cm = app.registry.campaignManager');
+    updated = updated.replace(/cm = new CampaignManager\([^)]+\);/g, 'cm = app.registry.campaignManager;');
+    
+    // Also handle cases where it's assigned to a variable named differently
+    updated = updated.replace(/this\.cm = new CampaignManager\([^)]+\);/g, 'this.cm = app.registry.campaignManager;');
+    
+    // Specific fix for FullCampaignFlow.test.ts
+    updated = updated.replace(/app\.registry\.campaignManager\.reset\(\);/g, 'app.registry.campaignManager.reset();');
+    // Ensure we don't have broken new CampaignManager in beforeEach
+    updated = updated.replace(/new CampaignManager\(new MockStorageProvider\(\), new MetaManager\(new MockStorageProvider\(\)\)\);/g, '// CampaignManager now handled by GameApp');
+
+    if (updated !== content) {
+      console.log('Polishing v11 (revised) ' + filePath);
+      fs.writeFileSync(filePath, updated);
     }
-  });
-  return results;
 }
-
-const allTestFiles = getFiles(path.join(projectRoot, 'tests/renderer'));
-
-allTestFiles.forEach(filePath => {
-  let content = fs.readFileSync(filePath, 'utf8');
-  let changed = false;
-
-  // Move CampaignManager import after mock if it exists
-  const mockRegex = /vi\.mock\("@src\/renderer\/campaign\/CampaignManager"[\s\S]*?\}\);/;
-  const importRegex = /import \{ CampaignManager \} from "@src\/renderer\/campaign\/CampaignManager";/;
-  
-  const mockMatch = content.match(mockRegex);
-  const importMatch = content.match(importRegex);
-
-  if (mockMatch && importMatch && importMatch.index! < mockMatch.index!) {
-      // Remove import
-      content = content.replace(importRegex, '');
-      // Re-insert after mock
-      const newMockMatch = content.match(mockRegex); // Refind since index changed
-      const insertPos = newMockMatch!.index! + newMockMatch![0].length;
-      content = content.slice(0, insertPos) + '\nimport { CampaignManager } from "@src/renderer/campaign/CampaignManager";' + content.slice(insertPos);
-      changed = true;
-  }
-
-  if (changed) {
-    fs.writeFileSync(filePath, content);
-    console.log(`Fixed import order in: ${filePath}`);
-  }
-});

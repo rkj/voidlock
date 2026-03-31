@@ -1,6 +1,8 @@
 import { UnitStyle } from "@src/shared/types";
 import type { AssetManager } from "../visuals/AssetManager";
 import type { ThemeManager } from "../ThemeManager";
+import { t } from "../i18n";
+import { I18nKeys } from "../i18n/keys";
 
 export class UnitStyleSelector {
   private container: HTMLElement | null;
@@ -25,8 +27,8 @@ export class UnitStyleSelector {
     this.container.className = "style-preview-container";
 
     const styles = [
-      { id: UnitStyle.TacticalIcons, label: "Tactical Icons" },
-      { id: UnitStyle.Sprites, label: "Sprites" },
+      { id: UnitStyle.TacticalIcons, label: t(I18nKeys.screen.settings.unit_style_tactical) },
+      { id: UnitStyle.Sprites, label: t(I18nKeys.screen.settings.unit_style_sprites) },
     ];
 
     styles.forEach((style) => {

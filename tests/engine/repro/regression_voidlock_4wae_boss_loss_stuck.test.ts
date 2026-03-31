@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MissionReport } from "@src/shared/campaign_types";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
@@ -8,9 +9,9 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
   let storage: MockStorageProvider;
 
   beforeEach(() => {
-    CampaignManager.resetInstance();
+    
     storage = new MockStorageProvider();
-    manager = CampaignManager.getInstance(storage);
+    manager = new CampaignManager(storage, new MetaManager(new MockStorageProvider()));
   });
 
   it("should mark campaign as Defeat when Boss mission is lost (even in non-Ironman)", () => {

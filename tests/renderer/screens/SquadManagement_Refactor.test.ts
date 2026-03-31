@@ -3,6 +3,8 @@ import { InputDispatcher } from "@src/renderer/InputDispatcher";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { SquadConfig } from "@src/shared/types";
 
@@ -22,16 +24,10 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     document.body.innerHTML = '<div id="screen-equipment"></div>';
     container = document.getElementById("screen-equipment")!;
 
-    CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(
-      new (class {
-        save() {}
-        load() {
-          return null;
-        }
-        remove() {}
-        clear() {}
-      })(),
+    
+    manager = new CampaignManager(
+      new MockStorageProvider(),
+      new MetaManager(new MockStorageProvider())
     );
 
     modalService = {
@@ -60,7 +56,7 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
 
   it("should show 4 slots in the soldier list even if fewer soldiers are in squad", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: manager,
       modalService: modalService as any,
@@ -79,7 +75,7 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
   it("should show Recruit/Revive options in the inspector when an empty slot is selected", () => {
     manager.startNewCampaign(123, "normal");
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: manager,
       modalService: modalService as any,
@@ -136,7 +132,7 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     ];
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: manager,
       modalService: modalService as any,
@@ -167,7 +163,7 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     ];
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: manager,
       modalService: modalService as any,
@@ -201,7 +197,7 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
 
   it("should allow removing a soldier from the squad", () => {
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: manager,
       modalService: modalService as any,
@@ -224,7 +220,7 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     state.unlockedArchetypes = ["assault", "medic"];
 
     const screen = new EquipmentScreen({
-      inputDispatcher: (typeof mockInputDispatcher !== 'undefined' ? mockInputDispatcher : InputDispatcher.getInstance()) as any,
+      inputDispatcher: mockInputDispatcher as any,
       containerId: "screen-equipment",
       campaignManager: manager,
       modalService: modalService as any,
