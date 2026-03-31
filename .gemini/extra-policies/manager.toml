@@ -1,0 +1,39 @@
+[[rule]]
+toolName = [
+  "glob",
+  "list_directory",
+  "read_file",
+  "search_file_content",
+]
+decision = "allow"
+priority = 100
+modes = ["default", "plan", "autoEdit"]
+
+[[rule]]
+toolName = [
+  "write_file",
+]
+decision = "allow"
+priority = 100
+modes = ["autoEdit"]
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  "./scripts/dispatch_agent.sh",
+  "scripts/dispatch_agent.sh",
+]
+decision = "allow"
+priority = 100
+modes = ["default", "plan", "autoEdit"]
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  "./scripts/safe_commit.sh",
+  "scripts/safe_commit.sh",
+]
+decision = "allow"
+priority = 100
+modes = ["autoEdit"]
+

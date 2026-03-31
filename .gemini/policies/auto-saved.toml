@@ -1,0 +1,21 @@
+[[rule]]
+decision = "allow"
+priority = 950
+toolName = "activate_skill"
+
+[[rule]]
+decision = "allow"
+priority = 950
+toolName = "enter_plan_mode"
+
+[[rule]]
+decision = "allow"
+priority = 950
+toolName = "run_shell_command"
+commandPrefix = [ "br" ]
+
+[[rule]]
+decision = "allow"
+priority = 950
+toolName = "run_shell_command"
+commandPrefix = [ "sed" ]

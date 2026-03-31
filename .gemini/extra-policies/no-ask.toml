@@ -1,0 +1,6 @@
+[[rule]]
+toolName = "run_shell_command"
+decision = "deny"
+priority = 1
+modes = ["default", "plan", "autoEdit"]
+

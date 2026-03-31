@@ -1,0 +1,101 @@
+[[rule]]
+toolName = [
+  "click",
+  "close_page",
+  "drag",
+  "emulate",
+  "evaluate_script",
+  "fill",
+  "fill_form",
+  "get_console_message",
+  "handle_dialog",
+  "list_console_messages",
+  "list_network_requests",
+  "list_pages",
+  "navigate_page",
+  "new_page",
+  "press_key",
+  "resize_page",
+  "take_screenshot",
+  "take_snapshot",
+  "wait_for",
+]
+mcpName = "chrome-devtools"
+decision = "allow"
+priority = 200
+modes = ["default", "plan", "autoEdit"]
+
+[[rule]]
+toolName = "activate_skill"
+decision = "allow"
+priority = 100
+modes = ["default", "plan", "autoEdit"]
+
+[[rule]]
+toolName = "web_fetch"
+decision = "allow"
+priority = 100
+modes = ["default", "plan", "autoEdit"]
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = ["git status", "jj diff", "jj log", "jj show", "jj status"]
+decision = "allow"
+priority = 100
+modes = ["default", "plan", "autoEdit"]
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  "npm run build",
+  "npm run lint",
+  "npm run process-assets",
+  "npm run test",
+  "npm run test:e2e",
+  "npx eslint",
+  "npx madge",
+  "npx prettier",
+  "npx tsc",
+  "npx ts-node",
+  "npx vite build",
+  "npx vitest",
+]
+decision = "allow"
+priority = 100
+modes = ["default", "plan", "autoEdit"]
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  "cat",
+  "echo",
+  "grep",
+  "head",
+  "ls",
+  "read_file",
+  "sleep",
+  "tail",
+  "tree",
+  "wc",
+]
+decision = "allow"
+priority = 100
+modes = ["default", "plan", "autoEdit"]
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = [
+  "bd list",
+  "bd show",
+]
+decision = "allow"
+priority = 100
+modes = ["default", "plan", "autoEdit"]
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = ["bd", "mdformat", "rm tests/", "npx tsx",]
+decision = "allow"
+priority = 100
+modes = ["autoEdit"]
+
