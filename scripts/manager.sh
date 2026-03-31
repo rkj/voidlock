@@ -34,7 +34,8 @@ while true; do
 
   LAST_LINE=$(tail -n 1 "$LOG_FILE")
 
-  if [[ "$LAST_LINE" == *"You have exhausted your capacity on this model"* ]]; then
+  # Detect quota exhaustion or model capacity issues
+  if [[ "$LAST_LINE" == *"You have exhausted your capacity on this model"* ]] || grep -q "RESOURCE_EXHAUSTED" "$LOG_FILE"; then
     TIME_STR=$(echo "$LAST_LINE" | sed -n 's/.*reset after \([0-9hms]\+\).*/\1/p')
     if [ -n "$TIME_STR" ]; then
       echo "Quota exhausted for $MODEL. Reset in $TIME_STR."
@@ -61,7 +62,10 @@ while true; do
         echo "Sleeping for $WAIT_TIME seconds..."
         sleep "$WAIT_TIME"
       fi
-
+    elif grep -q "RESOURCE_EXHAUSTED" "$LOG_FILE" && [ "$MODEL" == "gemini-3-pro-preview" ]; then
+      echo "RESOURCE_EXHAUSTED for $MODEL. Switching to gemini-3-flash-preview."
+      MODEL="gemini-3-flash-preview"
+      continue
     else
       echo "Quota exhausted but couldn't parse time. Sleeping for 60s."
       sleep 60
@@ -72,4 +76,3 @@ while true; do
     sleep 60
   fi
 done
-
