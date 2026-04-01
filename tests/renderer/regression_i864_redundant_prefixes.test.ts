@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
 import { GameState, UnitState, MissionType } from "@src/shared/types";
+import { useStandardLocale } from "./i18n/test_helpers";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("Regression i864: Redundant Prefixes in Command Menu", () => {
   let controller: MenuController;
@@ -53,6 +56,7 @@ describe("Regression i864: Redundant Prefixes in Command Menu", () => {
   };
 
   beforeEach(() => {
+    useStandardLocale();
     mockClient = { applyCommand: vi.fn() };
     controller = new MenuController(mockClient);
     controller.clearDiscoveryOrder();
@@ -100,8 +104,8 @@ describe("Regression i864: Redundant Prefixes in Command Menu", () => {
       (o) => o.dataAttributes?.index === "2",
     );
 
-    expect(room1Option?.label).toBe("1. Room 1");
-    expect(room2Option?.label).toBe("2. Room 2");
+    expect(room1Option?.label).toBe(`1. ${t(I18nKeys.menu.label_room_name, { name: 1 })}`);
+    expect(room2Option?.label).toBe(`2. ${t(I18nKeys.menu.label_room_name, { name: 2 })}`);
     // Currently it is "1. Room" and "2. Room"
   });
 });

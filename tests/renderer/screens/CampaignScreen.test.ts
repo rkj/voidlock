@@ -6,8 +6,8 @@ import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { InputDispatcher } from "@src/renderer/InputDispatcher";
-import { t } from "@src/renderer/i18n";
-import { I18nKeys } from "@src/renderer/i18n/keys";
+import { t, I18nKeys } from "@src/renderer/i18n";
+import { useStandardLocale } from "../i18n/test_helpers";
 
 // Mock MetaManager
 vi.mock("@src/engine/campaign/MetaManager", () => {
@@ -47,6 +47,7 @@ describe("CampaignScreen", () => {
   let inputDispatcher: InputDispatcher;
 
   beforeEach(() => {
+    useStandardLocale();
     vi.clearAllMocks();
     document.body.innerHTML = "";
     const storage = {

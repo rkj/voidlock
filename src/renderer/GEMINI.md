@@ -20,6 +20,7 @@ Main thread rendering logic and user interface for Voidlock.
 - `campaign/`: Campaign UI layer and state persistence.
 - `components/`: Reusable UI components (SquadBuilder, etc.).
 - `controllers/`: Decoupled logic managers (StateMachine, Selection, CommandBuilder, RoomDiscovery, TargetOverlay).
+- `i18n/`: Internationalization system. Implements `t()` function for message ID based translations with support for multiple locales (`en-standard`, `en-corporate`, `pl`).
 - `screens/`: Screen implementations (Campaign, Debrief, Equipment, Statistics, MissionSetup).
 - `ui/`: UI component library (HUD panels, MenuRenderer, ModalService, SoldierInspector).
 - `visuals/`: Canvas rendering layers (MapLayer, UnitLayer, EffectLayer, OverlayLayer).

@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
 import { GameState, UnitState, CellType, MissionType } from "@src/shared/types";
+import { useStandardLocale } from "./i18n/test_helpers";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("MenuController Room Discovery", () => {
   let controller: MenuController;
@@ -50,6 +53,7 @@ describe("MenuController Room Discovery", () => {
   };
 
   beforeEach(() => {
+    useStandardLocale();
     mockClient = {
       applyCommand: vi.fn(),
     };
@@ -64,13 +68,13 @@ describe("MenuController Room Discovery", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("Room"),
+      o.label.includes(t(I18nKeys.menu.label_room_name, { name: "" }).trim()),
     );
 
     // Should find Room 1 (mapped to Key 1) but not Room 2
     expect(roomOptions.length).toBe(1);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room 1");
+    expect(roomOptions[0].label).toBe(`1. ${t(I18nKeys.menu.label_room_name, { name: 1 })}`);
   });
 
   it("should show discovered room as '1. Room' even if it wasn't the first room in map data", () => {
@@ -83,12 +87,12 @@ describe("MenuController Room Discovery", () => {
     controller.handleMenuInput("1", stateOnlyRoom2Discovered);
     const renderState = controller.getRenderableState(stateOnlyRoom2Discovered);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("Room"),
+      o.label.includes(t(I18nKeys.menu.label_room_name, { name: "" }).trim()),
     );
 
     expect(roomOptions.length).toBe(1);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room 1");
+    expect(roomOptions[0].label).toBe(`1. ${t(I18nKeys.menu.label_room_name, { name: 1 })}`);
   });
 
   it("should not list corridors as rooms", () => {
@@ -109,7 +113,7 @@ describe("MenuController Room Discovery", () => {
     controller.handleMenuInput("1", stateWithCorridor);
     const renderState = controller.getRenderableState(stateWithCorridor);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("Room"),
+      o.label.includes(t(I18nKeys.menu.label_room_name, { name: "" }).trim()),
     );
 
     // Should still only have 2 rooms
@@ -127,13 +131,13 @@ describe("MenuController Room Discovery", () => {
     controller.handleMenuInput("1", stateWithBothDiscovered);
     const renderState = controller.getRenderableState(stateWithBothDiscovered);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("Room"),
+      o.label.includes(t(I18nKeys.menu.label_room_name, { name: "" }).trim()),
     );
 
     expect(roomOptions.length).toBe(2);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room 1");
+    expect(roomOptions[0].label).toBe(`1. ${t(I18nKeys.menu.label_room_name, { name: 1 })}`);
     expect(roomOptions[1].key).toBe("2");
-    expect(roomOptions[1].label).toBe("2. Room 2");
+    expect(roomOptions[1].label).toBe(`2. ${t(I18nKeys.menu.label_room_name, { name: 2 })}`);
   });
 });

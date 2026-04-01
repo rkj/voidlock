@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { getNewPage, closeBrowser, useStandardLocale } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
@@ -49,6 +49,7 @@ describe("Full Keyboard-Only Campaign Walkthrough", () => {
 
   it("should complete a full campaign flow using only keyboard", async () => {
     await page.goto(E2E_URL);
+    await useStandardLocale(page);
     await page.waitForSelector("#btn-menu-campaign");
 
     // Disable Tutorial to prevent interruptions
@@ -76,17 +77,17 @@ describe("Full Keyboard-Only Campaign Walkthrough", () => {
     // Skip Tutorial Prologue to reach Sector Map
     await page.click("#campaign-skip-prologue");
 
-    // Find "Initialize Expedition" button
+    // Find "Start Expedition" button (en-standard)
     let foundStart = false;
     for (let i = 0; i < 20; i++) {
       const active = await getActiveElementInfo();
-      if (active?.textContent === "Initialize Expedition") {
+      if (active?.textContent === "Start Expedition") {
         foundStart = true;
         break;
       }
       await pressTab();
     }
-    expect(foundStart, "Failed to find 'Initialize Expedition' button").toBe(true);
+    expect(foundStart, "Failed to find 'Start Expedition' button").toBe(true);
     await pressEnter();
 
     // 3. Select node on Sector Map

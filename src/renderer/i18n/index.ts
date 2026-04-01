@@ -1,5 +1,6 @@
 import { ConfigManager } from "../ConfigManager";
-import { I18nKey, I18nKeys } from "./keys";
+import { type I18nKey, I18nKeys } from "./keys";
+export { type I18nKey, I18nKeys };
 import { enCorporate } from "./locales/en-corporate";
 import { enStandard } from "./locales/en-standard";
 import { pl } from "./locales/pl";
@@ -40,7 +41,9 @@ export function setLocale(localeId: string): void {
     // Update global config
     const globalConfig = ConfigManager.loadGlobal();
     globalConfig.locale = localeId;
-    ConfigManager.saveGlobal(globalConfig);
+    if (typeof ConfigManager.saveGlobal === "function") {
+      ConfigManager.saveGlobal(globalConfig);
+    }
   }
 }
 

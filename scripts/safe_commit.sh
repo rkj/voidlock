@@ -13,12 +13,12 @@ if ! npm run lint; then
   exit 1
 fi
 
-# echo "=== Step 2/3: ESLint (errors only) ==="
-# if ! npx eslint src/ --quiet 2>/dev/null; then
-#   echo "❌ ESLint errors found! Fix errors before committing."
-#   echo "Run 'npm run lint:quality' for details."
-#   exit 1
-# fi
+echo "=== Step 2/3: ESLint (errors only) ==="
+if ! npx eslint src/ --quiet 2>/dev/null; then
+  echo "❌ ESLint errors found! Fix errors before committing."
+  echo "Run 'npm run lint:quality' for details."
+  exit 1
+fi
 
 echo "=== Step 3/3: Unit tests ==="
 if ! npm run test; then

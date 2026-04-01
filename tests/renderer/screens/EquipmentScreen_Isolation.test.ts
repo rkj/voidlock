@@ -7,6 +7,8 @@ import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider
 import { MapGeneratorType, MissionType } from "@src/shared/types";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { InputDispatcher } from "@src/renderer/InputDispatcher";
+import { t, I18nKeys } from "@src/renderer/i18n";
+import { useStandardLocale } from "../i18n/test_helpers";
 
 describe("EquipmentScreen Isolation", () => {
   let mockInputDispatcher: any;
@@ -14,6 +16,7 @@ describe("EquipmentScreen Isolation", () => {
   let container: HTMLElement;
 
   beforeEach(async () => {
+    useStandardLocale();
     mockInputDispatcher = {
       pushContext: vi.fn(),
       popContext: vi.fn(),
@@ -139,8 +142,8 @@ describe("EquipmentScreen Isolation", () => {
 
     screen.show();
 
-    const revivePersonnelBtn = Array.from(container.querySelectorAll("h2")).find(h => h.textContent === "Revive Personnel");
-    const reviveBtns = container.querySelectorAll(".revive-btn-large");
+    const revivePersonnelBtn = Array.from(container.querySelectorAll("h3")).find(h => h.textContent === t(I18nKeys.screen.equipment.personnel_losses));
+    const reviveBtns = container.querySelectorAll(".revive-button");
     
     expect(reviveBtns.length).toBe(0);
   });

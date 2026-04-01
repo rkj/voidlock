@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignShell } from "@src/renderer/ui/CampaignShell";
-import { t } from "@src/renderer/i18n";
-import { I18nKeys } from "@src/renderer/i18n/keys";
+import { t, I18nKeys } from "@src/renderer/i18n";
+import { useStandardLocale } from "../i18n/test_helpers";
 
 describe("CampaignShell", () => {
   let container: HTMLElement;
@@ -14,6 +14,7 @@ describe("CampaignShell", () => {
   let shell: CampaignShell;
 
   beforeEach(() => {
+    useStandardLocale();
     container = document.createElement("div");
     container.id = "campaign-shell-container";
     document.body.appendChild(container);

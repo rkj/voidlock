@@ -151,10 +151,13 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
 
 import { GameApp } from "@src/renderer/app/GameApp";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { t, I18nKeys } from "@src/renderer/i18n";
+import { useStandardLocale } from "../i18n/test_helpers";
 
 let currentCampaignState: any = null;
 describe("Equipment Back Bug Reproduction", () => {
   beforeEach(async () => {
+    useStandardLocale();
     currentCampaignState = null;
 
     // Mock ResizeObserver
@@ -243,7 +246,7 @@ describe("Equipment Back Bug Reproduction", () => {
     // 4. Click Back in Equipment screen
     const backBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent === "Back") as HTMLElement;
+    ).find((b) => b.textContent === t(I18nKeys.menu.back)) as HTMLElement;
     expect(backBtn).toBeTruthy();
     backBtn.click();
 

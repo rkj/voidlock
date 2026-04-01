@@ -5,8 +5,8 @@ import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { ThemeManager } from "@src/renderer/ThemeManager";
-import { t } from "@src/renderer/i18n";
-import { I18nKeys } from "@src/renderer/i18n/keys";
+import { t, I18nKeys } from "@src/renderer/i18n";
+import { useStandardLocale } from "../i18n/test_helpers";
 
 // Mock dependencies
 vi.mock("@src/renderer/ConfigManager", () => ({
@@ -37,6 +37,7 @@ describe("EquipmentScreen", () => {
   let themeManager: ThemeManager;
 
   beforeEach(() => {
+    useStandardLocale();
     document.body.innerHTML = '<div id="screen-equipment"></div>';
     container = document.getElementById("screen-equipment")!;
 
@@ -144,15 +145,15 @@ describe("EquipmentScreen", () => {
       ),
     ).map((el) => el.textContent?.trim());
     
-    expect(soldierListTexts.some((text) => text?.includes(t("units.item.pulse_rifle")))).toBe(true);
+    expect(soldierListTexts.some((text) => text?.includes(t(I18nKeys.units.item.pulse_rifle)))).toBe(true);
   });
 
   it("should allow adding global items", async () => {
     screen.show();
     
     // Use t() to find localized names
-    const grenadeName = t("units.item.frag_grenade");
-    const medkitName = t("units.item.medkit");
+    const grenadeName = t(I18nKeys.units.item.frag_grenade);
+    const medkitName = t(I18nKeys.units.item.medkit);
 
     const itemRows = Array.from(
       container.querySelectorAll(".armory-panel .card"),

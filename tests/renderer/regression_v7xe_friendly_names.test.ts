@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
 import { GameState, UnitState, MissionType } from "@src/shared/types";
+import { useStandardLocale } from "./i18n/test_helpers";
+import { t } from "@src/renderer/i18n";
+import { I18nKeys } from "@src/renderer/i18n/keys";
 
 describe("Regression v7xe: Friendly Names in Command Menu", () => {
   let controller: MenuController;
@@ -70,6 +73,7 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
   };
 
   beforeEach(() => {
+    useStandardLocale();
     mockClient = { applyCommand: vi.fn() };
     controller = new MenuController(mockClient);
     controller.clearDiscoveryOrder();
@@ -82,10 +86,10 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
     const state = controller.getRenderableState(mockState);
 
     const objOption = state.options.find((o) => o.key === "1");
-    expect(objOption?.label).toBe("1. Collect Objective");
+    expect(objOption?.label).toBe(`1. ${t(I18nKeys.menu.label_collect_objective, { name: t(I18nKeys.menu.label_objective) })}`);
 
     const lootOption = state.options.find((o) => o.key === "2");
-    expect(lootOption?.label).toBe("2. Pickup Credit Crate");
+    expect(lootOption?.label).toBe(`2. ${t(I18nKeys.menu.label_pickup_item, { name: "Credit Crate" })}`);
   });
 
   it("should use friendly name for inventory items in ITEM_SELECT", () => {

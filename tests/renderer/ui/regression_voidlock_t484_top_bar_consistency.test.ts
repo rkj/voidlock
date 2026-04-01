@@ -3,6 +3,8 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignShell } from "@src/renderer/ui/CampaignShell";
+import { t, I18nKeys } from "@src/renderer/i18n";
+import { useStandardLocale } from "../i18n/test_helpers";
 
 describe("CampaignShell Consistency", () => {
   let container: HTMLElement;
@@ -12,6 +14,7 @@ describe("CampaignShell Consistency", () => {
   let shell: CampaignShell;
 
   beforeEach(() => {
+    useStandardLocale();
     document.body.innerHTML = '<div id="screen-campaign-shell"></div>';
     container = document.getElementById("screen-campaign-shell")!;
 
@@ -59,7 +62,7 @@ describe("CampaignShell Consistency", () => {
     // Check tabs for Main Menu button
     const mainMenuInTabs = Array.from(
       tabsContainer!.querySelectorAll("button"),
-    ).find((btn) => btn.textContent === "Main Menu");
+    ).find((btn) => btn.textContent === t(I18nKeys.menu.main));
 
     // This is EXPECTED TO FAIL currently because it is in tabs
     expect(
@@ -73,7 +76,7 @@ describe("CampaignShell Consistency", () => {
       rightControls!.querySelectorAll("button"),
     );
     const mainMenuInRight = allButtonsInRight.find(
-      (btn) => btn.textContent === "Main Menu",
+      (btn) => btn.textContent === t(I18nKeys.menu.main),
     );
 
     expect(
@@ -99,14 +102,14 @@ describe("CampaignShell Consistency", () => {
     // In campaign mode, Main Menu is outside tabs
     const mainMenuInTabs = Array.from(
       tabsContainer!.querySelectorAll("button"),
-    ).find((btn) => btn.textContent === "Main Menu");
+    ).find((btn) => btn.textContent === t(I18nKeys.menu.main));
     expect(mainMenuInTabs).toBeUndefined();
 
     const allButtonsInRight = Array.from(
       rightControls!.querySelectorAll("button"),
     );
     const mainMenuInRight = allButtonsInRight.find(
-      (btn) => btn.textContent === "Main Menu",
+      (btn) => btn.textContent === t(I18nKeys.menu.main),
     );
     expect(mainMenuInRight).toBeDefined();
     expect(

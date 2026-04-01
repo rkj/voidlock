@@ -7,6 +7,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
 import { MissionType, SquadConfig } from "@src/shared/types";
+import { t, I18nKeys } from "@src/renderer/i18n";
+import { useStandardLocale } from "./i18n/test_helpers";
 
 // Mock dependencies
 vi.mock("@package.json", () => ({
@@ -70,9 +72,36 @@ vi.mock("@src/renderer/visuals/AssetManager", () => {
     getIcon: vi.fn(),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
-  
   return {
     AssetManager: mockConstructor,
+  };
+});
+
+vi.mock("@src/renderer/ConfigManager", () => {
+  let mockGlobalConfig = {
+    unitStyle: "TacticalIcons" as any,
+    themeId: "default",
+    locale: "en-corporate",
+  };
+  return {
+    ConfigManager: {
+      loadGlobal: vi.fn(() => mockGlobalConfig),
+      saveGlobal: vi.fn((c: any) => { mockGlobalConfig = c; }),
+      loadCampaign: vi.fn().mockReturnValue(null),
+      saveCampaign: vi.fn(),
+      clearCampaign: vi.fn(),
+      getDefault: vi.fn().mockReturnValue({
+          fogOfWarEnabled: true,
+          debugOverlayEnabled: false,
+          squadConfig: { soldiers: [] },
+          mapWidth: 10,
+          mapHeight: 10,
+          spawnPointCount: 1,
+          lastSeed: 123,
+          mapGeneratorType: "DenseShip",
+          missionType: "Default" as any,
+      }),
+    },
   };
 });
 
@@ -177,6 +206,7 @@ describe("MissionSetupManager - Quick Revive & Recruit (voidlock-dp5x)", () => {
   let squad: SquadConfig;
 
   beforeEach(async () => {
+    useStandardLocale();
     mockCampaignState = null;
     changeListeners.clear();
     vi.clearAllMocks();
@@ -298,7 +328,7 @@ describe("MissionSetupManager - Quick Revive & Recruit (voidlock-dp5x)", () => {
       // Handle wizard
       const allBtns = Array.from(document.querySelectorAll("button"));
       const initBtn = allBtns.find(
-        (b) => b.textContent?.includes("Initialize Expedition"),
+        (b) => b.textContent?.includes(t(I18nKeys.screen.campaign.wizard.initialize_btn)),
       ) as HTMLElement;
       if (initBtn) {
         initBtn.click();
@@ -329,7 +359,7 @@ describe("MissionSetupManager - Quick Revive & Recruit (voidlock-dp5x)", () => {
       // Handle wizard
       const allBtns = Array.from(document.querySelectorAll("button"));
       const initBtn = allBtns.find(
-        (b) => b.textContent?.includes("Initialize Expedition"),
+        (b) => b.textContent?.includes(t(I18nKeys.screen.campaign.wizard.initialize_btn)),
       ) as HTMLElement;
       if (initBtn) {
         initBtn.click();
@@ -350,7 +380,7 @@ describe("MissionSetupManager - Quick Revive & Recruit (voidlock-dp5x)", () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
       
       // After clicking large recruit btn, it shows archetype list
-      const scoutCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Scout")) as HTMLElement;
+      const scoutCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes(t(I18nKeys.units.archetype.scout))) as HTMLElement;
       expect(scoutCard).toBeTruthy();
       scoutCard.click();
       
@@ -382,7 +412,7 @@ describe("MissionSetupManager - Quick Revive & Recruit (voidlock-dp5x)", () => {
 
       const reviveBtn = deadCard?.querySelector(".btn-revive") as HTMLButtonElement;
       expect(reviveBtn).toBeTruthy();
-      expect(reviveBtn.textContent).toContain("250 Credits");
+      expect(reviveBtn.textContent).toContain("Restore Lost Asset (250 Credits)");
     });
 
     it("should disable Revive button if not enough scrap", () => {

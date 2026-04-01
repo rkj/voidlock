@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 import { t } from "@src/renderer/i18n";
 import { I18nKeys } from "@src/renderer/i18n/keys";
+import { useStandardLocale } from "../i18n/test_helpers";
 
 // Mock dependencies
 vi.mock("@src/engine/GameClient", () => ({
@@ -64,6 +65,7 @@ describe("Custom Flow Tabs Integration", () => {
   let app: GameApp;
 
   beforeEach(async () => {
+    useStandardLocale();
     document.body.innerHTML = `
       <div id="app">
         <div id="screen-main-menu" class="screen">
