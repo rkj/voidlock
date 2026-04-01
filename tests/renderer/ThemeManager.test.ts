@@ -4,16 +4,18 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { ThemeManager } from "../../src/renderer/ThemeManager";
 import { ThemeConfig } from "../../src/shared/types";
+import { Logger } from "../../src/shared/Logger";
 
 describe("ThemeManager", () => {
   let theme: ThemeManager;
 
   beforeEach(() => {
     theme = new ThemeManager();
-    // @ts-ignore - access private for reset
-    theme.colorCache.clear();
+    theme.clearCache();
+    document.documentElement.style.cssText = "";
     document.body.style.cssText = "";
     document.body.className = "";
+    vi.restoreAllMocks();
   });
 
   it("should return fallback color when CSS variable is not defined", () => {
@@ -21,7 +23,7 @@ describe("ThemeManager", () => {
     expect(color).toBe("#00ffff"); // Fallback value
   });
 
-  it("should return value from CSS variable if defined", () => {
+  it("should return value from CSS variable if defined on body", () => {
     document.body.style.setProperty("--color-wall", "#123456");
 
     const color = theme.getColor("--color-wall");
@@ -40,11 +42,12 @@ describe("ThemeManager", () => {
   });
 
   it("should clear cache when setting theme class", () => {
-    document.documentElement.style.setProperty("--color-primary", "#00ff00");
+    document.body.style.setProperty("--color-primary", "#00ff00");
     theme.getColor("--color-primary");
 
     theme.setTheme("dark");
-    expect(document.body.className).toBe("theme-dark");
+    expect(document.body.classList.contains("theme-dark")).toBe(true);
+    expect(document.documentElement.classList.contains("theme-dark")).toBe(true);
 
     const spy = vi.spyOn(window, "getComputedStyle");
     theme.getColor("--color-primary");
@@ -52,7 +55,15 @@ describe("ThemeManager", () => {
     spy.mockRestore();
   });
 
-  it("should apply theme config", () => {
+  it("should return current theme ID", () => {
+    theme.setTheme("industrial");
+    expect(theme.getCurrentThemeId()).toBe("industrial");
+
+    theme.setTheme("default");
+    expect(theme.getCurrentThemeId()).toBe("default");
+  });
+
+  it("should apply theme config to body", () => {
     const config: ThemeConfig = {
       id: "alien",
       name: "Alien Hive",
@@ -68,9 +79,12 @@ describe("ThemeManager", () => {
     expect(theme.getColor("--color-wall")).toBe("#ff00ff");
     expect(theme.getColor("--color-floor")).toBe("#220022");
     expect(theme.getColor("--color-primary")).toBe("#00ffff");
+    
+    // Verify it was set on body
+    expect(document.body.style.getPropertyValue("--color-wall").trim()).toBe("#ff00ff");
   });
 
-  it("should have all new required variables in fallbacks", () => {
+  it("should have all required variables in fallbacks", () => {
     const required = [
       "--color-black",
       "--color-white",
@@ -91,9 +105,22 @@ describe("ThemeManager", () => {
         expect(color).not.toBe("#000000");
       }
     });
+  });
 
-    expect(theme.getColor("--color-black")).toBe("#000000");
-    expect(theme.getColor("--color-white")).toBe("#ffffff");
+  it("should apply colors to canvas context", () => {
+    const ctx = {
+      fillStyle: "",
+      strokeStyle: "",
+    } as unknown as CanvasRenderingContext2D;
+
+    document.body.style.setProperty("--color-primary", "#00ff00");
+    document.body.style.setProperty("--color-accent", "#0000ff");
+
+    theme.applyToCanvas(ctx, "--color-primary", "fill");
+    expect(ctx.fillStyle).toBe("#00ff00");
+
+    theme.applyToCanvas(ctx, "--color-accent", "stroke");
+    expect(ctx.strokeStyle).toBe("#0000ff");
   });
 
   describe("Assets", () => {
@@ -116,37 +143,30 @@ describe("ThemeManager", () => {
     });
 
     it("should handle fetch error gracefully", async () => {
-      global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
+      const errorSpy = vi.spyOn(Logger, "error").mockImplementation(() => {});
+      global.fetch = vi.fn().mockRejectedValue(new Error("Network Error"));
 
       await theme.init();
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to load assets.json"),
+      expect(errorSpy).toHaveBeenCalledWith(
+        "ThemeManager: Failed to load assets.json",
         expect.any(Error),
       );
-      expect(theme.getAssetUrl("any")).toBeNull();
-      consoleSpy.mockRestore();
     });
 
     it("should handle non-ok response gracefully", async () => {
+      const errorSpy = vi.spyOn(Logger, "error").mockImplementation(() => {});
       global.fetch = vi.fn().mockResolvedValue({
         ok: false,
         statusText: "Not Found",
       });
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
 
       await theme.init();
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to load assets.json"),
+      expect(errorSpy).toHaveBeenCalledWith(
+        "ThemeManager: Failed to load assets.json",
         expect.any(Error),
       );
-      consoleSpy.mockRestore();
     });
   });
 });

@@ -19,6 +19,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `integration/CampaignEnd.test.ts`: Verifies that completing a Boss mission triggers the Victory state and displays the summary UI.
 - `ui/tests/HUDManager.test.ts`: Verifies soldier list rendering and HUD updates.
 - `InputManager.test.ts`: Verifies keyboard shortcuts and debug overlay toggles.
+- `ThemeManager.test.ts`: Verifies theme application, CSS variable resolution, and asset manifest loading (including error handling).
 - `Renderer.test.ts`: Verifies map, unit, and debug/LOS overlay rendering.
 - `visuals/LayerOrder.test.ts`: Verifies the rendering order of different layers (e.g., units above spawn points).
 - `visuals/MapEntityLayer.test.ts`: Verifies that extraction points and other map entities respect Fog of War and discovery rules. Includes regression for `voidlock-281a` (TacticalIcons loot rendering).

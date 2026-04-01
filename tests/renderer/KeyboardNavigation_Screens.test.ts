@@ -71,7 +71,7 @@ describe("Screen Keyboard Navigation Integration", () => {
       metaManager: new MetaManager(new MockStorageProvider()),
       containerId: "screen-campaign",
       campaignManager: manager,
-      themeManager: { getAssetUrl: vi.fn(), getColor: vi.fn() } as any,
+      themeManager: { getAssetUrl: vi.fn(), getColor: vi.fn()  } as any,
       inputDispatcher: dispatcher,
       modalService: {} as any,
       onNodeSelect: () => {},

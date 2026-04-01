@@ -48,28 +48,6 @@ export async function getNewPage(): Promise<Page> {
   return page;
 }
 
-/**
- * Sets the locale to en-standard for deterministic E2E test output.
- */
-export async function useStandardLocale(page: Page) {
-  await page.evaluate(() => {
-    localStorage.setItem("voidlock_global_config", JSON.stringify({
-      unitStyle: "TacticalIcons",
-      themeId: "default",
-      locale: "en-standard"
-    }));
-  });
-  await page.reload();
-}
-
 export async function closePage(page: Page) {
-  const context = page.browserContext();
   await page.close();
-  // Don't close the browser itself, just the context if possible.
-  // We use try-catch because the default context cannot be closed.
-  try {
-      await context.close();
-  } catch (e) {
-      // Ignore
-  }
 }

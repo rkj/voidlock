@@ -99,7 +99,7 @@ describe("Enemy LOS Visibility", () => {
     mockCanvas = document.createElement("canvas");
     renderer = new Renderer({
       canvas: mockCanvas,
-      themeManager: { getColor: vi.fn().mockReturnValue("#fff"), getAssetUrl: vi.fn(), getIconUrl: vi.fn() } as any,
+      themeManager: { getColor: vi.fn().mockReturnValue("#fff"), getAssetUrl: vi.fn(), getIconUrl: vi.fn()  } as any,
       assetManager: { 
         iconImages: {}, 
         unitSprites: {}, 

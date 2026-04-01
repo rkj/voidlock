@@ -112,13 +112,6 @@ export class UnitStyleSelector {
     if (spritesCanvas) this.drawPreview(spritesCanvas, UnitStyle.Sprites);
   }
 
-  private getColor(key: string, fallback: string): string {
-    if (this.themeManager?.getColor) {
-      return this.themeManager.getColor(key);
-    }
-    return fallback;
-  }
-
   private drawPreview(canvas: HTMLCanvasElement, style: UnitStyle) {
     const ctx = canvas.getContext("2d");
     if (!ctx?.fillRect) return;
@@ -131,9 +124,9 @@ export class UnitStyleSelector {
     // Draw 2x2 grid background
     for (let r = 0; r < 2; r++) {
       for (let c = 0; c < 2; c++) {
-        ctx.fillStyle = this.getColor("--color-floor", "#111");
+        this.themeManager.applyToCanvas(ctx, "--color-floor");
         ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
-        ctx.strokeStyle = this.getColor("--color-grid", "#333");
+        this.themeManager.applyToCanvas(ctx, "--color-grid", "stroke");
         ctx.lineWidth = 1;
         ctx.strokeRect(c * cellSize, r * cellSize, cellSize, cellSize);
       }
@@ -180,12 +173,12 @@ export class UnitStyleSelector {
       case "soldier":
         ctx.beginPath();
         ctx.arc(x, y, iconSize / 2, 0, Math.PI * 2);
-        ctx.fillStyle = this.getColor("--color-primary", "#0f0");
+        this.themeManager.applyToCanvas(ctx, "--color-primary");
         ctx.fill();
-        ctx.strokeStyle = this.getColor("--color-black", "#000");
+        this.themeManager.applyToCanvas(ctx, "--color-black", "stroke");
         ctx.lineWidth = 2;
         ctx.stroke();
-        ctx.fillStyle = this.getColor("--color-black", "#000");
+        this.themeManager.applyToCanvas(ctx, "--color-black");
         ctx.font = `bold ${Math.floor(iconSize * 0.6)}px monospace`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -197,19 +190,19 @@ export class UnitStyleSelector {
         ctx.lineTo(x + iconSize / 2, y + iconSize / 2);
         ctx.lineTo(x - iconSize / 2, y + iconSize / 2);
         ctx.closePath();
-        ctx.fillStyle = this.getColor("--color-danger", "#f00");
+        this.themeManager.applyToCanvas(ctx, "--color-danger");
         ctx.fill();
-        ctx.strokeStyle = this.getColor("--color-black", "#000");
+        this.themeManager.applyToCanvas(ctx, "--color-black", "stroke");
         ctx.lineWidth = 2;
         ctx.stroke();
-        ctx.fillStyle = this.getColor("--color-black", "#000");
+        this.themeManager.applyToCanvas(ctx, "--color-black");
         ctx.font = `bold ${Math.floor(iconSize * 0.5)}px monospace`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("A", x, y + iconSize * 0.15);
         break;
       case "objective":
-        ctx.fillStyle = this.getColor("--color-objective", "#ff0");
+        this.themeManager.applyToCanvas(ctx, "--color-objective");
         ctx.beginPath();
         ctx.moveTo(x, y - iconSize / 2);
         ctx.lineTo(x + iconSize / 2, y);
@@ -217,15 +210,15 @@ export class UnitStyleSelector {
         ctx.lineTo(x - iconSize / 2, y);
         ctx.closePath();
         ctx.fill();
-        ctx.strokeStyle = this.getColor("--color-black", "#000");
+        this.themeManager.applyToCanvas(ctx, "--color-black", "stroke");
         ctx.lineWidth = 2;
         ctx.stroke();
         break;
       case "extraction":
-        ctx.strokeStyle = this.getColor("--color-info", "#0af");
+        this.themeManager.applyToCanvas(ctx, "--color-info", "stroke");
         ctx.lineWidth = 3;
         ctx.strokeRect(x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
-        ctx.fillStyle = "rgba(var(--color-info-rgb), 0.2)";
+        this.themeManager.applyToCanvas(ctx, "--color-extraction-bg");
         ctx.fillRect(x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
         break;
     }
@@ -269,24 +262,24 @@ export class UnitStyleSelector {
           ctx.font = `bold ${Math.floor(spriteSize * 0.5)}px monospace`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.strokeStyle = this.getColor("--color-black", "#000");
+          this.themeManager.applyToCanvas(ctx, "--color-black", "stroke");
           ctx.lineWidth = 3;
           ctx.strokeText("1", x, y);
-          ctx.fillStyle = this.getColor("--color-white", "#fff");
+          this.themeManager.applyToCanvas(ctx, "--color-white");
           ctx.fillText("1", x, y);
         } else if (type === "enemy") {
           ctx.font = `bold ${Math.floor(spriteSize * 0.5)}px monospace`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.strokeStyle = this.getColor("--color-black", "#000");
+          this.themeManager.applyToCanvas(ctx, "--color-black", "stroke");
           ctx.lineWidth = 3;
           ctx.strokeText("A", x, y);
-          ctx.fillStyle = this.getColor("--color-danger", "#f00");
+          this.themeManager.applyToCanvas(ctx, "--color-danger");
           ctx.fillText("A", x, y);
         }
       } else {
         // Fallback while loading
-        ctx.fillStyle = this.getColor("--color-text-dim", "#888");
+        this.themeManager.applyToCanvas(ctx, "--color-text-dim");
         ctx.font = "12px monospace";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -315,7 +308,7 @@ export class UnitStyleSelector {
     y: number,
     size: number,
   ) {
-    ctx.strokeStyle = "#f0f"; // Magenta for missing
+    this.themeManager.applyToCanvas(ctx, "--color-missing", "stroke");
     ctx.lineWidth = 2;
     ctx.strokeRect(x - size / 2, y - size / 2, size, size);
     ctx.beginPath();
@@ -325,7 +318,7 @@ export class UnitStyleSelector {
     ctx.lineTo(x - size / 2, y + size / 2);
     ctx.stroke();
 
-    ctx.fillStyle = "#f0f";
+    this.themeManager.applyToCanvas(ctx, "--color-missing");
     ctx.font = "bold 10px monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";

@@ -5,7 +5,7 @@ This directory contains reusable UI components for the Voidlock renderer.
 ## Files
 
 - `SquadBuilder.tsx`: Handles the squad selection and deployment UI, including roster management, drag-and-drop slots, and Click-to-Place auto-assignment. Used in the Mission Setup screen. Supports a maximum of 4 soldiers plus an optional VIP slot (auto-assigned in Escort missions, or manually added in Custom missions). **Validation (voidlock-n4sd6):** Automatically disables the "Launch Mission" button when the squad is empty or overfilled, providing explanatory tooltips.
-- `UnitStyleSelector.ts`: Provides a reusable UI component for selecting between "Tactical Icons" and "Sprites" visual styles, featuring a micro-diorama preview with live-rendered game entities. Ensures assets are loaded before rendering and provides placeholders for missing assets.
+- `UnitStyleSelector.ts`: Provides a reusable UI component for selecting between "Tactical Icons" and "Sprites" visual styles, featuring a micro-diorama preview with live-rendered game entities. Ensures assets are loaded before rendering and provides placeholders for missing assets. **ADR 0061:** Uses `ThemeManager.applyToCanvas()` for all Canvas color resolution, ensuring consistency with the current theme.
 
 ## Guidelines
 

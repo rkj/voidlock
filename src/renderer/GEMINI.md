@@ -5,6 +5,7 @@ Main thread rendering logic and user interface for Voidlock.
 ## Key Files
 
 - `main.ts`: Entry point. Instantiates and starts GameApp.
+- `ThemeManager.ts`: Centralizes visual theming by resolving CSS variables and managing assets. Complies with ADR 0061, using `document.documentElement` for global variable resolution and providing `applyToCanvas` for clean color application in the rendering layers.
 - `GameShell.ts`: Main application layout and top-level DOM elements.
 - `ConfigManager.ts`: Persistent game configuration in LocalStorage.
 - `InputDispatcher.ts`: Centralized keyboard/mouse/touch event dispatcher with priority-based handling (ADR 0037).

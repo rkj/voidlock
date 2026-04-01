@@ -91,16 +91,6 @@ vi.mock("@src/renderer/ui/AdvisorOverlay", () => ({
   })),
 }));
 
-async function waitForSelector(selector: string, timeout = 5000): Promise<HTMLElement> {
-  const start = Date.now();
-  while (Date.now() - start < timeout) {
-    const el = document.querySelector(selector) as HTMLElement;
-    if (el) return el;
-    await new Promise(r => setTimeout(r, 50));
-  }
-  throw new Error(`Timeout waiting for selector: ${selector}`);
-}
-
 describe("Full Campaign Flow Integration", () => {
   let app: GameApp;
 
@@ -181,7 +171,7 @@ describe("Full Campaign Flow Integration", () => {
       document.getElementById("btn-menu-campaign")?.click();
 
       // Start campaign via wizard UI
-      const startBtn = await waitForSelector('[data-focus-id="btn-start-campaign"]');
+      const startBtn = document.querySelector('[data-focus-id="btn-start-campaign"]') as HTMLElement;
       const dateNowStub = vi.spyOn(global.Date, 'now').mockImplementation(() => 6);
       startBtn.click();
       dateNowStub.mockRestore();

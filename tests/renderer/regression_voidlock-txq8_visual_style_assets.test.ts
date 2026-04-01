@@ -32,7 +32,15 @@ describe("UnitStyleSelector Asset Regression (voidlock-txq8)", () => {
     mockAssets = new AssetManager({} as any);
     mockTheme = {
       getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
+      getColor: vi.fn((varName) => {
+        if (varName === "--color-missing") return "#f0f";
+        return "#000";
+      }),
+      applyToCanvas: vi.fn((ctx, varName, mode = "fill") => {
+        const color = varName === "--color-missing" ? "#f0f" : "#000";
+        if (mode === "fill") ctx.fillStyle = color;
+        else ctx.strokeStyle = color;
+      }),
     };
 
     // Mock Canvas Context

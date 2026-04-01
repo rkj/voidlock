@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import { getNewPage, closeBrowser, useStandardLocale } from "./utils/puppeteer";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
@@ -19,7 +19,6 @@ describe("Campaign Mission Launch Visual Regression", () => {
 
   it("should show campaign shell when entering mission setup (nested architecture)", async () => {
     await page.goto(E2E_URL);
-    await useStandardLocale(page);
 
     // 1. Click "Campaign" on Main Menu
     await page.waitForSelector("#btn-menu-campaign");

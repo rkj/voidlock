@@ -41,8 +41,6 @@ describe("Reproduction: HUD All-caps labels (voidlock-8ai79)", () => {
 
   test("HUD labels like Deployment Phase, Start Mission, and Objectives should be Title Case", async () => {
     await page.goto(E2E_URL);
-    await page.evaluate(() => localStorage.clear());
-    await page.reload();
 
     // Go to Mission Setup
     await page.waitForSelector("#btn-menu-custom", { visible: true });

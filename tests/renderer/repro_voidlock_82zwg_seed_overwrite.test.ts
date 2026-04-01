@@ -85,8 +85,7 @@ describe("MissionSetupManager - Seed Overwrite Repro (voidlock-82zwg)", () => {
         }),
       },
       themeManager: {
-        setTheme: vi.fn(),
-      },
+        setTheme: vi.fn() },
       modalService: {
         alert: vi.fn(),
       },

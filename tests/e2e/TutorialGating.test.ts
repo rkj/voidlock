@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import { getNewPage, closeBrowser, useStandardLocale } from "./utils/puppeteer";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
@@ -19,7 +19,6 @@ describe("Tutorial Input Gating E2E", () => {
 
   it("should verify input gating during tutorial prologue steps", async () => {
     await page.goto(E2E_URL);
-    await useStandardLocale(page);
     await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
 
     // Start Campaign -> Prologue

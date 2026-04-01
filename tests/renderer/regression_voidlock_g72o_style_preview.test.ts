@@ -53,6 +53,11 @@ const mockThemeManager = {
   }),
   getAssetUrl: vi.fn().mockReturnValue("mock-url"),
   getCurrentThemeId: vi.fn().mockReturnValue("default"),
+  applyToCanvas: vi.fn((ctx, varName, mode = "fill") => {
+    const color = "#ffffff";
+    if (mode === "fill") ctx.fillStyle = color;
+    else ctx.strokeStyle = color;
+  }),
 };
 
 vi.mock("@src/renderer/ThemeManager", () => {
@@ -64,6 +69,11 @@ vi.mock("@src/renderer/ThemeManager", () => {
     getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
     getCurrentThemeId: vi.fn().mockReturnValue("default"),
     applyTheme: vi.fn(),
+    applyToCanvas: vi.fn((ctx, varName, mode = "fill") => {
+      const color = "#000";
+      if (mode === "fill") ctx.fillStyle = color;
+      else ctx.strokeStyle = color;
+    }),
   };
   const mockConstructor = vi.fn().mockImplementation(() => mockInstance);
   

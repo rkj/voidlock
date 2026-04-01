@@ -45,6 +45,7 @@
   --color-objective-bg: rgba(255, 170, 0, 0.1);
   --color-spawn-bg: rgba(255, 0, 0, 0.05);
   --color-extraction-bg: rgba(0, 255, 255, 0.1);
+  --color-missing: #f0f;
 
   /* CRT Effects */
   --crt-scanline-opacity: 0.06;

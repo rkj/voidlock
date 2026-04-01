@@ -65,8 +65,7 @@ describe("MissionSetupManager - Visual Style Visibility (regression_voidlock_qah
         }),
       },
       themeManager: {
-        setTheme: vi.fn(),
-      },
+        setTheme: vi.fn() },
       modalService: {
         alert: vi.fn(),
       },

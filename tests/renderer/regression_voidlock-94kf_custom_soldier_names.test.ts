@@ -33,8 +33,7 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
         }),
       },
       themeManager: {
-        setTheme: vi.fn(),
-      },
+        setTheme: vi.fn() },
       modalService: {
         alert: vi.fn().mockResolvedValue(undefined),
       },
