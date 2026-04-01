@@ -26,8 +26,17 @@ src/renderer/i18n/
   locales/
     en-standard.ts  — Standard gaming English ("Campaign", "Settings", "Kills")
     en-corporate.ts — Current themed English ("Active Contracts", "Terminal", "Biological Neutralizations")
-    pl.ts           — Polish translation
+    pl.ts           — Polish standard gaming voice ("Kampania", "Ustawienia", "Zabójstwa")
+    pl-corporate.ts — Polish corporate-themed voice ("Aktywne Kontrakty", "Terminal", "Neutralizacje Biologiczne")
 ```
+
+### Locale voice convention
+
+Every supported language MUST ship **two voice variants**:
+- **standard** — Conventional gaming vocabulary familiar to players of the genre.
+- **corporate** — The clinical, corporate-dystopian voice defined in `identity.md`. This is the game's creative identity and the default locale.
+
+When adding a new language, both variants must be created. The corporate variant is not optional — it IS the game's intended experience.
 
 ### String key convention
 
@@ -69,3 +78,4 @@ A single `t(key: StringKey): string` function resolves the current locale. It is
 - New strings must use `t()` — enforced by code review.
 - Bundle size increases marginally (locale files are small plain objects).
 - Test files that assert on string content will need updating to use `t()` or assert on keys.
+- Every supported language requires two locale files (standard + corporate). Adding a language means creating both variants.

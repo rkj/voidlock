@@ -600,11 +600,13 @@ The interface must adapt to small touch screens without losing functionality.
 
 All user-facing strings MUST be referenced by message ID via the `t()` function (ADR 0060). No hardcoded display text in source files.
 
-- **Locales**: The game ships with three locales:
+- **Locales**: Every supported language ships with **two voice variants** (standard + corporate):
   - `en-standard` — Standard gaming English ("Campaign", "Settings", "Kills")
   - `en-corporate` — Themed corporate English per `identity.md` ("Active Contracts", "Terminal", "Biological Neutralizations")
-  - `pl` — Polish
+  - `pl` — Polish standard gaming voice ("Kampania", "Ustawienia", "Zabójstwa")
+  - `pl-corporate` — Polish corporate-themed voice
 - **Default locale**: `en-corporate` (preserves the creative identity).
 - **Locale selection**: Available in the Settings screen. Persisted via `ConfigManager`.
 - **Locale change**: Triggers a full screen re-render. No partial hot-swap.
-- **Excluded from localization**: Debug logging, room structural labels (Corridor, Cargo Bay), terminal command verbs that are identity-neutral (Extract, Pickup, Hold per `identity.md` section 7).
+- **Voice convention**: The corporate voice is the game's creative identity. When adding a new language, both standard and corporate variants MUST be created. The corporate variant is not optional.
+- **Excluded from localization**: Debug logging, room structural labels (Corridor, Cargo Bay).
