@@ -33,6 +33,9 @@
   --color-event-choice-bg: rgba(255, 255, 255, 0.05);
   --color-dead-bg: #500;
   --color-extracted: #0aa;
+  --color-loot-pip-shadow: rgba(255, 152, 0, 0.5);
+  --color-wizard-status-bg: rgba(0, 0, 0, 0.2);
+  --color-unlock-card-bg: rgba(var(--color-primary-rgb), 0.05);
 
   /* Basic Colors */
   --color-black: #000000;
@@ -52,6 +55,9 @@
   --color-los-enemy-fade: rgba(255, 0, 0, 0);
   --color-fog-discovered: rgba(0, 0, 0, 0.6);
   --color-fog-unexplored: #000;
+  --color-connection-active: #ffffff;
+  --color-connection-cleared: #00ff00;
+  --color-connection-default: #aaaaaa;
 
   /* Objective & Zone Backgrounds */
   --color-objective-bg: rgba(255, 170, 0, 0.1);

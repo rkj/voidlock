@@ -329,7 +329,7 @@ export class CampaignScreen {
       pip.style.width = "12px";
       pip.style.height = "12px";
       pip.appendChild(this.createLootIcon());
-      pip.style.filter = "drop-shadow(0 0 3px rgba(255, 152, 0, 0.5))";
+      pip.style.filter = "drop-shadow(0 0 3px var(--color-loot-pip-shadow))";
       pipsContainer.appendChild(pip);
     }
     return pipsContainer;
@@ -429,10 +429,9 @@ export class CampaignScreen {
     if (!ctx) return;
 
     // Resolve CSS variables for canvas (canvas doesn't support var() syntax)
-    const style = getComputedStyle(document.documentElement);
-    const colorActive = style.getPropertyValue("--color-connection-active").trim() || "#fff";
-    const colorCleared = style.getPropertyValue("--color-connection-cleared").trim() || "#0f0";
-    const colorDefault = style.getPropertyValue("--color-connection-default").trim() || "#aaa";
+    const colorActive = this.themeManager.getColor("--color-connection-active");
+    const colorCleared = this.themeManager.getColor("--color-connection-cleared");
+    const colorDefault = this.themeManager.getColor("--color-connection-default");
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 

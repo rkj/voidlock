@@ -172,7 +172,7 @@ export class NewCampaignWizard {
     globalStatusContainer.style.display = "flex";
     globalStatusContainer.style.alignItems = "center";
     globalStatusContainer.style.justifyContent = "space-between";
-    globalStatusContainer.style.background = "rgba(0,0,0,0.2)";
+    globalStatusContainer.style.background = "var(--color-wizard-status-bg)";
     globalStatusContainer.style.padding = "8px 12px";
     globalStatusContainer.style.border = "1px solid var(--color-border)";
 

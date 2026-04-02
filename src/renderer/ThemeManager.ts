@@ -183,6 +183,12 @@ export class ThemeManager {
       "--color-missing": "#f0f",
       "--color-text-dim": "#888888",
       "--color-objective": "#ffff00",
+      "--color-connection-active": "#ffffff",
+      "--color-connection-cleared": "#00ff00",
+      "--color-connection-default": "#aaaaaa",
+      "--color-loot-pip-shadow": "rgba(255, 152, 0, 0.5)",
+      "--color-wizard-status-bg": "rgba(0, 0, 0, 0.2)",
+      "--color-unlock-card-bg": "rgba(0, 255, 0, 0.05)",
     };
     return fallbacks[varName] || "#000000";
   }

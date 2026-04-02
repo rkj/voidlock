@@ -251,7 +251,7 @@ export class EngineeringScreen {
     const card = document.createElement("div");
     card.className = `unlock-card card p-15 flex-row justify-between align-center ${isUnlocked ? "unlocked" : ""}`;
     card.style.background = isUnlocked
-      ? "rgba(var(--color-primary-rgb), 0.05)"
+      ? "var(--color-unlock-card-bg)"
       : "var(--color-surface-elevated)";
     card.style.border = `1px solid ${isUnlocked ? "var(--color-success)" : "var(--color-border)"}`;
     card.style.opacity = !isUnlocked && !canAfford ? "0.7" : "1.0";

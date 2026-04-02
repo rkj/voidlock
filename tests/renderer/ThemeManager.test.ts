@@ -94,6 +94,12 @@ describe("ThemeManager", () => {
       "--color-spawn-bg",
       "--color-extraction-bg",
       "--color-success-muted",
+      "--color-connection-active",
+      "--color-connection-cleared",
+      "--color-connection-default",
+      "--color-loot-pip-shadow",
+      "--color-wizard-status-bg",
+      "--color-unlock-card-bg",
     ];
 
     required.forEach((v) => {
