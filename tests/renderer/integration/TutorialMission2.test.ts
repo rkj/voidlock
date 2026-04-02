@@ -185,9 +185,8 @@ describe("Tutorial Mission 2 Integration", () => {
     // 2. Verify tabs in CampaignShell
     const tabs = Array.from(document.querySelectorAll(".shell-tab"));
     
-    // In Mission 2 tutorial, both tabs are shown (Operational Map + Asset Management Hub)
-    expect(tabs.length).toBe(2);
-    expect(tabs[0].textContent).toBe(t(I18nKeys.hud.shell.operational_map));
-    expect(tabs[1].textContent).toBe(t(I18nKeys.hud.shell.asset_management_hub));
+    // In Mission 2 tutorial, only Asset Management Hub is shown
+    expect(tabs.length).toBe(1);
+    expect(tabs[0].textContent).toBe(t(I18nKeys.hud.shell.asset_management_hub));
   });
 });

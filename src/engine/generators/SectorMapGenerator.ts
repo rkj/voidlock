@@ -78,7 +78,11 @@ export class SectorMapGenerator {
         };
 
         if (type === "Combat") {
-          node.missionType = SectorMapGenerator.selectMissionType(prng);
+          if (r === 0 && !rules.skipPrologue) {
+            node.missionType = MissionType.Prologue;
+          } else {
+            node.missionType = SectorMapGenerator.selectMissionType(prng);
+          }
         }
 
         grid[r][l] = node;

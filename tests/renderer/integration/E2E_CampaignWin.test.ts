@@ -274,6 +274,8 @@ describe("E2E Campaign Happy Path", () => {
     expect(standardCard).toBeTruthy();
     standardCard?.click();
 
+    const skipPrologueCheckbox = document.getElementById("campaign-skip-prologue") as HTMLInputElement;
+    if (skipPrologueCheckbox && !skipPrologueCheckbox.checked) skipPrologueCheckbox.click();
     const startBtn = document.querySelector(
       ".campaign-setup-wizard .primary-button",
     ) as HTMLElement;

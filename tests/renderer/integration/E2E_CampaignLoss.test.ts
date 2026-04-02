@@ -168,6 +168,8 @@ describe("E2E Campaign Failure Modes", () => {
       ".campaign-setup-wizard .primary-button",
     ) as HTMLElement;
     expect(startBtn).toBeTruthy();
+    const skipPrologueCheckbox = document.getElementById("campaign-skip-prologue") as HTMLInputElement;
+    if (skipPrologueCheckbox && !skipPrologueCheckbox.checked) skipPrologueCheckbox.click();
     startBtn.click();
 
     // 2. Mission Setup
@@ -246,6 +248,8 @@ describe("E2E Campaign Failure Modes", () => {
     ).find((c) => c.textContent?.includes("Standard")) as HTMLElement;
     standardCard?.click();
 
+    const skipPrologueCheckbox2 = document.getElementById("campaign-skip-prologue") as HTMLInputElement;
+    if (skipPrologueCheckbox2 && !skipPrologueCheckbox2.checked) skipPrologueCheckbox2.click();
     (
       document.querySelector(
         ".campaign-setup-wizard .primary-button",

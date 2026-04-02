@@ -514,12 +514,12 @@ export class InputManager implements InputContext {
     this.dragGhost.style.width = "40px";
     this.dragGhost.style.height = "40px";
     this.dragGhost.style.borderRadius = "50%";
-    this.dragGhost.style.background = "var(--color-primary, #2ecc71)";
-    this.dragGhost.style.border = "3px solid #000";
+    this.dragGhost.style.background = "var(--color-primary, #0f0)";
+    this.dragGhost.style.border = "3px solid var(--color-black)";
     this.dragGhost.style.display = "flex";
     this.dragGhost.style.alignItems = "center";
     this.dragGhost.style.justifyContent = "center";
-    this.dragGhost.style.color = "#000";
+    this.dragGhost.style.color = "var(--color-black)";
     this.dragGhost.style.fontWeight = "bold";
     this.dragGhost.textContent = unitId.split("-").pop() || "U";
     document.body.appendChild(this.dragGhost);

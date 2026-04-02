@@ -171,6 +171,8 @@ describe("Full Campaign Flow Integration", () => {
       document.getElementById("btn-menu-campaign")?.click();
 
       // Start campaign via wizard UI
+      const skipPrologueCheckbox = document.getElementById("campaign-skip-prologue") as HTMLInputElement;
+      if (skipPrologueCheckbox && !skipPrologueCheckbox.checked) skipPrologueCheckbox.click();
       const startBtn = document.querySelector('[data-focus-id="btn-start-campaign"]') as HTMLElement;
       const dateNowStub = vi.spyOn(global.Date, 'now').mockImplementation(() => 6);
       startBtn.click();

@@ -54,15 +54,15 @@ export function HUDTopBar() {
               zIndex: "1"
             }}
           >
-            <div style={{ width: "10%", height: "100%", borderRight: "1px solid #666", boxSizing: "border-box" }}></div>
-            <div style={{ width: "10%", height: "100%", borderRight: "1px solid #666", boxSizing: "border-box" }}></div>
-            <div style={{ width: "10%", height: "100%", borderRight: "1px solid #666", boxSizing: "border-box" }}></div>
-            <div style={{ width: "10%", height: "100%", borderRight: "1px solid #666", boxSizing: "border-box" }}></div>
-            <div style={{ width: "10%", height: "100%", borderRight: "1px solid #666", boxSizing: "border-box" }}></div>
-            <div style={{ width: "10%", height: "100%", borderRight: "1px solid #666", boxSizing: "border-box" }}></div>
-            <div style={{ width: "10%", height: "100%", borderRight: "1px solid #666", boxSizing: "border-box" }}></div>
-            <div style={{ width: "10%", height: "100%", borderRight: "1px solid #666", boxSizing: "border-box" }}></div>
-            <div style={{ width: "10%", height: "100%", borderRight: "1px solid #666", boxSizing: "border-box" }}></div>
+            <div style={{ width: "10%", height: "100%", borderRight: "1px solid var(--color-border-dim)", boxSizing: "border-box" }}></div>
+            <div style={{ width: "10%", height: "100%", borderRight: "1px solid var(--color-border-dim)", boxSizing: "border-box" }}></div>
+            <div style={{ width: "10%", height: "100%", borderRight: "1px solid var(--color-border-dim)", boxSizing: "border-box" }}></div>
+            <div style={{ width: "10%", height: "100%", borderRight: "1px solid var(--color-border-dim)", boxSizing: "border-box" }}></div>
+            <div style={{ width: "10%", height: "100%", borderRight: "1px solid var(--color-border-dim)", boxSizing: "border-box" }}></div>
+            <div style={{ width: "10%", height: "100%", borderRight: "1px solid var(--color-border-dim)", boxSizing: "border-box" }}></div>
+            <div style={{ width: "10%", height: "100%", borderRight: "1px solid var(--color-border-dim)", boxSizing: "border-box" }}></div>
+            <div style={{ width: "10%", height: "100%", borderRight: "1px solid var(--color-border-dim)", boxSizing: "border-box" }}></div>
+            <div style={{ width: "10%", height: "100%", borderRight: "1px solid var(--color-border-dim)", boxSizing: "border-box" }}></div>
             <div style={{ width: "10%", height: "100%", boxSizing: "border-box" }}></div>
           </div>
           <div 
@@ -112,9 +112,9 @@ export function HUDTopBar() {
       <button
         id="btn-give-up"
         style={{
-          backgroundColor: "#442222",
-          borderColor: "#ff4444",
-          color: "#ffcccc",
+          backgroundColor: "var(--color-danger-button-bg)",
+          borderColor: "var(--color-danger-button-border)",
+          color: "var(--color-danger-button-text)",
           marginLeft: "10px"
         }}
       >

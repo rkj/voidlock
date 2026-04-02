@@ -22,6 +22,18 @@
   --color-objective: #ffa500;
   --color-hive: #9900ff;
 
+  /* Specific Component Colors */
+  --color-border-dim: #666;
+  --color-danger-button-bg: #442222;
+  --color-danger-button-border: #ff4444;
+  --color-danger-button-text: #ffcccc;
+  --color-modal-backdrop: rgba(0, 0, 0, 0.85);
+  --color-modal-backdrop-blur: 4px;
+  --color-modal-input-bg: rgba(0, 0, 0, 0.3);
+  --color-event-choice-bg: rgba(255, 255, 255, 0.05);
+  --color-dead-bg: #500;
+  --color-extracted: #0aa;
+
   /* Basic Colors */
   --color-black: #000000;
   --color-white: #ffffff;
@@ -137,7 +149,7 @@ body::before {
   position: relative;
   overflow: hidden;
   border-radius: var(--crt-curve);
-  border: 4px solid #111;
+  border: 4px solid var(--color-surface);
   box-shadow: inset 0 0 100px rgba(0,0,0,0.5), 0 0 20px rgba(0,0,0,0.8);
   display: flex;
   flex-direction: column;
@@ -393,7 +405,7 @@ h1, h2, h3, .primary-text, .menu-button, .command-item, .stat-value, .panel-titl
   align-items: center;
   position: relative;
   overflow: hidden; /* Use custom panning */
-  background-color: #000;
+  background-color: var(--color-black);
 }
 canvas {
   display: block;
@@ -408,7 +420,7 @@ h1 {
   margin-bottom: 20px;
 }
 h2 {
-  color: #ccc;
+  color: var(--color-text-muted);
   border-bottom: 1px solid var(--color-border-strong);
   padding-bottom: 5px;
   width: 100%;
@@ -494,13 +506,13 @@ button.active {
 
 .back-button {
   margin-top: 20px;
-  background-color: #442222;
-  border-color: #ff4444;
-  color: #ffcccc;
+  background-color: var(--color-danger-button-bg);
+  border-color: var(--color-danger-button-border);
+  color: var(--color-danger-button-text);
 }
 .back-button:hover {
-  background-color: #ff4444;
-  color: #000;
+  background-color: var(--color-danger-button-border);
+  color: var(--color-black);
 }
 
 /* Controls */
@@ -542,7 +554,7 @@ input[type="number"],
 select,
 textarea {
   margin-top: 5px;
-  color: #000;
+  color: var(--color-black);
   font-size: 0.9em;
   width: 100%;
   box-sizing: border-box;
@@ -592,13 +604,13 @@ label {
 }
 .soldier-item.dead {
   color: var(--color-text);
-  background-color: #500;
+  background-color: var(--color-dead-bg);
   border-color: var(--color-danger);
   opacity: 0.9;
 }
 .soldier-item.extracted {
-  color: #0aa;
-  border-color: #0aa;
+  color: var(--color-extracted);
+  border-color: var(--color-extracted);
   opacity: 0.7;
 }
 
@@ -624,7 +636,7 @@ label {
 
 .hp-bar {
   height: 4px;
-  background: #222;
+  background: var(--color-surface-elevated);
   margin: 2px 0;
   border: 1px solid var(--color-border-strong);
   width: 100%;
@@ -649,7 +661,7 @@ label {
 }
 .menu-item.active {
   border-color: var(--color-primary);
-  background-color: #040;
+  background-color: var(--color-success-muted);
 }
 .menu-item.disabled {
   opacity: 0.5;
@@ -798,7 +810,7 @@ label {
   width: 100%;
   background: var(--color-border);
   height: 12px;
-  border: 1px solid #555;
+  border: 1px solid var(--color-border-dim);
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
@@ -969,7 +981,7 @@ label {
 
 .status-badge {
   padding: 5px 15px;
-  color: #000;
+  color: var(--color-black);
   font-weight: bold;
   border-radius: 3px;
   
@@ -1032,7 +1044,7 @@ label {
 .style-preview-box {
   width: 128px;
   height: 128px;
-  background: #000;
+  background: var(--color-black);
   border: 1px solid var(--color-border-strong);
   display: flex;
   align-items: center;
@@ -1177,7 +1189,7 @@ label {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #000;
+  background: var(--color-black);
   position: relative;
 }
 
@@ -1233,7 +1245,7 @@ label {
 .replay-speed-btn.active {
   opacity: 1;
   background: var(--color-primary);
-  color: #000;
+  color: var(--color-black);
 }
 
 .replay-progress-container {
@@ -1250,7 +1262,7 @@ label {
   left: 0;
   right: 0;
   height: 4px;
-  background: #333;
+  background: var(--color-border);
   z-index: 0;
 }
 
@@ -1286,7 +1298,7 @@ label {
   cursor: pointer;
   border-radius: 0;
   box-shadow: 0 0 10px var(--color-primary);
-  border: 1px solid #000;
+  border: 1px solid var(--color-black);
 }
 
 .replay-scrubber::-moz-range-thumb {
@@ -1296,7 +1308,7 @@ label {
   cursor: pointer;
   border-radius: 0;
   box-shadow: 0 0 10px var(--color-primary);
-  border: 1px solid #000;
+  border: 1px solid var(--color-black);
 }
 
 .debrief-header {
@@ -1380,7 +1392,7 @@ label {
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-color: #000;
+  background-color: var(--color-black);
 }
 
 .bg-station {
@@ -1404,7 +1416,7 @@ label {
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-color: #000;
+  background-color: var(--color-black);
   touch-action: pan-x pan-y;
 }
 
@@ -1697,19 +1709,19 @@ label {
 
 .primary-button {
   background-color: var(--color-primary);
-  color: #000;
+  color: var(--color-black);
   font-weight: bold;
 }
 
 .danger-button {
   background-color: var(--color-danger);
-  color: #fff;
+  color: var(--color-white);
   border-color: var(--color-danger);
   font-weight: bold;
 }
 
 .danger-button:hover {
-  background-color: #fff;
+  background-color: var(--color-white);
   color: var(--color-danger);
   box-shadow: 0 0 10px var(--color-danger);
 }

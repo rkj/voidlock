@@ -96,7 +96,7 @@ export class ModalService {
     input.style.width = "100%";
     input.style.marginTop = "10px";
     input.style.padding = "8px";
-    input.style.background = "rgba(0,0,0,0.3)";
+    input.style.background = "var(--color-modal-input-bg)";
     input.style.border = "1px solid var(--color-border)";
     input.style.color = "var(--color-text)";
 
@@ -146,9 +146,9 @@ export class ModalService {
     backdrop.className = "modal-backdrop";
     backdrop.style.position = "fixed";
     backdrop.style.inset = "0";
-    backdrop.style.backgroundColor = "rgba(0, 0, 0, 0.85)";
+    backdrop.style.backgroundColor = "var(--color-modal-backdrop)";
     backdrop.style.zIndex = (options.zIndex || 2000).toString();
-    backdrop.style.backdropFilter = "blur(4px)";
+    backdrop.style.backdropFilter = "blur(var(--color-modal-backdrop-blur))";
     backdrop.style.display = "flex";
     backdrop.style.alignItems = "center";
     backdrop.style.justifyContent = "center";

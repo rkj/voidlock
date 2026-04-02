@@ -628,8 +628,8 @@ export class GameApp {
       // Direct to Ready Room for Prologue (ADR 0049)
       this.registry.navigationOrchestrator.onCampaignNodeSelect(firstNode);
     } else {
-      this.registry.campaignShell.show("campaign", "sector-map");
       this.registry.navigationOrchestrator.switchScreen("campaign", true);
+      this.registry.campaignShell.show("campaign", "sector-map");
     }
   }
 

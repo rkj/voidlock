@@ -74,6 +74,7 @@ As part of the migration to a modern, declarative UI system without external fra
   - **Interaction**: Support for double-clicking units in the roster to deploy them to the next available spot.
   - **Validation**: "Start Mission" button is enabled only when all selected units are validly placed on unique spawn points on the map. Support is also provided for overlapping units on spawn tiles when fewer than 4 points are available.
   - **Stability Fix**: Resolved a critical `NotFoundError` in `HUDManager.ts` that occurred during deployment setup due to invalid `insertBefore` reference nodes.
+- **CSS Theming (ADR 0061)**: All UI components (HUD, Modals, Soldier Inspector) have been migrated to use CSS variables for colors and styles. This ensures consistent theming across different visual modes (Default, Industrial, Hive) and allows for easy palette swaps without modifying TypeScript code.
 - **Event Handling**: Manages clicks on soldier items and menu options.
 
 ## Related ADRs
@@ -84,3 +85,4 @@ As part of the migration to a modern, declarative UI system without external fra
 - [ADR 0048: Standardizing Pause and Speed Slider Synchronization](../../../../docs/adr/0048-pause-speed-sync.md)
 - [ADR 0050: Reactive UI Binding](../../../../docs/adr/0050-reactive-ui-binding.md)
 - [ADR 0051: Vanilla TSX Architecture](../../../../docs/adr/0051-vanilla-tsx-ui.md)
+- [ADR 0061: CSS Theming via Variables](../../../../docs/adr/0061-css-theming-variables.md)

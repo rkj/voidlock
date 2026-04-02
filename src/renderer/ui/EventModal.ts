@@ -26,7 +26,7 @@ export class EventModal {
           btn.className = "event-choice-button flex-col align-start p-15";
           btn.style.width = "100%";
           btn.style.textAlign = "left";
-          btn.style.background = "rgba(255, 255, 255, 0.05)";
+          btn.style.background = "var(--color-event-choice-bg)";
           btn.style.border = "1px solid var(--color-border)";
           btn.style.cursor = "pointer";
           btn.style.transition = "all 0.2s ease";
@@ -91,7 +91,7 @@ export class EventModal {
             btn.style.borderColor = "var(--color-primary)";
           };
           btn.onmouseout = () => {
-            btn.style.background = "rgba(255, 255, 255, 0.05)";
+            btn.style.background = "var(--color-event-choice-bg)";
             btn.style.borderColor = "var(--color-border)";
           };
 

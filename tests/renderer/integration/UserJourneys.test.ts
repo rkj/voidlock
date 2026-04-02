@@ -176,6 +176,8 @@ describe("Comprehensive User Journeys", () => {
     if (ironman) ironman.click();
     
     // 4. Start Campaign
+    const skipPrologueCheckbox = document.getElementById("campaign-skip-prologue") as HTMLInputElement;
+    if (skipPrologueCheckbox && !skipPrologueCheckbox.checked) skipPrologueCheckbox.click();
     const startBtn = await waitForSelector('[data-focus-id="btn-start-campaign"]');
     startBtn.click();
 
@@ -188,7 +190,7 @@ describe("Comprehensive User Journeys", () => {
   it("Journey 2: Asset Management Hub & Back", async () => {
     // 1. Start a campaign first
     const cm = app.registry.campaignManager;
-    cm.startNewCampaign(123, "Standard");
+    cm.startNewCampaign(123, "Standard", { skipPrologue: true });
 
     app.start();
     document.getElementById("btn-menu-campaign")?.click();
@@ -221,7 +223,7 @@ describe("Comprehensive User Journeys", () => {
   it("Journey 3: Successful Mission Cycle", async () => {
     // 1. Setup active campaign
     const cm = app.registry.campaignManager;
-    cm.startNewCampaign(123, "Standard");
+    cm.startNewCampaign(123, "Standard", { skipPrologue: true });
 
     app.start();
     document.getElementById("btn-menu-campaign")?.click();
@@ -286,7 +288,7 @@ describe("Comprehensive User Journeys", () => {
   it("Journey 4: Campaign Mission Loss & Game Over", async () => {
     // 1. Setup Ironman campaign
     const cm = app.registry.campaignManager;
-    cm.startNewCampaign(123, "Ironman");
+    cm.startNewCampaign(123, "Ironman", { skipPrologue: true });
 
     app.start();
     document.getElementById("btn-menu-campaign")?.click();

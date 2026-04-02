@@ -179,7 +179,6 @@ function buildCampaignTabs(
 
   if (isPrologue || isMission2) {
     return [
-      { id: "sector-map", label: t(I18nKeys.hud.shell.operational_map) },
       { id: "ready-room", label: t(I18nKeys.hud.shell.asset_management_hub) }
     ];
   }
