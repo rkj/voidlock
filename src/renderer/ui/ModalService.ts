@@ -159,7 +159,7 @@ export class ModalService {
     modal.style.border = "2px solid var(--color-primary)";
     modal.style.minWidth = "300px";
     modal.style.maxWidth = "80vw";
-    modal.style.boxShadow = "0 0 30px rgba(var(--color-primary-rgb), 0.1)";
+    modal.style.boxShadow = "0 0 30px var(--color-primary-glow)";
     modal.style.animation = "modal-fade-in 0.2s ease-out";
 
     if (options.title) {

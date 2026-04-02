@@ -98,8 +98,8 @@ interface FooterProps {
 export function CampaignShellFooter({ metaStats, syncStatus }: FooterProps) {
   return (
     <div id="campaign-shell-footer" class="campaign-footer flex-row align-center gap-20" style={{
-      background: "rgba(0, 0, 0, 0.6)",
-      backdropFilter: "blur(4px)",
+      background: "var(--color-shell-footer-bg)",
+      backdropFilter: "blur(var(--color-modal-backdrop-blur, 4px))",
       borderTop: "1px solid var(--color-border)",
       fontSize: "0.7em",
       color: "var(--color-text-dim)",

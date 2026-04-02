@@ -191,7 +191,7 @@ export class CampaignSummaryScreen {
     footer.className = "summary-footer flex-row justify-center p-20 w-full";
     footer.style.flexShrink = "0";
     footer.style.borderTop = "1px solid var(--color-border-strong)";
-    footer.style.backgroundColor = "rgba(0,0,0,0.5)";
+    footer.style.backgroundColor = "var(--color-overlay-bg)";
     footer.style.marginTop = "0"; // Override CSS margin-top
 
     const btn = document.createElement("button");

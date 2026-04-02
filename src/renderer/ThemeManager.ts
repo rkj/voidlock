@@ -192,6 +192,8 @@ export class ThemeManager {
       "--color-border-strong": "#444444",
       "--color-primary-glow": "rgba(0, 255, 0, 0.1)",
       "--color-accent-glow": "rgba(0, 170, 255, 0.1)",
+      "--color-overlay-bg": "rgba(0, 0, 0, 0.5)",
+      "--color-shell-footer-bg": "rgba(0, 0, 0, 0.6)",
     };
     return fallbacks[varName] || "#000000";
   }

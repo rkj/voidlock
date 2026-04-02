@@ -103,6 +103,8 @@ describe("ThemeManager", () => {
       "--color-border-strong",
       "--color-primary-glow",
       "--color-accent-glow",
+      "--color-overlay-bg",
+      "--color-shell-footer-bg",
     ];
 
     required.forEach((v) => {
