@@ -36,6 +36,8 @@
   --color-loot-pip-shadow: rgba(255, 152, 0, 0.5);
   --color-wizard-status-bg: rgba(0, 0, 0, 0.2);
   --color-unlock-card-bg: rgba(var(--color-primary-rgb), 0.05);
+  --color-primary-glow: rgba(var(--color-primary-rgb), 0.1);
+  --color-accent-glow: rgba(var(--color-accent-rgb), 0.1);
 
   /* Basic Colors */
   --color-black: #000000;

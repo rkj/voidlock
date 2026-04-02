@@ -34,7 +34,7 @@ export class MapRenderer {
   public toSVG(map: MapDefinition): string {
     const width = map.width * this.cellSize;
     const height = map.height * this.cellSize;
-    const bg = "#0a0a0a"; // Background for the map area
+    const bg = this.theme.getColor("--color-floor"); // Background for the map area
     const floor = this.theme.getColor("--color-floor");
     const grid = this.theme.getColor("--color-grid");
     const wall = this.theme.getColor("--color-wall");

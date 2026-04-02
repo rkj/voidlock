@@ -100,6 +100,9 @@ describe("ThemeManager", () => {
       "--color-loot-pip-shadow",
       "--color-wizard-status-bg",
       "--color-unlock-card-bg",
+      "--color-border-strong",
+      "--color-primary-glow",
+      "--color-accent-glow",
     ];
 
     required.forEach((v) => {

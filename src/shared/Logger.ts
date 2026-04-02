@@ -47,7 +47,7 @@ export class Logger {
       if (this.useStyling()) {
         console.debug(
           `%c[DEBUG]%c ${message}`,
-          "color: #7f8c8d; font-weight: bold;",
+          "color: var(--color-text-dim, #7f8c8d); font-weight: bold;",
           "",
           ...args,
         );
@@ -64,7 +64,7 @@ export class Logger {
       if (this.useStyling()) {
         console.info(
           `%c[INFO]%c ${message}`,
-          "color: #2ecc71; font-weight: bold;",
+          "color: var(--color-success, #2ecc71); font-weight: bold;",
           "",
           ...args,
         );
@@ -81,7 +81,7 @@ export class Logger {
       if (this.useStyling()) {
         console.warn(
           `%c[WARN]%c ${message}`,
-          "color: #f39c12; font-weight: bold;",
+          "color: var(--color-warning, #f39c12); font-weight: bold;",
           "",
           ...args,
         );
@@ -98,7 +98,7 @@ export class Logger {
       if (this.useStyling()) {
         console.error(
           `%c[ERROR]%c ${message}`,
-          "color: #e74c3c; font-weight: bold;",
+          "color: var(--color-danger, #e74c3c); font-weight: bold;",
           "",
           ...args,
         );

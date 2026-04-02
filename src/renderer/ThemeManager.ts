@@ -189,6 +189,9 @@ export class ThemeManager {
       "--color-loot-pip-shadow": "rgba(255, 152, 0, 0.5)",
       "--color-wizard-status-bg": "rgba(0, 0, 0, 0.2)",
       "--color-unlock-card-bg": "rgba(0, 255, 0, 0.05)",
+      "--color-border-strong": "#444444",
+      "--color-primary-glow": "rgba(0, 255, 0, 0.1)",
+      "--color-accent-glow": "rgba(0, 170, 255, 0.1)",
     };
     return fallbacks[varName] || "#000000";
   }

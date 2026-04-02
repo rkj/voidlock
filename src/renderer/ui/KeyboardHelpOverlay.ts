@@ -18,9 +18,9 @@ export class KeyboardHelpOverlay implements InputContext {
     this.backdrop.className = "help-overlay-backdrop";
     this.backdrop.style.position = "fixed";
     this.backdrop.style.inset = "0";
-    this.backdrop.style.backgroundColor = "rgba(0, 0, 0, 0.85)";
+    this.backdrop.style.backgroundColor = "var(--color-modal-backdrop)";
     this.backdrop.style.zIndex = "5000";
-    this.backdrop.style.backdropFilter = "blur(4px)";
+    this.backdrop.style.backdropFilter = "blur(var(--color-modal-backdrop-blur, 4px))";
     this.backdrop.style.display = "none";
     this.backdrop.style.alignItems = "center";
     this.backdrop.style.justifyContent = "center";
@@ -33,7 +33,7 @@ export class KeyboardHelpOverlay implements InputContext {
     this.container.style.maxWidth = "80vw";
     this.container.style.maxHeight = "80vh";
     this.container.style.overflowY = "auto";
-    this.container.style.boxShadow = "0 0 30px rgba(var(--color-accent-rgb), 0.1)";
+    this.container.style.boxShadow = "0 0 30px var(--color-accent-glow)";
 
     this.backdrop.appendChild(this.container);
     document.body.appendChild(this.backdrop);
@@ -97,7 +97,7 @@ export class KeyboardHelpOverlay implements InputContext {
         list.forEach((s) => {
           const row = document.createElement("div");
           row.className = "help-row flex-row justify-between items-center";
-          row.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+          row.style.borderBottom = "1px solid var(--color-event-choice-bg, rgba(255,255,255,0.05))";
           row.style.padding = "5px 0";
 
           const keyLabel = document.createElement("span");
@@ -106,7 +106,7 @@ export class KeyboardHelpOverlay implements InputContext {
           keyLabel.style.color = "var(--color-primary)";
           keyLabel.style.fontWeight = "bold";
           keyLabel.style.fontFamily = "monospace";
-          keyLabel.style.backgroundColor = "rgba(var(--color-primary-rgb), 0.1)";
+          keyLabel.style.backgroundColor = "var(--color-primary-glow)";
           keyLabel.style.padding = "2px 6px";
           keyLabel.style.borderRadius = "4px";
           keyLabel.style.minWidth = "60px";
