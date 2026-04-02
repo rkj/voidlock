@@ -55,6 +55,7 @@ tests/e2e/__snapshots__
 .beads/deletions.jsonl.migrated
 .beads/interactions.jsonl
 .beads/.br_history/issues.*
+.beads/.br_recovery
 .dolt/
 .debugging/
 

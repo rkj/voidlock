@@ -109,8 +109,8 @@ export class EnemyManager {
     const unitsInRange = state.units.filter(
       (unit) =>
         unit.hp > 0 &&
-        unit.state !== "Extracted" &&
-        unit.state !== "Dead" &&
+        unit.state !== UnitState.Extracted &&
+        unit.state !== UnitState.Dead &&
         MathUtils.getDistance(currentEnemy.pos, unit.pos) <=
           currentEnemy.attackRange + 0.5,
     );
@@ -118,8 +118,8 @@ export class EnemyManager {
     const unitsInSameCell = state.units.filter(
       (unit) =>
         unit.hp > 0 &&
-        unit.state !== "Extracted" &&
-        unit.state !== "Dead" &&
+        unit.state !== UnitState.Extracted &&
+        unit.state !== UnitState.Dead &&
         MathUtils.sameCellPosition(unit.pos, currentEnemy.pos),
     );
     const isLockedInMelee = unitsInSameCell.length > 0;
