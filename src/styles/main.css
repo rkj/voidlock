@@ -88,6 +88,49 @@
   --crt-scanline-opacity: 0.06;
   --crt-phosphor-glow: 0 0 5px rgba(var(--color-primary-rgb), 0.5);
   --crt-curve: 12px;
+
+  /* CRT & Scanline Colors */
+  --color-scanline-transparent: rgba(18, 16, 16, 0);
+  --color-scanline-dark: rgba(0, 0, 0, 0.1);
+  --color-scanline-darker: rgba(0, 0, 0, 0.25);
+  --color-scanline-red: rgba(255, 0, 0, 0.06);
+  --color-scanline-red-faint: rgba(255, 0, 0, 0.03);
+  --color-scanline-blue: rgba(0, 0, 255, 0.06);
+  --color-scanline-blue-faint: rgba(0, 0, 150, 0.03);
+
+  /* Common UI Effects */
+  --color-shadow-standard: rgba(0, 0, 0, 0.5);
+  --color-shadow-strong: rgba(0, 0, 0, 0.8);
+  --color-shadow-heavy: rgba(0, 0, 0, 0.55);
+  --color-glow-primary-strong: rgba(var(--color-primary-rgb), 0.5);
+  --color-glow-primary-medium: rgba(var(--color-primary-rgb), 0.3);
+  --color-glow-primary-subtle: rgba(var(--color-primary-rgb), 0.2);
+  --color-glow-primary-faint: rgba(var(--color-primary-rgb), 0.01);
+  --color-glow-accent-strong: rgba(0, 170, 255, 0.4);
+  --color-glow-accent-medium: rgba(0, 170, 255, 0.3);
+
+  /* Screen Specific */
+  --color-main-menu-radial-1: rgba(0, 255, 140, 0.08);
+  --color-main-menu-radial-2: rgba(0, 170, 255, 0.08);
+  --color-vignette-center: rgba(0, 0, 0, 0.1);
+  --color-vignette-edge: rgba(0, 0, 0, 0.75);
+
+  /* Tutorial Specific */
+  --color-tutorial-highlight-glow: rgba(var(--color-primary-rgb), 0.7);
+  --color-tutorial-glow: rgba(var(--color-primary-rgb), 0.3);
+
+  /* Advisor Specific */
+  --color-advisor-bg: rgba(0, 0, 0, 0.9);
+  --color-advisor-glow: rgba(var(--color-primary-rgb), 0.5);
+  --color-advisor-glow-subtle: rgba(var(--color-primary-rgb), 0.2);
+  --color-advisor-text-shadow: rgba(var(--color-primary-rgb), 0.8);
+  --color-advisor-border: rgba(var(--color-primary-rgb), 0.3);
+
+  /* Deployment Slots */
+  --color-deployment-locked-bg: rgba(0, 170, 255, 0.05);
+
+  /* Campaign Nodes */
+  --color-node-bg-opaque: rgba(0, 0, 0, 0.9);
 }
 
 /* Themes */
