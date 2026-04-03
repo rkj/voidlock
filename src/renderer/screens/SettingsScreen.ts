@@ -290,6 +290,7 @@ export class SettingsScreen {
       "en-corporate": I18nKeys.screen.settings.lang_en_corporate,
       "en-standard": I18nKeys.screen.settings.lang_en_standard,
       "pl": I18nKeys.screen.settings.lang_pl,
+      "pl-corporate": I18nKeys.screen.settings.lang_pl_corporate,
     };
 
     availableLocales.forEach((loc) => {

@@ -4,6 +4,7 @@ export { type I18nKey, I18nKeys };
 import { enCorporate } from "./locales/en-corporate";
 import { enStandard } from "./locales/en-standard";
 import { pl } from "./locales/pl";
+import { plCorporate } from "./locales/pl-corporate";
 
 type LocaleData = Record<string, string>;
 
@@ -11,6 +12,7 @@ const locales: Record<string, LocaleData> = {
   "en-corporate": enCorporate,
   "en-standard": enStandard,
   "pl": pl,
+  "pl-corporate": plCorporate,
 };
 
 let currentLocaleId = "en-corporate";

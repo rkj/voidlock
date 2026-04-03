@@ -123,6 +123,7 @@ export const pl = {
   [I18nKeys.screen.settings.lang_en_corporate]: "Angielski (Korporacyjny)",
   [I18nKeys.screen.settings.lang_en_standard]: "Angielski (Standardowy)",
   [I18nKeys.screen.settings.lang_pl]: "Polski",
+  [I18nKeys.screen.settings.lang_pl_corporate]: "Polski (Korporacyjny)",
   [I18nKeys.screen.settings.unit_style_tactical]: "Ikony Taktyczne",
   [I18nKeys.screen.settings.unit_style_sprites]: "Sprite'y",
   [I18nKeys.screen.settings.theme_default]: "Standardowy (Niebieski)",

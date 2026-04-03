@@ -134,6 +134,7 @@ export const enStandard = {
   [I18nKeys.screen.settings.lang_en_corporate]: "English (Corporate)",
   [I18nKeys.screen.settings.lang_en_standard]: "English (Standard)",
   [I18nKeys.screen.settings.lang_pl]: "Polish",
+  [I18nKeys.screen.settings.lang_pl_corporate]: "Polish (Corporate)",
   [I18nKeys.screen.settings.unit_style_tactical]: "Tactical Icons",
   [I18nKeys.screen.settings.unit_style_sprites]: "Sprites",
   [I18nKeys.screen.settings.theme_default]: "Standard (Blue)",

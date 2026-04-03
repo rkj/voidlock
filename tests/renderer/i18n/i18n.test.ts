@@ -28,6 +28,11 @@ describe("i18n system", () => {
     expect(getCurrentLocale()).toBe("pl");
     expect(t(I18nKeys.menu.campaign)).toBe("Kampania");
 
+    // Test with pl-corporate
+    setLocale("pl-corporate");
+    expect(getCurrentLocale()).toBe("pl-corporate");
+    expect(t(I18nKeys.menu.campaign)).toBe("Aktywne Kontrakty");
+
     // Test with en-standard
     setLocale("en-standard");
     expect(getCurrentLocale()).toBe("en-standard");
@@ -39,6 +44,7 @@ describe("i18n system", () => {
     expect(available).toContain("en-corporate");
     expect(available).toContain("en-standard");
     expect(available).toContain("pl");
+    expect(available).toContain("pl-corporate");
   });
 
   it("should apply the locale to DOM elements with data-i18n", () => {

@@ -145,6 +145,7 @@ export const I18nKeys = {
       lang_en_corporate: "screen.settings.lang_en_corporate",
       lang_en_standard: "screen.settings.lang_en_standard",
       lang_pl: "screen.settings.lang_pl",
+      lang_pl_corporate: "screen.settings.lang_pl_corporate",
       unit_style_tactical: "screen.settings.unit_style_tactical",
       unit_style_sprites: "screen.settings.unit_style_sprites",
       theme_default: "screen.settings.theme_default",
