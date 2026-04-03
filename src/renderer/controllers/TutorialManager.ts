@@ -77,146 +77,148 @@ export class TutorialManager {
   private lastSelectionHash: string | null = null;
 
   
-  private prologueSteps: TutorialStep[] = [
-    {
-      id: "observe",
-      directive: t(I18nKeys.tutorial.prologue.step_observe_directive),
-      highlightTarget: { selector: ".soldier-card" },
-      condition: (state, manager) => manager.checkUnitMovedFromStart(state),
-      message: {
-        id: "start",
-        title: t(I18nKeys.tutorial.prologue.step_observe_title),
-        text: t(I18nKeys.tutorial.prologue.step_observe_text),
-        illustration: "bg_station",
-        portrait: "logo_gemini",
-        blocking: true,
+  private get prologueSteps(): TutorialStep[] {
+    return [
+      {
+        id: "observe",
+        directive: t(I18nKeys.tutorial.prologue.step_observe_directive),
+        highlightTarget: { selector: ".soldier-card" },
+        condition: (state, manager) => manager.checkUnitMovedFromStart(state),
+        message: {
+          id: "start",
+          title: t(I18nKeys.tutorial.prologue.step_observe_title),
+          text: t(I18nKeys.tutorial.prologue.step_observe_text),
+          illustration: "bg_station",
+          portrait: "logo_gemini",
+          blocking: true,
+        },
+        onEnter: (manager, state) => {
+            manager.captureInitialPositions(state);
+        },
+        inputGate: { allowedActions: [] }
       },
-      onEnter: (manager, state) => {
-          manager.captureInitialPositions(state);
+      {
+        id: "ui_tour",
+        directive: t(I18nKeys.tutorial.prologue.step_ui_tour_directive),
+        directiveMobile: t(I18nKeys.tutorial.prologue.step_ui_tour_directive_mobile),
+        condition: (state, manager) => manager.checkUITourComplete(state),
+        onEnter: (manager, state) => {
+            manager.startUITourTimer(state);
+        },
+        inputGate: { allowedActions: [] }
       },
-      inputGate: { allowedActions: [] }
-    },
-    {
-      id: "ui_tour",
-      directive: t(I18nKeys.tutorial.prologue.step_ui_tour_directive),
-      directiveMobile: t(I18nKeys.tutorial.prologue.step_ui_tour_directive_mobile),
-      condition: (state, manager) => manager.checkUITourComplete(state),
-      onEnter: (manager, state) => {
-          manager.startUITourTimer(state);
+      {
+        id: "pause",
+        directive: t(I18nKeys.tutorial.prologue.step_pause_directive),
+        directiveMobile: t(I18nKeys.tutorial.prologue.step_pause_directive_mobile),
+        condition: (state, manager) => manager.checkPauseToggled(state),
+        inputGate: { allowedActions: ["TOGGLE_PAUSE"] }
       },
-      inputGate: { allowedActions: [] }
-    },
-    {
-      id: "pause",
-      directive: t(I18nKeys.tutorial.prologue.step_pause_directive),
-      directiveMobile: t(I18nKeys.tutorial.prologue.step_pause_directive_mobile),
-      condition: (state, manager) => manager.checkPauseToggled(state),
-      inputGate: { allowedActions: ["TOGGLE_PAUSE"] }
-    },
-    {
-      id: "doors",
-      directive: t(I18nKeys.tutorial.prologue.step_doors_directive),
-      condition: (state, manager) => manager.checkDoorOpened(state),
-      inputGate: { allowedActions: [] }
-    },
-    {
-      id: "combat",
-      directive: t(I18nKeys.tutorial.prologue.step_combat_directive),
-      condition: (state, manager) => manager.checkEnemyTookDamage(state),
-      message: {
-        id: "enemy_sighted",
-        title: t(I18nKeys.tutorial.prologue.step_combat_title),
-        text: t(I18nKeys.tutorial.prologue.step_combat_text),
-        portrait: "logo_gemini",
-        blocking: true,
+      {
+        id: "doors",
+        directive: t(I18nKeys.tutorial.prologue.step_doors_directive),
+        condition: (state, manager) => manager.checkDoorOpened(state),
+        inputGate: { allowedActions: [] }
       },
-      onEnter: (manager) => {
-          manager.highlightElement("#top-threat-container");
+      {
+        id: "combat",
+        directive: t(I18nKeys.tutorial.prologue.step_combat_directive),
+        condition: (state, manager) => manager.checkEnemyTookDamage(state),
+        message: {
+          id: "enemy_sighted",
+          title: t(I18nKeys.tutorial.prologue.step_combat_title),
+          text: t(I18nKeys.tutorial.prologue.step_combat_text),
+          portrait: "logo_gemini",
+          blocking: true,
+        },
+        onEnter: (manager) => {
+            manager.highlightElement("#top-threat-container");
+        },
+        inputGate: { allowedActions: [] }
       },
-      inputGate: { allowedActions: [] }
-    },
-    {
-      id: "engagement_ignore",
-      directive: t(I18nKeys.tutorial.prologue.step_engagement_ignore_directive),
-      directiveMobile: t(I18nKeys.tutorial.prologue.step_engagement_ignore_directive_mobile),
-      highlightTarget: { selector: "#command-menu" },
-      condition: (state, manager) => manager.checkEngagementIgnore(state),
-      message: {
-        id: "first_command",
-        title: t(I18nKeys.tutorial.prologue.step_engagement_ignore_title),
-        text: t(I18nKeys.tutorial.prologue.step_engagement_ignore_text),
-        portrait: "logo_gemini",
-        blocking: true,
+      {
+        id: "engagement_ignore",
+        directive: t(I18nKeys.tutorial.prologue.step_engagement_ignore_directive),
+        directiveMobile: t(I18nKeys.tutorial.prologue.step_engagement_ignore_directive_mobile),
+        highlightTarget: { selector: "#command-menu" },
+        condition: (state, manager) => manager.checkEngagementIgnore(state),
+        message: {
+          id: "first_command",
+          title: t(I18nKeys.tutorial.prologue.step_engagement_ignore_title),
+          text: t(I18nKeys.tutorial.prologue.step_engagement_ignore_text),
+          portrait: "logo_gemini",
+          blocking: true,
+        },
+        inputGate: { allowedActions: ["SET_ENGAGEMENT", "SELECT_UNIT"] }
       },
-      inputGate: { allowedActions: ["SET_ENGAGEMENT", "SELECT_UNIT"] }
-    },
-    {
-      id: "engagement_engage",
-      directive: t(I18nKeys.tutorial.prologue.step_engagement_engage_directive),
-      directiveMobile: t(I18nKeys.tutorial.prologue.step_engagement_engage_directive_mobile),
-      highlightTarget: { selector: "#command-menu" },
-      condition: (state, manager) => manager.checkEngagementEngage(state) && manager.checkEnemyDied(state),
-      inputGate: { allowedActions: ["SET_ENGAGEMENT", "SELECT_UNIT"] }
-    },
-    {
-      id: "move",
-      directive: t(I18nKeys.tutorial.prologue.step_move_directive),
-      directiveMobile: t(I18nKeys.tutorial.prologue.step_move_directive_mobile),
-      condition: (state, manager) => manager.checkReachedObjectiveRoom(state),
-      message: {
-        id: "objective_sighted",
-        title: t(I18nKeys.tutorial.prologue.step_move_title),
-        text: t(I18nKeys.tutorial.prologue.step_move_text),
-        portrait: "logo_gemini",
-        blocking: true,
+      {
+        id: "engagement_engage",
+        directive: t(I18nKeys.tutorial.prologue.step_engagement_engage_directive),
+        directiveMobile: t(I18nKeys.tutorial.prologue.step_engagement_engage_directive_mobile),
+        highlightTarget: { selector: "#command-menu" },
+        condition: (state, manager) => manager.checkEngagementEngage(state) && manager.checkEnemyDied(state),
+        inputGate: { allowedActions: ["SET_ENGAGEMENT", "SELECT_UNIT"] }
       },
-      dynamicHighlight: (_state, menuState, selection) => {
-          if (menuState === "ACTION_SELECT") return { selector: ".command-item[data-index='1']" };
-          if (menuState === "ORDERS_SELECT") return { selector: ".command-item[data-index='1']" };
-          if (menuState === "TARGET_SELECT") {
-              // Highlight the objective room (the cell coordinate from the spec)
-              return { cell: { x: 3, y: 2 } };
-          }
-          if (menuState === "UNIT_SELECT" && selection.pendingAction === "MOVE_TO") {
-              return { selector: ".soldier-card" };
-          }
-          return null;
+      {
+        id: "move",
+        directive: t(I18nKeys.tutorial.prologue.step_move_directive),
+        directiveMobile: t(I18nKeys.tutorial.prologue.step_move_directive_mobile),
+        condition: (state, manager) => manager.checkReachedObjectiveRoom(state),
+        message: {
+          id: "objective_sighted",
+          title: t(I18nKeys.tutorial.prologue.step_move_title),
+          text: t(I18nKeys.tutorial.prologue.step_move_text),
+          portrait: "logo_gemini",
+          blocking: true,
+        },
+        dynamicHighlight: (_state, menuState, selection) => {
+            if (menuState === "ACTION_SELECT") return { selector: ".command-item[data-index='1']" };
+            if (menuState === "ORDERS_SELECT") return { selector: ".command-item[data-index='1']" };
+            if (menuState === "TARGET_SELECT") {
+                // Highlight the objective room (the cell coordinate from the spec)
+                return { cell: { x: 3, y: 2 } };
+            }
+            if (menuState === "UNIT_SELECT" && selection.pendingAction === "MOVE_TO") {
+                return { selector: ".soldier-card" };
+            }
+            return null;
+        },
+        inputGate: { allowedActions: ["MOVE_TO", "SELECT_UNIT"] }
       },
-      inputGate: { allowedActions: ["MOVE_TO", "SELECT_UNIT"] }
-    },
-    {
-      id: "pickup",
-      directive: t(I18nKeys.tutorial.prologue.step_pickup_directive),
-      directiveMobile: t(I18nKeys.tutorial.prologue.step_pickup_directive_mobile),
-      highlightTarget: { cell: { x: 3, y: 2 } },
-      condition: (state, manager) => manager.checkObjectiveCollected(state),
-      dynamicHighlight: (state, menuState) => {
-          if (menuState === "ACTION_SELECT") return { selector: ".command-item[data-index='4']" };
-          if (menuState === "TARGET_SELECT") {
-              const disk = state.objectives.find(o => o.id === "prologue-disk" || o.kind === "Recover");
-              if (disk) return { cell: { x: 3, y: 2 } };
-          }
-          if (menuState === "UNIT_SELECT") return { selector: ".soldier-card" };
-          return null;
+      {
+        id: "pickup",
+        directive: t(I18nKeys.tutorial.prologue.step_pickup_directive),
+        directiveMobile: t(I18nKeys.tutorial.prologue.step_pickup_directive_mobile),
+        highlightTarget: { cell: { x: 3, y: 2 } },
+        condition: (state, manager) => manager.checkObjectiveCollected(state),
+        dynamicHighlight: (state, menuState) => {
+            if (menuState === "ACTION_SELECT") return { selector: ".command-item[data-index='4']" };
+            if (menuState === "TARGET_SELECT") {
+                const disk = state.objectives.find(o => o.id === "prologue-disk" || o.kind === "Recover");
+                if (disk) return { cell: { x: 3, y: 2 } };
+            }
+            if (menuState === "UNIT_SELECT") return { selector: ".soldier-card" };
+            return null;
+        },
+        inputGate: { allowedActions: ["PICKUP", "SELECT_UNIT"] }
       },
-      inputGate: { allowedActions: ["PICKUP", "SELECT_UNIT"] }
-    },
-    {
-      id: "extract",
-      directive: t(I18nKeys.tutorial.prologue.step_extract_directive),
-      directiveMobile: t(I18nKeys.tutorial.prologue.step_extract_directive_mobile),
-      highlightTarget: { cell: { x: 5, y: 1 } },
-      condition: (state) => state.status === "Won",
-      message: {
-        id: "objective_completed",
-        title: t(I18nKeys.tutorial.prologue.step_extract_title),
-        text: t(I18nKeys.tutorial.prologue.step_extract_text),
-        portrait: "logo_gemini",
-        blocking: true,
-      },
-      inputGate: { allowedActions: ["EXTRACT", "SELECT_UNIT"] }
-    }
-  ];
+      {
+        id: "extract",
+        directive: t(I18nKeys.tutorial.prologue.step_extract_directive),
+        directiveMobile: t(I18nKeys.tutorial.prologue.step_extract_directive_mobile),
+        highlightTarget: { cell: { x: 5, y: 1 } },
+        condition: (state) => state.status === "Won",
+        message: {
+          id: "objective_completed",
+          title: t(I18nKeys.tutorial.prologue.step_extract_title),
+          text: t(I18nKeys.tutorial.prologue.step_extract_text),
+          portrait: "logo_gemini",
+          blocking: true,
+        },
+        inputGate: { allowedActions: ["EXTRACT", "SELECT_UNIT"] }
+      }
+    ];
+  }
 
   constructor(config: TutorialManagerConfig) {
     this.gameClient = config.gameClient;
