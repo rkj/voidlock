@@ -87,7 +87,7 @@ export class EventModal {
           }
 
           btn.onmouseover = () => {
-            btn.style.background = "rgba(var(--color-primary-rgb), 0.1)";
+            btn.style.background = "var(--color-primary-glow)";
             btn.style.borderColor = "var(--color-primary)";
           };
           btn.onmouseout = () => {
