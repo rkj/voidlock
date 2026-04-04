@@ -10,6 +10,10 @@ This directory contains persona-driven use cases for the Voidlock game. These st
 - [US_004: Strategic Navigation](./US_004_Sector_Map.md) - Navigating the branching Sector Map.
 - [US_009: Narrative Encounters](./US_009_Events.md) - Resolving narrative event nodes.
 
+## Tutorial
+
+- [US_011: First Contact](./US_011_Tutorial.md) - Guided prologue tutorial teaching core mechanics.
+
 ## Tactical Layer (Mission)
 
 - [US_005: Tactical Maneuvers](./US_005_Combat_Movement.md) - Movement, door interactions, and engagement policies.
