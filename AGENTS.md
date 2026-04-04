@@ -1,10 +1,30 @@
 # Voidlock — AI Agent Guide
 
-This document helps AI agents (Claude, Gemini, Codex, etc.) navigate and contribute to the Voidlock codebase effectively.
+This is the canonical reference for all AI agents (Claude, Gemini, Codex) working on this project.
+Agent-specific files (CLAUDE.md, root GEMINI.md) should only contain overrides; everything shared lives here.
 
 ## Project Overview
 
-Voidlock is a deterministic Real-Time with Pause (RTwP) tactical squad combat game. TypeScript, HTML5 Canvas, Web Workers. No framework (vanilla TS + custom JSX).
+Voidlock is a deterministic Real-Time with Pause (RTwP) tactical squad combat game.
+TypeScript, HTML5 Canvas, Web Workers. No framework (vanilla TS + custom JSX).
+
+- **Build System:** Vite
+- **Testing:** Vitest (unit/integration) + Puppeteer (E2E)
+- **Version Control:** Jujutsu (jj) — see below
+- **Issue Tracking:** Beads (`br`) — see below
+
+## Build & Run Commands
+
+```bash
+npm run dev              # Dev server (local network)
+npm run build            # tsc + vite build
+npm run lint             # Full TypeScript type check
+npx vitest run <path>    # Targeted tests
+npm run test             # All tests
+npm run test:e2e         # E2E tests (requires visual env)
+npm run process-assets   # Optimize raw assets
+npm run balance-sim      # Headless simulation stats
+```
 
 ## Information Sources
 
@@ -14,11 +34,9 @@ Voidlock is a deterministic Real-Time with Pause (RTwP) tactical squad combat ga
 | Game design & behavior specs | `docs/spec/*.md` (start with `docs/spec/index.md`) |
 | Architecture decisions & rationale | `docs/adr/*.md` (57+ ADRs) |
 | Per-directory context | `GEMINI.md` in each directory |
-| Contributor workflow (sub-agents) | `docs/AGENTS.md` |
-| PM/planning workflow | `docs/PM.md` |
-| Manager/orchestrator workflow | `docs/MANAGER.md` |
-| Code review findings | `docs/CODE_REVIEW.md` |
+| User stories for visual audits | `docs/user_stories/` |
 | Dev guide & conventions | `docs/dev_guide.md` |
+| Code review findings | `docs/CODE_REVIEW.md` |
 
 ## Codebase Layout
 
@@ -55,6 +73,7 @@ docs/                # Specs, ADRs, guides
 - **Determinism**: Engine uses seeded PRNG. `Math.random()` is forbidden in engine code.
 - **Manager pattern**: CoreEngine delegates to specialized managers. Each manager handles one domain.
 - **Command pattern**: All game actions are Command objects for replay support.
+- **No circular deps**: Engine must never import Renderer. Children must not import parents — use interfaces (`IDirector`) or DI.
 
 ### Code
 
@@ -63,7 +82,9 @@ docs/                # Specs, ADRs, guides
 - **No framework**: Vanilla TypeScript. UI uses custom JSX factory (ADR 0051).
 - **File limit**: Manager classes should stay under ~500 lines.
 - **Tests**: All in `tests/` directory, never co-located with source.
-- **Regression tests**: Named `regression_<ticket_id>_<slug>.test.ts`.
+- **Regression tests**: Named `regression_<ticket_id>_<slug>.test.ts` in `tests/engine/repro/`.
+- **Styles**: Use CSS variables and existing patterns in `src/styles/`.
+- **Performance**: No deep cloning in loops. Use spatial partitioning for O(N²) checks. Don't allocate in render().
 
 ### Documentation
 
@@ -71,96 +92,117 @@ docs/                # Specs, ADRs, guides
 - **ADRs are immutable**: Never edit an accepted ADR. Write a new one that supersedes it.
 - **Specs describe behavior**: No code snippets in `docs/spec/` files.
 
-### Version Control
+### Verification Protocol
 
-- Uses **Jujutsu (jj)** for version control, not git.
-- Uses **Beads (`br`)** for task/issue tracking (SQLite + JSONL, no Dolt).
+After **every** code modification:
+
+1. `npm run lint` — 0 TypeScript errors
+2. `npx vitest run <path>` — targeted tests pass
+3. Fix issues immediately, don't leave for later
+
+## Version Control: Jujutsu (jj), NOT git
+
+This repo uses **jj** (Jujutsu). Do NOT use git commands.
+
+```bash
+jj status          # Show working copy changes
+jj log             # Show commit history
+jj diff            # Show changes
+jj commit -m "msg" # Commit and start new change (preferred)
+jj new             # Start new change on top of current
+jj squash          # Squash into parent
+```
+
+Key differences from git:
+- No staging area. All file changes are automatically part of the working copy.
+- No `git add`, `git commit`, `git push`. Use `jj commit`.
+- **Do NOT use `jj describe`** — it sets the message but doesn't start a new change, easy to forget `jj new` afterward.
+
+### jj Workspaces
+
+This may be a **jj workspace** (e.g., `jj-voidlock-claude`), not the main repo (at `~/voidlock/`).
+Workspaces share the same commit history. `.beads/issues.jsonl` is tracked by jj, so issue state travels with commits.
+
+## Issue Tracking: Beads (`br`)
+
+Use `br` (beads_rust) for ALL task/issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
+
+### Quick Reference
+
+```bash
+br ready                                    # Find available work
+br create --title="..." --type=bug --priority=1  # Create issue
+br update <id> --claim                      # Claim work
+br close <id> --reason="..."                # Complete work
+br list                                     # List issues
+br show <id>                                # Show issue details
+```
+
+### Issue Types & Priorities
+
+Types: `bug`, `feature`, `task`, `epic`, `chore`
+Priorities: `0` (critical) → `4` (backlog). Default: `2`.
+
+### Workflow
+
+1. `br ready` — find unblocked work
+2. `br update <id> --claim` — claim it
+3. Implement, test, document
+4. `br close <id> --reason="Done"` — complete it
+5. `jj commit` — captures updated JSONL with your code changes
 
 ### Beads in jj Workspaces
 
-`.beads/issues.jsonl` is tracked by jj, so issue state travels with commits.
-Each workspace has a local `.beads/beads.db` (SQLite cache, gitignored).
-`br` auto-imports from the JSONL when the DB is missing or stale.
+- `.beads/issues.jsonl` is tracked by jj — all workspaces share it automatically.
+- Each workspace has a local `.beads/beads.db` (SQLite cache, gitignored).
+- `br` auto-imports from the JSONL when the DB is missing or stale.
+- JSONL is line-based, so non-overlapping changes merge cleanly across workspaces.
 
-To set up a new workspace: `br init --prefix voidlock` — the JSONL is already there via jj.
+### Multi-Agent Coordination
 
-**Sync workflow:**
-- `br` auto-flushes DB → `issues.jsonl` after every mutation
-- `jj commit` captures the updated JSONL with your code changes
-- Other workspaces see it after rebasing onto your commit
-- JSONL is line-based, so non-overlapping changes merge cleanly
+- Claim your issue with `br update <id> --claim` before starting work.
+- Commit frequently so other workspaces can rebase and see your claims.
+- If two agents claim the same issue, the later rebase will show a JSONL conflict — resolve by keeping the first claim.
 
-**Multi-agent coordination:**
-- Different agents/workspaces may work in parallel on separate branches
-- Claim your issue with `br update <id> --claim` before starting work
-- Commit frequently so other workspaces can rebase and see your claims
-- If two agents claim the same issue, the later rebase will show a JSONL conflict — resolve by keeping the first claim
+### Troubleshooting
+
+**"Database error: query returned more than one row"**
+
+This means the local SQLite cache (`.beads/beads.db`) is corrupted. The JSONL is the source of truth; the DB is just a cache. Fix:
+
+```bash
+rm -f .beads/beads.db
+br init --prefix voidlock --force
+```
+
+Common causes:
+- Manual SQL modifications to the DB
+- Partial or interrupted `br init`
+- DB schema mismatch after `br` version upgrade
+
+The `config` and `metadata` tables lack UNIQUE constraints on `key`, so duplicate rows can cause this error. A clean re-init from JSONL always resolves it.
+
+**`br` commands fail after rebasing**
+
+The JSONL may have changed underneath the DB cache. Same fix: `rm .beads/beads.db && br init --prefix voidlock --force`.
+
+**Issues added manually to JSONL**
+
+If you append JSON directly to `issues.jsonl` (e.g., because `br create` is broken), make sure to delete the DB and re-init afterward so `br` picks up the new entries.
 
 ## Quick Start for Agents
 
 1. Read `docs/ARCHITECTURE.md` for the big picture
-1. Read `docs/spec/index.md` to find the relevant spec for your task
-1. Read the `GEMINI.md` in the directory you're working in
-1. Check `docs/adr/` for any relevant architecture decisions
-1. Run `npm run lint` after changes (TypeScript type check)
-1. Run `npx vitest run <path>` for targeted tests
-
-<!-- BEGIN BEADS INTEGRATION v:2 profile:full -->
-## Issue Tracking with `br` (beads_rust)
-
-**IMPORTANT**: This project uses **`br` (beads_rust)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
-
-### Why br?
-
-- Dependency-aware: Track blockers and relationships between issues
-- Simple: SQLite + JSONL, no Dolt server required
-- Agent-optimized: JSON output, ready work detection
-- Prevents duplicate tracking systems and confusion
-
-### Quick Start
-
-```bash
-br ready                    # Check for ready work
-br create --title="Issue title" --description="Context" --type=bug --priority=1
-br update <id> --claim      # Claim a task
-br close <id> --reason "Completed"
-```
-
-### Issue Types
-
-- `bug` - Something broken
-- `feature` - New functionality
-- `task` - Work item (tests, docs, refactoring)
-- `epic` - Large feature with subtasks
-- `chore` - Maintenance (dependencies, tooling)
-
-### Priorities
-
-- `0` - Critical (security, data loss, broken builds)
-- `1` - High (major features, important bugs)
-- `2` - Medium (default, nice-to-have)
-- `3` - Low (polish, optimization)
-- `4` - Backlog (future ideas)
-
-### Workflow for AI Agents
-
-1. **Check ready work**: `br ready` shows unblocked issues
-2. **Claim your task**: `br update <id> --claim`
-3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue with `br create`
-5. **Complete**: `br close <id> --reason "Done"`
-
-### Important Rules
-
-- Use `br` for ALL task tracking
-- Check `br ready` before asking "what should I work on?"
-- Do NOT create markdown TODO lists or use external issue trackers
+2. Read `docs/spec/index.md` to find the relevant spec for your task
+3. Read the `GEMINI.md` in the directory you're working in
+4. Check `docs/adr/` for any relevant architecture decisions
+5. `br ready` — check for assigned work
+6. `npm run lint` after changes
+7. `npx vitest run <path>` for targeted tests
 
 ## Landing the Plane (Session Completion)
 
 1. **File issues for remaining work** — `br create` for anything needing follow-up
-2. **Run quality gates** (if code changed) — Tests, linters, builds
-3. **Update issue status** — Close finished work, update in-progress items
-4. **Sync beads** — `br sync --flush-only` to export DB to JSONL
-
-<!-- END BEADS INTEGRATION -->
+2. **Run quality gates** (if code changed) — tests, linters, builds
+3. **Update issue status** — close finished work, update in-progress items
+4. **Commit** — `jj commit -m "..."` to capture everything

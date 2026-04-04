@@ -85,8 +85,9 @@ modes = ["default", "plan", "autoEdit"]
 [[rule]]
 toolName = "run_shell_command"
 commandPrefix = [
-  "bd list",
-  "bd show",
+  "br list",
+  "br show",
+  "br ready",
 ]
 decision = "allow"
 priority = 100
@@ -94,7 +95,7 @@ modes = ["default", "plan", "autoEdit"]
 
 [[rule]]
 toolName = "run_shell_command"
-commandPrefix = ["bd", "mdformat", "rm tests/", "npx tsx",]
+commandPrefix = ["br", "mdformat", "rm tests/", "npx tsx",]
 decision = "allow"
 priority = 100
 modes = ["autoEdit"]
