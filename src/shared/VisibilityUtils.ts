@@ -8,6 +8,9 @@ export function isCellVisible(state: GameState, x: number, y: number): boolean {
     const idx = y * state.map.width + x;
     if ((state.gridState[idx] & 1) !== 0) return true;
   }
+  if (state.visibleCellsSet) {
+    return state.visibleCellsSet.has(`${x},${y}`);
+  }
   if (state.visibleCells) {
     return state.visibleCells.includes(`${x},${y}`);
   }
@@ -25,6 +28,9 @@ export function isCellDiscovered(
   if (state.gridState) {
     const idx = y * state.map.width + x;
     if ((state.gridState[idx] & 2) !== 0) return true;
+  }
+  if (state.discoveredCellsSet) {
+    return state.discoveredCellsSet.has(`${x},${y}`);
   }
   if (state.discoveredCells) {
     return state.discoveredCells.includes(`${x},${y}`);

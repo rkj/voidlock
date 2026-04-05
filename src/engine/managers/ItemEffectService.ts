@@ -118,7 +118,7 @@ export class ItemEffectService implements ItemEffectHandler {
       state.gridState[ty * state.map.width + tx] |= 2;
     }
     const key = MathUtils.cellKey({ x: tx, y: ty });
-    if (!state.discoveredCells.includes(key)) {
+    if (!(state.discoveredCellsSet?.has(key) ?? state.discoveredCells.includes(key))) {
       state.discoveredCells.push(key);
     }
   }

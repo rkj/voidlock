@@ -268,7 +268,7 @@ export class CoreEngine {
       this.addUnit(vip);
       const cell = MathUtils.toCellCoord(vip.pos);
       const vipCellKey = MathUtils.cellKey(vip.pos);
-      if (!this.state.discoveredCells.includes(vipCellKey)) {
+      if (!(this.state.discoveredCellsSet?.has(vipCellKey) ?? this.state.discoveredCells.includes(vipCellKey))) {
         this.state.discoveredCells.push(vipCellKey);
         if (this.state.gridState) {
           this.state.gridState[cell.y * map.width + cell.x] |= 2;
@@ -290,7 +290,7 @@ export class CoreEngine {
       map.cells.forEach((cell) => {
         if (cell.roomId && spawnRoomIds.has(cell.roomId)) {
           const key = `${cell.x},${cell.y}`;
-          if (!this.state.discoveredCells.includes(key)) {
+          if (!(this.state.discoveredCellsSet?.has(key) ?? this.state.discoveredCells.includes(key))) {
             this.state.discoveredCells.push(key);
             if (this.state.gridState) {
               this.state.gridState[cell.y * map.width + cell.x] |= 2;
@@ -303,7 +303,7 @@ export class CoreEngine {
       MapUtils.getSquadSpawns(map).forEach((sp) => {
         const cell = MathUtils.toCellCoord(sp);
         const key = MathUtils.cellKey(sp);
-        if (!this.state.discoveredCells.includes(key)) {
+        if (!(this.state.discoveredCellsSet?.has(key) ?? this.state.discoveredCells.includes(key))) {
           this.state.discoveredCells.push(key);
           if (this.state.gridState) {
             this.state.gridState[cell.y * map.width + cell.x] |= 2;
@@ -373,7 +373,9 @@ export class CoreEngine {
       turrets: snapshot.turrets.map((t) => ({ ...t })),
       objectives: snapshot.objectives.map((o) => ({ ...o })),
       visibleCells: [...snapshot.visibleCells],
+      visibleCellsSet: snapshot.visibleCellsSet ? new Set(snapshot.visibleCellsSet) : undefined,
       discoveredCells: [...snapshot.discoveredCells],
+      discoveredCellsSet: snapshot.discoveredCellsSet ? new Set(snapshot.discoveredCellsSet) : undefined,
       gridState: snapshot.gridState
         ? new Uint8Array(snapshot.gridState)
         : undefined,
@@ -462,8 +464,11 @@ export class CoreEngine {
       attackEvents: state.attackEvents ? [...state.attackEvents] : [],
       objectives: [...state.objectives],
       visibleCells: [...state.visibleCells],
+      visibleCellsSet: state.visibleCellsSet ? new Set(state.visibleCellsSet) : undefined,
       discoveredCells: [...state.discoveredCells],
+      discoveredCellsSet: state.discoveredCellsSet ? new Set(state.discoveredCellsSet) : undefined,
       gridState: state.gridState ? new Uint8Array(state.gridState) : undefined,
+
       rngState: this.prng.getSeed(),
       directorState: this.director.getState(),
       stats: { ...state.stats },

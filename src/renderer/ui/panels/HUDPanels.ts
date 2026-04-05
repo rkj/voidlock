@@ -340,7 +340,10 @@ export class EnemyIntelPanel {
       intelDiv.className = "enemy-intel";
       container.appendChild(intelDiv);
     }
-    const visibleEnemies = state.enemies.filter((e) => state.visibleCells.includes(MathUtils.cellKey(e.pos)));
+    const visibleEnemies = state.enemies.filter((e) => {
+      const key = MathUtils.cellKey(e.pos);
+      return state.visibleCellsSet?.has(key) ?? state.visibleCells.includes(key);
+    });
     const hash = visibleEnemies.length === 0 ? "empty" : visibleEnemies.map(e => `${e.type}:${e.hp}`).sort().join("|");
     
     if (hash === this.lastHash) return;

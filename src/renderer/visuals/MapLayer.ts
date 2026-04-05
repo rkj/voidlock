@@ -33,7 +33,7 @@ export class MapLayer implements RenderLayer {
       return (state.gridState[y * state.map.width + x] & 2) !== 0;
     }
     const key = `${x},${y}`;
-    return state.discoveredCells.includes(key);
+    return state.discoveredCellsSet?.has(key) ?? state.discoveredCells.includes(key);
   }
 
   private renderMap(ctx: CanvasRenderingContext2D, state: GameState) {
@@ -259,8 +259,8 @@ export class MapLayer implements RenderLayer {
       for (let y = 0; y < map.height; y++) {
         for (let x = 0; x < map.width; x++) {
           const key = `${x},${y}`;
-          const isVisible = state.visibleCells.includes(key);
-          const isDiscovered = state.discoveredCells.includes(key);
+          const isVisible = state.visibleCellsSet?.has(key) ?? state.visibleCells.includes(key);
+          const isDiscovered = state.discoveredCellsSet?.has(key) ?? state.discoveredCells.includes(key);
 
           if (isVisible) continue;
 

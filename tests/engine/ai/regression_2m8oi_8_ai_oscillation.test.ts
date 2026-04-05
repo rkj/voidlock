@@ -410,7 +410,7 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
     for (let x = 3; x <= 7; x++) {
       for (let y = 3; y <= 7; y++) {
         const key = `${x},${y}`;
-        if (!internalState.discoveredCells.includes(key)) {
+        if (!(internalState.discoveredCellsSet?.has(key) ?? internalState.discoveredCells.includes(key))) {
           internalState.discoveredCells.push(key);
         }
         internalState.gridState[y * 10 + x] |= 3; // discovered + visible

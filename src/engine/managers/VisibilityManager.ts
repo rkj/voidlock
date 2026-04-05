@@ -74,5 +74,7 @@ export class VisibilityManager {
     }
     state.visibleCells = visibleArr;
     state.discoveredCells = discoveredArr;
+    state.visibleCellsSet = new Set(visibleArr);
+    state.discoveredCellsSet = new Set(discoveredArr);
   }
 }

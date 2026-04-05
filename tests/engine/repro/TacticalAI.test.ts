@@ -35,12 +35,14 @@ describe("Tactical AI Reproduction Tests", () => {
     if (state.gridState) {
         state.gridState[y * state.map.width + x] |= 3; // bit 1: discovered, bit 0: visible
     }
-    if (!state.discoveredCells.includes(`${x},${y}`)) {
-        state.discoveredCells.push(`${x},${y}`);
+    const key = `${x},${y}`;
+    if (!(state.discoveredCellsSet?.has(key) ?? state.discoveredCells.includes(key))) {
+      state.discoveredCells.push(key);
     }
-    if (!state.visibleCells.includes(`${x},${y}`)) {
-        state.visibleCells.push(`${x},${y}`);
+    if (!(state.visibleCellsSet?.has(key) ?? state.visibleCells.includes(key))) {
+      state.visibleCells.push(key);
     }
+
   };
 
   beforeEach(() => {

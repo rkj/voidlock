@@ -94,7 +94,9 @@ export type GameState = {
   units: Unit[];
   enemies: Enemy[];
   visibleCells: string[];
+  visibleCellsSet?: Set<string>;
   discoveredCells: string[];
+  discoveredCellsSet?: Set<string>;
   gridState?: Uint8Array; // Optimized bitset: bit 0 = visible, bit 1 = discovered
   rngState?: number;
   directorState?: {
